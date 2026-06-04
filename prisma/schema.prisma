@@ -1,0 +1,41 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+
+enum GeftStatus {
+  not_taken
+  completed
+}
+
+model Classroom {
+  id    String @id @default(uuid())
+  name  String // "X MIPA 1"
+  grade String // "X", "XI", "XII"
+  major String // "MIPA", "IPS"
+
+  students Student[]
+
+  @@map("classrooms")
+}
+
+model Student {
+  id          String     @id @default(uuid())
+  name        String
+  nisn        String     @unique
+  classroomId String     @map("classroom_id")
+  geftStatus  GeftStatus @default(not_taken) @map("geft_status")
+  createdAt   DateTime   @default(now()) @map("created_at")
+
+  classroom Classroom @relation(fields: [classroomId], references: [id])
+
+  @@map("students")
+}
+
