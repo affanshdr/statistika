@@ -2,12 +2,7 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
 const DEFAULT_CLASSROOMS = [
-  { name: 'X MIPA 1', grade: 'X', major: 'MIPA' },
-  { name: 'X MIPA 2', grade: 'X', major: 'MIPA' },
-  { name: 'X MIPA 3', grade: 'X', major: 'MIPA' },
-  { name: 'X IPS 1',  grade: 'X', major: 'IPS'  },
-  { name: 'X IPS 2',  grade: 'X', major: 'IPS'  },
-  { name: 'X IPS 3',  grade: 'X', major: 'IPS'  },
+  { name: 'Kelas Uji Coba', grade: '-', major: '-' },
 ]
 
 export async function GET() {

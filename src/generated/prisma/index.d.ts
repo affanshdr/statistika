@@ -23,6 +23,11 @@ export type Classroom = $Result.DefaultSelection<Prisma.$ClassroomPayload>
  * 
  */
 export type Student = $Result.DefaultSelection<Prisma.$StudentPayload>
+/**
+ * Model GeftResult
+ * 
+ */
+export type GeftResult = $Result.DefaultSelection<Prisma.$GeftResultPayload>
 
 /**
  * Enums
@@ -35,11 +40,23 @@ export namespace $Enums {
 
 export type GeftStatus = (typeof GeftStatus)[keyof typeof GeftStatus]
 
+
+export const CognitiveStyle: {
+  FI: 'FI',
+  FD: 'FD'
+};
+
+export type CognitiveStyle = (typeof CognitiveStyle)[keyof typeof CognitiveStyle]
+
 }
 
 export type GeftStatus = $Enums.GeftStatus
 
 export const GeftStatus: typeof $Enums.GeftStatus
+
+export type CognitiveStyle = $Enums.CognitiveStyle
+
+export const CognitiveStyle: typeof $Enums.CognitiveStyle
 
 /**
  * ##  Prisma Client ʲˢ
@@ -183,6 +200,16 @@ export class PrismaClient<
     * ```
     */
   get student(): Prisma.StudentDelegate<ExtArgs>;
+
+  /**
+   * `prisma.geftResult`: Exposes CRUD operations for the **GeftResult** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more GeftResults
+    * const geftResults = await prisma.geftResult.findMany()
+    * ```
+    */
+  get geftResult(): Prisma.GeftResultDelegate<ExtArgs>;
 }
 
 export namespace Prisma {
@@ -625,7 +652,8 @@ export namespace Prisma {
 
   export const ModelName: {
     Classroom: 'Classroom',
-    Student: 'Student'
+    Student: 'Student',
+    GeftResult: 'GeftResult'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -641,7 +669,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "classroom" | "student"
+      modelProps: "classroom" | "student" | "geftResult"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -782,6 +810,76 @@ export namespace Prisma {
           count: {
             args: Prisma.StudentCountArgs<ExtArgs>
             result: $Utils.Optional<StudentCountAggregateOutputType> | number
+          }
+        }
+      }
+      GeftResult: {
+        payload: Prisma.$GeftResultPayload<ExtArgs>
+        fields: Prisma.GeftResultFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.GeftResultFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GeftResultPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.GeftResultFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GeftResultPayload>
+          }
+          findFirst: {
+            args: Prisma.GeftResultFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GeftResultPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.GeftResultFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GeftResultPayload>
+          }
+          findMany: {
+            args: Prisma.GeftResultFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GeftResultPayload>[]
+          }
+          create: {
+            args: Prisma.GeftResultCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GeftResultPayload>
+          }
+          createMany: {
+            args: Prisma.GeftResultCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.GeftResultCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GeftResultPayload>[]
+          }
+          delete: {
+            args: Prisma.GeftResultDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GeftResultPayload>
+          }
+          update: {
+            args: Prisma.GeftResultUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GeftResultPayload>
+          }
+          deleteMany: {
+            args: Prisma.GeftResultDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.GeftResultUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.GeftResultUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GeftResultPayload>
+          }
+          aggregate: {
+            args: Prisma.GeftResultAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateGeftResult>
+          }
+          groupBy: {
+            args: Prisma.GeftResultGroupByArgs<ExtArgs>
+            result: $Utils.Optional<GeftResultGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.GeftResultCountArgs<ExtArgs>
+            result: $Utils.Optional<GeftResultCountAggregateOutputType> | number
           }
         }
       }
@@ -2084,6 +2182,7 @@ export namespace Prisma {
     classroomId?: boolean
     geftStatus?: boolean
     createdAt?: boolean
+    geftResult?: boolean | Student$geftResultArgs<ExtArgs>
     classroom?: boolean | ClassroomDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["student"]>
 
@@ -2107,6 +2206,7 @@ export namespace Prisma {
   }
 
   export type StudentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    geftResult?: boolean | Student$geftResultArgs<ExtArgs>
     classroom?: boolean | ClassroomDefaultArgs<ExtArgs>
   }
   export type StudentIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2116,6 +2216,7 @@ export namespace Prisma {
   export type $StudentPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Student"
     objects: {
+      geftResult: Prisma.$GeftResultPayload<ExtArgs> | null
       classroom: Prisma.$ClassroomPayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
@@ -2489,6 +2590,7 @@ export namespace Prisma {
    */
   export interface Prisma__StudentClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
+    geftResult<T extends Student$geftResultArgs<ExtArgs> = {}>(args?: Subset<T, Student$geftResultArgs<ExtArgs>>): Prisma__GeftResultClient<$Result.GetResult<Prisma.$GeftResultPayload<ExtArgs>, T, "findUniqueOrThrow"> | null, null, ExtArgs>
     classroom<T extends ClassroomDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ClassroomDefaultArgs<ExtArgs>>): Prisma__ClassroomClient<$Result.GetResult<Prisma.$ClassroomPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -2843,6 +2945,21 @@ export namespace Prisma {
   }
 
   /**
+   * Student.geftResult
+   */
+  export type Student$geftResultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GeftResult
+     */
+    select?: GeftResultSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GeftResultInclude<ExtArgs> | null
+    where?: GeftResultWhereInput
+  }
+
+  /**
    * Student without action
    */
   export type StudentDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2854,6 +2971,973 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: StudentInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model GeftResult
+   */
+
+  export type AggregateGeftResult = {
+    _count: GeftResultCountAggregateOutputType | null
+    _avg: GeftResultAvgAggregateOutputType | null
+    _sum: GeftResultSumAggregateOutputType | null
+    _min: GeftResultMinAggregateOutputType | null
+    _max: GeftResultMaxAggregateOutputType | null
+  }
+
+  export type GeftResultAvgAggregateOutputType = {
+    score: number | null
+  }
+
+  export type GeftResultSumAggregateOutputType = {
+    score: number | null
+  }
+
+  export type GeftResultMinAggregateOutputType = {
+    id: string | null
+    studentId: string | null
+    score: number | null
+    cognitiveStyle: $Enums.CognitiveStyle | null
+    completedAt: Date | null
+  }
+
+  export type GeftResultMaxAggregateOutputType = {
+    id: string | null
+    studentId: string | null
+    score: number | null
+    cognitiveStyle: $Enums.CognitiveStyle | null
+    completedAt: Date | null
+  }
+
+  export type GeftResultCountAggregateOutputType = {
+    id: number
+    studentId: number
+    score: number
+    cognitiveStyle: number
+    completedAt: number
+    _all: number
+  }
+
+
+  export type GeftResultAvgAggregateInputType = {
+    score?: true
+  }
+
+  export type GeftResultSumAggregateInputType = {
+    score?: true
+  }
+
+  export type GeftResultMinAggregateInputType = {
+    id?: true
+    studentId?: true
+    score?: true
+    cognitiveStyle?: true
+    completedAt?: true
+  }
+
+  export type GeftResultMaxAggregateInputType = {
+    id?: true
+    studentId?: true
+    score?: true
+    cognitiveStyle?: true
+    completedAt?: true
+  }
+
+  export type GeftResultCountAggregateInputType = {
+    id?: true
+    studentId?: true
+    score?: true
+    cognitiveStyle?: true
+    completedAt?: true
+    _all?: true
+  }
+
+  export type GeftResultAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which GeftResult to aggregate.
+     */
+    where?: GeftResultWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GeftResults to fetch.
+     */
+    orderBy?: GeftResultOrderByWithRelationInput | GeftResultOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: GeftResultWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GeftResults from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GeftResults.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned GeftResults
+    **/
+    _count?: true | GeftResultCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: GeftResultAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: GeftResultSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: GeftResultMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: GeftResultMaxAggregateInputType
+  }
+
+  export type GetGeftResultAggregateType<T extends GeftResultAggregateArgs> = {
+        [P in keyof T & keyof AggregateGeftResult]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateGeftResult[P]>
+      : GetScalarType<T[P], AggregateGeftResult[P]>
+  }
+
+
+
+
+  export type GeftResultGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: GeftResultWhereInput
+    orderBy?: GeftResultOrderByWithAggregationInput | GeftResultOrderByWithAggregationInput[]
+    by: GeftResultScalarFieldEnum[] | GeftResultScalarFieldEnum
+    having?: GeftResultScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: GeftResultCountAggregateInputType | true
+    _avg?: GeftResultAvgAggregateInputType
+    _sum?: GeftResultSumAggregateInputType
+    _min?: GeftResultMinAggregateInputType
+    _max?: GeftResultMaxAggregateInputType
+  }
+
+  export type GeftResultGroupByOutputType = {
+    id: string
+    studentId: string
+    score: number
+    cognitiveStyle: $Enums.CognitiveStyle
+    completedAt: Date
+    _count: GeftResultCountAggregateOutputType | null
+    _avg: GeftResultAvgAggregateOutputType | null
+    _sum: GeftResultSumAggregateOutputType | null
+    _min: GeftResultMinAggregateOutputType | null
+    _max: GeftResultMaxAggregateOutputType | null
+  }
+
+  type GetGeftResultGroupByPayload<T extends GeftResultGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<GeftResultGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof GeftResultGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], GeftResultGroupByOutputType[P]>
+            : GetScalarType<T[P], GeftResultGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type GeftResultSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    studentId?: boolean
+    score?: boolean
+    cognitiveStyle?: boolean
+    completedAt?: boolean
+    student?: boolean | StudentDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["geftResult"]>
+
+  export type GeftResultSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    studentId?: boolean
+    score?: boolean
+    cognitiveStyle?: boolean
+    completedAt?: boolean
+    student?: boolean | StudentDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["geftResult"]>
+
+  export type GeftResultSelectScalar = {
+    id?: boolean
+    studentId?: boolean
+    score?: boolean
+    cognitiveStyle?: boolean
+    completedAt?: boolean
+  }
+
+  export type GeftResultInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    student?: boolean | StudentDefaultArgs<ExtArgs>
+  }
+  export type GeftResultIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    student?: boolean | StudentDefaultArgs<ExtArgs>
+  }
+
+  export type $GeftResultPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "GeftResult"
+    objects: {
+      student: Prisma.$StudentPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      studentId: string
+      score: number
+      cognitiveStyle: $Enums.CognitiveStyle
+      completedAt: Date
+    }, ExtArgs["result"]["geftResult"]>
+    composites: {}
+  }
+
+  type GeftResultGetPayload<S extends boolean | null | undefined | GeftResultDefaultArgs> = $Result.GetResult<Prisma.$GeftResultPayload, S>
+
+  type GeftResultCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<GeftResultFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: GeftResultCountAggregateInputType | true
+    }
+
+  export interface GeftResultDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['GeftResult'], meta: { name: 'GeftResult' } }
+    /**
+     * Find zero or one GeftResult that matches the filter.
+     * @param {GeftResultFindUniqueArgs} args - Arguments to find a GeftResult
+     * @example
+     * // Get one GeftResult
+     * const geftResult = await prisma.geftResult.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends GeftResultFindUniqueArgs>(args: SelectSubset<T, GeftResultFindUniqueArgs<ExtArgs>>): Prisma__GeftResultClient<$Result.GetResult<Prisma.$GeftResultPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one GeftResult that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {GeftResultFindUniqueOrThrowArgs} args - Arguments to find a GeftResult
+     * @example
+     * // Get one GeftResult
+     * const geftResult = await prisma.geftResult.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends GeftResultFindUniqueOrThrowArgs>(args: SelectSubset<T, GeftResultFindUniqueOrThrowArgs<ExtArgs>>): Prisma__GeftResultClient<$Result.GetResult<Prisma.$GeftResultPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first GeftResult that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GeftResultFindFirstArgs} args - Arguments to find a GeftResult
+     * @example
+     * // Get one GeftResult
+     * const geftResult = await prisma.geftResult.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends GeftResultFindFirstArgs>(args?: SelectSubset<T, GeftResultFindFirstArgs<ExtArgs>>): Prisma__GeftResultClient<$Result.GetResult<Prisma.$GeftResultPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first GeftResult that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GeftResultFindFirstOrThrowArgs} args - Arguments to find a GeftResult
+     * @example
+     * // Get one GeftResult
+     * const geftResult = await prisma.geftResult.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends GeftResultFindFirstOrThrowArgs>(args?: SelectSubset<T, GeftResultFindFirstOrThrowArgs<ExtArgs>>): Prisma__GeftResultClient<$Result.GetResult<Prisma.$GeftResultPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more GeftResults that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GeftResultFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all GeftResults
+     * const geftResults = await prisma.geftResult.findMany()
+     * 
+     * // Get first 10 GeftResults
+     * const geftResults = await prisma.geftResult.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const geftResultWithIdOnly = await prisma.geftResult.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends GeftResultFindManyArgs>(args?: SelectSubset<T, GeftResultFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GeftResultPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a GeftResult.
+     * @param {GeftResultCreateArgs} args - Arguments to create a GeftResult.
+     * @example
+     * // Create one GeftResult
+     * const GeftResult = await prisma.geftResult.create({
+     *   data: {
+     *     // ... data to create a GeftResult
+     *   }
+     * })
+     * 
+     */
+    create<T extends GeftResultCreateArgs>(args: SelectSubset<T, GeftResultCreateArgs<ExtArgs>>): Prisma__GeftResultClient<$Result.GetResult<Prisma.$GeftResultPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many GeftResults.
+     * @param {GeftResultCreateManyArgs} args - Arguments to create many GeftResults.
+     * @example
+     * // Create many GeftResults
+     * const geftResult = await prisma.geftResult.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends GeftResultCreateManyArgs>(args?: SelectSubset<T, GeftResultCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many GeftResults and returns the data saved in the database.
+     * @param {GeftResultCreateManyAndReturnArgs} args - Arguments to create many GeftResults.
+     * @example
+     * // Create many GeftResults
+     * const geftResult = await prisma.geftResult.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many GeftResults and only return the `id`
+     * const geftResultWithIdOnly = await prisma.geftResult.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends GeftResultCreateManyAndReturnArgs>(args?: SelectSubset<T, GeftResultCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GeftResultPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a GeftResult.
+     * @param {GeftResultDeleteArgs} args - Arguments to delete one GeftResult.
+     * @example
+     * // Delete one GeftResult
+     * const GeftResult = await prisma.geftResult.delete({
+     *   where: {
+     *     // ... filter to delete one GeftResult
+     *   }
+     * })
+     * 
+     */
+    delete<T extends GeftResultDeleteArgs>(args: SelectSubset<T, GeftResultDeleteArgs<ExtArgs>>): Prisma__GeftResultClient<$Result.GetResult<Prisma.$GeftResultPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one GeftResult.
+     * @param {GeftResultUpdateArgs} args - Arguments to update one GeftResult.
+     * @example
+     * // Update one GeftResult
+     * const geftResult = await prisma.geftResult.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends GeftResultUpdateArgs>(args: SelectSubset<T, GeftResultUpdateArgs<ExtArgs>>): Prisma__GeftResultClient<$Result.GetResult<Prisma.$GeftResultPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more GeftResults.
+     * @param {GeftResultDeleteManyArgs} args - Arguments to filter GeftResults to delete.
+     * @example
+     * // Delete a few GeftResults
+     * const { count } = await prisma.geftResult.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends GeftResultDeleteManyArgs>(args?: SelectSubset<T, GeftResultDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more GeftResults.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GeftResultUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many GeftResults
+     * const geftResult = await prisma.geftResult.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends GeftResultUpdateManyArgs>(args: SelectSubset<T, GeftResultUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one GeftResult.
+     * @param {GeftResultUpsertArgs} args - Arguments to update or create a GeftResult.
+     * @example
+     * // Update or create a GeftResult
+     * const geftResult = await prisma.geftResult.upsert({
+     *   create: {
+     *     // ... data to create a GeftResult
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the GeftResult we want to update
+     *   }
+     * })
+     */
+    upsert<T extends GeftResultUpsertArgs>(args: SelectSubset<T, GeftResultUpsertArgs<ExtArgs>>): Prisma__GeftResultClient<$Result.GetResult<Prisma.$GeftResultPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of GeftResults.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GeftResultCountArgs} args - Arguments to filter GeftResults to count.
+     * @example
+     * // Count the number of GeftResults
+     * const count = await prisma.geftResult.count({
+     *   where: {
+     *     // ... the filter for the GeftResults we want to count
+     *   }
+     * })
+    **/
+    count<T extends GeftResultCountArgs>(
+      args?: Subset<T, GeftResultCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], GeftResultCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a GeftResult.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GeftResultAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends GeftResultAggregateArgs>(args: Subset<T, GeftResultAggregateArgs>): Prisma.PrismaPromise<GetGeftResultAggregateType<T>>
+
+    /**
+     * Group by GeftResult.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GeftResultGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends GeftResultGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: GeftResultGroupByArgs['orderBy'] }
+        : { orderBy?: GeftResultGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, GeftResultGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetGeftResultGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the GeftResult model
+   */
+  readonly fields: GeftResultFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for GeftResult.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__GeftResultClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    student<T extends StudentDefaultArgs<ExtArgs> = {}>(args?: Subset<T, StudentDefaultArgs<ExtArgs>>): Prisma__StudentClient<$Result.GetResult<Prisma.$StudentPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the GeftResult model
+   */ 
+  interface GeftResultFieldRefs {
+    readonly id: FieldRef<"GeftResult", 'String'>
+    readonly studentId: FieldRef<"GeftResult", 'String'>
+    readonly score: FieldRef<"GeftResult", 'Int'>
+    readonly cognitiveStyle: FieldRef<"GeftResult", 'CognitiveStyle'>
+    readonly completedAt: FieldRef<"GeftResult", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * GeftResult findUnique
+   */
+  export type GeftResultFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GeftResult
+     */
+    select?: GeftResultSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GeftResultInclude<ExtArgs> | null
+    /**
+     * Filter, which GeftResult to fetch.
+     */
+    where: GeftResultWhereUniqueInput
+  }
+
+  /**
+   * GeftResult findUniqueOrThrow
+   */
+  export type GeftResultFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GeftResult
+     */
+    select?: GeftResultSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GeftResultInclude<ExtArgs> | null
+    /**
+     * Filter, which GeftResult to fetch.
+     */
+    where: GeftResultWhereUniqueInput
+  }
+
+  /**
+   * GeftResult findFirst
+   */
+  export type GeftResultFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GeftResult
+     */
+    select?: GeftResultSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GeftResultInclude<ExtArgs> | null
+    /**
+     * Filter, which GeftResult to fetch.
+     */
+    where?: GeftResultWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GeftResults to fetch.
+     */
+    orderBy?: GeftResultOrderByWithRelationInput | GeftResultOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for GeftResults.
+     */
+    cursor?: GeftResultWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GeftResults from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GeftResults.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GeftResults.
+     */
+    distinct?: GeftResultScalarFieldEnum | GeftResultScalarFieldEnum[]
+  }
+
+  /**
+   * GeftResult findFirstOrThrow
+   */
+  export type GeftResultFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GeftResult
+     */
+    select?: GeftResultSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GeftResultInclude<ExtArgs> | null
+    /**
+     * Filter, which GeftResult to fetch.
+     */
+    where?: GeftResultWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GeftResults to fetch.
+     */
+    orderBy?: GeftResultOrderByWithRelationInput | GeftResultOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for GeftResults.
+     */
+    cursor?: GeftResultWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GeftResults from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GeftResults.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GeftResults.
+     */
+    distinct?: GeftResultScalarFieldEnum | GeftResultScalarFieldEnum[]
+  }
+
+  /**
+   * GeftResult findMany
+   */
+  export type GeftResultFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GeftResult
+     */
+    select?: GeftResultSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GeftResultInclude<ExtArgs> | null
+    /**
+     * Filter, which GeftResults to fetch.
+     */
+    where?: GeftResultWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GeftResults to fetch.
+     */
+    orderBy?: GeftResultOrderByWithRelationInput | GeftResultOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing GeftResults.
+     */
+    cursor?: GeftResultWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GeftResults from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GeftResults.
+     */
+    skip?: number
+    distinct?: GeftResultScalarFieldEnum | GeftResultScalarFieldEnum[]
+  }
+
+  /**
+   * GeftResult create
+   */
+  export type GeftResultCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GeftResult
+     */
+    select?: GeftResultSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GeftResultInclude<ExtArgs> | null
+    /**
+     * The data needed to create a GeftResult.
+     */
+    data: XOR<GeftResultCreateInput, GeftResultUncheckedCreateInput>
+  }
+
+  /**
+   * GeftResult createMany
+   */
+  export type GeftResultCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many GeftResults.
+     */
+    data: GeftResultCreateManyInput | GeftResultCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * GeftResult createManyAndReturn
+   */
+  export type GeftResultCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GeftResult
+     */
+    select?: GeftResultSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many GeftResults.
+     */
+    data: GeftResultCreateManyInput | GeftResultCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GeftResultIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * GeftResult update
+   */
+  export type GeftResultUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GeftResult
+     */
+    select?: GeftResultSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GeftResultInclude<ExtArgs> | null
+    /**
+     * The data needed to update a GeftResult.
+     */
+    data: XOR<GeftResultUpdateInput, GeftResultUncheckedUpdateInput>
+    /**
+     * Choose, which GeftResult to update.
+     */
+    where: GeftResultWhereUniqueInput
+  }
+
+  /**
+   * GeftResult updateMany
+   */
+  export type GeftResultUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update GeftResults.
+     */
+    data: XOR<GeftResultUpdateManyMutationInput, GeftResultUncheckedUpdateManyInput>
+    /**
+     * Filter which GeftResults to update
+     */
+    where?: GeftResultWhereInput
+  }
+
+  /**
+   * GeftResult upsert
+   */
+  export type GeftResultUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GeftResult
+     */
+    select?: GeftResultSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GeftResultInclude<ExtArgs> | null
+    /**
+     * The filter to search for the GeftResult to update in case it exists.
+     */
+    where: GeftResultWhereUniqueInput
+    /**
+     * In case the GeftResult found by the `where` argument doesn't exist, create a new GeftResult with this data.
+     */
+    create: XOR<GeftResultCreateInput, GeftResultUncheckedCreateInput>
+    /**
+     * In case the GeftResult was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<GeftResultUpdateInput, GeftResultUncheckedUpdateInput>
+  }
+
+  /**
+   * GeftResult delete
+   */
+  export type GeftResultDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GeftResult
+     */
+    select?: GeftResultSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GeftResultInclude<ExtArgs> | null
+    /**
+     * Filter which GeftResult to delete.
+     */
+    where: GeftResultWhereUniqueInput
+  }
+
+  /**
+   * GeftResult deleteMany
+   */
+  export type GeftResultDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which GeftResults to delete
+     */
+    where?: GeftResultWhereInput
+  }
+
+  /**
+   * GeftResult without action
+   */
+  export type GeftResultDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GeftResult
+     */
+    select?: GeftResultSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GeftResultInclude<ExtArgs> | null
   }
 
 
@@ -2891,6 +3975,17 @@ export namespace Prisma {
   };
 
   export type StudentScalarFieldEnum = (typeof StudentScalarFieldEnum)[keyof typeof StudentScalarFieldEnum]
+
+
+  export const GeftResultScalarFieldEnum: {
+    id: 'id',
+    studentId: 'studentId',
+    score: 'score',
+    cognitiveStyle: 'cognitiveStyle',
+    completedAt: 'completedAt'
+  };
+
+  export type GeftResultScalarFieldEnum = (typeof GeftResultScalarFieldEnum)[keyof typeof GeftResultScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -2968,6 +4063,34 @@ export namespace Prisma {
    */
   export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
     
+
+
+  /**
+   * Reference to a field of type 'CognitiveStyle'
+   */
+  export type EnumCognitiveStyleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CognitiveStyle'>
+    
+
+
+  /**
+   * Reference to a field of type 'CognitiveStyle[]'
+   */
+  export type ListEnumCognitiveStyleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CognitiveStyle[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'Float'
+   */
+  export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
+    
+
+
+  /**
+   * Reference to a field of type 'Float[]'
+   */
+  export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
+    
   /**
    * Deep Input Types
    */
@@ -3033,6 +4156,7 @@ export namespace Prisma {
     classroomId?: StringFilter<"Student"> | string
     geftStatus?: EnumGeftStatusFilter<"Student"> | $Enums.GeftStatus
     createdAt?: DateTimeFilter<"Student"> | Date | string
+    geftResult?: XOR<GeftResultNullableRelationFilter, GeftResultWhereInput> | null
     classroom?: XOR<ClassroomRelationFilter, ClassroomWhereInput>
   }
 
@@ -3043,6 +4167,7 @@ export namespace Prisma {
     classroomId?: SortOrder
     geftStatus?: SortOrder
     createdAt?: SortOrder
+    geftResult?: GeftResultOrderByWithRelationInput
     classroom?: ClassroomOrderByWithRelationInput
   }
 
@@ -3056,6 +4181,7 @@ export namespace Prisma {
     classroomId?: StringFilter<"Student"> | string
     geftStatus?: EnumGeftStatusFilter<"Student"> | $Enums.GeftStatus
     createdAt?: DateTimeFilter<"Student"> | Date | string
+    geftResult?: XOR<GeftResultNullableRelationFilter, GeftResultWhereInput> | null
     classroom?: XOR<ClassroomRelationFilter, ClassroomWhereInput>
   }, "id" | "nisn">
 
@@ -3081,6 +4207,63 @@ export namespace Prisma {
     classroomId?: StringWithAggregatesFilter<"Student"> | string
     geftStatus?: EnumGeftStatusWithAggregatesFilter<"Student"> | $Enums.GeftStatus
     createdAt?: DateTimeWithAggregatesFilter<"Student"> | Date | string
+  }
+
+  export type GeftResultWhereInput = {
+    AND?: GeftResultWhereInput | GeftResultWhereInput[]
+    OR?: GeftResultWhereInput[]
+    NOT?: GeftResultWhereInput | GeftResultWhereInput[]
+    id?: StringFilter<"GeftResult"> | string
+    studentId?: StringFilter<"GeftResult"> | string
+    score?: IntFilter<"GeftResult"> | number
+    cognitiveStyle?: EnumCognitiveStyleFilter<"GeftResult"> | $Enums.CognitiveStyle
+    completedAt?: DateTimeFilter<"GeftResult"> | Date | string
+    student?: XOR<StudentRelationFilter, StudentWhereInput>
+  }
+
+  export type GeftResultOrderByWithRelationInput = {
+    id?: SortOrder
+    studentId?: SortOrder
+    score?: SortOrder
+    cognitiveStyle?: SortOrder
+    completedAt?: SortOrder
+    student?: StudentOrderByWithRelationInput
+  }
+
+  export type GeftResultWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    studentId?: string
+    AND?: GeftResultWhereInput | GeftResultWhereInput[]
+    OR?: GeftResultWhereInput[]
+    NOT?: GeftResultWhereInput | GeftResultWhereInput[]
+    score?: IntFilter<"GeftResult"> | number
+    cognitiveStyle?: EnumCognitiveStyleFilter<"GeftResult"> | $Enums.CognitiveStyle
+    completedAt?: DateTimeFilter<"GeftResult"> | Date | string
+    student?: XOR<StudentRelationFilter, StudentWhereInput>
+  }, "id" | "studentId">
+
+  export type GeftResultOrderByWithAggregationInput = {
+    id?: SortOrder
+    studentId?: SortOrder
+    score?: SortOrder
+    cognitiveStyle?: SortOrder
+    completedAt?: SortOrder
+    _count?: GeftResultCountOrderByAggregateInput
+    _avg?: GeftResultAvgOrderByAggregateInput
+    _max?: GeftResultMaxOrderByAggregateInput
+    _min?: GeftResultMinOrderByAggregateInput
+    _sum?: GeftResultSumOrderByAggregateInput
+  }
+
+  export type GeftResultScalarWhereWithAggregatesInput = {
+    AND?: GeftResultScalarWhereWithAggregatesInput | GeftResultScalarWhereWithAggregatesInput[]
+    OR?: GeftResultScalarWhereWithAggregatesInput[]
+    NOT?: GeftResultScalarWhereWithAggregatesInput | GeftResultScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"GeftResult"> | string
+    studentId?: StringWithAggregatesFilter<"GeftResult"> | string
+    score?: IntWithAggregatesFilter<"GeftResult"> | number
+    cognitiveStyle?: EnumCognitiveStyleWithAggregatesFilter<"GeftResult"> | $Enums.CognitiveStyle
+    completedAt?: DateTimeWithAggregatesFilter<"GeftResult"> | Date | string
   }
 
   export type ClassroomCreateInput = {
@@ -3142,6 +4325,7 @@ export namespace Prisma {
     nisn: string
     geftStatus?: $Enums.GeftStatus
     createdAt?: Date | string
+    geftResult?: GeftResultCreateNestedOneWithoutStudentInput
     classroom: ClassroomCreateNestedOneWithoutStudentsInput
   }
 
@@ -3152,6 +4336,7 @@ export namespace Prisma {
     classroomId: string
     geftStatus?: $Enums.GeftStatus
     createdAt?: Date | string
+    geftResult?: GeftResultUncheckedCreateNestedOneWithoutStudentInput
   }
 
   export type StudentUpdateInput = {
@@ -3160,6 +4345,7 @@ export namespace Prisma {
     nisn?: StringFieldUpdateOperationsInput | string
     geftStatus?: EnumGeftStatusFieldUpdateOperationsInput | $Enums.GeftStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    geftResult?: GeftResultUpdateOneWithoutStudentNestedInput
     classroom?: ClassroomUpdateOneRequiredWithoutStudentsNestedInput
   }
 
@@ -3170,6 +4356,7 @@ export namespace Prisma {
     classroomId?: StringFieldUpdateOperationsInput | string
     geftStatus?: EnumGeftStatusFieldUpdateOperationsInput | $Enums.GeftStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    geftResult?: GeftResultUncheckedUpdateOneWithoutStudentNestedInput
   }
 
   export type StudentCreateManyInput = {
@@ -3196,6 +4383,61 @@ export namespace Prisma {
     classroomId?: StringFieldUpdateOperationsInput | string
     geftStatus?: EnumGeftStatusFieldUpdateOperationsInput | $Enums.GeftStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GeftResultCreateInput = {
+    id?: string
+    score: number
+    cognitiveStyle: $Enums.CognitiveStyle
+    completedAt?: Date | string
+    student: StudentCreateNestedOneWithoutGeftResultInput
+  }
+
+  export type GeftResultUncheckedCreateInput = {
+    id?: string
+    studentId: string
+    score: number
+    cognitiveStyle: $Enums.CognitiveStyle
+    completedAt?: Date | string
+  }
+
+  export type GeftResultUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    score?: IntFieldUpdateOperationsInput | number
+    cognitiveStyle?: EnumCognitiveStyleFieldUpdateOperationsInput | $Enums.CognitiveStyle
+    completedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    student?: StudentUpdateOneRequiredWithoutGeftResultNestedInput
+  }
+
+  export type GeftResultUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    studentId?: StringFieldUpdateOperationsInput | string
+    score?: IntFieldUpdateOperationsInput | number
+    cognitiveStyle?: EnumCognitiveStyleFieldUpdateOperationsInput | $Enums.CognitiveStyle
+    completedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GeftResultCreateManyInput = {
+    id?: string
+    studentId: string
+    score: number
+    cognitiveStyle: $Enums.CognitiveStyle
+    completedAt?: Date | string
+  }
+
+  export type GeftResultUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    score?: IntFieldUpdateOperationsInput | number
+    cognitiveStyle?: EnumCognitiveStyleFieldUpdateOperationsInput | $Enums.CognitiveStyle
+    completedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GeftResultUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    studentId?: StringFieldUpdateOperationsInput | string
+    score?: IntFieldUpdateOperationsInput | number
+    cognitiveStyle?: EnumCognitiveStyleFieldUpdateOperationsInput | $Enums.CognitiveStyle
+    completedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type StringFilter<$PrismaModel = never> = {
@@ -3280,6 +4522,11 @@ export namespace Prisma {
     not?: NestedDateTimeFilter<$PrismaModel> | Date | string
   }
 
+  export type GeftResultNullableRelationFilter = {
+    is?: GeftResultWhereInput | null
+    isNot?: GeftResultWhereInput | null
+  }
+
   export type ClassroomRelationFilter = {
     is?: ClassroomWhereInput
     isNot?: ClassroomWhereInput
@@ -3336,6 +4583,87 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
+  export type IntFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntFilter<$PrismaModel> | number
+  }
+
+  export type EnumCognitiveStyleFilter<$PrismaModel = never> = {
+    equals?: $Enums.CognitiveStyle | EnumCognitiveStyleFieldRefInput<$PrismaModel>
+    in?: $Enums.CognitiveStyle[] | ListEnumCognitiveStyleFieldRefInput<$PrismaModel>
+    notIn?: $Enums.CognitiveStyle[] | ListEnumCognitiveStyleFieldRefInput<$PrismaModel>
+    not?: NestedEnumCognitiveStyleFilter<$PrismaModel> | $Enums.CognitiveStyle
+  }
+
+  export type StudentRelationFilter = {
+    is?: StudentWhereInput
+    isNot?: StudentWhereInput
+  }
+
+  export type GeftResultCountOrderByAggregateInput = {
+    id?: SortOrder
+    studentId?: SortOrder
+    score?: SortOrder
+    cognitiveStyle?: SortOrder
+    completedAt?: SortOrder
+  }
+
+  export type GeftResultAvgOrderByAggregateInput = {
+    score?: SortOrder
+  }
+
+  export type GeftResultMaxOrderByAggregateInput = {
+    id?: SortOrder
+    studentId?: SortOrder
+    score?: SortOrder
+    cognitiveStyle?: SortOrder
+    completedAt?: SortOrder
+  }
+
+  export type GeftResultMinOrderByAggregateInput = {
+    id?: SortOrder
+    studentId?: SortOrder
+    score?: SortOrder
+    cognitiveStyle?: SortOrder
+    completedAt?: SortOrder
+  }
+
+  export type GeftResultSumOrderByAggregateInput = {
+    score?: SortOrder
+  }
+
+  export type IntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
+  }
+
+  export type EnumCognitiveStyleWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.CognitiveStyle | EnumCognitiveStyleFieldRefInput<$PrismaModel>
+    in?: $Enums.CognitiveStyle[] | ListEnumCognitiveStyleFieldRefInput<$PrismaModel>
+    notIn?: $Enums.CognitiveStyle[] | ListEnumCognitiveStyleFieldRefInput<$PrismaModel>
+    not?: NestedEnumCognitiveStyleWithAggregatesFilter<$PrismaModel> | $Enums.CognitiveStyle
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumCognitiveStyleFilter<$PrismaModel>
+    _max?: NestedEnumCognitiveStyleFilter<$PrismaModel>
+  }
+
   export type StudentCreateNestedManyWithoutClassroomInput = {
     create?: XOR<StudentCreateWithoutClassroomInput, StudentUncheckedCreateWithoutClassroomInput> | StudentCreateWithoutClassroomInput[] | StudentUncheckedCreateWithoutClassroomInput[]
     connectOrCreate?: StudentCreateOrConnectWithoutClassroomInput | StudentCreateOrConnectWithoutClassroomInput[]
@@ -3382,10 +4710,22 @@ export namespace Prisma {
     deleteMany?: StudentScalarWhereInput | StudentScalarWhereInput[]
   }
 
+  export type GeftResultCreateNestedOneWithoutStudentInput = {
+    create?: XOR<GeftResultCreateWithoutStudentInput, GeftResultUncheckedCreateWithoutStudentInput>
+    connectOrCreate?: GeftResultCreateOrConnectWithoutStudentInput
+    connect?: GeftResultWhereUniqueInput
+  }
+
   export type ClassroomCreateNestedOneWithoutStudentsInput = {
     create?: XOR<ClassroomCreateWithoutStudentsInput, ClassroomUncheckedCreateWithoutStudentsInput>
     connectOrCreate?: ClassroomCreateOrConnectWithoutStudentsInput
     connect?: ClassroomWhereUniqueInput
+  }
+
+  export type GeftResultUncheckedCreateNestedOneWithoutStudentInput = {
+    create?: XOR<GeftResultCreateWithoutStudentInput, GeftResultUncheckedCreateWithoutStudentInput>
+    connectOrCreate?: GeftResultCreateOrConnectWithoutStudentInput
+    connect?: GeftResultWhereUniqueInput
   }
 
   export type EnumGeftStatusFieldUpdateOperationsInput = {
@@ -3396,12 +4736,58 @@ export namespace Prisma {
     set?: Date | string
   }
 
+  export type GeftResultUpdateOneWithoutStudentNestedInput = {
+    create?: XOR<GeftResultCreateWithoutStudentInput, GeftResultUncheckedCreateWithoutStudentInput>
+    connectOrCreate?: GeftResultCreateOrConnectWithoutStudentInput
+    upsert?: GeftResultUpsertWithoutStudentInput
+    disconnect?: GeftResultWhereInput | boolean
+    delete?: GeftResultWhereInput | boolean
+    connect?: GeftResultWhereUniqueInput
+    update?: XOR<XOR<GeftResultUpdateToOneWithWhereWithoutStudentInput, GeftResultUpdateWithoutStudentInput>, GeftResultUncheckedUpdateWithoutStudentInput>
+  }
+
   export type ClassroomUpdateOneRequiredWithoutStudentsNestedInput = {
     create?: XOR<ClassroomCreateWithoutStudentsInput, ClassroomUncheckedCreateWithoutStudentsInput>
     connectOrCreate?: ClassroomCreateOrConnectWithoutStudentsInput
     upsert?: ClassroomUpsertWithoutStudentsInput
     connect?: ClassroomWhereUniqueInput
     update?: XOR<XOR<ClassroomUpdateToOneWithWhereWithoutStudentsInput, ClassroomUpdateWithoutStudentsInput>, ClassroomUncheckedUpdateWithoutStudentsInput>
+  }
+
+  export type GeftResultUncheckedUpdateOneWithoutStudentNestedInput = {
+    create?: XOR<GeftResultCreateWithoutStudentInput, GeftResultUncheckedCreateWithoutStudentInput>
+    connectOrCreate?: GeftResultCreateOrConnectWithoutStudentInput
+    upsert?: GeftResultUpsertWithoutStudentInput
+    disconnect?: GeftResultWhereInput | boolean
+    delete?: GeftResultWhereInput | boolean
+    connect?: GeftResultWhereUniqueInput
+    update?: XOR<XOR<GeftResultUpdateToOneWithWhereWithoutStudentInput, GeftResultUpdateWithoutStudentInput>, GeftResultUncheckedUpdateWithoutStudentInput>
+  }
+
+  export type StudentCreateNestedOneWithoutGeftResultInput = {
+    create?: XOR<StudentCreateWithoutGeftResultInput, StudentUncheckedCreateWithoutGeftResultInput>
+    connectOrCreate?: StudentCreateOrConnectWithoutGeftResultInput
+    connect?: StudentWhereUniqueInput
+  }
+
+  export type IntFieldUpdateOperationsInput = {
+    set?: number
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
+  export type EnumCognitiveStyleFieldUpdateOperationsInput = {
+    set?: $Enums.CognitiveStyle
+  }
+
+  export type StudentUpdateOneRequiredWithoutGeftResultNestedInput = {
+    create?: XOR<StudentCreateWithoutGeftResultInput, StudentUncheckedCreateWithoutGeftResultInput>
+    connectOrCreate?: StudentCreateOrConnectWithoutGeftResultInput
+    upsert?: StudentUpsertWithoutGeftResultInput
+    connect?: StudentWhereUniqueInput
+    update?: XOR<XOR<StudentUpdateToOneWithWhereWithoutGeftResultInput, StudentUpdateWithoutGeftResultInput>, StudentUncheckedUpdateWithoutGeftResultInput>
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -3488,12 +4874,57 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
+  export type NestedEnumCognitiveStyleFilter<$PrismaModel = never> = {
+    equals?: $Enums.CognitiveStyle | EnumCognitiveStyleFieldRefInput<$PrismaModel>
+    in?: $Enums.CognitiveStyle[] | ListEnumCognitiveStyleFieldRefInput<$PrismaModel>
+    notIn?: $Enums.CognitiveStyle[] | ListEnumCognitiveStyleFieldRefInput<$PrismaModel>
+    not?: NestedEnumCognitiveStyleFilter<$PrismaModel> | $Enums.CognitiveStyle
+  }
+
+  export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
+  }
+
+  export type NestedFloatFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatFilter<$PrismaModel> | number
+  }
+
+  export type NestedEnumCognitiveStyleWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.CognitiveStyle | EnumCognitiveStyleFieldRefInput<$PrismaModel>
+    in?: $Enums.CognitiveStyle[] | ListEnumCognitiveStyleFieldRefInput<$PrismaModel>
+    notIn?: $Enums.CognitiveStyle[] | ListEnumCognitiveStyleFieldRefInput<$PrismaModel>
+    not?: NestedEnumCognitiveStyleWithAggregatesFilter<$PrismaModel> | $Enums.CognitiveStyle
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumCognitiveStyleFilter<$PrismaModel>
+    _max?: NestedEnumCognitiveStyleFilter<$PrismaModel>
+  }
+
   export type StudentCreateWithoutClassroomInput = {
     id?: string
     name: string
     nisn: string
     geftStatus?: $Enums.GeftStatus
     createdAt?: Date | string
+    geftResult?: GeftResultCreateNestedOneWithoutStudentInput
   }
 
   export type StudentUncheckedCreateWithoutClassroomInput = {
@@ -3502,6 +4933,7 @@ export namespace Prisma {
     nisn: string
     geftStatus?: $Enums.GeftStatus
     createdAt?: Date | string
+    geftResult?: GeftResultUncheckedCreateNestedOneWithoutStudentInput
   }
 
   export type StudentCreateOrConnectWithoutClassroomInput = {
@@ -3542,6 +4974,25 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Student"> | Date | string
   }
 
+  export type GeftResultCreateWithoutStudentInput = {
+    id?: string
+    score: number
+    cognitiveStyle: $Enums.CognitiveStyle
+    completedAt?: Date | string
+  }
+
+  export type GeftResultUncheckedCreateWithoutStudentInput = {
+    id?: string
+    score: number
+    cognitiveStyle: $Enums.CognitiveStyle
+    completedAt?: Date | string
+  }
+
+  export type GeftResultCreateOrConnectWithoutStudentInput = {
+    where: GeftResultWhereUniqueInput
+    create: XOR<GeftResultCreateWithoutStudentInput, GeftResultUncheckedCreateWithoutStudentInput>
+  }
+
   export type ClassroomCreateWithoutStudentsInput = {
     id?: string
     name: string
@@ -3559,6 +5010,31 @@ export namespace Prisma {
   export type ClassroomCreateOrConnectWithoutStudentsInput = {
     where: ClassroomWhereUniqueInput
     create: XOR<ClassroomCreateWithoutStudentsInput, ClassroomUncheckedCreateWithoutStudentsInput>
+  }
+
+  export type GeftResultUpsertWithoutStudentInput = {
+    update: XOR<GeftResultUpdateWithoutStudentInput, GeftResultUncheckedUpdateWithoutStudentInput>
+    create: XOR<GeftResultCreateWithoutStudentInput, GeftResultUncheckedCreateWithoutStudentInput>
+    where?: GeftResultWhereInput
+  }
+
+  export type GeftResultUpdateToOneWithWhereWithoutStudentInput = {
+    where?: GeftResultWhereInput
+    data: XOR<GeftResultUpdateWithoutStudentInput, GeftResultUncheckedUpdateWithoutStudentInput>
+  }
+
+  export type GeftResultUpdateWithoutStudentInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    score?: IntFieldUpdateOperationsInput | number
+    cognitiveStyle?: EnumCognitiveStyleFieldUpdateOperationsInput | $Enums.CognitiveStyle
+    completedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GeftResultUncheckedUpdateWithoutStudentInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    score?: IntFieldUpdateOperationsInput | number
+    cognitiveStyle?: EnumCognitiveStyleFieldUpdateOperationsInput | $Enums.CognitiveStyle
+    completedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ClassroomUpsertWithoutStudentsInput = {
@@ -3586,6 +5062,58 @@ export namespace Prisma {
     major?: StringFieldUpdateOperationsInput | string
   }
 
+  export type StudentCreateWithoutGeftResultInput = {
+    id?: string
+    name: string
+    nisn: string
+    geftStatus?: $Enums.GeftStatus
+    createdAt?: Date | string
+    classroom: ClassroomCreateNestedOneWithoutStudentsInput
+  }
+
+  export type StudentUncheckedCreateWithoutGeftResultInput = {
+    id?: string
+    name: string
+    nisn: string
+    classroomId: string
+    geftStatus?: $Enums.GeftStatus
+    createdAt?: Date | string
+  }
+
+  export type StudentCreateOrConnectWithoutGeftResultInput = {
+    where: StudentWhereUniqueInput
+    create: XOR<StudentCreateWithoutGeftResultInput, StudentUncheckedCreateWithoutGeftResultInput>
+  }
+
+  export type StudentUpsertWithoutGeftResultInput = {
+    update: XOR<StudentUpdateWithoutGeftResultInput, StudentUncheckedUpdateWithoutGeftResultInput>
+    create: XOR<StudentCreateWithoutGeftResultInput, StudentUncheckedCreateWithoutGeftResultInput>
+    where?: StudentWhereInput
+  }
+
+  export type StudentUpdateToOneWithWhereWithoutGeftResultInput = {
+    where?: StudentWhereInput
+    data: XOR<StudentUpdateWithoutGeftResultInput, StudentUncheckedUpdateWithoutGeftResultInput>
+  }
+
+  export type StudentUpdateWithoutGeftResultInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    nisn?: StringFieldUpdateOperationsInput | string
+    geftStatus?: EnumGeftStatusFieldUpdateOperationsInput | $Enums.GeftStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    classroom?: ClassroomUpdateOneRequiredWithoutStudentsNestedInput
+  }
+
+  export type StudentUncheckedUpdateWithoutGeftResultInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    nisn?: StringFieldUpdateOperationsInput | string
+    classroomId?: StringFieldUpdateOperationsInput | string
+    geftStatus?: EnumGeftStatusFieldUpdateOperationsInput | $Enums.GeftStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StudentCreateManyClassroomInput = {
     id?: string
     name: string
@@ -3600,6 +5128,7 @@ export namespace Prisma {
     nisn?: StringFieldUpdateOperationsInput | string
     geftStatus?: EnumGeftStatusFieldUpdateOperationsInput | $Enums.GeftStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    geftResult?: GeftResultUpdateOneWithoutStudentNestedInput
   }
 
   export type StudentUncheckedUpdateWithoutClassroomInput = {
@@ -3608,6 +5137,7 @@ export namespace Prisma {
     nisn?: StringFieldUpdateOperationsInput | string
     geftStatus?: EnumGeftStatusFieldUpdateOperationsInput | $Enums.GeftStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    geftResult?: GeftResultUncheckedUpdateOneWithoutStudentNestedInput
   }
 
   export type StudentUncheckedUpdateManyWithoutClassroomInput = {
@@ -3635,6 +5165,10 @@ export namespace Prisma {
      * @deprecated Use StudentDefaultArgs instead
      */
     export type StudentArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = StudentDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use GeftResultDefaultArgs instead
+     */
+    export type GeftResultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = GeftResultDefaultArgs<ExtArgs>
 
   /**
    * Batch Payload for updateMany & deleteMany & createMany

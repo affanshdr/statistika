@@ -23,7 +23,12 @@ export default function HomePage() {
   useEffect(() => {
     fetch('/api/classrooms')
       .then(r => r.json())
-      .then(data => setClassrooms(data))
+      .then(data => {
+        setClassrooms(data)
+        if (data && data.length === 1) {
+          setClassroomId(data[0].id)
+        }
+      })
       .finally(() => setLoadingClass(false))
   }, [])
 

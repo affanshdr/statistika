@@ -34,8 +34,26 @@ model Student {
   geftStatus  GeftStatus @default(not_taken) @map("geft_status")
   createdAt   DateTime   @default(now()) @map("created_at")
 
+  geftResult GeftResult?
+
   classroom Classroom @relation(fields: [classroomId], references: [id])
 
   @@map("students")
 }
 
+enum CognitiveStyle {
+  FI
+  FD
+}
+
+model GeftResult {
+  id             String         @id @default(uuid())
+  studentId      String         @unique @map("student_id")
+  score          Int
+  cognitiveStyle CognitiveStyle @map("cognitive_style")
+  completedAt    DateTime       @default(now()) @map("completed_at")
+
+  student Student @relation(fields: [studentId], references: [id])
+
+  @@map("geft_results")
+}

@@ -138,6 +138,14 @@ exports.Prisma.StudentScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.GeftResultScalarFieldEnum = {
+  id: 'id',
+  studentId: 'studentId',
+  score: 'score',
+  cognitiveStyle: 'cognitiveStyle',
+  completedAt: 'completedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -152,9 +160,15 @@ exports.GeftStatus = exports.$Enums.GeftStatus = {
   completed: 'completed'
 };
 
+exports.CognitiveStyle = exports.$Enums.CognitiveStyle = {
+  FI: 'FI',
+  FD: 'FD'
+};
+
 exports.Prisma.ModelName = {
   Classroom: 'Classroom',
-  Student: 'Student'
+  Student: 'Student',
+  GeftResult: 'GeftResult'
 };
 
 /**
