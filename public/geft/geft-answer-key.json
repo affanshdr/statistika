@@ -1,0 +1,92 @@
+{
+  "sesi2": [
+    {
+      "nomorSoal": 1,
+      "targetBentuk": "G",
+      "garisBenar": [
+        "q2-s1-line-1",
+        "q2-s1-line-2",
+        "q2-s1-line-3",
+        "q2-s1-line-4"
+      ]
+    },
+    {
+      "nomorSoal": 2,
+      "targetBentuk": "A",
+      "garisBenar": [
+        "q2-s2-line-1",
+        "q2-s2-line-2",
+        "q2-s2-line-3",
+        "q2-s2-line-4"
+      ]
+    },
+    {
+      "nomorSoal": 3,
+      "targetBentuk": "G",
+      "garisBenar": [
+        "q2-s3-line-1",
+        "q2-s3-line-2",
+        "q2-s3-line-3",
+        "q2-s3-line-4"
+      ]
+    },
+    {
+      "nomorSoal": 4,
+      "targetBentuk": "E",
+      "garisBenar": [
+        "q2-s4-line-1",
+        "q2-s4-line-2",
+        "q2-s4-line-3",
+        "q2-s4-line-4",
+        "q2-s4-line-5",
+        "q2-s4-line-6"
+      ]
+    }
+  ],
+  "sesi3": [
+    {
+      "nomorSoal": 1,
+      "targetBentuk": "F",
+      "garisBenar": [
+        "q3-s1-line-1",
+        "q3-s1-line-2",
+        "q3-s1-line-3",
+        "q3-s1-line-4"
+      ]
+    },
+    {
+      "nomorSoal": 2,
+      "targetBentuk": "G",
+      "garisBenar": [
+        "q3-s2-line-1",
+        "q3-s2-line-2",
+        "q3-s2-line-3",
+        "q3-s2-line-4"
+      ]
+    },
+    {
+      "nomorSoal": 3,
+      "targetBentuk": "C",
+      "garisBenar": [
+        "q3-s3-line-1",
+        "q3-s3-line-2",
+        "q3-s3-line-3",
+        "q3-s3-line-4",
+        "q3-s3-line-5",
+        "q3-s3-line-6"
+      ]
+    },
+    {
+      "nomorSoal": 4,
+      "targetBentuk": "E",
+      "garisBenar": [
+        "q3-s4-line-1",
+        "q3-s4-line-2",
+        "q3-s4-line-3",
+        "q3-s4-line-4",
+        "q3-s4-line-5",
+        "q3-s4-line-6"
+      ]
+    }
+  ]
+}

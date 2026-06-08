@@ -1,0 +1,5 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <line id="shape-D-line-1" x1="50" y1="140" x2="100" y2="50" stroke="#333" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer;" />
+  <line id="shape-D-line-2" x1="100" y1="50" x2="150" y2="120" stroke="#333" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer;" />
+  <line id="shape-D-line-3" x1="150" y1="120" x2="50" y2="140" stroke="#333" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer;" />
+</svg>

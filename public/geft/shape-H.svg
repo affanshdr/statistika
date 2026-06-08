@@ -1,0 +1,7 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <line id="shape-H-line-1" x1="100" y1="40" x2="150" y2="80" stroke="#333" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer;" />
+  <line id="shape-H-line-2" x1="150" y1="80" x2="130" y2="140" stroke="#333" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer;" />
+  <line id="shape-H-line-3" x1="130" y1="140" x2="70" y2="140" stroke="#333" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer;" />
+  <line id="shape-H-line-4" x1="70" y1="140" x2="50" y2="80" stroke="#333" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer;" />
+  <line id="shape-H-line-5" x1="50" y1="80" x2="100" y2="40" stroke="#333" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer;" />
+</svg>

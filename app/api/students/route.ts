@@ -18,7 +18,10 @@ export async function POST(req: NextRequest) {
       where: { nisn },
       update: { name, classroomId },
       create: { name, nisn, classroomId },
-      include: { classroom: true },
+      include: { 
+        classroom: true,
+        geftResult: true 
+      },
     })
 
     return NextResponse.json(student)

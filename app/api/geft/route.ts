@@ -8,8 +8,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Data tidak lengkap' }, { status: 400 })
     }
 
-    // FI jika skor >= 10 dari 18 (sesuai cutoff dari PDF)
-    const cognitiveStyle = score >= 10 ? 'FI' : 'FD'
+    // FI jika skor >= 5 dari 8 (karena hanya 8 soal dinilai)
+    const cognitiveStyle = score >= 5 ? 'FI' : 'FD'
 
     await prisma.$transaction([
       prisma.geftResult.create({ data: { studentId, score, cognitiveStyle } }),

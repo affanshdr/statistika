@@ -1,0 +1,8 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <line id="shape-C-line-1" x1="60" y1="60" x2="140" y2="60" stroke="#333" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer;" />
+  <line id="shape-C-line-2" x1="140" y1="60" x2="140" y2="100" stroke="#333" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer;" />
+  <line id="shape-C-line-3" x1="140" y1="100" x2="100" y2="100" stroke="#333" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer;" />
+  <line id="shape-C-line-4" x1="100" y1="100" x2="100" y2="140" stroke="#333" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer;" />
+  <line id="shape-C-line-5" x1="100" y1="140" x2="60" y2="140" stroke="#333" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer;" />
+  <line id="shape-C-line-6" x1="60" y1="140" x2="60" y2="60" stroke="#333" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer;" />
+</svg>
