@@ -16,17 +16,14 @@ const QUESTIONS: Question[] = [
   { id: 1, section: 1, no: 1, targetShape: 'B' },
   { id: 2, section: 1, no: 2, targetShape: 'G' },
   { id: 11, section: 1, no: 3, targetShape: 'D' },
-  { id: 12, section: 1, no: 4, targetShape: 'E' },
   // Sesi 2 — dinilai
   { id: 3, section: 2, no: 1, targetShape: 'G' },
   { id: 4, section: 2, no: 2, targetShape: 'A' },
   { id: 5, section: 2, no: 3, targetShape: 'G' },
-  { id: 6, section: 2, no: 4, targetShape: 'E' },
   // Sesi 3 — dinilai
   { id: 7, section: 3, no: 1, targetShape: 'F' },
   { id: 8, section: 3, no: 2, targetShape: 'G' },
   { id: 9, section: 3, no: 3, targetShape: 'C' },
-  { id: 10, section: 3, no: 4, targetShape: 'E' },
 ]
 
 const SECTION_LABELS: Record<number, string> = { 1: 'Sesi 1 (Latihan)', 2: 'Sesi 2', 3: 'Sesi 3' }

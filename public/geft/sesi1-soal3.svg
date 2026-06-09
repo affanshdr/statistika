@@ -1,20 +1,43 @@
 <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
   <rect width="400" height="400" fill="#0a1428" />
-  
-  <!-- Target shape D (Triangle) - correct lines -->
-  <line id="q1-s3-line-1" x1="150" y1="240" x2="200" y2="150" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" data-correct="true" />
-  <line id="q1-s3-line-2" x1="200" y1="150" x2="250" y2="220" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" data-correct="true" />
-  <line id="q1-s3-line-3" x1="250" y1="220" x2="150" y2="240" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" data-correct="true" />
-  
-  <!-- Distractor lines -->
-  <line id="q1-s3-line-4" x1="100" y1="100" x2="300" y2="100" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" />
-  <line id="q1-s3-line-5" x1="100" y1="270" x2="300" y2="270" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" />
-  <line id="q1-s3-line-6" x1="100" y1="100" x2="100" y2="270" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" />
-  <line id="q1-s3-line-7" x1="300" y1="100" x2="300" y2="270" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" />
-  <line id="q1-s3-line-8" x1="100" y1="100" x2="200" y2="150" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" />
-  <line id="q1-s3-line-9" x1="300" y1="100" x2="200" y2="150" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" />
-  <line id="q1-s3-line-10" x1="100" y1="270" x2="150" y2="240" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" />
-  <line id="q1-s3-line-11" x1="300" y1="270" x2="250" y2="220" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" />
-  <line id="q1-s3-line-12" x1="150" y1="240" x2="100" y2="100" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" />
-  <line id="q1-s3-line-13" x1="250" y1="220" x2="300" y2="100" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" />
+
+  <!-- ==========================================
+       SESI 1 SOAL 3: Persegi panjang dengan diagonal X dan garis horizontal tengah
+       Target: Bentuk D (rumah asimetris — rectangle bawah + atap miring kiri)
+       ========================================== -->
+
+  <!-- Persegi panjang besar -->
+  <line id="q1-s3-line-1" x1="80"  y1="100" x2="320" y2="100" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q1-s3-line-2" x1="320" y1="100" x2="320" y2="300" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q1-s3-line-3" x1="320" y1="300" x2="80"  y2="300" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q1-s3-line-4" x1="80"  y1="300" x2="80"  y2="100" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+
+  <!-- Diagonal dari pojok kiri atas ke pojok kanan bawah -->
+  <line id="q1-s3-line-5" x1="80"  y1="100" x2="320" y2="300" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+
+  <!-- Diagonal dari pojok kanan atas ke pojok kiri bawah -->
+  <line id="q1-s3-line-6" x1="320" y1="100" x2="80"  y2="300" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+
+  <!-- Garis horizontal tengah (membagi rectangle menjadi atas-bawah) -->
+  <line id="q1-s3-line-7" x1="80"  y1="200" x2="320" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+
+  <!-- Bentuk D tersembunyi: rumah asimetris
+       = persegi panjang bawah kiri + atap miring dari kiri ke tengah-kanan
+       Garis jawaban:
+       - Sisi kiri (vertikal kiri dari tengah ke bawah)
+       - Atap miring kiri (dari kiri-tengah ke titik puncak)
+       - Atap kanan (dari puncak ke kanan-tengah)
+       - Sisi kanan (vertikal kanan turun)
+       - Dasar bawah
+  -->
+  <!-- Sisi kiri D -->
+  <line id="q1-s3-line-8" x1="80"  y1="300" x2="80"  y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
+  <!-- Atap miring (dari kiri ke puncak) -->
+  <line id="q1-s3-line-9" x1="80"  y1="200" x2="200" y2="100" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
+  <!-- Atap kanan datar (dari puncak ke kanan) -->
+  <line id="q1-s3-line-10" x1="200" y1="100" x2="320" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
+  <!-- Sisi kanan D -->
+  <line id="q1-s3-line-11" x1="320" y1="200" x2="320" y2="300" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
+  <!-- Dasar bawah D -->
+  <line id="q1-s3-line-12" x1="320" y1="300" x2="80"  y2="300" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
 </svg>

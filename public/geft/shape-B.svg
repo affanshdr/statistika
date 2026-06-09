@@ -1,6 +1,19 @@
 <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-  <line id="shape-B-line-1" x1="60" y1="60" x2="140" y2="60" stroke="#333" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer;" />
-  <line id="shape-B-line-2" x1="140" y1="60" x2="160" y2="140" stroke="#333" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer;" />
-  <line id="shape-B-line-3" x1="160" y1="140" x2="40" y2="140" stroke="#333" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer;" />
-  <line id="shape-B-line-4" x1="40" y1="140" x2="60" y2="60" stroke="#333" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer;" />
+  <!-- Shape B: Huruf T (T-shape) -->
+  <!-- Garis atas horizontal (kepala T) -->
+  <line id="shape-B-line-1" x1="50" y1="65" x2="150" y2="65" stroke="#333" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
+  <!-- Sisi kanan kepala T turun ke bahu kanan -->
+  <line id="shape-B-line-2" x1="150" y1="65" x2="150" y2="90" stroke="#333" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
+  <!-- Bahu kanan ke batang kanan -->
+  <line id="shape-B-line-3" x1="150" y1="90" x2="120" y2="90" stroke="#333" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
+  <!-- Batang kanan turun -->
+  <line id="shape-B-line-4" x1="120" y1="90" x2="120" y2="155" stroke="#333" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
+  <!-- Dasar bawah -->
+  <line id="shape-B-line-5" x1="120" y1="155" x2="80" y2="155" stroke="#333" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
+  <!-- Batang kiri naik -->
+  <line id="shape-B-line-6" x1="80" y1="155" x2="80" y2="90" stroke="#333" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
+  <!-- Bahu kiri ke sisi kiri kepala T -->
+  <line id="shape-B-line-7" x1="80" y1="90" x2="50" y2="90" stroke="#333" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
+  <!-- Sisi kiri kepala T naik -->
+  <line id="shape-B-line-8" x1="50" y1="90" x2="50" y2="65" stroke="#333" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
 </svg>

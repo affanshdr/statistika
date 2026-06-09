@@ -1,6 +1,14 @@
 <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-  <line id="shape-G-line-1" x1="60" y1="70" x2="140" y2="70" stroke="#333" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer;" />
-  <line id="shape-G-line-2" x1="140" y1="70" x2="120" y2="130" stroke="#333" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer;" />
-  <line id="shape-G-line-3" x1="120" y1="130" x2="40" y2="130" stroke="#333" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer;" />
-  <line id="shape-G-line-4" x1="40" y1="130" x2="60" y2="70" stroke="#333" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer;" />
+  <!-- Shape G: Persegi panjang dengan takik segitiga kecil di sudut kiri atas -->
+  <!-- Mulai dari kiri bawah, ke kiri atas, takik ke dalam, lanjut ke kanan atas, kanan bawah -->
+  <!-- Sisi kiri vertikal naik -->
+  <line id="shape-G-line-1" x1="50" y1="155" x2="50" y2="85" stroke="#333" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
+  <!-- Takik kiri: miring ke dalam kanan atas -->
+  <line id="shape-G-line-2" x1="50" y1="85" x2="95" y2="65" stroke="#333" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
+  <!-- Sisi atas setelah takik ke kanan -->
+  <line id="shape-G-line-3" x1="95" y1="65" x2="150" y2="65" stroke="#333" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
+  <!-- Sisi kanan turun -->
+  <line id="shape-G-line-4" x1="150" y1="65" x2="150" y2="155" stroke="#333" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
+  <!-- Sisi bawah ke kiri -->
+  <line id="shape-G-line-5" x1="150" y1="155" x2="50" y2="155" stroke="#333" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
 </svg>

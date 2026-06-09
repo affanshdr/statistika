@@ -1,27 +1,46 @@
 <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
   <rect width="400" height="400" fill="#0a1428" />
-  <line id="q1-s2-line-1" x1="170" y1="225" x2="290" y2="225" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" data-correct="true" />
-  <line id="q1-s2-line-2" x1="290" y1="225" x2="260" y2="315" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" data-correct="true" />
-  <line id="q1-s2-line-3" x1="260" y1="315" x2="140" y2="315" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" data-correct="true" />
-  <line id="q1-s2-line-4" x1="140" y1="315" x2="170" y2="225" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" data-correct="true" />
-  <line id="q1-s2-line-5" x1="290" y1="225" x2="370" y2="225" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" />
-  <line id="q1-s2-line-6" x1="90" y1="225" x2="170" y2="225" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" />
-  <line id="q1-s2-line-7" x1="260" y1="315" x2="235" y2="390" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" />
-  <line id="q1-s2-line-8" x1="315" y1="149" x2="290" y2="225" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" />
-  <line id="q1-s2-line-9" x1="140" y1="315" x2="60" y2="315" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" />
-  <line id="q1-s2-line-10" x1="340" y1="315" x2="260" y2="315" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" />
-  <line id="q1-s2-line-11" x1="170" y1="225" x2="195" y2="149" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" />
-  <line id="q1-s2-line-12" x1="115" y1="390" x2="140" y2="315" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" />
-  <line id="q1-s2-line-13" x1="15" y1="45" x2="115" y2="45" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" />
-  <line id="q1-s2-line-14" x1="115" y1="45" x2="15" y2="145" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" />
-  <line id="q1-s2-line-15" x1="15" y1="145" x2="15" y2="45" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" />
-  <line id="q1-s2-line-16" x1="285" y1="45" x2="385" y2="45" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" />
-  <line id="q1-s2-line-17" x1="385" y1="45" x2="385" y2="145" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" />
-  <line id="q1-s2-line-18" x1="385" y1="145" x2="285" y2="45" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" />
-  <line id="q1-s2-line-19" x1="15" y1="255" x2="15" y2="355" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" />
-  <line id="q1-s2-line-20" x1="15" y1="355" x2="115" y2="355" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" />
-  <line id="q1-s2-line-21" x1="115" y1="355" x2="15" y2="255" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" />
-  <line id="q1-s2-line-22" x1="285" y1="355" x2="385" y2="355" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" />
-  <line id="q1-s2-line-23" x1="385" y1="355" x2="385" y2="255" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" />
-  <line id="q1-s2-line-24" x1="385" y1="255" x2="285" y2="355" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" />
+
+  <!-- ==========================================
+       SESI 1 SOAL 2: Segitiga di atas persegi panjang
+       Target: Bentuk G (persegi panjang dengan takik miring di kiri atas)
+       Jawaban = sisi kiri vertikal, takik miring kiri, sisi atas kanan, sisi kanan, sisi bawah
+       ========================================== -->
+
+  <!-- Segitiga besar di atas (atap) -->
+  <line id="q1-s2-line-1" x1="200" y1="60"  x2="330" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q1-s2-line-2" x1="200" y1="60"  x2="70"  y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+
+  <!-- Persegi panjang bawah -->
+  <line id="q1-s2-line-3" x1="70"  y1="200" x2="330" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q1-s2-line-4" x1="330" y1="200" x2="330" y2="320" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q1-s2-line-5" x1="330" y1="320" x2="70"  y2="320" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q1-s2-line-6" x1="70"  y1="320" x2="70"  y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+
+  <!-- Garis dalam persegi: vertikal dari tengah atas ke bawah -->
+  <line id="q1-s2-line-7" x1="200" y1="200" x2="200" y2="320" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+
+  <!-- Segitiga kecil sudut kiri bawah persegi -->
+  <line id="q1-s2-line-8" x1="70"  y1="200" x2="140" y2="320" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+
+  <!-- Segitiga kecil sudut kanan bawah persegi -->
+  <line id="q1-s2-line-9" x1="330" y1="200" x2="260" y2="320" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+
+  <!-- Garis horizontal tengah persegi -->
+  <line id="q1-s2-line-10" x1="70" y1="260" x2="330" y2="260" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+
+  <!-- Bentuk G tersembunyi:
+       G = persegi panjang dengan sudut kiri atas yang miring/dipotong diagonal
+       Kiri bawah→kiri atas dipotong→atas horizontal→kanan→bawah
+       Posisi: kiri-tengah rectangle -->
+  <!-- Sisi bawah G -->
+  <line id="q1-s2-line-11" x1="70"  y1="320" x2="200" y2="320" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
+  <!-- Sisi kanan G -->
+  <line id="q1-s2-line-12" x1="200" y1="320" x2="200" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
+  <!-- Sisi atas G (horizontal dari kanan ke titik takik) -->
+  <line id="q1-s2-line-13" x1="200" y1="200" x2="110" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
+  <!-- Takik miring kiri atas G (diagonal dari atas ke sisi kiri bawah) -->
+  <line id="q1-s2-line-14" x1="110" y1="200" x2="70"  y2="260" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
+  <!-- Sisi kiri bawah G -->
+  <line id="q1-s2-line-15" x1="70"  y1="260" x2="70"  y2="320" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
 </svg>

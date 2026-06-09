@@ -1,5 +1,13 @@
 <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-  <line id="shape-D-line-1" x1="50" y1="140" x2="100" y2="50" stroke="#333" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer;" />
-  <line id="shape-D-line-2" x1="100" y1="50" x2="150" y2="120" stroke="#333" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer;" />
-  <line id="shape-D-line-3" x1="150" y1="120" x2="50" y2="140" stroke="#333" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer;" />
+  <!-- Shape D: Rumah asimetris - persegi panjang bawah dengan atap miring di kiri -->
+  <!-- Sisi kiri bawah vertikal -->
+  <line id="shape-D-line-1" x1="45" y1="155" x2="45" y2="115" stroke="#333" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
+  <!-- Atap miring kiri (dari pojok kiri ke puncak) -->
+  <line id="shape-D-line-2" x1="45" y1="115" x2="90" y2="75" stroke="#333" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
+  <!-- Atap horizontal kanan (dari puncak ke kanan) -->
+  <line id="shape-D-line-3" x1="90" y1="75" x2="155" y2="115" stroke="#333" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
+  <!-- Sisi kanan vertikal turun -->
+  <line id="shape-D-line-4" x1="155" y1="115" x2="155" y2="155" stroke="#333" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
+  <!-- Dasar bawah -->
+  <line id="shape-D-line-5" x1="155" y1="155" x2="45" y2="155" stroke="#333" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
 </svg>

@@ -1,27 +1,47 @@
 <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
   <rect width="400" height="400" fill="#0a1428" />
-  <line id="q3-s1-line-1" x1="190" y1="200" x2="310" y2="140" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" data-correct="true" />
-  <line id="q3-s1-line-2" x1="310" y1="140" x2="340" y2="200" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" data-correct="true" />
-  <line id="q3-s1-line-3" x1="340" y1="200" x2="220" y2="260" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" data-correct="true" />
-  <line id="q3-s1-line-4" x1="220" y1="260" x2="190" y2="200" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" data-correct="true" />
-  <line id="q3-s1-line-5" x1="310" y1="140" x2="382" y2="104" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" />
-  <line id="q3-s1-line-6" x1="118" y1="236" x2="190" y2="200" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" />
-  <line id="q3-s1-line-7" x1="340" y1="200" x2="376" y2="272" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" />
-  <line id="q3-s1-line-8" x1="274" y1="68" x2="310" y2="140" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" />
-  <line id="q3-s1-line-9" x1="220" y1="260" x2="148" y2="296" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" />
-  <line id="q3-s1-line-10" x1="390" y1="164" x2="340" y2="200" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" />
-  <line id="q3-s1-line-11" x1="190" y1="200" x2="154" y2="128" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" />
-  <line id="q3-s1-line-12" x1="256" y1="332" x2="220" y2="260" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" />
-  <line id="q3-s1-line-13" x1="15" y1="45" x2="115" y2="45" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" />
-  <line id="q3-s1-line-14" x1="115" y1="45" x2="15" y2="145" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" />
-  <line id="q3-s1-line-15" x1="15" y1="145" x2="15" y2="45" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" />
-  <line id="q3-s1-line-16" x1="285" y1="45" x2="385" y2="45" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" />
-  <line id="q3-s1-line-17" x1="385" y1="45" x2="385" y2="145" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" />
-  <line id="q3-s1-line-18" x1="385" y1="145" x2="285" y2="45" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" />
-  <line id="q3-s1-line-19" x1="15" y1="255" x2="15" y2="355" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" />
-  <line id="q3-s1-line-20" x1="15" y1="355" x2="115" y2="355" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" />
-  <line id="q3-s1-line-21" x1="115" y1="355" x2="15" y2="255" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" />
-  <line id="q3-s1-line-22" x1="285" y1="355" x2="385" y2="355" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" />
-  <line id="q3-s1-line-23" x1="385" y1="355" x2="385" y2="255" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" />
-  <line id="q3-s1-line-24" x1="385" y1="255" x2="285" y2="355" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" />
+
+  <!-- ==========================================
+       SESI 3 SOAL 1: Bintang besar dengan banyak spike/lancip
+       Target: Bentuk F (layang-layang / kite memanjang)
+       ========================================== -->
+
+  <!-- Bintang besar: 8 spike dari titik pusat ke luar -->
+  <!-- Spike atas -->
+  <line id="q3-s1-line-1" x1="200" y1="200" x2="200" y2="30"  stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <!-- Spike kanan atas -->
+  <line id="q3-s1-line-2" x1="200" y1="200" x2="350" y2="70"  stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <!-- Spike kanan -->
+  <line id="q3-s1-line-3" x1="200" y1="200" x2="370" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <!-- Spike kanan bawah -->
+  <line id="q3-s1-line-4" x1="200" y1="200" x2="350" y2="330" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <!-- Spike bawah -->
+  <line id="q3-s1-line-5" x1="200" y1="200" x2="200" y2="370" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <!-- Spike kiri bawah -->
+  <line id="q3-s1-line-6" x1="200" y1="200" x2="50"  y2="330" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <!-- Spike kiri -->
+  <line id="q3-s1-line-7" x1="200" y1="200" x2="30"  y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <!-- Spike kiri atas -->
+  <line id="q3-s1-line-8" x1="200" y1="200" x2="50"  y2="70"  stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+
+  <!-- Garis tepi luar yang menghubungkan ujung-ujung spike (segi 8) -->
+  <line id="q3-s1-line-9"  x1="200" y1="30"  x2="350" y2="70"  stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q3-s1-line-10" x1="350" y1="70"  x2="370" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q3-s1-line-11" x1="370" y1="200" x2="350" y2="330" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q3-s1-line-12" x1="350" y1="330" x2="200" y2="370" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q3-s1-line-13" x1="200" y1="370" x2="50"  y2="330" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q3-s1-line-14" x1="50"  y1="330" x2="30"  y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q3-s1-line-15" x1="30"  y1="200" x2="50"  y2="70"  stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q3-s1-line-16" x1="50"  y1="70"  x2="200" y2="30"  stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+
+  <!-- Bentuk F tersembunyi: layang-layang/kite memanjang vertikal di tengah
+       F = spike atas + spike kiri + spike bawah + spike kanan (belah ketupat vertikal panjang)
+       Atau lebih tepatnya: titik atas-200,30 - kiri-30,200 - bawah-200,370 - kanan-... tidak
+       F = kite: puncak atas runcing, melebar di tengah, meruncing ke bawah
+       Disini: puncak=200,30 , kiri-tengah=120,200, bawah=200,310 , kanan-tengah=280,200
+  -->
+  <line id="q3-s1-line-17" x1="200" y1="30"  x2="120" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
+  <line id="q3-s1-line-18" x1="120" y1="200" x2="200" y2="310" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
+  <line id="q3-s1-line-19" x1="200" y1="310" x2="280" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
+  <line id="q3-s1-line-20" x1="280" y1="200" x2="200" y2="30"  stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
 </svg>

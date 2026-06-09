@@ -1,6 +1,9 @@
 <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-  <line id="shape-A-line-1" x1="40" y1="140" x2="60" y2="60" stroke="#333" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer;" />
-  <line id="shape-A-line-2" x1="60" y1="60" x2="140" y2="60" stroke="#333" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer;" />
-  <line id="shape-A-line-3" x1="140" y1="60" x2="120" y2="140" stroke="#333" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer;" />
-  <line id="shape-A-line-4" x1="120" y1="140" x2="40" y2="140" stroke="#333" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer;" />
+  <!-- Hexagon: A (segi enam) -->
+  <line id="shape-A-line-1" x1="60" y1="75" x2="140" y2="75" stroke="#333" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
+  <line id="shape-A-line-2" x1="140" y1="75" x2="165" y2="115" stroke="#333" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
+  <line id="shape-A-line-3" x1="165" y1="115" x2="140" y2="155" stroke="#333" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
+  <line id="shape-A-line-4" x1="140" y1="155" x2="60" y2="155" stroke="#333" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
+  <line id="shape-A-line-5" x1="60" y1="155" x2="35" y2="115" stroke="#333" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
+  <line id="shape-A-line-6" x1="35" y1="115" x2="60" y2="75" stroke="#333" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
 </svg>
