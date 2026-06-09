@@ -122,6 +122,37 @@ export default function SiswaPage() {
           
           {/* Left Side: Learning Progress & Module Cards */}
           <div className="dashboard-left" style={{ flex: 1.8, minWidth: '320px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            
+            {/* GAME CARD */}
+            <div
+              onClick={() => router.push('/siswa/game/lobby')}
+              style={{
+                background: 'linear-gradient(135deg, rgba(0,255,136,0.1) 0%, rgba(0,200,255,0.05) 100%)',
+                border: '1px solid rgba(0,255,136,0.25)',
+                borderRadius: '20px', padding: '20px 24px',
+                display: 'flex', gap: '16px', alignItems: 'center',
+                cursor: 'pointer', transition: 'all 0.25s',
+                boxShadow: '0 4px 30px rgba(0,255,136,0.08)',
+                marginBottom: '8px'
+              }}
+              onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 40px rgba(0,255,136,0.15)' }}
+              onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 4px 30px rgba(0,255,136,0.08)' }}
+            >
+              <div style={{ fontSize: '36px', padding: '14px', background: 'rgba(0,255,136,0.08)', borderRadius: '14px', border: '1px solid rgba(0,255,136,0.15)', flexShrink: 0 }}>🕵️</div>
+              <div style={{ flex: 1 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+                  <h4 style={{ fontSize: '16px', fontWeight: 800, margin: 0, color: '#00FF88' }}>Digital Truth Squad — Game Mode</h4>
+                  <span style={{ fontSize: '11px', fontWeight: 700, color: '#00FF88', background: 'rgba(0,255,136,0.1)', padding: '4px 10px', borderRadius: '50px', border: '1px solid rgba(0,255,136,0.2)' }}>BARU ✨</span>
+                </div>
+                <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.55)', lineHeight: 1.5, margin: '6px 0 12px' }}>
+                  Selidiki klaim viral menggunakan statistika! Game investigasi berbasis gaya kognitifmu.
+                </p>
+                <button style={{ padding: '8px 18px', borderRadius: '10px', border: 'none', background: '#00FF88', color: '#000', fontSize: '13px', fontWeight: 800, cursor: 'pointer' }}>
+                  Masuk Lobby →
+                </button>
+              </div>
+            </div>
+
             <h3 className="modules-title" style={{ fontSize: '18px', fontWeight: 800, margin: 0, display: 'flex', alignItems: 'center', gap: '10px' }}>
               📚 Modul Pembelajaran Statistika
             </h3>

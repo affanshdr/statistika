@@ -146,6 +146,28 @@ exports.Prisma.GeftResultScalarFieldEnum = {
   completedAt: 'completedAt'
 };
 
+exports.Prisma.GameSessionScalarFieldEnum = {
+  id: 'id',
+  studentId: 'studentId',
+  levelId: 'levelId',
+  cognitiveStyle: 'cognitiveStyle',
+  xpEarned: 'xpEarned',
+  livesRemaining: 'livesRemaining',
+  timeTaken: 'timeTaken',
+  verdictAnswer: 'verdictAnswer',
+  isCorrect: 'isCorrect',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.LeaderboardScalarFieldEnum = {
+  id: 'id',
+  studentId: 'studentId',
+  username: 'username',
+  totalXp: 'totalXp',
+  badges: 'badges',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -168,7 +190,9 @@ exports.CognitiveStyle = exports.$Enums.CognitiveStyle = {
 exports.Prisma.ModelName = {
   Classroom: 'Classroom',
   Student: 'Student',
-  GeftResult: 'GeftResult'
+  GeftResult: 'GeftResult',
+  GameSession: 'GameSession',
+  Leaderboard: 'Leaderboard'
 };
 
 /**

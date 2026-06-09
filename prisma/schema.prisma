@@ -34,7 +34,9 @@ model Student {
   geftStatus  GeftStatus @default(not_taken) @map("geft_status")
   createdAt   DateTime   @default(now()) @map("created_at")
 
-  geftResult GeftResult?
+  geftResult   GeftResult?
+  gameSessions GameSession[]
+  leaderboard  Leaderboard?
 
   classroom Classroom @relation(fields: [classroomId], references: [id])
 
@@ -56,4 +58,34 @@ model GeftResult {
   student Student @relation(fields: [studentId], references: [id])
 
   @@map("geft_results")
+}
+
+model GameSession {
+  id             String   @id @default(uuid())
+  studentId      String   @map("student_id")
+  levelId        Int      @map("level_id")
+  cognitiveStyle String   @map("cognitive_style")
+  xpEarned       Int      @map("xp_earned")
+  livesRemaining Int      @map("lives_remaining")
+  timeTaken      Int      @map("time_taken")
+  verdictAnswer  String   @map("verdict_answer")
+  isCorrect      Boolean  @map("is_correct")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  student Student @relation(fields: [studentId], references: [id])
+
+  @@map("game_sessions")
+}
+
+model Leaderboard {
+  id        String   @id @default(uuid())
+  studentId String   @unique @map("student_id")
+  username  String
+  totalXp   Int      @default(0) @map("total_xp")
+  badges    String[] @default([])
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  student Student @relation(fields: [studentId], references: [id])
+
+  @@map("leaderboard")
 }

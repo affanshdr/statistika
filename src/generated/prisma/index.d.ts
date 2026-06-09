@@ -28,6 +28,16 @@ export type Student = $Result.DefaultSelection<Prisma.$StudentPayload>
  * 
  */
 export type GeftResult = $Result.DefaultSelection<Prisma.$GeftResultPayload>
+/**
+ * Model GameSession
+ * 
+ */
+export type GameSession = $Result.DefaultSelection<Prisma.$GameSessionPayload>
+/**
+ * Model Leaderboard
+ * 
+ */
+export type Leaderboard = $Result.DefaultSelection<Prisma.$LeaderboardPayload>
 
 /**
  * Enums
@@ -210,6 +220,26 @@ export class PrismaClient<
     * ```
     */
   get geftResult(): Prisma.GeftResultDelegate<ExtArgs>;
+
+  /**
+   * `prisma.gameSession`: Exposes CRUD operations for the **GameSession** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more GameSessions
+    * const gameSessions = await prisma.gameSession.findMany()
+    * ```
+    */
+  get gameSession(): Prisma.GameSessionDelegate<ExtArgs>;
+
+  /**
+   * `prisma.leaderboard`: Exposes CRUD operations for the **Leaderboard** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Leaderboards
+    * const leaderboards = await prisma.leaderboard.findMany()
+    * ```
+    */
+  get leaderboard(): Prisma.LeaderboardDelegate<ExtArgs>;
 }
 
 export namespace Prisma {
@@ -653,7 +683,9 @@ export namespace Prisma {
   export const ModelName: {
     Classroom: 'Classroom',
     Student: 'Student',
-    GeftResult: 'GeftResult'
+    GeftResult: 'GeftResult',
+    GameSession: 'GameSession',
+    Leaderboard: 'Leaderboard'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -669,7 +701,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "classroom" | "student" | "geftResult"
+      modelProps: "classroom" | "student" | "geftResult" | "gameSession" | "leaderboard"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -883,6 +915,146 @@ export namespace Prisma {
           }
         }
       }
+      GameSession: {
+        payload: Prisma.$GameSessionPayload<ExtArgs>
+        fields: Prisma.GameSessionFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.GameSessionFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GameSessionPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.GameSessionFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GameSessionPayload>
+          }
+          findFirst: {
+            args: Prisma.GameSessionFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GameSessionPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.GameSessionFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GameSessionPayload>
+          }
+          findMany: {
+            args: Prisma.GameSessionFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GameSessionPayload>[]
+          }
+          create: {
+            args: Prisma.GameSessionCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GameSessionPayload>
+          }
+          createMany: {
+            args: Prisma.GameSessionCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.GameSessionCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GameSessionPayload>[]
+          }
+          delete: {
+            args: Prisma.GameSessionDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GameSessionPayload>
+          }
+          update: {
+            args: Prisma.GameSessionUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GameSessionPayload>
+          }
+          deleteMany: {
+            args: Prisma.GameSessionDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.GameSessionUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.GameSessionUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GameSessionPayload>
+          }
+          aggregate: {
+            args: Prisma.GameSessionAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateGameSession>
+          }
+          groupBy: {
+            args: Prisma.GameSessionGroupByArgs<ExtArgs>
+            result: $Utils.Optional<GameSessionGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.GameSessionCountArgs<ExtArgs>
+            result: $Utils.Optional<GameSessionCountAggregateOutputType> | number
+          }
+        }
+      }
+      Leaderboard: {
+        payload: Prisma.$LeaderboardPayload<ExtArgs>
+        fields: Prisma.LeaderboardFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.LeaderboardFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LeaderboardPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.LeaderboardFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LeaderboardPayload>
+          }
+          findFirst: {
+            args: Prisma.LeaderboardFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LeaderboardPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.LeaderboardFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LeaderboardPayload>
+          }
+          findMany: {
+            args: Prisma.LeaderboardFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LeaderboardPayload>[]
+          }
+          create: {
+            args: Prisma.LeaderboardCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LeaderboardPayload>
+          }
+          createMany: {
+            args: Prisma.LeaderboardCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.LeaderboardCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LeaderboardPayload>[]
+          }
+          delete: {
+            args: Prisma.LeaderboardDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LeaderboardPayload>
+          }
+          update: {
+            args: Prisma.LeaderboardUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LeaderboardPayload>
+          }
+          deleteMany: {
+            args: Prisma.LeaderboardDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.LeaderboardUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.LeaderboardUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LeaderboardPayload>
+          }
+          aggregate: {
+            args: Prisma.LeaderboardAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateLeaderboard>
+          }
+          groupBy: {
+            args: Prisma.LeaderboardGroupByArgs<ExtArgs>
+            result: $Utils.Optional<LeaderboardGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.LeaderboardCountArgs<ExtArgs>
+            result: $Utils.Optional<LeaderboardCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -1067,6 +1239,37 @@ export namespace Prisma {
    */
   export type ClassroomCountOutputTypeCountStudentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: StudentWhereInput
+  }
+
+
+  /**
+   * Count Type StudentCountOutputType
+   */
+
+  export type StudentCountOutputType = {
+    gameSessions: number
+  }
+
+  export type StudentCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    gameSessions?: boolean | StudentCountOutputTypeCountGameSessionsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * StudentCountOutputType without action
+   */
+  export type StudentCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StudentCountOutputType
+     */
+    select?: StudentCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * StudentCountOutputType without action
+   */
+  export type StudentCountOutputTypeCountGameSessionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: GameSessionWhereInput
   }
 
 
@@ -2183,7 +2386,10 @@ export namespace Prisma {
     geftStatus?: boolean
     createdAt?: boolean
     geftResult?: boolean | Student$geftResultArgs<ExtArgs>
+    gameSessions?: boolean | Student$gameSessionsArgs<ExtArgs>
+    leaderboard?: boolean | Student$leaderboardArgs<ExtArgs>
     classroom?: boolean | ClassroomDefaultArgs<ExtArgs>
+    _count?: boolean | StudentCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["student"]>
 
   export type StudentSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -2207,7 +2413,10 @@ export namespace Prisma {
 
   export type StudentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     geftResult?: boolean | Student$geftResultArgs<ExtArgs>
+    gameSessions?: boolean | Student$gameSessionsArgs<ExtArgs>
+    leaderboard?: boolean | Student$leaderboardArgs<ExtArgs>
     classroom?: boolean | ClassroomDefaultArgs<ExtArgs>
+    _count?: boolean | StudentCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type StudentIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     classroom?: boolean | ClassroomDefaultArgs<ExtArgs>
@@ -2217,6 +2426,8 @@ export namespace Prisma {
     name: "Student"
     objects: {
       geftResult: Prisma.$GeftResultPayload<ExtArgs> | null
+      gameSessions: Prisma.$GameSessionPayload<ExtArgs>[]
+      leaderboard: Prisma.$LeaderboardPayload<ExtArgs> | null
       classroom: Prisma.$ClassroomPayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
@@ -2591,6 +2802,8 @@ export namespace Prisma {
   export interface Prisma__StudentClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     geftResult<T extends Student$geftResultArgs<ExtArgs> = {}>(args?: Subset<T, Student$geftResultArgs<ExtArgs>>): Prisma__GeftResultClient<$Result.GetResult<Prisma.$GeftResultPayload<ExtArgs>, T, "findUniqueOrThrow"> | null, null, ExtArgs>
+    gameSessions<T extends Student$gameSessionsArgs<ExtArgs> = {}>(args?: Subset<T, Student$gameSessionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GameSessionPayload<ExtArgs>, T, "findMany"> | Null>
+    leaderboard<T extends Student$leaderboardArgs<ExtArgs> = {}>(args?: Subset<T, Student$leaderboardArgs<ExtArgs>>): Prisma__LeaderboardClient<$Result.GetResult<Prisma.$LeaderboardPayload<ExtArgs>, T, "findUniqueOrThrow"> | null, null, ExtArgs>
     classroom<T extends ClassroomDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ClassroomDefaultArgs<ExtArgs>>): Prisma__ClassroomClient<$Result.GetResult<Prisma.$ClassroomPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -2957,6 +3170,41 @@ export namespace Prisma {
      */
     include?: GeftResultInclude<ExtArgs> | null
     where?: GeftResultWhereInput
+  }
+
+  /**
+   * Student.gameSessions
+   */
+  export type Student$gameSessionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GameSession
+     */
+    select?: GameSessionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GameSessionInclude<ExtArgs> | null
+    where?: GameSessionWhereInput
+    orderBy?: GameSessionOrderByWithRelationInput | GameSessionOrderByWithRelationInput[]
+    cursor?: GameSessionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: GameSessionScalarFieldEnum | GameSessionScalarFieldEnum[]
+  }
+
+  /**
+   * Student.leaderboard
+   */
+  export type Student$leaderboardArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Leaderboard
+     */
+    select?: LeaderboardSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LeaderboardInclude<ExtArgs> | null
+    where?: LeaderboardWhereInput
   }
 
   /**
@@ -3942,6 +4190,2020 @@ export namespace Prisma {
 
 
   /**
+   * Model GameSession
+   */
+
+  export type AggregateGameSession = {
+    _count: GameSessionCountAggregateOutputType | null
+    _avg: GameSessionAvgAggregateOutputType | null
+    _sum: GameSessionSumAggregateOutputType | null
+    _min: GameSessionMinAggregateOutputType | null
+    _max: GameSessionMaxAggregateOutputType | null
+  }
+
+  export type GameSessionAvgAggregateOutputType = {
+    levelId: number | null
+    xpEarned: number | null
+    livesRemaining: number | null
+    timeTaken: number | null
+  }
+
+  export type GameSessionSumAggregateOutputType = {
+    levelId: number | null
+    xpEarned: number | null
+    livesRemaining: number | null
+    timeTaken: number | null
+  }
+
+  export type GameSessionMinAggregateOutputType = {
+    id: string | null
+    studentId: string | null
+    levelId: number | null
+    cognitiveStyle: string | null
+    xpEarned: number | null
+    livesRemaining: number | null
+    timeTaken: number | null
+    verdictAnswer: string | null
+    isCorrect: boolean | null
+    createdAt: Date | null
+  }
+
+  export type GameSessionMaxAggregateOutputType = {
+    id: string | null
+    studentId: string | null
+    levelId: number | null
+    cognitiveStyle: string | null
+    xpEarned: number | null
+    livesRemaining: number | null
+    timeTaken: number | null
+    verdictAnswer: string | null
+    isCorrect: boolean | null
+    createdAt: Date | null
+  }
+
+  export type GameSessionCountAggregateOutputType = {
+    id: number
+    studentId: number
+    levelId: number
+    cognitiveStyle: number
+    xpEarned: number
+    livesRemaining: number
+    timeTaken: number
+    verdictAnswer: number
+    isCorrect: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type GameSessionAvgAggregateInputType = {
+    levelId?: true
+    xpEarned?: true
+    livesRemaining?: true
+    timeTaken?: true
+  }
+
+  export type GameSessionSumAggregateInputType = {
+    levelId?: true
+    xpEarned?: true
+    livesRemaining?: true
+    timeTaken?: true
+  }
+
+  export type GameSessionMinAggregateInputType = {
+    id?: true
+    studentId?: true
+    levelId?: true
+    cognitiveStyle?: true
+    xpEarned?: true
+    livesRemaining?: true
+    timeTaken?: true
+    verdictAnswer?: true
+    isCorrect?: true
+    createdAt?: true
+  }
+
+  export type GameSessionMaxAggregateInputType = {
+    id?: true
+    studentId?: true
+    levelId?: true
+    cognitiveStyle?: true
+    xpEarned?: true
+    livesRemaining?: true
+    timeTaken?: true
+    verdictAnswer?: true
+    isCorrect?: true
+    createdAt?: true
+  }
+
+  export type GameSessionCountAggregateInputType = {
+    id?: true
+    studentId?: true
+    levelId?: true
+    cognitiveStyle?: true
+    xpEarned?: true
+    livesRemaining?: true
+    timeTaken?: true
+    verdictAnswer?: true
+    isCorrect?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type GameSessionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which GameSession to aggregate.
+     */
+    where?: GameSessionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GameSessions to fetch.
+     */
+    orderBy?: GameSessionOrderByWithRelationInput | GameSessionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: GameSessionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GameSessions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GameSessions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned GameSessions
+    **/
+    _count?: true | GameSessionCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: GameSessionAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: GameSessionSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: GameSessionMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: GameSessionMaxAggregateInputType
+  }
+
+  export type GetGameSessionAggregateType<T extends GameSessionAggregateArgs> = {
+        [P in keyof T & keyof AggregateGameSession]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateGameSession[P]>
+      : GetScalarType<T[P], AggregateGameSession[P]>
+  }
+
+
+
+
+  export type GameSessionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: GameSessionWhereInput
+    orderBy?: GameSessionOrderByWithAggregationInput | GameSessionOrderByWithAggregationInput[]
+    by: GameSessionScalarFieldEnum[] | GameSessionScalarFieldEnum
+    having?: GameSessionScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: GameSessionCountAggregateInputType | true
+    _avg?: GameSessionAvgAggregateInputType
+    _sum?: GameSessionSumAggregateInputType
+    _min?: GameSessionMinAggregateInputType
+    _max?: GameSessionMaxAggregateInputType
+  }
+
+  export type GameSessionGroupByOutputType = {
+    id: string
+    studentId: string
+    levelId: number
+    cognitiveStyle: string
+    xpEarned: number
+    livesRemaining: number
+    timeTaken: number
+    verdictAnswer: string
+    isCorrect: boolean
+    createdAt: Date
+    _count: GameSessionCountAggregateOutputType | null
+    _avg: GameSessionAvgAggregateOutputType | null
+    _sum: GameSessionSumAggregateOutputType | null
+    _min: GameSessionMinAggregateOutputType | null
+    _max: GameSessionMaxAggregateOutputType | null
+  }
+
+  type GetGameSessionGroupByPayload<T extends GameSessionGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<GameSessionGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof GameSessionGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], GameSessionGroupByOutputType[P]>
+            : GetScalarType<T[P], GameSessionGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type GameSessionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    studentId?: boolean
+    levelId?: boolean
+    cognitiveStyle?: boolean
+    xpEarned?: boolean
+    livesRemaining?: boolean
+    timeTaken?: boolean
+    verdictAnswer?: boolean
+    isCorrect?: boolean
+    createdAt?: boolean
+    student?: boolean | StudentDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["gameSession"]>
+
+  export type GameSessionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    studentId?: boolean
+    levelId?: boolean
+    cognitiveStyle?: boolean
+    xpEarned?: boolean
+    livesRemaining?: boolean
+    timeTaken?: boolean
+    verdictAnswer?: boolean
+    isCorrect?: boolean
+    createdAt?: boolean
+    student?: boolean | StudentDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["gameSession"]>
+
+  export type GameSessionSelectScalar = {
+    id?: boolean
+    studentId?: boolean
+    levelId?: boolean
+    cognitiveStyle?: boolean
+    xpEarned?: boolean
+    livesRemaining?: boolean
+    timeTaken?: boolean
+    verdictAnswer?: boolean
+    isCorrect?: boolean
+    createdAt?: boolean
+  }
+
+  export type GameSessionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    student?: boolean | StudentDefaultArgs<ExtArgs>
+  }
+  export type GameSessionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    student?: boolean | StudentDefaultArgs<ExtArgs>
+  }
+
+  export type $GameSessionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "GameSession"
+    objects: {
+      student: Prisma.$StudentPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      studentId: string
+      levelId: number
+      cognitiveStyle: string
+      xpEarned: number
+      livesRemaining: number
+      timeTaken: number
+      verdictAnswer: string
+      isCorrect: boolean
+      createdAt: Date
+    }, ExtArgs["result"]["gameSession"]>
+    composites: {}
+  }
+
+  type GameSessionGetPayload<S extends boolean | null | undefined | GameSessionDefaultArgs> = $Result.GetResult<Prisma.$GameSessionPayload, S>
+
+  type GameSessionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<GameSessionFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: GameSessionCountAggregateInputType | true
+    }
+
+  export interface GameSessionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['GameSession'], meta: { name: 'GameSession' } }
+    /**
+     * Find zero or one GameSession that matches the filter.
+     * @param {GameSessionFindUniqueArgs} args - Arguments to find a GameSession
+     * @example
+     * // Get one GameSession
+     * const gameSession = await prisma.gameSession.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends GameSessionFindUniqueArgs>(args: SelectSubset<T, GameSessionFindUniqueArgs<ExtArgs>>): Prisma__GameSessionClient<$Result.GetResult<Prisma.$GameSessionPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one GameSession that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {GameSessionFindUniqueOrThrowArgs} args - Arguments to find a GameSession
+     * @example
+     * // Get one GameSession
+     * const gameSession = await prisma.gameSession.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends GameSessionFindUniqueOrThrowArgs>(args: SelectSubset<T, GameSessionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__GameSessionClient<$Result.GetResult<Prisma.$GameSessionPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first GameSession that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GameSessionFindFirstArgs} args - Arguments to find a GameSession
+     * @example
+     * // Get one GameSession
+     * const gameSession = await prisma.gameSession.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends GameSessionFindFirstArgs>(args?: SelectSubset<T, GameSessionFindFirstArgs<ExtArgs>>): Prisma__GameSessionClient<$Result.GetResult<Prisma.$GameSessionPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first GameSession that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GameSessionFindFirstOrThrowArgs} args - Arguments to find a GameSession
+     * @example
+     * // Get one GameSession
+     * const gameSession = await prisma.gameSession.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends GameSessionFindFirstOrThrowArgs>(args?: SelectSubset<T, GameSessionFindFirstOrThrowArgs<ExtArgs>>): Prisma__GameSessionClient<$Result.GetResult<Prisma.$GameSessionPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more GameSessions that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GameSessionFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all GameSessions
+     * const gameSessions = await prisma.gameSession.findMany()
+     * 
+     * // Get first 10 GameSessions
+     * const gameSessions = await prisma.gameSession.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const gameSessionWithIdOnly = await prisma.gameSession.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends GameSessionFindManyArgs>(args?: SelectSubset<T, GameSessionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GameSessionPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a GameSession.
+     * @param {GameSessionCreateArgs} args - Arguments to create a GameSession.
+     * @example
+     * // Create one GameSession
+     * const GameSession = await prisma.gameSession.create({
+     *   data: {
+     *     // ... data to create a GameSession
+     *   }
+     * })
+     * 
+     */
+    create<T extends GameSessionCreateArgs>(args: SelectSubset<T, GameSessionCreateArgs<ExtArgs>>): Prisma__GameSessionClient<$Result.GetResult<Prisma.$GameSessionPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many GameSessions.
+     * @param {GameSessionCreateManyArgs} args - Arguments to create many GameSessions.
+     * @example
+     * // Create many GameSessions
+     * const gameSession = await prisma.gameSession.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends GameSessionCreateManyArgs>(args?: SelectSubset<T, GameSessionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many GameSessions and returns the data saved in the database.
+     * @param {GameSessionCreateManyAndReturnArgs} args - Arguments to create many GameSessions.
+     * @example
+     * // Create many GameSessions
+     * const gameSession = await prisma.gameSession.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many GameSessions and only return the `id`
+     * const gameSessionWithIdOnly = await prisma.gameSession.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends GameSessionCreateManyAndReturnArgs>(args?: SelectSubset<T, GameSessionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GameSessionPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a GameSession.
+     * @param {GameSessionDeleteArgs} args - Arguments to delete one GameSession.
+     * @example
+     * // Delete one GameSession
+     * const GameSession = await prisma.gameSession.delete({
+     *   where: {
+     *     // ... filter to delete one GameSession
+     *   }
+     * })
+     * 
+     */
+    delete<T extends GameSessionDeleteArgs>(args: SelectSubset<T, GameSessionDeleteArgs<ExtArgs>>): Prisma__GameSessionClient<$Result.GetResult<Prisma.$GameSessionPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one GameSession.
+     * @param {GameSessionUpdateArgs} args - Arguments to update one GameSession.
+     * @example
+     * // Update one GameSession
+     * const gameSession = await prisma.gameSession.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends GameSessionUpdateArgs>(args: SelectSubset<T, GameSessionUpdateArgs<ExtArgs>>): Prisma__GameSessionClient<$Result.GetResult<Prisma.$GameSessionPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more GameSessions.
+     * @param {GameSessionDeleteManyArgs} args - Arguments to filter GameSessions to delete.
+     * @example
+     * // Delete a few GameSessions
+     * const { count } = await prisma.gameSession.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends GameSessionDeleteManyArgs>(args?: SelectSubset<T, GameSessionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more GameSessions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GameSessionUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many GameSessions
+     * const gameSession = await prisma.gameSession.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends GameSessionUpdateManyArgs>(args: SelectSubset<T, GameSessionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one GameSession.
+     * @param {GameSessionUpsertArgs} args - Arguments to update or create a GameSession.
+     * @example
+     * // Update or create a GameSession
+     * const gameSession = await prisma.gameSession.upsert({
+     *   create: {
+     *     // ... data to create a GameSession
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the GameSession we want to update
+     *   }
+     * })
+     */
+    upsert<T extends GameSessionUpsertArgs>(args: SelectSubset<T, GameSessionUpsertArgs<ExtArgs>>): Prisma__GameSessionClient<$Result.GetResult<Prisma.$GameSessionPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of GameSessions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GameSessionCountArgs} args - Arguments to filter GameSessions to count.
+     * @example
+     * // Count the number of GameSessions
+     * const count = await prisma.gameSession.count({
+     *   where: {
+     *     // ... the filter for the GameSessions we want to count
+     *   }
+     * })
+    **/
+    count<T extends GameSessionCountArgs>(
+      args?: Subset<T, GameSessionCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], GameSessionCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a GameSession.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GameSessionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends GameSessionAggregateArgs>(args: Subset<T, GameSessionAggregateArgs>): Prisma.PrismaPromise<GetGameSessionAggregateType<T>>
+
+    /**
+     * Group by GameSession.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GameSessionGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends GameSessionGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: GameSessionGroupByArgs['orderBy'] }
+        : { orderBy?: GameSessionGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, GameSessionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetGameSessionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the GameSession model
+   */
+  readonly fields: GameSessionFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for GameSession.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__GameSessionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    student<T extends StudentDefaultArgs<ExtArgs> = {}>(args?: Subset<T, StudentDefaultArgs<ExtArgs>>): Prisma__StudentClient<$Result.GetResult<Prisma.$StudentPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the GameSession model
+   */ 
+  interface GameSessionFieldRefs {
+    readonly id: FieldRef<"GameSession", 'String'>
+    readonly studentId: FieldRef<"GameSession", 'String'>
+    readonly levelId: FieldRef<"GameSession", 'Int'>
+    readonly cognitiveStyle: FieldRef<"GameSession", 'String'>
+    readonly xpEarned: FieldRef<"GameSession", 'Int'>
+    readonly livesRemaining: FieldRef<"GameSession", 'Int'>
+    readonly timeTaken: FieldRef<"GameSession", 'Int'>
+    readonly verdictAnswer: FieldRef<"GameSession", 'String'>
+    readonly isCorrect: FieldRef<"GameSession", 'Boolean'>
+    readonly createdAt: FieldRef<"GameSession", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * GameSession findUnique
+   */
+  export type GameSessionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GameSession
+     */
+    select?: GameSessionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GameSessionInclude<ExtArgs> | null
+    /**
+     * Filter, which GameSession to fetch.
+     */
+    where: GameSessionWhereUniqueInput
+  }
+
+  /**
+   * GameSession findUniqueOrThrow
+   */
+  export type GameSessionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GameSession
+     */
+    select?: GameSessionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GameSessionInclude<ExtArgs> | null
+    /**
+     * Filter, which GameSession to fetch.
+     */
+    where: GameSessionWhereUniqueInput
+  }
+
+  /**
+   * GameSession findFirst
+   */
+  export type GameSessionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GameSession
+     */
+    select?: GameSessionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GameSessionInclude<ExtArgs> | null
+    /**
+     * Filter, which GameSession to fetch.
+     */
+    where?: GameSessionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GameSessions to fetch.
+     */
+    orderBy?: GameSessionOrderByWithRelationInput | GameSessionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for GameSessions.
+     */
+    cursor?: GameSessionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GameSessions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GameSessions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GameSessions.
+     */
+    distinct?: GameSessionScalarFieldEnum | GameSessionScalarFieldEnum[]
+  }
+
+  /**
+   * GameSession findFirstOrThrow
+   */
+  export type GameSessionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GameSession
+     */
+    select?: GameSessionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GameSessionInclude<ExtArgs> | null
+    /**
+     * Filter, which GameSession to fetch.
+     */
+    where?: GameSessionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GameSessions to fetch.
+     */
+    orderBy?: GameSessionOrderByWithRelationInput | GameSessionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for GameSessions.
+     */
+    cursor?: GameSessionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GameSessions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GameSessions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GameSessions.
+     */
+    distinct?: GameSessionScalarFieldEnum | GameSessionScalarFieldEnum[]
+  }
+
+  /**
+   * GameSession findMany
+   */
+  export type GameSessionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GameSession
+     */
+    select?: GameSessionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GameSessionInclude<ExtArgs> | null
+    /**
+     * Filter, which GameSessions to fetch.
+     */
+    where?: GameSessionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GameSessions to fetch.
+     */
+    orderBy?: GameSessionOrderByWithRelationInput | GameSessionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing GameSessions.
+     */
+    cursor?: GameSessionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GameSessions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GameSessions.
+     */
+    skip?: number
+    distinct?: GameSessionScalarFieldEnum | GameSessionScalarFieldEnum[]
+  }
+
+  /**
+   * GameSession create
+   */
+  export type GameSessionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GameSession
+     */
+    select?: GameSessionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GameSessionInclude<ExtArgs> | null
+    /**
+     * The data needed to create a GameSession.
+     */
+    data: XOR<GameSessionCreateInput, GameSessionUncheckedCreateInput>
+  }
+
+  /**
+   * GameSession createMany
+   */
+  export type GameSessionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many GameSessions.
+     */
+    data: GameSessionCreateManyInput | GameSessionCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * GameSession createManyAndReturn
+   */
+  export type GameSessionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GameSession
+     */
+    select?: GameSessionSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many GameSessions.
+     */
+    data: GameSessionCreateManyInput | GameSessionCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GameSessionIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * GameSession update
+   */
+  export type GameSessionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GameSession
+     */
+    select?: GameSessionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GameSessionInclude<ExtArgs> | null
+    /**
+     * The data needed to update a GameSession.
+     */
+    data: XOR<GameSessionUpdateInput, GameSessionUncheckedUpdateInput>
+    /**
+     * Choose, which GameSession to update.
+     */
+    where: GameSessionWhereUniqueInput
+  }
+
+  /**
+   * GameSession updateMany
+   */
+  export type GameSessionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update GameSessions.
+     */
+    data: XOR<GameSessionUpdateManyMutationInput, GameSessionUncheckedUpdateManyInput>
+    /**
+     * Filter which GameSessions to update
+     */
+    where?: GameSessionWhereInput
+  }
+
+  /**
+   * GameSession upsert
+   */
+  export type GameSessionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GameSession
+     */
+    select?: GameSessionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GameSessionInclude<ExtArgs> | null
+    /**
+     * The filter to search for the GameSession to update in case it exists.
+     */
+    where: GameSessionWhereUniqueInput
+    /**
+     * In case the GameSession found by the `where` argument doesn't exist, create a new GameSession with this data.
+     */
+    create: XOR<GameSessionCreateInput, GameSessionUncheckedCreateInput>
+    /**
+     * In case the GameSession was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<GameSessionUpdateInput, GameSessionUncheckedUpdateInput>
+  }
+
+  /**
+   * GameSession delete
+   */
+  export type GameSessionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GameSession
+     */
+    select?: GameSessionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GameSessionInclude<ExtArgs> | null
+    /**
+     * Filter which GameSession to delete.
+     */
+    where: GameSessionWhereUniqueInput
+  }
+
+  /**
+   * GameSession deleteMany
+   */
+  export type GameSessionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which GameSessions to delete
+     */
+    where?: GameSessionWhereInput
+  }
+
+  /**
+   * GameSession without action
+   */
+  export type GameSessionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GameSession
+     */
+    select?: GameSessionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GameSessionInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model Leaderboard
+   */
+
+  export type AggregateLeaderboard = {
+    _count: LeaderboardCountAggregateOutputType | null
+    _avg: LeaderboardAvgAggregateOutputType | null
+    _sum: LeaderboardSumAggregateOutputType | null
+    _min: LeaderboardMinAggregateOutputType | null
+    _max: LeaderboardMaxAggregateOutputType | null
+  }
+
+  export type LeaderboardAvgAggregateOutputType = {
+    totalXp: number | null
+  }
+
+  export type LeaderboardSumAggregateOutputType = {
+    totalXp: number | null
+  }
+
+  export type LeaderboardMinAggregateOutputType = {
+    id: string | null
+    studentId: string | null
+    username: string | null
+    totalXp: number | null
+    updatedAt: Date | null
+  }
+
+  export type LeaderboardMaxAggregateOutputType = {
+    id: string | null
+    studentId: string | null
+    username: string | null
+    totalXp: number | null
+    updatedAt: Date | null
+  }
+
+  export type LeaderboardCountAggregateOutputType = {
+    id: number
+    studentId: number
+    username: number
+    totalXp: number
+    badges: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type LeaderboardAvgAggregateInputType = {
+    totalXp?: true
+  }
+
+  export type LeaderboardSumAggregateInputType = {
+    totalXp?: true
+  }
+
+  export type LeaderboardMinAggregateInputType = {
+    id?: true
+    studentId?: true
+    username?: true
+    totalXp?: true
+    updatedAt?: true
+  }
+
+  export type LeaderboardMaxAggregateInputType = {
+    id?: true
+    studentId?: true
+    username?: true
+    totalXp?: true
+    updatedAt?: true
+  }
+
+  export type LeaderboardCountAggregateInputType = {
+    id?: true
+    studentId?: true
+    username?: true
+    totalXp?: true
+    badges?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type LeaderboardAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Leaderboard to aggregate.
+     */
+    where?: LeaderboardWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Leaderboards to fetch.
+     */
+    orderBy?: LeaderboardOrderByWithRelationInput | LeaderboardOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: LeaderboardWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Leaderboards from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Leaderboards.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Leaderboards
+    **/
+    _count?: true | LeaderboardCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: LeaderboardAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: LeaderboardSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: LeaderboardMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: LeaderboardMaxAggregateInputType
+  }
+
+  export type GetLeaderboardAggregateType<T extends LeaderboardAggregateArgs> = {
+        [P in keyof T & keyof AggregateLeaderboard]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateLeaderboard[P]>
+      : GetScalarType<T[P], AggregateLeaderboard[P]>
+  }
+
+
+
+
+  export type LeaderboardGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: LeaderboardWhereInput
+    orderBy?: LeaderboardOrderByWithAggregationInput | LeaderboardOrderByWithAggregationInput[]
+    by: LeaderboardScalarFieldEnum[] | LeaderboardScalarFieldEnum
+    having?: LeaderboardScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: LeaderboardCountAggregateInputType | true
+    _avg?: LeaderboardAvgAggregateInputType
+    _sum?: LeaderboardSumAggregateInputType
+    _min?: LeaderboardMinAggregateInputType
+    _max?: LeaderboardMaxAggregateInputType
+  }
+
+  export type LeaderboardGroupByOutputType = {
+    id: string
+    studentId: string
+    username: string
+    totalXp: number
+    badges: string[]
+    updatedAt: Date
+    _count: LeaderboardCountAggregateOutputType | null
+    _avg: LeaderboardAvgAggregateOutputType | null
+    _sum: LeaderboardSumAggregateOutputType | null
+    _min: LeaderboardMinAggregateOutputType | null
+    _max: LeaderboardMaxAggregateOutputType | null
+  }
+
+  type GetLeaderboardGroupByPayload<T extends LeaderboardGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<LeaderboardGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof LeaderboardGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], LeaderboardGroupByOutputType[P]>
+            : GetScalarType<T[P], LeaderboardGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type LeaderboardSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    studentId?: boolean
+    username?: boolean
+    totalXp?: boolean
+    badges?: boolean
+    updatedAt?: boolean
+    student?: boolean | StudentDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["leaderboard"]>
+
+  export type LeaderboardSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    studentId?: boolean
+    username?: boolean
+    totalXp?: boolean
+    badges?: boolean
+    updatedAt?: boolean
+    student?: boolean | StudentDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["leaderboard"]>
+
+  export type LeaderboardSelectScalar = {
+    id?: boolean
+    studentId?: boolean
+    username?: boolean
+    totalXp?: boolean
+    badges?: boolean
+    updatedAt?: boolean
+  }
+
+  export type LeaderboardInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    student?: boolean | StudentDefaultArgs<ExtArgs>
+  }
+  export type LeaderboardIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    student?: boolean | StudentDefaultArgs<ExtArgs>
+  }
+
+  export type $LeaderboardPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Leaderboard"
+    objects: {
+      student: Prisma.$StudentPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      studentId: string
+      username: string
+      totalXp: number
+      badges: string[]
+      updatedAt: Date
+    }, ExtArgs["result"]["leaderboard"]>
+    composites: {}
+  }
+
+  type LeaderboardGetPayload<S extends boolean | null | undefined | LeaderboardDefaultArgs> = $Result.GetResult<Prisma.$LeaderboardPayload, S>
+
+  type LeaderboardCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<LeaderboardFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: LeaderboardCountAggregateInputType | true
+    }
+
+  export interface LeaderboardDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Leaderboard'], meta: { name: 'Leaderboard' } }
+    /**
+     * Find zero or one Leaderboard that matches the filter.
+     * @param {LeaderboardFindUniqueArgs} args - Arguments to find a Leaderboard
+     * @example
+     * // Get one Leaderboard
+     * const leaderboard = await prisma.leaderboard.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends LeaderboardFindUniqueArgs>(args: SelectSubset<T, LeaderboardFindUniqueArgs<ExtArgs>>): Prisma__LeaderboardClient<$Result.GetResult<Prisma.$LeaderboardPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one Leaderboard that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {LeaderboardFindUniqueOrThrowArgs} args - Arguments to find a Leaderboard
+     * @example
+     * // Get one Leaderboard
+     * const leaderboard = await prisma.leaderboard.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends LeaderboardFindUniqueOrThrowArgs>(args: SelectSubset<T, LeaderboardFindUniqueOrThrowArgs<ExtArgs>>): Prisma__LeaderboardClient<$Result.GetResult<Prisma.$LeaderboardPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first Leaderboard that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LeaderboardFindFirstArgs} args - Arguments to find a Leaderboard
+     * @example
+     * // Get one Leaderboard
+     * const leaderboard = await prisma.leaderboard.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends LeaderboardFindFirstArgs>(args?: SelectSubset<T, LeaderboardFindFirstArgs<ExtArgs>>): Prisma__LeaderboardClient<$Result.GetResult<Prisma.$LeaderboardPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first Leaderboard that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LeaderboardFindFirstOrThrowArgs} args - Arguments to find a Leaderboard
+     * @example
+     * // Get one Leaderboard
+     * const leaderboard = await prisma.leaderboard.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends LeaderboardFindFirstOrThrowArgs>(args?: SelectSubset<T, LeaderboardFindFirstOrThrowArgs<ExtArgs>>): Prisma__LeaderboardClient<$Result.GetResult<Prisma.$LeaderboardPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more Leaderboards that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LeaderboardFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Leaderboards
+     * const leaderboards = await prisma.leaderboard.findMany()
+     * 
+     * // Get first 10 Leaderboards
+     * const leaderboards = await prisma.leaderboard.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const leaderboardWithIdOnly = await prisma.leaderboard.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends LeaderboardFindManyArgs>(args?: SelectSubset<T, LeaderboardFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LeaderboardPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a Leaderboard.
+     * @param {LeaderboardCreateArgs} args - Arguments to create a Leaderboard.
+     * @example
+     * // Create one Leaderboard
+     * const Leaderboard = await prisma.leaderboard.create({
+     *   data: {
+     *     // ... data to create a Leaderboard
+     *   }
+     * })
+     * 
+     */
+    create<T extends LeaderboardCreateArgs>(args: SelectSubset<T, LeaderboardCreateArgs<ExtArgs>>): Prisma__LeaderboardClient<$Result.GetResult<Prisma.$LeaderboardPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many Leaderboards.
+     * @param {LeaderboardCreateManyArgs} args - Arguments to create many Leaderboards.
+     * @example
+     * // Create many Leaderboards
+     * const leaderboard = await prisma.leaderboard.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends LeaderboardCreateManyArgs>(args?: SelectSubset<T, LeaderboardCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Leaderboards and returns the data saved in the database.
+     * @param {LeaderboardCreateManyAndReturnArgs} args - Arguments to create many Leaderboards.
+     * @example
+     * // Create many Leaderboards
+     * const leaderboard = await prisma.leaderboard.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Leaderboards and only return the `id`
+     * const leaderboardWithIdOnly = await prisma.leaderboard.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends LeaderboardCreateManyAndReturnArgs>(args?: SelectSubset<T, LeaderboardCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LeaderboardPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a Leaderboard.
+     * @param {LeaderboardDeleteArgs} args - Arguments to delete one Leaderboard.
+     * @example
+     * // Delete one Leaderboard
+     * const Leaderboard = await prisma.leaderboard.delete({
+     *   where: {
+     *     // ... filter to delete one Leaderboard
+     *   }
+     * })
+     * 
+     */
+    delete<T extends LeaderboardDeleteArgs>(args: SelectSubset<T, LeaderboardDeleteArgs<ExtArgs>>): Prisma__LeaderboardClient<$Result.GetResult<Prisma.$LeaderboardPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one Leaderboard.
+     * @param {LeaderboardUpdateArgs} args - Arguments to update one Leaderboard.
+     * @example
+     * // Update one Leaderboard
+     * const leaderboard = await prisma.leaderboard.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends LeaderboardUpdateArgs>(args: SelectSubset<T, LeaderboardUpdateArgs<ExtArgs>>): Prisma__LeaderboardClient<$Result.GetResult<Prisma.$LeaderboardPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more Leaderboards.
+     * @param {LeaderboardDeleteManyArgs} args - Arguments to filter Leaderboards to delete.
+     * @example
+     * // Delete a few Leaderboards
+     * const { count } = await prisma.leaderboard.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends LeaderboardDeleteManyArgs>(args?: SelectSubset<T, LeaderboardDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Leaderboards.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LeaderboardUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Leaderboards
+     * const leaderboard = await prisma.leaderboard.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends LeaderboardUpdateManyArgs>(args: SelectSubset<T, LeaderboardUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one Leaderboard.
+     * @param {LeaderboardUpsertArgs} args - Arguments to update or create a Leaderboard.
+     * @example
+     * // Update or create a Leaderboard
+     * const leaderboard = await prisma.leaderboard.upsert({
+     *   create: {
+     *     // ... data to create a Leaderboard
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Leaderboard we want to update
+     *   }
+     * })
+     */
+    upsert<T extends LeaderboardUpsertArgs>(args: SelectSubset<T, LeaderboardUpsertArgs<ExtArgs>>): Prisma__LeaderboardClient<$Result.GetResult<Prisma.$LeaderboardPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of Leaderboards.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LeaderboardCountArgs} args - Arguments to filter Leaderboards to count.
+     * @example
+     * // Count the number of Leaderboards
+     * const count = await prisma.leaderboard.count({
+     *   where: {
+     *     // ... the filter for the Leaderboards we want to count
+     *   }
+     * })
+    **/
+    count<T extends LeaderboardCountArgs>(
+      args?: Subset<T, LeaderboardCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], LeaderboardCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Leaderboard.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LeaderboardAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends LeaderboardAggregateArgs>(args: Subset<T, LeaderboardAggregateArgs>): Prisma.PrismaPromise<GetLeaderboardAggregateType<T>>
+
+    /**
+     * Group by Leaderboard.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LeaderboardGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends LeaderboardGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: LeaderboardGroupByArgs['orderBy'] }
+        : { orderBy?: LeaderboardGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, LeaderboardGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetLeaderboardGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Leaderboard model
+   */
+  readonly fields: LeaderboardFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Leaderboard.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__LeaderboardClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    student<T extends StudentDefaultArgs<ExtArgs> = {}>(args?: Subset<T, StudentDefaultArgs<ExtArgs>>): Prisma__StudentClient<$Result.GetResult<Prisma.$StudentPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Leaderboard model
+   */ 
+  interface LeaderboardFieldRefs {
+    readonly id: FieldRef<"Leaderboard", 'String'>
+    readonly studentId: FieldRef<"Leaderboard", 'String'>
+    readonly username: FieldRef<"Leaderboard", 'String'>
+    readonly totalXp: FieldRef<"Leaderboard", 'Int'>
+    readonly badges: FieldRef<"Leaderboard", 'String[]'>
+    readonly updatedAt: FieldRef<"Leaderboard", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Leaderboard findUnique
+   */
+  export type LeaderboardFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Leaderboard
+     */
+    select?: LeaderboardSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LeaderboardInclude<ExtArgs> | null
+    /**
+     * Filter, which Leaderboard to fetch.
+     */
+    where: LeaderboardWhereUniqueInput
+  }
+
+  /**
+   * Leaderboard findUniqueOrThrow
+   */
+  export type LeaderboardFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Leaderboard
+     */
+    select?: LeaderboardSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LeaderboardInclude<ExtArgs> | null
+    /**
+     * Filter, which Leaderboard to fetch.
+     */
+    where: LeaderboardWhereUniqueInput
+  }
+
+  /**
+   * Leaderboard findFirst
+   */
+  export type LeaderboardFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Leaderboard
+     */
+    select?: LeaderboardSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LeaderboardInclude<ExtArgs> | null
+    /**
+     * Filter, which Leaderboard to fetch.
+     */
+    where?: LeaderboardWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Leaderboards to fetch.
+     */
+    orderBy?: LeaderboardOrderByWithRelationInput | LeaderboardOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Leaderboards.
+     */
+    cursor?: LeaderboardWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Leaderboards from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Leaderboards.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Leaderboards.
+     */
+    distinct?: LeaderboardScalarFieldEnum | LeaderboardScalarFieldEnum[]
+  }
+
+  /**
+   * Leaderboard findFirstOrThrow
+   */
+  export type LeaderboardFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Leaderboard
+     */
+    select?: LeaderboardSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LeaderboardInclude<ExtArgs> | null
+    /**
+     * Filter, which Leaderboard to fetch.
+     */
+    where?: LeaderboardWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Leaderboards to fetch.
+     */
+    orderBy?: LeaderboardOrderByWithRelationInput | LeaderboardOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Leaderboards.
+     */
+    cursor?: LeaderboardWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Leaderboards from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Leaderboards.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Leaderboards.
+     */
+    distinct?: LeaderboardScalarFieldEnum | LeaderboardScalarFieldEnum[]
+  }
+
+  /**
+   * Leaderboard findMany
+   */
+  export type LeaderboardFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Leaderboard
+     */
+    select?: LeaderboardSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LeaderboardInclude<ExtArgs> | null
+    /**
+     * Filter, which Leaderboards to fetch.
+     */
+    where?: LeaderboardWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Leaderboards to fetch.
+     */
+    orderBy?: LeaderboardOrderByWithRelationInput | LeaderboardOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Leaderboards.
+     */
+    cursor?: LeaderboardWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Leaderboards from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Leaderboards.
+     */
+    skip?: number
+    distinct?: LeaderboardScalarFieldEnum | LeaderboardScalarFieldEnum[]
+  }
+
+  /**
+   * Leaderboard create
+   */
+  export type LeaderboardCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Leaderboard
+     */
+    select?: LeaderboardSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LeaderboardInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Leaderboard.
+     */
+    data: XOR<LeaderboardCreateInput, LeaderboardUncheckedCreateInput>
+  }
+
+  /**
+   * Leaderboard createMany
+   */
+  export type LeaderboardCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Leaderboards.
+     */
+    data: LeaderboardCreateManyInput | LeaderboardCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Leaderboard createManyAndReturn
+   */
+  export type LeaderboardCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Leaderboard
+     */
+    select?: LeaderboardSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many Leaderboards.
+     */
+    data: LeaderboardCreateManyInput | LeaderboardCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LeaderboardIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Leaderboard update
+   */
+  export type LeaderboardUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Leaderboard
+     */
+    select?: LeaderboardSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LeaderboardInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Leaderboard.
+     */
+    data: XOR<LeaderboardUpdateInput, LeaderboardUncheckedUpdateInput>
+    /**
+     * Choose, which Leaderboard to update.
+     */
+    where: LeaderboardWhereUniqueInput
+  }
+
+  /**
+   * Leaderboard updateMany
+   */
+  export type LeaderboardUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Leaderboards.
+     */
+    data: XOR<LeaderboardUpdateManyMutationInput, LeaderboardUncheckedUpdateManyInput>
+    /**
+     * Filter which Leaderboards to update
+     */
+    where?: LeaderboardWhereInput
+  }
+
+  /**
+   * Leaderboard upsert
+   */
+  export type LeaderboardUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Leaderboard
+     */
+    select?: LeaderboardSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LeaderboardInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Leaderboard to update in case it exists.
+     */
+    where: LeaderboardWhereUniqueInput
+    /**
+     * In case the Leaderboard found by the `where` argument doesn't exist, create a new Leaderboard with this data.
+     */
+    create: XOR<LeaderboardCreateInput, LeaderboardUncheckedCreateInput>
+    /**
+     * In case the Leaderboard was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<LeaderboardUpdateInput, LeaderboardUncheckedUpdateInput>
+  }
+
+  /**
+   * Leaderboard delete
+   */
+  export type LeaderboardDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Leaderboard
+     */
+    select?: LeaderboardSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LeaderboardInclude<ExtArgs> | null
+    /**
+     * Filter which Leaderboard to delete.
+     */
+    where: LeaderboardWhereUniqueInput
+  }
+
+  /**
+   * Leaderboard deleteMany
+   */
+  export type LeaderboardDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Leaderboards to delete
+     */
+    where?: LeaderboardWhereInput
+  }
+
+  /**
+   * Leaderboard without action
+   */
+  export type LeaderboardDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Leaderboard
+     */
+    select?: LeaderboardSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LeaderboardInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -3986,6 +6248,34 @@ export namespace Prisma {
   };
 
   export type GeftResultScalarFieldEnum = (typeof GeftResultScalarFieldEnum)[keyof typeof GeftResultScalarFieldEnum]
+
+
+  export const GameSessionScalarFieldEnum: {
+    id: 'id',
+    studentId: 'studentId',
+    levelId: 'levelId',
+    cognitiveStyle: 'cognitiveStyle',
+    xpEarned: 'xpEarned',
+    livesRemaining: 'livesRemaining',
+    timeTaken: 'timeTaken',
+    verdictAnswer: 'verdictAnswer',
+    isCorrect: 'isCorrect',
+    createdAt: 'createdAt'
+  };
+
+  export type GameSessionScalarFieldEnum = (typeof GameSessionScalarFieldEnum)[keyof typeof GameSessionScalarFieldEnum]
+
+
+  export const LeaderboardScalarFieldEnum: {
+    id: 'id',
+    studentId: 'studentId',
+    username: 'username',
+    totalXp: 'totalXp',
+    badges: 'badges',
+    updatedAt: 'updatedAt'
+  };
+
+  export type LeaderboardScalarFieldEnum = (typeof LeaderboardScalarFieldEnum)[keyof typeof LeaderboardScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -4080,6 +6370,13 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'Boolean'
+   */
+  export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
+
+
+  /**
    * Reference to a field of type 'Float'
    */
   export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
@@ -4157,6 +6454,8 @@ export namespace Prisma {
     geftStatus?: EnumGeftStatusFilter<"Student"> | $Enums.GeftStatus
     createdAt?: DateTimeFilter<"Student"> | Date | string
     geftResult?: XOR<GeftResultNullableRelationFilter, GeftResultWhereInput> | null
+    gameSessions?: GameSessionListRelationFilter
+    leaderboard?: XOR<LeaderboardNullableRelationFilter, LeaderboardWhereInput> | null
     classroom?: XOR<ClassroomRelationFilter, ClassroomWhereInput>
   }
 
@@ -4168,6 +6467,8 @@ export namespace Prisma {
     geftStatus?: SortOrder
     createdAt?: SortOrder
     geftResult?: GeftResultOrderByWithRelationInput
+    gameSessions?: GameSessionOrderByRelationAggregateInput
+    leaderboard?: LeaderboardOrderByWithRelationInput
     classroom?: ClassroomOrderByWithRelationInput
   }
 
@@ -4182,6 +6483,8 @@ export namespace Prisma {
     geftStatus?: EnumGeftStatusFilter<"Student"> | $Enums.GeftStatus
     createdAt?: DateTimeFilter<"Student"> | Date | string
     geftResult?: XOR<GeftResultNullableRelationFilter, GeftResultWhereInput> | null
+    gameSessions?: GameSessionListRelationFilter
+    leaderboard?: XOR<LeaderboardNullableRelationFilter, LeaderboardWhereInput> | null
     classroom?: XOR<ClassroomRelationFilter, ClassroomWhereInput>
   }, "id" | "nisn">
 
@@ -4266,6 +6569,150 @@ export namespace Prisma {
     completedAt?: DateTimeWithAggregatesFilter<"GeftResult"> | Date | string
   }
 
+  export type GameSessionWhereInput = {
+    AND?: GameSessionWhereInput | GameSessionWhereInput[]
+    OR?: GameSessionWhereInput[]
+    NOT?: GameSessionWhereInput | GameSessionWhereInput[]
+    id?: StringFilter<"GameSession"> | string
+    studentId?: StringFilter<"GameSession"> | string
+    levelId?: IntFilter<"GameSession"> | number
+    cognitiveStyle?: StringFilter<"GameSession"> | string
+    xpEarned?: IntFilter<"GameSession"> | number
+    livesRemaining?: IntFilter<"GameSession"> | number
+    timeTaken?: IntFilter<"GameSession"> | number
+    verdictAnswer?: StringFilter<"GameSession"> | string
+    isCorrect?: BoolFilter<"GameSession"> | boolean
+    createdAt?: DateTimeFilter<"GameSession"> | Date | string
+    student?: XOR<StudentRelationFilter, StudentWhereInput>
+  }
+
+  export type GameSessionOrderByWithRelationInput = {
+    id?: SortOrder
+    studentId?: SortOrder
+    levelId?: SortOrder
+    cognitiveStyle?: SortOrder
+    xpEarned?: SortOrder
+    livesRemaining?: SortOrder
+    timeTaken?: SortOrder
+    verdictAnswer?: SortOrder
+    isCorrect?: SortOrder
+    createdAt?: SortOrder
+    student?: StudentOrderByWithRelationInput
+  }
+
+  export type GameSessionWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: GameSessionWhereInput | GameSessionWhereInput[]
+    OR?: GameSessionWhereInput[]
+    NOT?: GameSessionWhereInput | GameSessionWhereInput[]
+    studentId?: StringFilter<"GameSession"> | string
+    levelId?: IntFilter<"GameSession"> | number
+    cognitiveStyle?: StringFilter<"GameSession"> | string
+    xpEarned?: IntFilter<"GameSession"> | number
+    livesRemaining?: IntFilter<"GameSession"> | number
+    timeTaken?: IntFilter<"GameSession"> | number
+    verdictAnswer?: StringFilter<"GameSession"> | string
+    isCorrect?: BoolFilter<"GameSession"> | boolean
+    createdAt?: DateTimeFilter<"GameSession"> | Date | string
+    student?: XOR<StudentRelationFilter, StudentWhereInput>
+  }, "id">
+
+  export type GameSessionOrderByWithAggregationInput = {
+    id?: SortOrder
+    studentId?: SortOrder
+    levelId?: SortOrder
+    cognitiveStyle?: SortOrder
+    xpEarned?: SortOrder
+    livesRemaining?: SortOrder
+    timeTaken?: SortOrder
+    verdictAnswer?: SortOrder
+    isCorrect?: SortOrder
+    createdAt?: SortOrder
+    _count?: GameSessionCountOrderByAggregateInput
+    _avg?: GameSessionAvgOrderByAggregateInput
+    _max?: GameSessionMaxOrderByAggregateInput
+    _min?: GameSessionMinOrderByAggregateInput
+    _sum?: GameSessionSumOrderByAggregateInput
+  }
+
+  export type GameSessionScalarWhereWithAggregatesInput = {
+    AND?: GameSessionScalarWhereWithAggregatesInput | GameSessionScalarWhereWithAggregatesInput[]
+    OR?: GameSessionScalarWhereWithAggregatesInput[]
+    NOT?: GameSessionScalarWhereWithAggregatesInput | GameSessionScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"GameSession"> | string
+    studentId?: StringWithAggregatesFilter<"GameSession"> | string
+    levelId?: IntWithAggregatesFilter<"GameSession"> | number
+    cognitiveStyle?: StringWithAggregatesFilter<"GameSession"> | string
+    xpEarned?: IntWithAggregatesFilter<"GameSession"> | number
+    livesRemaining?: IntWithAggregatesFilter<"GameSession"> | number
+    timeTaken?: IntWithAggregatesFilter<"GameSession"> | number
+    verdictAnswer?: StringWithAggregatesFilter<"GameSession"> | string
+    isCorrect?: BoolWithAggregatesFilter<"GameSession"> | boolean
+    createdAt?: DateTimeWithAggregatesFilter<"GameSession"> | Date | string
+  }
+
+  export type LeaderboardWhereInput = {
+    AND?: LeaderboardWhereInput | LeaderboardWhereInput[]
+    OR?: LeaderboardWhereInput[]
+    NOT?: LeaderboardWhereInput | LeaderboardWhereInput[]
+    id?: StringFilter<"Leaderboard"> | string
+    studentId?: StringFilter<"Leaderboard"> | string
+    username?: StringFilter<"Leaderboard"> | string
+    totalXp?: IntFilter<"Leaderboard"> | number
+    badges?: StringNullableListFilter<"Leaderboard">
+    updatedAt?: DateTimeFilter<"Leaderboard"> | Date | string
+    student?: XOR<StudentRelationFilter, StudentWhereInput>
+  }
+
+  export type LeaderboardOrderByWithRelationInput = {
+    id?: SortOrder
+    studentId?: SortOrder
+    username?: SortOrder
+    totalXp?: SortOrder
+    badges?: SortOrder
+    updatedAt?: SortOrder
+    student?: StudentOrderByWithRelationInput
+  }
+
+  export type LeaderboardWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    studentId?: string
+    AND?: LeaderboardWhereInput | LeaderboardWhereInput[]
+    OR?: LeaderboardWhereInput[]
+    NOT?: LeaderboardWhereInput | LeaderboardWhereInput[]
+    username?: StringFilter<"Leaderboard"> | string
+    totalXp?: IntFilter<"Leaderboard"> | number
+    badges?: StringNullableListFilter<"Leaderboard">
+    updatedAt?: DateTimeFilter<"Leaderboard"> | Date | string
+    student?: XOR<StudentRelationFilter, StudentWhereInput>
+  }, "id" | "studentId">
+
+  export type LeaderboardOrderByWithAggregationInput = {
+    id?: SortOrder
+    studentId?: SortOrder
+    username?: SortOrder
+    totalXp?: SortOrder
+    badges?: SortOrder
+    updatedAt?: SortOrder
+    _count?: LeaderboardCountOrderByAggregateInput
+    _avg?: LeaderboardAvgOrderByAggregateInput
+    _max?: LeaderboardMaxOrderByAggregateInput
+    _min?: LeaderboardMinOrderByAggregateInput
+    _sum?: LeaderboardSumOrderByAggregateInput
+  }
+
+  export type LeaderboardScalarWhereWithAggregatesInput = {
+    AND?: LeaderboardScalarWhereWithAggregatesInput | LeaderboardScalarWhereWithAggregatesInput[]
+    OR?: LeaderboardScalarWhereWithAggregatesInput[]
+    NOT?: LeaderboardScalarWhereWithAggregatesInput | LeaderboardScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Leaderboard"> | string
+    studentId?: StringWithAggregatesFilter<"Leaderboard"> | string
+    username?: StringWithAggregatesFilter<"Leaderboard"> | string
+    totalXp?: IntWithAggregatesFilter<"Leaderboard"> | number
+    badges?: StringNullableListFilter<"Leaderboard">
+    updatedAt?: DateTimeWithAggregatesFilter<"Leaderboard"> | Date | string
+  }
+
   export type ClassroomCreateInput = {
     id?: string
     name: string
@@ -4326,6 +6773,8 @@ export namespace Prisma {
     geftStatus?: $Enums.GeftStatus
     createdAt?: Date | string
     geftResult?: GeftResultCreateNestedOneWithoutStudentInput
+    gameSessions?: GameSessionCreateNestedManyWithoutStudentInput
+    leaderboard?: LeaderboardCreateNestedOneWithoutStudentInput
     classroom: ClassroomCreateNestedOneWithoutStudentsInput
   }
 
@@ -4337,6 +6786,8 @@ export namespace Prisma {
     geftStatus?: $Enums.GeftStatus
     createdAt?: Date | string
     geftResult?: GeftResultUncheckedCreateNestedOneWithoutStudentInput
+    gameSessions?: GameSessionUncheckedCreateNestedManyWithoutStudentInput
+    leaderboard?: LeaderboardUncheckedCreateNestedOneWithoutStudentInput
   }
 
   export type StudentUpdateInput = {
@@ -4346,6 +6797,8 @@ export namespace Prisma {
     geftStatus?: EnumGeftStatusFieldUpdateOperationsInput | $Enums.GeftStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     geftResult?: GeftResultUpdateOneWithoutStudentNestedInput
+    gameSessions?: GameSessionUpdateManyWithoutStudentNestedInput
+    leaderboard?: LeaderboardUpdateOneWithoutStudentNestedInput
     classroom?: ClassroomUpdateOneRequiredWithoutStudentsNestedInput
   }
 
@@ -4357,6 +6810,8 @@ export namespace Prisma {
     geftStatus?: EnumGeftStatusFieldUpdateOperationsInput | $Enums.GeftStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     geftResult?: GeftResultUncheckedUpdateOneWithoutStudentNestedInput
+    gameSessions?: GameSessionUncheckedUpdateManyWithoutStudentNestedInput
+    leaderboard?: LeaderboardUncheckedUpdateOneWithoutStudentNestedInput
   }
 
   export type StudentCreateManyInput = {
@@ -4438,6 +6893,158 @@ export namespace Prisma {
     score?: IntFieldUpdateOperationsInput | number
     cognitiveStyle?: EnumCognitiveStyleFieldUpdateOperationsInput | $Enums.CognitiveStyle
     completedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GameSessionCreateInput = {
+    id?: string
+    levelId: number
+    cognitiveStyle: string
+    xpEarned: number
+    livesRemaining: number
+    timeTaken: number
+    verdictAnswer: string
+    isCorrect: boolean
+    createdAt?: Date | string
+    student: StudentCreateNestedOneWithoutGameSessionsInput
+  }
+
+  export type GameSessionUncheckedCreateInput = {
+    id?: string
+    studentId: string
+    levelId: number
+    cognitiveStyle: string
+    xpEarned: number
+    livesRemaining: number
+    timeTaken: number
+    verdictAnswer: string
+    isCorrect: boolean
+    createdAt?: Date | string
+  }
+
+  export type GameSessionUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    levelId?: IntFieldUpdateOperationsInput | number
+    cognitiveStyle?: StringFieldUpdateOperationsInput | string
+    xpEarned?: IntFieldUpdateOperationsInput | number
+    livesRemaining?: IntFieldUpdateOperationsInput | number
+    timeTaken?: IntFieldUpdateOperationsInput | number
+    verdictAnswer?: StringFieldUpdateOperationsInput | string
+    isCorrect?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    student?: StudentUpdateOneRequiredWithoutGameSessionsNestedInput
+  }
+
+  export type GameSessionUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    studentId?: StringFieldUpdateOperationsInput | string
+    levelId?: IntFieldUpdateOperationsInput | number
+    cognitiveStyle?: StringFieldUpdateOperationsInput | string
+    xpEarned?: IntFieldUpdateOperationsInput | number
+    livesRemaining?: IntFieldUpdateOperationsInput | number
+    timeTaken?: IntFieldUpdateOperationsInput | number
+    verdictAnswer?: StringFieldUpdateOperationsInput | string
+    isCorrect?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GameSessionCreateManyInput = {
+    id?: string
+    studentId: string
+    levelId: number
+    cognitiveStyle: string
+    xpEarned: number
+    livesRemaining: number
+    timeTaken: number
+    verdictAnswer: string
+    isCorrect: boolean
+    createdAt?: Date | string
+  }
+
+  export type GameSessionUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    levelId?: IntFieldUpdateOperationsInput | number
+    cognitiveStyle?: StringFieldUpdateOperationsInput | string
+    xpEarned?: IntFieldUpdateOperationsInput | number
+    livesRemaining?: IntFieldUpdateOperationsInput | number
+    timeTaken?: IntFieldUpdateOperationsInput | number
+    verdictAnswer?: StringFieldUpdateOperationsInput | string
+    isCorrect?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GameSessionUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    studentId?: StringFieldUpdateOperationsInput | string
+    levelId?: IntFieldUpdateOperationsInput | number
+    cognitiveStyle?: StringFieldUpdateOperationsInput | string
+    xpEarned?: IntFieldUpdateOperationsInput | number
+    livesRemaining?: IntFieldUpdateOperationsInput | number
+    timeTaken?: IntFieldUpdateOperationsInput | number
+    verdictAnswer?: StringFieldUpdateOperationsInput | string
+    isCorrect?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LeaderboardCreateInput = {
+    id?: string
+    username: string
+    totalXp?: number
+    badges?: LeaderboardCreatebadgesInput | string[]
+    updatedAt?: Date | string
+    student: StudentCreateNestedOneWithoutLeaderboardInput
+  }
+
+  export type LeaderboardUncheckedCreateInput = {
+    id?: string
+    studentId: string
+    username: string
+    totalXp?: number
+    badges?: LeaderboardCreatebadgesInput | string[]
+    updatedAt?: Date | string
+  }
+
+  export type LeaderboardUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    username?: StringFieldUpdateOperationsInput | string
+    totalXp?: IntFieldUpdateOperationsInput | number
+    badges?: LeaderboardUpdatebadgesInput | string[]
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    student?: StudentUpdateOneRequiredWithoutLeaderboardNestedInput
+  }
+
+  export type LeaderboardUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    studentId?: StringFieldUpdateOperationsInput | string
+    username?: StringFieldUpdateOperationsInput | string
+    totalXp?: IntFieldUpdateOperationsInput | number
+    badges?: LeaderboardUpdatebadgesInput | string[]
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LeaderboardCreateManyInput = {
+    id?: string
+    studentId: string
+    username: string
+    totalXp?: number
+    badges?: LeaderboardCreatebadgesInput | string[]
+    updatedAt?: Date | string
+  }
+
+  export type LeaderboardUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    username?: StringFieldUpdateOperationsInput | string
+    totalXp?: IntFieldUpdateOperationsInput | number
+    badges?: LeaderboardUpdatebadgesInput | string[]
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LeaderboardUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    studentId?: StringFieldUpdateOperationsInput | string
+    username?: StringFieldUpdateOperationsInput | string
+    totalXp?: IntFieldUpdateOperationsInput | number
+    badges?: LeaderboardUpdatebadgesInput | string[]
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type StringFilter<$PrismaModel = never> = {
@@ -4527,9 +7134,24 @@ export namespace Prisma {
     isNot?: GeftResultWhereInput | null
   }
 
+  export type GameSessionListRelationFilter = {
+    every?: GameSessionWhereInput
+    some?: GameSessionWhereInput
+    none?: GameSessionWhereInput
+  }
+
+  export type LeaderboardNullableRelationFilter = {
+    is?: LeaderboardWhereInput | null
+    isNot?: LeaderboardWhereInput | null
+  }
+
   export type ClassroomRelationFilter = {
     is?: ClassroomWhereInput
     isNot?: ClassroomWhereInput
+  }
+
+  export type GameSessionOrderByRelationAggregateInput = {
+    _count?: SortOrder
   }
 
   export type StudentCountOrderByAggregateInput = {
@@ -4664,6 +7286,113 @@ export namespace Prisma {
     _max?: NestedEnumCognitiveStyleFilter<$PrismaModel>
   }
 
+  export type BoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
+  export type GameSessionCountOrderByAggregateInput = {
+    id?: SortOrder
+    studentId?: SortOrder
+    levelId?: SortOrder
+    cognitiveStyle?: SortOrder
+    xpEarned?: SortOrder
+    livesRemaining?: SortOrder
+    timeTaken?: SortOrder
+    verdictAnswer?: SortOrder
+    isCorrect?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type GameSessionAvgOrderByAggregateInput = {
+    levelId?: SortOrder
+    xpEarned?: SortOrder
+    livesRemaining?: SortOrder
+    timeTaken?: SortOrder
+  }
+
+  export type GameSessionMaxOrderByAggregateInput = {
+    id?: SortOrder
+    studentId?: SortOrder
+    levelId?: SortOrder
+    cognitiveStyle?: SortOrder
+    xpEarned?: SortOrder
+    livesRemaining?: SortOrder
+    timeTaken?: SortOrder
+    verdictAnswer?: SortOrder
+    isCorrect?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type GameSessionMinOrderByAggregateInput = {
+    id?: SortOrder
+    studentId?: SortOrder
+    levelId?: SortOrder
+    cognitiveStyle?: SortOrder
+    xpEarned?: SortOrder
+    livesRemaining?: SortOrder
+    timeTaken?: SortOrder
+    verdictAnswer?: SortOrder
+    isCorrect?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type GameSessionSumOrderByAggregateInput = {
+    levelId?: SortOrder
+    xpEarned?: SortOrder
+    livesRemaining?: SortOrder
+    timeTaken?: SortOrder
+  }
+
+  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
+  }
+
+  export type StringNullableListFilter<$PrismaModel = never> = {
+    equals?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    has?: string | StringFieldRefInput<$PrismaModel> | null
+    hasEvery?: string[] | ListStringFieldRefInput<$PrismaModel>
+    hasSome?: string[] | ListStringFieldRefInput<$PrismaModel>
+    isEmpty?: boolean
+  }
+
+  export type LeaderboardCountOrderByAggregateInput = {
+    id?: SortOrder
+    studentId?: SortOrder
+    username?: SortOrder
+    totalXp?: SortOrder
+    badges?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type LeaderboardAvgOrderByAggregateInput = {
+    totalXp?: SortOrder
+  }
+
+  export type LeaderboardMaxOrderByAggregateInput = {
+    id?: SortOrder
+    studentId?: SortOrder
+    username?: SortOrder
+    totalXp?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type LeaderboardMinOrderByAggregateInput = {
+    id?: SortOrder
+    studentId?: SortOrder
+    username?: SortOrder
+    totalXp?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type LeaderboardSumOrderByAggregateInput = {
+    totalXp?: SortOrder
+  }
+
   export type StudentCreateNestedManyWithoutClassroomInput = {
     create?: XOR<StudentCreateWithoutClassroomInput, StudentUncheckedCreateWithoutClassroomInput> | StudentCreateWithoutClassroomInput[] | StudentUncheckedCreateWithoutClassroomInput[]
     connectOrCreate?: StudentCreateOrConnectWithoutClassroomInput | StudentCreateOrConnectWithoutClassroomInput[]
@@ -4716,6 +7445,19 @@ export namespace Prisma {
     connect?: GeftResultWhereUniqueInput
   }
 
+  export type GameSessionCreateNestedManyWithoutStudentInput = {
+    create?: XOR<GameSessionCreateWithoutStudentInput, GameSessionUncheckedCreateWithoutStudentInput> | GameSessionCreateWithoutStudentInput[] | GameSessionUncheckedCreateWithoutStudentInput[]
+    connectOrCreate?: GameSessionCreateOrConnectWithoutStudentInput | GameSessionCreateOrConnectWithoutStudentInput[]
+    createMany?: GameSessionCreateManyStudentInputEnvelope
+    connect?: GameSessionWhereUniqueInput | GameSessionWhereUniqueInput[]
+  }
+
+  export type LeaderboardCreateNestedOneWithoutStudentInput = {
+    create?: XOR<LeaderboardCreateWithoutStudentInput, LeaderboardUncheckedCreateWithoutStudentInput>
+    connectOrCreate?: LeaderboardCreateOrConnectWithoutStudentInput
+    connect?: LeaderboardWhereUniqueInput
+  }
+
   export type ClassroomCreateNestedOneWithoutStudentsInput = {
     create?: XOR<ClassroomCreateWithoutStudentsInput, ClassroomUncheckedCreateWithoutStudentsInput>
     connectOrCreate?: ClassroomCreateOrConnectWithoutStudentsInput
@@ -4726,6 +7468,19 @@ export namespace Prisma {
     create?: XOR<GeftResultCreateWithoutStudentInput, GeftResultUncheckedCreateWithoutStudentInput>
     connectOrCreate?: GeftResultCreateOrConnectWithoutStudentInput
     connect?: GeftResultWhereUniqueInput
+  }
+
+  export type GameSessionUncheckedCreateNestedManyWithoutStudentInput = {
+    create?: XOR<GameSessionCreateWithoutStudentInput, GameSessionUncheckedCreateWithoutStudentInput> | GameSessionCreateWithoutStudentInput[] | GameSessionUncheckedCreateWithoutStudentInput[]
+    connectOrCreate?: GameSessionCreateOrConnectWithoutStudentInput | GameSessionCreateOrConnectWithoutStudentInput[]
+    createMany?: GameSessionCreateManyStudentInputEnvelope
+    connect?: GameSessionWhereUniqueInput | GameSessionWhereUniqueInput[]
+  }
+
+  export type LeaderboardUncheckedCreateNestedOneWithoutStudentInput = {
+    create?: XOR<LeaderboardCreateWithoutStudentInput, LeaderboardUncheckedCreateWithoutStudentInput>
+    connectOrCreate?: LeaderboardCreateOrConnectWithoutStudentInput
+    connect?: LeaderboardWhereUniqueInput
   }
 
   export type EnumGeftStatusFieldUpdateOperationsInput = {
@@ -4746,6 +7501,30 @@ export namespace Prisma {
     update?: XOR<XOR<GeftResultUpdateToOneWithWhereWithoutStudentInput, GeftResultUpdateWithoutStudentInput>, GeftResultUncheckedUpdateWithoutStudentInput>
   }
 
+  export type GameSessionUpdateManyWithoutStudentNestedInput = {
+    create?: XOR<GameSessionCreateWithoutStudentInput, GameSessionUncheckedCreateWithoutStudentInput> | GameSessionCreateWithoutStudentInput[] | GameSessionUncheckedCreateWithoutStudentInput[]
+    connectOrCreate?: GameSessionCreateOrConnectWithoutStudentInput | GameSessionCreateOrConnectWithoutStudentInput[]
+    upsert?: GameSessionUpsertWithWhereUniqueWithoutStudentInput | GameSessionUpsertWithWhereUniqueWithoutStudentInput[]
+    createMany?: GameSessionCreateManyStudentInputEnvelope
+    set?: GameSessionWhereUniqueInput | GameSessionWhereUniqueInput[]
+    disconnect?: GameSessionWhereUniqueInput | GameSessionWhereUniqueInput[]
+    delete?: GameSessionWhereUniqueInput | GameSessionWhereUniqueInput[]
+    connect?: GameSessionWhereUniqueInput | GameSessionWhereUniqueInput[]
+    update?: GameSessionUpdateWithWhereUniqueWithoutStudentInput | GameSessionUpdateWithWhereUniqueWithoutStudentInput[]
+    updateMany?: GameSessionUpdateManyWithWhereWithoutStudentInput | GameSessionUpdateManyWithWhereWithoutStudentInput[]
+    deleteMany?: GameSessionScalarWhereInput | GameSessionScalarWhereInput[]
+  }
+
+  export type LeaderboardUpdateOneWithoutStudentNestedInput = {
+    create?: XOR<LeaderboardCreateWithoutStudentInput, LeaderboardUncheckedCreateWithoutStudentInput>
+    connectOrCreate?: LeaderboardCreateOrConnectWithoutStudentInput
+    upsert?: LeaderboardUpsertWithoutStudentInput
+    disconnect?: LeaderboardWhereInput | boolean
+    delete?: LeaderboardWhereInput | boolean
+    connect?: LeaderboardWhereUniqueInput
+    update?: XOR<XOR<LeaderboardUpdateToOneWithWhereWithoutStudentInput, LeaderboardUpdateWithoutStudentInput>, LeaderboardUncheckedUpdateWithoutStudentInput>
+  }
+
   export type ClassroomUpdateOneRequiredWithoutStudentsNestedInput = {
     create?: XOR<ClassroomCreateWithoutStudentsInput, ClassroomUncheckedCreateWithoutStudentsInput>
     connectOrCreate?: ClassroomCreateOrConnectWithoutStudentsInput
@@ -4762,6 +7541,30 @@ export namespace Prisma {
     delete?: GeftResultWhereInput | boolean
     connect?: GeftResultWhereUniqueInput
     update?: XOR<XOR<GeftResultUpdateToOneWithWhereWithoutStudentInput, GeftResultUpdateWithoutStudentInput>, GeftResultUncheckedUpdateWithoutStudentInput>
+  }
+
+  export type GameSessionUncheckedUpdateManyWithoutStudentNestedInput = {
+    create?: XOR<GameSessionCreateWithoutStudentInput, GameSessionUncheckedCreateWithoutStudentInput> | GameSessionCreateWithoutStudentInput[] | GameSessionUncheckedCreateWithoutStudentInput[]
+    connectOrCreate?: GameSessionCreateOrConnectWithoutStudentInput | GameSessionCreateOrConnectWithoutStudentInput[]
+    upsert?: GameSessionUpsertWithWhereUniqueWithoutStudentInput | GameSessionUpsertWithWhereUniqueWithoutStudentInput[]
+    createMany?: GameSessionCreateManyStudentInputEnvelope
+    set?: GameSessionWhereUniqueInput | GameSessionWhereUniqueInput[]
+    disconnect?: GameSessionWhereUniqueInput | GameSessionWhereUniqueInput[]
+    delete?: GameSessionWhereUniqueInput | GameSessionWhereUniqueInput[]
+    connect?: GameSessionWhereUniqueInput | GameSessionWhereUniqueInput[]
+    update?: GameSessionUpdateWithWhereUniqueWithoutStudentInput | GameSessionUpdateWithWhereUniqueWithoutStudentInput[]
+    updateMany?: GameSessionUpdateManyWithWhereWithoutStudentInput | GameSessionUpdateManyWithWhereWithoutStudentInput[]
+    deleteMany?: GameSessionScalarWhereInput | GameSessionScalarWhereInput[]
+  }
+
+  export type LeaderboardUncheckedUpdateOneWithoutStudentNestedInput = {
+    create?: XOR<LeaderboardCreateWithoutStudentInput, LeaderboardUncheckedCreateWithoutStudentInput>
+    connectOrCreate?: LeaderboardCreateOrConnectWithoutStudentInput
+    upsert?: LeaderboardUpsertWithoutStudentInput
+    disconnect?: LeaderboardWhereInput | boolean
+    delete?: LeaderboardWhereInput | boolean
+    connect?: LeaderboardWhereUniqueInput
+    update?: XOR<XOR<LeaderboardUpdateToOneWithWhereWithoutStudentInput, LeaderboardUpdateWithoutStudentInput>, LeaderboardUncheckedUpdateWithoutStudentInput>
   }
 
   export type StudentCreateNestedOneWithoutGeftResultInput = {
@@ -4788,6 +7591,47 @@ export namespace Prisma {
     upsert?: StudentUpsertWithoutGeftResultInput
     connect?: StudentWhereUniqueInput
     update?: XOR<XOR<StudentUpdateToOneWithWhereWithoutGeftResultInput, StudentUpdateWithoutGeftResultInput>, StudentUncheckedUpdateWithoutGeftResultInput>
+  }
+
+  export type StudentCreateNestedOneWithoutGameSessionsInput = {
+    create?: XOR<StudentCreateWithoutGameSessionsInput, StudentUncheckedCreateWithoutGameSessionsInput>
+    connectOrCreate?: StudentCreateOrConnectWithoutGameSessionsInput
+    connect?: StudentWhereUniqueInput
+  }
+
+  export type BoolFieldUpdateOperationsInput = {
+    set?: boolean
+  }
+
+  export type StudentUpdateOneRequiredWithoutGameSessionsNestedInput = {
+    create?: XOR<StudentCreateWithoutGameSessionsInput, StudentUncheckedCreateWithoutGameSessionsInput>
+    connectOrCreate?: StudentCreateOrConnectWithoutGameSessionsInput
+    upsert?: StudentUpsertWithoutGameSessionsInput
+    connect?: StudentWhereUniqueInput
+    update?: XOR<XOR<StudentUpdateToOneWithWhereWithoutGameSessionsInput, StudentUpdateWithoutGameSessionsInput>, StudentUncheckedUpdateWithoutGameSessionsInput>
+  }
+
+  export type LeaderboardCreatebadgesInput = {
+    set: string[]
+  }
+
+  export type StudentCreateNestedOneWithoutLeaderboardInput = {
+    create?: XOR<StudentCreateWithoutLeaderboardInput, StudentUncheckedCreateWithoutLeaderboardInput>
+    connectOrCreate?: StudentCreateOrConnectWithoutLeaderboardInput
+    connect?: StudentWhereUniqueInput
+  }
+
+  export type LeaderboardUpdatebadgesInput = {
+    set?: string[]
+    push?: string | string[]
+  }
+
+  export type StudentUpdateOneRequiredWithoutLeaderboardNestedInput = {
+    create?: XOR<StudentCreateWithoutLeaderboardInput, StudentUncheckedCreateWithoutLeaderboardInput>
+    connectOrCreate?: StudentCreateOrConnectWithoutLeaderboardInput
+    upsert?: StudentUpsertWithoutLeaderboardInput
+    connect?: StudentWhereUniqueInput
+    update?: XOR<XOR<StudentUpdateToOneWithWhereWithoutLeaderboardInput, StudentUpdateWithoutLeaderboardInput>, StudentUncheckedUpdateWithoutLeaderboardInput>
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -4918,6 +7762,19 @@ export namespace Prisma {
     _max?: NestedEnumCognitiveStyleFilter<$PrismaModel>
   }
 
+  export type NestedBoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
+  export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
+  }
+
   export type StudentCreateWithoutClassroomInput = {
     id?: string
     name: string
@@ -4925,6 +7782,8 @@ export namespace Prisma {
     geftStatus?: $Enums.GeftStatus
     createdAt?: Date | string
     geftResult?: GeftResultCreateNestedOneWithoutStudentInput
+    gameSessions?: GameSessionCreateNestedManyWithoutStudentInput
+    leaderboard?: LeaderboardCreateNestedOneWithoutStudentInput
   }
 
   export type StudentUncheckedCreateWithoutClassroomInput = {
@@ -4934,6 +7793,8 @@ export namespace Prisma {
     geftStatus?: $Enums.GeftStatus
     createdAt?: Date | string
     geftResult?: GeftResultUncheckedCreateNestedOneWithoutStudentInput
+    gameSessions?: GameSessionUncheckedCreateNestedManyWithoutStudentInput
+    leaderboard?: LeaderboardUncheckedCreateNestedOneWithoutStudentInput
   }
 
   export type StudentCreateOrConnectWithoutClassroomInput = {
@@ -4993,6 +7854,61 @@ export namespace Prisma {
     create: XOR<GeftResultCreateWithoutStudentInput, GeftResultUncheckedCreateWithoutStudentInput>
   }
 
+  export type GameSessionCreateWithoutStudentInput = {
+    id?: string
+    levelId: number
+    cognitiveStyle: string
+    xpEarned: number
+    livesRemaining: number
+    timeTaken: number
+    verdictAnswer: string
+    isCorrect: boolean
+    createdAt?: Date | string
+  }
+
+  export type GameSessionUncheckedCreateWithoutStudentInput = {
+    id?: string
+    levelId: number
+    cognitiveStyle: string
+    xpEarned: number
+    livesRemaining: number
+    timeTaken: number
+    verdictAnswer: string
+    isCorrect: boolean
+    createdAt?: Date | string
+  }
+
+  export type GameSessionCreateOrConnectWithoutStudentInput = {
+    where: GameSessionWhereUniqueInput
+    create: XOR<GameSessionCreateWithoutStudentInput, GameSessionUncheckedCreateWithoutStudentInput>
+  }
+
+  export type GameSessionCreateManyStudentInputEnvelope = {
+    data: GameSessionCreateManyStudentInput | GameSessionCreateManyStudentInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type LeaderboardCreateWithoutStudentInput = {
+    id?: string
+    username: string
+    totalXp?: number
+    badges?: LeaderboardCreatebadgesInput | string[]
+    updatedAt?: Date | string
+  }
+
+  export type LeaderboardUncheckedCreateWithoutStudentInput = {
+    id?: string
+    username: string
+    totalXp?: number
+    badges?: LeaderboardCreatebadgesInput | string[]
+    updatedAt?: Date | string
+  }
+
+  export type LeaderboardCreateOrConnectWithoutStudentInput = {
+    where: LeaderboardWhereUniqueInput
+    create: XOR<LeaderboardCreateWithoutStudentInput, LeaderboardUncheckedCreateWithoutStudentInput>
+  }
+
   export type ClassroomCreateWithoutStudentsInput = {
     id?: string
     name: string
@@ -5037,6 +7953,65 @@ export namespace Prisma {
     completedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type GameSessionUpsertWithWhereUniqueWithoutStudentInput = {
+    where: GameSessionWhereUniqueInput
+    update: XOR<GameSessionUpdateWithoutStudentInput, GameSessionUncheckedUpdateWithoutStudentInput>
+    create: XOR<GameSessionCreateWithoutStudentInput, GameSessionUncheckedCreateWithoutStudentInput>
+  }
+
+  export type GameSessionUpdateWithWhereUniqueWithoutStudentInput = {
+    where: GameSessionWhereUniqueInput
+    data: XOR<GameSessionUpdateWithoutStudentInput, GameSessionUncheckedUpdateWithoutStudentInput>
+  }
+
+  export type GameSessionUpdateManyWithWhereWithoutStudentInput = {
+    where: GameSessionScalarWhereInput
+    data: XOR<GameSessionUpdateManyMutationInput, GameSessionUncheckedUpdateManyWithoutStudentInput>
+  }
+
+  export type GameSessionScalarWhereInput = {
+    AND?: GameSessionScalarWhereInput | GameSessionScalarWhereInput[]
+    OR?: GameSessionScalarWhereInput[]
+    NOT?: GameSessionScalarWhereInput | GameSessionScalarWhereInput[]
+    id?: StringFilter<"GameSession"> | string
+    studentId?: StringFilter<"GameSession"> | string
+    levelId?: IntFilter<"GameSession"> | number
+    cognitiveStyle?: StringFilter<"GameSession"> | string
+    xpEarned?: IntFilter<"GameSession"> | number
+    livesRemaining?: IntFilter<"GameSession"> | number
+    timeTaken?: IntFilter<"GameSession"> | number
+    verdictAnswer?: StringFilter<"GameSession"> | string
+    isCorrect?: BoolFilter<"GameSession"> | boolean
+    createdAt?: DateTimeFilter<"GameSession"> | Date | string
+  }
+
+  export type LeaderboardUpsertWithoutStudentInput = {
+    update: XOR<LeaderboardUpdateWithoutStudentInput, LeaderboardUncheckedUpdateWithoutStudentInput>
+    create: XOR<LeaderboardCreateWithoutStudentInput, LeaderboardUncheckedCreateWithoutStudentInput>
+    where?: LeaderboardWhereInput
+  }
+
+  export type LeaderboardUpdateToOneWithWhereWithoutStudentInput = {
+    where?: LeaderboardWhereInput
+    data: XOR<LeaderboardUpdateWithoutStudentInput, LeaderboardUncheckedUpdateWithoutStudentInput>
+  }
+
+  export type LeaderboardUpdateWithoutStudentInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    username?: StringFieldUpdateOperationsInput | string
+    totalXp?: IntFieldUpdateOperationsInput | number
+    badges?: LeaderboardUpdatebadgesInput | string[]
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LeaderboardUncheckedUpdateWithoutStudentInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    username?: StringFieldUpdateOperationsInput | string
+    totalXp?: IntFieldUpdateOperationsInput | number
+    badges?: LeaderboardUpdatebadgesInput | string[]
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type ClassroomUpsertWithoutStudentsInput = {
     update: XOR<ClassroomUpdateWithoutStudentsInput, ClassroomUncheckedUpdateWithoutStudentsInput>
     create: XOR<ClassroomCreateWithoutStudentsInput, ClassroomUncheckedCreateWithoutStudentsInput>
@@ -5068,6 +8043,8 @@ export namespace Prisma {
     nisn: string
     geftStatus?: $Enums.GeftStatus
     createdAt?: Date | string
+    gameSessions?: GameSessionCreateNestedManyWithoutStudentInput
+    leaderboard?: LeaderboardCreateNestedOneWithoutStudentInput
     classroom: ClassroomCreateNestedOneWithoutStudentsInput
   }
 
@@ -5078,6 +8055,8 @@ export namespace Prisma {
     classroomId: string
     geftStatus?: $Enums.GeftStatus
     createdAt?: Date | string
+    gameSessions?: GameSessionUncheckedCreateNestedManyWithoutStudentInput
+    leaderboard?: LeaderboardUncheckedCreateNestedOneWithoutStudentInput
   }
 
   export type StudentCreateOrConnectWithoutGeftResultInput = {
@@ -5102,6 +8081,8 @@ export namespace Prisma {
     nisn?: StringFieldUpdateOperationsInput | string
     geftStatus?: EnumGeftStatusFieldUpdateOperationsInput | $Enums.GeftStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    gameSessions?: GameSessionUpdateManyWithoutStudentNestedInput
+    leaderboard?: LeaderboardUpdateOneWithoutStudentNestedInput
     classroom?: ClassroomUpdateOneRequiredWithoutStudentsNestedInput
   }
 
@@ -5112,6 +8093,128 @@ export namespace Prisma {
     classroomId?: StringFieldUpdateOperationsInput | string
     geftStatus?: EnumGeftStatusFieldUpdateOperationsInput | $Enums.GeftStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    gameSessions?: GameSessionUncheckedUpdateManyWithoutStudentNestedInput
+    leaderboard?: LeaderboardUncheckedUpdateOneWithoutStudentNestedInput
+  }
+
+  export type StudentCreateWithoutGameSessionsInput = {
+    id?: string
+    name: string
+    nisn: string
+    geftStatus?: $Enums.GeftStatus
+    createdAt?: Date | string
+    geftResult?: GeftResultCreateNestedOneWithoutStudentInput
+    leaderboard?: LeaderboardCreateNestedOneWithoutStudentInput
+    classroom: ClassroomCreateNestedOneWithoutStudentsInput
+  }
+
+  export type StudentUncheckedCreateWithoutGameSessionsInput = {
+    id?: string
+    name: string
+    nisn: string
+    classroomId: string
+    geftStatus?: $Enums.GeftStatus
+    createdAt?: Date | string
+    geftResult?: GeftResultUncheckedCreateNestedOneWithoutStudentInput
+    leaderboard?: LeaderboardUncheckedCreateNestedOneWithoutStudentInput
+  }
+
+  export type StudentCreateOrConnectWithoutGameSessionsInput = {
+    where: StudentWhereUniqueInput
+    create: XOR<StudentCreateWithoutGameSessionsInput, StudentUncheckedCreateWithoutGameSessionsInput>
+  }
+
+  export type StudentUpsertWithoutGameSessionsInput = {
+    update: XOR<StudentUpdateWithoutGameSessionsInput, StudentUncheckedUpdateWithoutGameSessionsInput>
+    create: XOR<StudentCreateWithoutGameSessionsInput, StudentUncheckedCreateWithoutGameSessionsInput>
+    where?: StudentWhereInput
+  }
+
+  export type StudentUpdateToOneWithWhereWithoutGameSessionsInput = {
+    where?: StudentWhereInput
+    data: XOR<StudentUpdateWithoutGameSessionsInput, StudentUncheckedUpdateWithoutGameSessionsInput>
+  }
+
+  export type StudentUpdateWithoutGameSessionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    nisn?: StringFieldUpdateOperationsInput | string
+    geftStatus?: EnumGeftStatusFieldUpdateOperationsInput | $Enums.GeftStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    geftResult?: GeftResultUpdateOneWithoutStudentNestedInput
+    leaderboard?: LeaderboardUpdateOneWithoutStudentNestedInput
+    classroom?: ClassroomUpdateOneRequiredWithoutStudentsNestedInput
+  }
+
+  export type StudentUncheckedUpdateWithoutGameSessionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    nisn?: StringFieldUpdateOperationsInput | string
+    classroomId?: StringFieldUpdateOperationsInput | string
+    geftStatus?: EnumGeftStatusFieldUpdateOperationsInput | $Enums.GeftStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    geftResult?: GeftResultUncheckedUpdateOneWithoutStudentNestedInput
+    leaderboard?: LeaderboardUncheckedUpdateOneWithoutStudentNestedInput
+  }
+
+  export type StudentCreateWithoutLeaderboardInput = {
+    id?: string
+    name: string
+    nisn: string
+    geftStatus?: $Enums.GeftStatus
+    createdAt?: Date | string
+    geftResult?: GeftResultCreateNestedOneWithoutStudentInput
+    gameSessions?: GameSessionCreateNestedManyWithoutStudentInput
+    classroom: ClassroomCreateNestedOneWithoutStudentsInput
+  }
+
+  export type StudentUncheckedCreateWithoutLeaderboardInput = {
+    id?: string
+    name: string
+    nisn: string
+    classroomId: string
+    geftStatus?: $Enums.GeftStatus
+    createdAt?: Date | string
+    geftResult?: GeftResultUncheckedCreateNestedOneWithoutStudentInput
+    gameSessions?: GameSessionUncheckedCreateNestedManyWithoutStudentInput
+  }
+
+  export type StudentCreateOrConnectWithoutLeaderboardInput = {
+    where: StudentWhereUniqueInput
+    create: XOR<StudentCreateWithoutLeaderboardInput, StudentUncheckedCreateWithoutLeaderboardInput>
+  }
+
+  export type StudentUpsertWithoutLeaderboardInput = {
+    update: XOR<StudentUpdateWithoutLeaderboardInput, StudentUncheckedUpdateWithoutLeaderboardInput>
+    create: XOR<StudentCreateWithoutLeaderboardInput, StudentUncheckedCreateWithoutLeaderboardInput>
+    where?: StudentWhereInput
+  }
+
+  export type StudentUpdateToOneWithWhereWithoutLeaderboardInput = {
+    where?: StudentWhereInput
+    data: XOR<StudentUpdateWithoutLeaderboardInput, StudentUncheckedUpdateWithoutLeaderboardInput>
+  }
+
+  export type StudentUpdateWithoutLeaderboardInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    nisn?: StringFieldUpdateOperationsInput | string
+    geftStatus?: EnumGeftStatusFieldUpdateOperationsInput | $Enums.GeftStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    geftResult?: GeftResultUpdateOneWithoutStudentNestedInput
+    gameSessions?: GameSessionUpdateManyWithoutStudentNestedInput
+    classroom?: ClassroomUpdateOneRequiredWithoutStudentsNestedInput
+  }
+
+  export type StudentUncheckedUpdateWithoutLeaderboardInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    nisn?: StringFieldUpdateOperationsInput | string
+    classroomId?: StringFieldUpdateOperationsInput | string
+    geftStatus?: EnumGeftStatusFieldUpdateOperationsInput | $Enums.GeftStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    geftResult?: GeftResultUncheckedUpdateOneWithoutStudentNestedInput
+    gameSessions?: GameSessionUncheckedUpdateManyWithoutStudentNestedInput
   }
 
   export type StudentCreateManyClassroomInput = {
@@ -5129,6 +8232,8 @@ export namespace Prisma {
     geftStatus?: EnumGeftStatusFieldUpdateOperationsInput | $Enums.GeftStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     geftResult?: GeftResultUpdateOneWithoutStudentNestedInput
+    gameSessions?: GameSessionUpdateManyWithoutStudentNestedInput
+    leaderboard?: LeaderboardUpdateOneWithoutStudentNestedInput
   }
 
   export type StudentUncheckedUpdateWithoutClassroomInput = {
@@ -5138,6 +8243,8 @@ export namespace Prisma {
     geftStatus?: EnumGeftStatusFieldUpdateOperationsInput | $Enums.GeftStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     geftResult?: GeftResultUncheckedUpdateOneWithoutStudentNestedInput
+    gameSessions?: GameSessionUncheckedUpdateManyWithoutStudentNestedInput
+    leaderboard?: LeaderboardUncheckedUpdateOneWithoutStudentNestedInput
   }
 
   export type StudentUncheckedUpdateManyWithoutClassroomInput = {
@@ -5145,6 +8252,54 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     nisn?: StringFieldUpdateOperationsInput | string
     geftStatus?: EnumGeftStatusFieldUpdateOperationsInput | $Enums.GeftStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GameSessionCreateManyStudentInput = {
+    id?: string
+    levelId: number
+    cognitiveStyle: string
+    xpEarned: number
+    livesRemaining: number
+    timeTaken: number
+    verdictAnswer: string
+    isCorrect: boolean
+    createdAt?: Date | string
+  }
+
+  export type GameSessionUpdateWithoutStudentInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    levelId?: IntFieldUpdateOperationsInput | number
+    cognitiveStyle?: StringFieldUpdateOperationsInput | string
+    xpEarned?: IntFieldUpdateOperationsInput | number
+    livesRemaining?: IntFieldUpdateOperationsInput | number
+    timeTaken?: IntFieldUpdateOperationsInput | number
+    verdictAnswer?: StringFieldUpdateOperationsInput | string
+    isCorrect?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GameSessionUncheckedUpdateWithoutStudentInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    levelId?: IntFieldUpdateOperationsInput | number
+    cognitiveStyle?: StringFieldUpdateOperationsInput | string
+    xpEarned?: IntFieldUpdateOperationsInput | number
+    livesRemaining?: IntFieldUpdateOperationsInput | number
+    timeTaken?: IntFieldUpdateOperationsInput | number
+    verdictAnswer?: StringFieldUpdateOperationsInput | string
+    isCorrect?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GameSessionUncheckedUpdateManyWithoutStudentInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    levelId?: IntFieldUpdateOperationsInput | number
+    cognitiveStyle?: StringFieldUpdateOperationsInput | string
+    xpEarned?: IntFieldUpdateOperationsInput | number
+    livesRemaining?: IntFieldUpdateOperationsInput | number
+    timeTaken?: IntFieldUpdateOperationsInput | number
+    verdictAnswer?: StringFieldUpdateOperationsInput | string
+    isCorrect?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -5158,6 +8313,10 @@ export namespace Prisma {
      */
     export type ClassroomCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ClassroomCountOutputTypeDefaultArgs<ExtArgs>
     /**
+     * @deprecated Use StudentCountOutputTypeDefaultArgs instead
+     */
+    export type StudentCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = StudentCountOutputTypeDefaultArgs<ExtArgs>
+    /**
      * @deprecated Use ClassroomDefaultArgs instead
      */
     export type ClassroomArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ClassroomDefaultArgs<ExtArgs>
@@ -5169,6 +8328,14 @@ export namespace Prisma {
      * @deprecated Use GeftResultDefaultArgs instead
      */
     export type GeftResultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = GeftResultDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use GameSessionDefaultArgs instead
+     */
+    export type GameSessionArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = GameSessionDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use LeaderboardDefaultArgs instead
+     */
+    export type LeaderboardArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = LeaderboardDefaultArgs<ExtArgs>
 
   /**
    * Batch Payload for updateMany & deleteMany & createMany

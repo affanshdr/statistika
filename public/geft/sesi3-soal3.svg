@@ -3,45 +3,48 @@
 
   <!-- ==========================================
        SESI 3 SOAL 3: Kotak 3D / balok perspektif
-       Target: Bentuk C (L-shape / sudut siku)
+       Target: Bentuk C (L-shape / sudut siku — vertikal + horizontal saja)
+       Jawaban C berada di area dalam kotak persegi (sudut kiri atas inner square
+       + sisi atas muka depan + sisi kiri muka depan)
        ========================================== -->
 
-  <!-- Muka depan balok (persegi panjang depan) -->
-  <line id="q3-s3-line-1" x1="60"  y1="160" x2="240" y2="160" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
-  <line id="q3-s3-line-2" x1="240" y1="160" x2="240" y2="320" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
-  <line id="q3-s3-line-3" x1="240" y1="320" x2="60"  y2="320" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
-  <line id="q3-s3-line-4" x1="60"  y1="320" x2="60"  y2="160" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <!-- ── Muka depan balok (persegi panjang depan) ── -->
+  <!-- Sisi atas muka depan -->
+  <line id="q3-s3-line-1" x1="60"  y1="160" x2="260" y2="160" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
+  <!-- Sisi kanan muka depan -->
+  <line id="q3-s3-line-2" x1="260" y1="160" x2="260" y2="340" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <!-- Sisi bawah muka depan -->
+  <line id="q3-s3-line-3" x1="260" y1="340" x2="60"  y2="340" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <!-- Sisi kiri muka depan -->
+  <line id="q3-s3-line-4" x1="60"  y1="340" x2="60"  y2="160" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
 
-  <!-- Sisi atas balok (parallelogram atas) -->
+  <!-- ── Sisi atas balok (parallelogram) ── -->
+  <!-- Diagonal kiri atas -->
   <line id="q3-s3-line-5" x1="60"  y1="160" x2="160" y2="60"  stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
-  <line id="q3-s3-line-6" x1="160" y1="60"  x2="340" y2="60"  stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
-  <line id="q3-s3-line-7" x1="340" y1="60"  x2="240" y2="160" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <!-- Sisi atas horizontal -->
+  <line id="q3-s3-line-6" x1="160" y1="60"  x2="360" y2="60"  stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <!-- Diagonal kanan atas -->
+  <line id="q3-s3-line-7" x1="360" y1="60"  x2="260" y2="160" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
 
-  <!-- Sisi samping kanan balok -->
-  <line id="q3-s3-line-8" x1="340" y1="60"  x2="340" y2="220" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
-  <line id="q3-s3-line-9" x1="340" y1="220" x2="240" y2="320" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <!-- ── Sisi samping kanan balok ── -->
+  <!-- Sisi kanan vertikal -->
+  <line id="q3-s3-line-8" x1="360" y1="60"  x2="360" y2="240" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <!-- Diagonal bawah kanan -->
+  <line id="q3-s3-line-9" x1="360" y1="240" x2="260" y2="340" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
 
-  <!-- Kotak persegi dalam (jendela/lubang) -->
-  <line id="q3-s3-line-10" x1="100" y1="200" x2="200" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
-  <line id="q3-s3-line-11" x1="200" y1="200" x2="200" y2="285" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
-  <line id="q3-s3-line-12" x1="200" y1="285" x2="100" y2="285" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
-  <line id="q3-s3-line-13" x1="100" y1="285" x2="100" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <!-- ── Kotak persegi dalam (jendela/lubang di muka depan) ── -->
+  <!-- Sisi atas inner square -->
+  <line id="q3-s3-line-10" x1="60"  y1="240" x2="170" y2="240" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
+  <!-- Sisi kanan inner square -->
+  <line id="q3-s3-line-11" x1="170" y1="240" x2="170" y2="340" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
+  <!-- Sisi bawah inner square (shared dengan bottom front face) -->
+  <line id="q3-s3-line-12" x1="170" y1="340" x2="60"  y2="340" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <!-- Sisi kiri inner square (shared dengan left front face — line-4) -->
 
-  <!-- Bentuk C tersembunyi (L-shape / sudut siku):
-       C = vertikal turun dari atas, lalu belok horizontal ke kanan, lalu naik ke pojok
-       Posisi di sisi kanan atas balok:
-       Dari sudut kiri atas persegi kecil, naik, miring ke kanan atas lalu ke kanan
-  -->
-  <!-- Sisi kiri C (vertikal) -->
-  <line id="q3-s3-line-14" x1="200" y1="160" x2="200" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
-  <!-- Sisi atas C (diagonal/miring ke kanan atas) -->
-  <line id="q3-s3-line-15" x1="200" y1="160" x2="295" y2="110" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
-  <!-- Sisi kanan atas C (horizontal ke kanan) -->
-  <line id="q3-s3-line-16" x1="295" y1="110" x2="340" y2="110" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
-  <!-- Sisi kanan bawah C (vertikal turun) -->
-  <line id="q3-s3-line-17" x1="340" y1="110" x2="340" y2="145" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
-  <!-- Sisi dalam C (horizontal ke kiri) -->
-  <line id="q3-s3-line-18" x1="340" y1="145" x2="240" y2="195" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
-  <!-- Tutup C (vertikal ke bawah ke persegi dalam) -->
-  <line id="q3-s3-line-19" x1="240" y1="195" x2="200" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
+  <!-- ── Garis horizontal tengah muka depan ── -->
+  <line id="q3-s3-line-13" x1="60"  y1="240" x2="260" y2="240" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+
+  <!-- ── Garis vertikal tengah muka depan ── -->
+  <line id="q3-s3-line-14" x1="170" y1="160" x2="170" y2="240" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
+
 </svg>
