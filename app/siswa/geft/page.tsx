@@ -13,17 +13,19 @@ type Question = {
 
 const QUESTIONS: Question[] = [
   // Sesi 1 — latihan (tidak dihitung)
-  { id: 1,  section: 1, no: 1, targetShape: 'B' },
-  { id: 2,  section: 1, no: 2, targetShape: 'G' },
+  { id: 1, section: 1, no: 1, targetShape: 'B' },
+  { id: 2, section: 1, no: 2, targetShape: 'G' },
+  { id: 11, section: 1, no: 3, targetShape: 'D' },
+  { id: 12, section: 1, no: 4, targetShape: 'E' },
   // Sesi 2 — dinilai
-  { id: 3,  section: 2, no: 1, targetShape: 'G' },
-  { id: 4,  section: 2, no: 2, targetShape: 'A' },
-  { id: 5,  section: 2, no: 3, targetShape: 'G' },
-  { id: 6,  section: 2, no: 4, targetShape: 'E' },
+  { id: 3, section: 2, no: 1, targetShape: 'G' },
+  { id: 4, section: 2, no: 2, targetShape: 'A' },
+  { id: 5, section: 2, no: 3, targetShape: 'G' },
+  { id: 6, section: 2, no: 4, targetShape: 'E' },
   // Sesi 3 — dinilai
-  { id: 7,  section: 3, no: 1, targetShape: 'F' },
-  { id: 8,  section: 3, no: 2, targetShape: 'G' },
-  { id: 9,  section: 3, no: 3, targetShape: 'C' },
+  { id: 7, section: 3, no: 1, targetShape: 'F' },
+  { id: 8, section: 3, no: 2, targetShape: 'G' },
+  { id: 9, section: 3, no: 3, targetShape: 'C' },
   { id: 10, section: 3, no: 4, targetShape: 'E' },
 ]
 
@@ -54,17 +56,17 @@ const GeftSvgViewer = memo(function GeftSvgViewer({ svgContent, selected, onSvgC
   }, [svgContent, selected])
 
   return (
-    <div 
+    <div
       className="geft-svg-container"
-      dangerouslySetInnerHTML={{ __html: svgContent }} 
+      dangerouslySetInnerHTML={{ __html: svgContent }}
       onClick={onSvgClick}
-      style={{ 
-        position: 'relative', 
-        borderRadius: 12, 
-        overflow: 'hidden', 
-        border: '1px solid rgba(255,255,255,0.1)', 
-        background: '#0a1428', 
-        touchAction: 'none' 
+      style={{
+        position: 'relative',
+        borderRadius: 12,
+        overflow: 'hidden',
+        border: '1px solid rgba(255,255,255,0.1)',
+        background: '#0a1428',
+        touchAction: 'none'
       }}
     />
   )
@@ -91,7 +93,28 @@ export default function GeftPage() {
   const [submitting, setSubmitting] = useState(false)
   const [phase, setPhase] = useState<'intro' | 'test' | 'done'>('intro')
 
+  // State untuk tutorial
+  const [tutorialStep, setTutorialStep] = useState(0)
+  const [showAnswer1, setShowAnswer1] = useState(false)
+  const [showAnswer2, setShowAnswer2] = useState(false)
+  const [tutorialSelected, setTutorialSelected] = useState<Set<string>>(new Set())
+
   const q = QUESTIONS[qIndex]
+
+  // Validasi latihan interaktif tutorial
+  const isTutorialSuccess =
+    tutorialSelected.has('line-1') &&
+    tutorialSelected.has('line-2') &&
+    tutorialSelected.has('line-3') &&
+    tutorialSelected.size === 3
+
+  function handleTutorialLineClick(lineId: string) {
+    setTutorialSelected(prev => {
+      const next = new Set(prev)
+      next.has(lineId) ? next.delete(lineId) : next.add(lineId)
+      return next
+    })
+  }
 
   // ── Auth check ─────────────────────────────────────────────────────────
   useEffect(() => {
@@ -187,7 +210,7 @@ export default function GeftPage() {
       msg: correct ? 'Benar! Bentuk ditemukan dengan tepat.' : 'Belum tepat, tapi jawaban disimpan.',
       type: correct ? 'correct' : 'wrong'
     })
-    
+
     setAnswers(prev => ({ ...prev, [q.id]: correct }))
     setTimeout(() => handleNext(false), 1200)
   }
@@ -230,8 +253,8 @@ export default function GeftPage() {
       if (!res.ok) { alert(data.error); return }
 
       const stored = JSON.parse(localStorage.getItem('student')!)
-      localStorage.setItem('student', JSON.stringify({ 
-        ...stored, 
+      localStorage.setItem('student', JSON.stringify({
+        ...stored,
         geftStatus: 'completed',
         geftResult: { cognitiveStyle: data.cognitiveStyle, score: data.score }
       }))
@@ -273,10 +296,475 @@ export default function GeftPage() {
   if (phase === 'intro') {
     const isFirst = qIndex === 0
     const nextSection = QUESTIONS[qIndex].section
+
+    if (isFirst && tutorialStep < 3) {
+      return (
+        <main className="geft-page-container">
+          {renderNavbar("TUTORIAL TES GEFT 🔬")}
+          <style>{`
+            .geft-page-container {
+              min-height: 100vh;
+              background: linear-gradient(135deg, #030712 0%, #080f25 50%, #020617 100%);
+              color: #f3f4f6;
+              font-family: var(--font-sans), sans-serif;
+              padding: 20px 16px;
+              display: flex;
+              flex-direction: column;
+              box-sizing: border-box;
+            }
+            .geft-navbar {
+              position: sticky; top: 0; z-index: 50;
+              background: rgba(3,7,18,0.8);
+              backdrop-filter: blur(12px);
+              border-bottom: 1px solid rgba(255,255,255,0.05);
+            }
+            .geft-tutorial-modal {
+              max-width: 660px;
+              width: 100%;
+              margin: 24px auto 16px;
+              background: rgba(10, 15, 35, 0.9);
+              border: 1px solid rgba(255, 255, 255, 0.08);
+              border-radius: 22px;
+              padding: 28px 28px 20px;
+              box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(59,130,246,0.06);
+              backdrop-filter: blur(20px);
+              box-sizing: border-box;
+              display: flex;
+              flex-direction: column;
+              gap: 18px;
+            }
+            @media (max-width: 600px) {
+              .geft-tutorial-modal {
+                margin: 8px auto 8px;
+                padding: 18px 14px 14px;
+                border-radius: 16px;
+                gap: 14px;
+                max-height: calc(100dvh - 70px);
+                overflow-y: auto;
+              }
+            }
+            .geft-tut-header {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            }
+            .geft-tut-eyebrow {
+              font-size: 10px;
+              font-weight: 700;
+              letter-spacing: 2px;
+              color: #3b82f6;
+              text-transform: uppercase;
+              margin-bottom: 4px;
+            }
+            .geft-tut-title {
+              font-size: 19px;
+              font-weight: 800;
+              background: linear-gradient(90deg, #e2e8f0, #94a3b8);
+              -webkit-background-clip: text;
+              -webkit-text-fill-color: transparent;
+              margin: 0;
+            }
+            @media (max-width: 480px) { .geft-tut-title { font-size: 16px; } }
+            .geft-tut-progress-ring { flex-shrink: 0; }
+            .geft-tut-progress-track {
+              height: 3px;
+              background: rgba(255,255,255,0.07);
+              border-radius: 99px;
+              overflow: hidden;
+            }
+            .geft-tut-progress-fill {
+              height: 100%;
+              background: linear-gradient(90deg, #3b82f6, #06b6d4);
+              border-radius: 99px;
+              transition: width 0.4s ease;
+            }
+            .geft-tutorial-container {
+              display: flex;
+              flex-direction: column;
+              gap: 14px;
+            }
+            .geft-tut-desc {
+              color: rgba(255,255,255,0.82);
+              font-size: 14px;
+              line-height: 1.65;
+              margin: 0;
+            }
+            .geft-tutorial-cols {
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: 14px;
+              align-items: stretch;
+            }
+            @media (max-width: 440px) {
+              .geft-tutorial-cols { grid-template-columns: 1fr; gap: 10px; }
+            }
+            .geft-tutorial-box {
+              background: rgba(255,255,255,0.025);
+              border: 1px solid rgba(255,255,255,0.07);
+              border-radius: 12px;
+              padding: 14px 12px;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              gap: 10px;
+              box-sizing: border-box;
+            }
+            .geft-tut-interactive-box {
+              border-color: rgba(59,130,246,0.25);
+              background: rgba(59,130,246,0.04);
+            }
+            .geft-tut-box-label {
+              font-size: 10px;
+              font-weight: 700;
+              letter-spacing: 1.5px;
+              color: rgba(255,255,255,0.4);
+              text-transform: uppercase;
+            }
+            .geft-tutorial-svg-wrapper {
+              width: 110px;
+              height: 110px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              background: #060c1e;
+              border: 1px solid rgba(255,255,255,0.07);
+              border-radius: 10px;
+              padding: 10px;
+              box-sizing: border-box;
+              flex-shrink: 0;
+            }
+            .geft-tutorial-svg-wrapper-lg {
+              width: 130px;
+              height: 130px;
+            }
+            @media (max-width: 600px) {
+              .geft-tutorial-svg-wrapper { width: 95px; height: 95px; padding: 7px; }
+              .geft-tutorial-svg-wrapper-lg { width: 110px; height: 110px; }
+            }
+            .geft-tut-found-badge {
+              font-size: 11px; font-weight: 700;
+              color: #34d399;
+              background: rgba(16,185,129,0.12);
+              border: 1px solid rgba(16,185,129,0.2);
+              padding: 2px 10px; border-radius: 99px;
+            }
+            .geft-tut-card-badge {
+              font-size: 9px; font-weight: 700;
+              color: rgba(255,255,255,0.3);
+              letter-spacing: 1px; text-transform: uppercase;
+            }
+            .geft-tut-reveal-btn {
+              align-self: center;
+              padding: 9px 20px;
+              border-radius: 10px;
+              border: 1px solid rgba(255,255,255,0.12);
+              background: rgba(255,255,255,0.04);
+              color: rgba(255,255,255,0.75);
+              font-size: 13px; font-weight: 600;
+              cursor: pointer; transition: all 0.2s;
+              width: fit-content;
+            }
+            .geft-tut-reveal-btn:hover {
+              background: rgba(255,255,255,0.08); color: #fff;
+              transform: translateY(-1px);
+            }
+            .geft-tut-reveal-btn.active {
+              border-color: rgba(59,130,246,0.5);
+              background: rgba(59,130,246,0.1); color: #60a5fa;
+            }
+            .geft-tut-tip {
+              font-size: 12.5px; color: rgba(255,255,255,0.5);
+              line-height: 1.55;
+              background: rgba(255,255,255,0.02);
+              border: 1px solid rgba(255,255,255,0.05);
+              border-radius: 10px; padding: 10px 14px;
+            }
+            .geft-tut-sel-count {
+              font-size: 11px; font-weight: 700;
+              color: rgba(255,255,255,0.4); letter-spacing: 0.5px;
+            }
+            .geft-tut-actions-row {
+              display: flex; align-items: center; gap: 10px;
+            }
+            .geft-tut-reset-btn {
+              flex-shrink: 0; padding: 8px 14px; border-radius: 9px;
+              border: 1px solid rgba(239,68,68,0.3);
+              background: rgba(239,68,68,0.06); color: #f87171;
+              font-size: 12px; font-weight: 600; cursor: pointer;
+              transition: all 0.2s; white-space: nowrap;
+            }
+            .geft-tut-reset-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+            .geft-tut-reset-btn:not(:disabled):hover { background: rgba(239,68,68,0.12); }
+            .geft-tut-feedback {
+              flex: 1; font-size: 12.5px; font-weight: 500;
+              padding: 8px 12px; border-radius: 9px;
+              line-height: 1.45; transition: all 0.25s;
+            }
+            .geft-tut-feedback.idle {
+              color: rgba(255,255,255,0.35);
+              background: rgba(255,255,255,0.02);
+              border: 1px solid rgba(255,255,255,0.05);
+            }
+            .geft-tut-feedback.hint {
+              color: rgba(251,191,36,0.9);
+              background: rgba(251,191,36,0.06);
+              border: 1px solid rgba(251,191,36,0.15);
+            }
+            .geft-tut-feedback.success {
+              color: #34d399;
+              background: rgba(16,185,129,0.08);
+              border: 1px solid rgba(16,185,129,0.2);
+              font-weight: 600;
+            }
+            .geft-interactive-line {
+              cursor: pointer; stroke: #555; stroke-width: 4px;
+              fill: none; pointer-events: all; stroke-linecap: round;
+              transition: stroke 0.15s, stroke-width 0.15s;
+            }
+            .geft-interactive-line:hover { stroke: #60a5fa; stroke-width: 6px; }
+            .geft-interactive-line.selected { stroke: #2196f3 !important; stroke-width: 6.5px !important; }
+            .geft-tutorial-steps-nav {
+              display: flex; justify-content: space-between;
+              align-items: center; padding-top: 14px;
+              border-top: 1px solid rgba(255,255,255,0.06);
+            }
+            .geft-tutorial-indicator { display: flex; gap: 8px; }
+            .geft-tutorial-dot {
+              width: 7px; height: 7px; border-radius: 50%;
+              background: rgba(255,255,255,0.15); transition: all 0.25s;
+            }
+            .geft-tutorial-dot.active {
+              background: #3b82f6;
+              box-shadow: 0 0 8px rgba(59,130,246,0.7);
+              transform: scale(1.3);
+            }
+            .geft-btn-text {
+              background: none; border: none; color: rgba(255,255,255,0.5);
+              font-size: 13px; font-weight: 600; cursor: pointer;
+              padding: 8px 12px; border-radius: 8px; transition: all 0.2s;
+            }
+            .geft-btn-text:hover:not(:disabled) { color: #fff; background: rgba(255,255,255,0.05); }
+            .geft-btn-primary {
+              padding: 10px 20px; border-radius: 10px; border: none;
+              color: #fff; font-size: 13px; font-weight: 700;
+              cursor: pointer; transition: all 0.2s;
+            }
+            .geft-btn-primary:hover { filter: brightness(1.1); transform: translateY(-1px); }
+          `}</style>
+
+          <div className="geft-tutorial-modal">
+
+            {/* Header */}
+            <div className="geft-tut-header">
+              <div>
+                <div className="geft-tut-eyebrow">Langkah {tutorialStep + 1} dari 3</div>
+                <h2 className="geft-tut-title">Penjelasan Tes GEFT</h2>
+              </div>
+              <div className="geft-tut-progress-ring">
+                <svg viewBox="0 0 36 36" style={{ width: 44, height: 44 }}>
+                  <circle cx="18" cy="18" r="15" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="3" />
+                  <circle cx="18" cy="18" r="15" fill="none" stroke="#3b82f6" strokeWidth="3"
+                    strokeDasharray={`${((tutorialStep + 1) / 3) * 94.2} 94.2`}
+                    strokeLinecap="round"
+                    transform="rotate(-90 18 18)"
+                    style={{ transition: 'stroke-dasharray 0.4s ease' }}
+                  />
+                  <text x="18" y="22" textAnchor="middle" fill="#fff" fontSize="9" fontWeight="700">{tutorialStep + 1}/3</text>
+                </svg>
+              </div>
+            </div>
+
+            {/* Progress bar */}
+            <div className="geft-tut-progress-track">
+              <div className="geft-tut-progress-fill" style={{ width: `${((tutorialStep + 1) / 3) * 100}%` }} />
+            </div>
+
+            {/* Slide 1: Contoh X */}
+            {tutorialStep === 0 && (
+              <div className="geft-tutorial-container">
+                <p className="geft-tut-desc">
+                  Tes ini menguji kemampuan Anda menemukan bentuk sederhana yang <strong>tersembunyi</strong> di dalam gambar yang lebih rumit.
+                </p>
+                <div className="geft-tutorial-cols">
+                  <div className="geft-tutorial-box">
+                    <div className="geft-tut-box-label">Bentuk &quot;X&quot;</div>
+                    <div className="geft-tutorial-svg-wrapper">
+                      <svg viewBox="0 0 100 110" style={{ width: '100%', height: '100%' }}>
+                        <line x1="20" y1="20" x2="20" y2="90" stroke="#fff" strokeWidth="3" strokeLinecap="round" />
+                        <line x1="20" y1="90" x2="80" y2="70" stroke="#fff" strokeWidth="3" strokeLinecap="round" />
+                        <line x1="80" y1="70" x2="20" y2="20" stroke="#fff" strokeWidth="3" strokeLinecap="round" />
+                      </svg>
+                    </div>
+                    <div className="geft-tut-card-badge">Bentuk Target</div>
+                  </div>
+                  <div className="geft-tutorial-box">
+                    <div className="geft-tut-box-label">Gambar Rumit</div>
+                    <div className="geft-tutorial-svg-wrapper geft-tutorial-svg-wrapper-lg">
+                      <svg viewBox="0 0 200 200" style={{ width: '100%', height: '100%' }}>
+                        <line x1="40" y1="80" x2="100" y2="100" stroke="#555" strokeWidth="2" />
+                        <line x1="100" y1="100" x2="160" y2="80" stroke={showAnswer1 ? '#2196f3' : '#555'} strokeWidth={showAnswer1 ? '5' : '2'} style={{ transition: 'all 0.25s' }} />
+                        <line x1="160" y1="80" x2="100" y2="60" stroke="#555" strokeWidth="2" />
+                        <line x1="100" y1="60" x2="40" y2="80" stroke="#555" strokeWidth="2" />
+                        <line x1="40" y1="80" x2="40" y2="160" stroke="#555" strokeWidth="2" />
+                        <line x1="100" y1="100" x2="100" y2="180" stroke="#555" strokeWidth="2" />
+                        <line x1="160" y1="80" x2="160" y2="160" stroke="#555" strokeWidth="2" />
+                        <line x1="40" y1="160" x2="100" y2="180" stroke="#555" strokeWidth="2" />
+                        <line x1="100" y1="180" x2="160" y2="160" stroke="#555" strokeWidth="2" />
+                        <line x1="100" y1="30" x2="40" y2="80" stroke="#555" strokeWidth="2" />
+                        <line x1="100" y1="30" x2="100" y2="60" stroke="#555" strokeWidth="2" />
+                        <line x1="100" y1="30" x2="100" y2="100" stroke={showAnswer1 ? '#2196f3' : '#555'} strokeWidth={showAnswer1 ? '5' : '2'} style={{ transition: 'all 0.25s' }} />
+                        <line x1="100" y1="30" x2="160" y2="80" stroke={showAnswer1 ? '#2196f3' : '#555'} strokeWidth={showAnswer1 ? '5' : '2'} style={{ transition: 'all 0.25s' }} />
+                      </svg>
+                    </div>
+                    {showAnswer1 && <div className="geft-tut-found-badge">✓ Ditemukan!</div>}
+                  </div>
+                </div>
+                <button className={`geft-tut-reveal-btn ${showAnswer1 ? 'active' : ''}`} onClick={() => setShowAnswer1(!showAnswer1)}>
+                  {showAnswer1 ? '🙈 Sembunyikan' : '👁️ Tampilkan Letak Bentuk X'}
+                </button>
+                <div className="geft-tut-tip">
+                  💡 Bentuk yang dicari harus memiliki <strong>ukuran, proporsi, dan arah menghadap yang sama persis</strong> — tidak boleh diputar atau dibalik.
+                </div>
+              </div>
+            )}
+
+            {/* Slide 2: Contoh Y */}
+            {tutorialStep === 1 && (
+              <div className="geft-tutorial-container">
+                <p className="geft-tut-desc">
+                  Sekarang coba soal berikutnya. Temukan bentuk belah ketupat <strong>&quot;Y&quot;</strong> di dalam gambar yang lebih rumit:
+                </p>
+                <div className="geft-tutorial-cols">
+                  <div className="geft-tutorial-box">
+                    <div className="geft-tut-box-label">Bentuk &quot;Y&quot;</div>
+                    <div className="geft-tutorial-svg-wrapper">
+                      <svg viewBox="0 0 100 120" style={{ width: '100%', height: '100%' }}>
+                        <line x1="50" y1="20" x2="25" y2="60" stroke="#fff" strokeWidth="3" strokeLinecap="round" />
+                        <line x1="25" y1="60" x2="50" y2="100" stroke="#fff" strokeWidth="3" strokeLinecap="round" />
+                        <line x1="50" y1="100" x2="75" y2="60" stroke="#fff" strokeWidth="3" strokeLinecap="round" />
+                        <line x1="75" y1="60" x2="50" y2="20" stroke="#fff" strokeWidth="3" strokeLinecap="round" />
+                        <line x1="25" y1="60" x2="75" y2="60" stroke="rgba(255,255,255,0.35)" strokeWidth="1.5" />
+                      </svg>
+                    </div>
+                    <div className="geft-tut-card-badge">Bentuk Target</div>
+                  </div>
+                  <div className="geft-tutorial-box">
+                    <div className="geft-tut-box-label">Gambar Rumit</div>
+                    <div className="geft-tutorial-svg-wrapper geft-tutorial-svg-wrapper-lg">
+                      <svg viewBox="0 0 200 200" style={{ width: '100%', height: '100%' }}>
+                        <line x1="45" y1="120" x2="155" y2="120" stroke="#555" strokeWidth="2" />
+                        <line x1="35" y1="75" x2="45" y2="120" stroke="#555" strokeWidth="2" />
+                        <line x1="165" y1="75" x2="155" y2="120" stroke="#555" strokeWidth="2" />
+                        <line x1="35" y1="75" x2="100" y2="105" stroke="#555" strokeWidth="2" />
+                        <line x1="165" y1="75" x2="100" y2="105" stroke="#555" strokeWidth="2" />
+                        <line x1="62.5" y1="90" x2="45" y2="120" stroke="#555" strokeWidth="2" />
+                        <line x1="137.5" y1="90" x2="155" y2="120" stroke="#555" strokeWidth="2" />
+                        <line x1="62.5" y1="90" x2="35" y2="75" stroke="#555" strokeWidth="2" />
+                        <line x1="137.5" y1="90" x2="165" y2="75" stroke="#555" strokeWidth="2" />
+                        <line x1="62.5" y1="90" x2="137.5" y2="90" stroke="rgba(255,255,255,0.25)" strokeWidth="1.5" strokeDasharray="3 3" />
+                        <line x1="100" y1="30" x2="62.5" y2="90" stroke={showAnswer2 ? '#2196f3' : '#555'} strokeWidth={showAnswer2 ? '5' : '2'} style={{ transition: 'all 0.25s' }} />
+                        <line x1="100" y1="30" x2="137.5" y2="90" stroke={showAnswer2 ? '#2196f3' : '#555'} strokeWidth={showAnswer2 ? '5' : '2'} style={{ transition: 'all 0.25s' }} />
+                        <line x1="62.5" y1="90" x2="100" y2="150" stroke={showAnswer2 ? '#2196f3' : '#555'} strokeWidth={showAnswer2 ? '5' : '2'} style={{ transition: 'all 0.25s' }} />
+                        <line x1="137.5" y1="90" x2="100" y2="150" stroke={showAnswer2 ? '#2196f3' : '#555'} strokeWidth={showAnswer2 ? '5' : '2'} style={{ transition: 'all 0.25s' }} />
+                      </svg>
+                    </div>
+                    {showAnswer2 && <div className="geft-tut-found-badge">✓ Ditemukan!</div>}
+                  </div>
+                </div>
+                <button className={`geft-tut-reveal-btn ${showAnswer2 ? 'active' : ''}`} onClick={() => setShowAnswer2(!showAnswer2)}>
+                  {showAnswer2 ? '🙈 Sembunyikan' : '👁️ Tampilkan Letak Bentuk Y'}
+                </button>
+                <div className="geft-tut-tip">
+                  💡 Bagian yang ditebalkan menunjukkan letak persis bentuk &quot;Y&quot; — tersembunyi di bagian tengah gambar bintang.
+                </div>
+              </div>
+            )}
+
+            {/* Slide 3: Latihan Interaktif */}
+            {tutorialStep === 2 && (
+              <div className="geft-tutorial-container">
+                <p className="geft-tut-desc">
+                  <strong>Latihan Interaktif:</strong> Temukan segitiga &quot;X&quot; di gambar kanan dengan <strong>mengklik garis-garis pembentuknya</strong>.
+                </p>
+                <div className="geft-tutorial-cols">
+                  <div className="geft-tutorial-box">
+                    <div className="geft-tut-box-label">Cari Bentuk Ini</div>
+                    <div className="geft-tutorial-svg-wrapper">
+                      <svg viewBox="0 0 100 110" style={{ width: '100%', height: '100%' }}>
+                        <line x1="30" y1="20" x2="30" y2="90" stroke="#fff" strokeWidth="3" strokeLinecap="round" />
+                        <line x1="30" y1="90" x2="90" y2="55" stroke="#fff" strokeWidth="3" strokeLinecap="round" />
+                        <line x1="90" y1="55" x2="30" y2="20" stroke="#fff" strokeWidth="3" strokeLinecap="round" />
+                      </svg>
+                    </div>
+                    <div className="geft-tut-card-badge">Bentuk Target</div>
+                  </div>
+                  <div className="geft-tutorial-box geft-tut-interactive-box">
+                    <div className="geft-tut-box-label">Klik Garisnya</div>
+                    <div className="geft-tutorial-svg-wrapper geft-tutorial-svg-wrapper-lg">
+                      <svg viewBox="0 0 200 200" style={{ width: '100%', height: '100%' }}>
+                        <line className={`geft-interactive-line ${tutorialSelected.has('line-4') ? 'selected' : ''}`} x1="40" y1="100" x2="100" y2="55" onClick={() => handleTutorialLineClick('line-4')} />
+                        <line className={`geft-interactive-line ${tutorialSelected.has('line-5') ? 'selected' : ''}`} x1="40" y1="100" x2="100" y2="145" onClick={() => handleTutorialLineClick('line-5')} />
+                        <line className={`geft-interactive-line ${tutorialSelected.has('line-6') ? 'selected' : ''}`} x1="40" y1="100" x2="160" y2="100" onClick={() => handleTutorialLineClick('line-6')} />
+                        <line className={`geft-interactive-line ${tutorialSelected.has('line-1') ? 'selected' : ''}`} x1="100" y1="55" x2="100" y2="145" onClick={() => handleTutorialLineClick('line-1')} />
+                        <line className={`geft-interactive-line ${tutorialSelected.has('line-2') ? 'selected' : ''}`} x1="100" y1="145" x2="160" y2="100" onClick={() => handleTutorialLineClick('line-2')} />
+                        <line className={`geft-interactive-line ${tutorialSelected.has('line-3') ? 'selected' : ''}`} x1="160" y1="100" x2="100" y2="55" onClick={() => handleTutorialLineClick('line-3')} />
+
+                      </svg>
+                    </div>
+                    <div className="geft-tut-sel-count">{tutorialSelected.size}/3 garis dipilih</div>
+                  </div>
+                </div>
+                <div className="geft-tut-actions-row">
+                  <button className="geft-tut-reset-btn" onClick={() => setTutorialSelected(new Set())} disabled={tutorialSelected.size === 0}>
+                    🗑️ Reset
+                  </button>
+                  <div className={`geft-tut-feedback ${isTutorialSuccess ? 'success' : tutorialSelected.size > 0 ? 'hint' : 'idle'}`}>
+                    {isTutorialSuccess
+                      ? '🎉 Hebat! Anda berhasil! Siap mengerjakan tes.'
+                      : tutorialSelected.size > 0
+                        ? '💡 Klik 3 garis yang membentuk segitiga kanan.'
+                        : 'Coba klik salah satu garis pada gambar kanan.'}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Navigation */}
+            <div className="geft-tutorial-steps-nav">
+              <button
+                className="geft-btn-text"
+                disabled={tutorialStep === 0}
+                onClick={() => setTutorialStep(tutorialStep - 1)}
+                style={{ opacity: tutorialStep === 0 ? 0.3 : 1, cursor: tutorialStep === 0 ? 'not-allowed' : 'pointer' }}
+              >
+                ← Kembali
+              </button>
+              <div className="geft-tutorial-indicator">
+                <span className={`geft-tutorial-dot ${tutorialStep === 0 ? 'active' : ''}`} />
+                <span className={`geft-tutorial-dot ${tutorialStep === 1 ? 'active' : ''}`} />
+                <span className={`geft-tutorial-dot ${tutorialStep === 2 ? 'active' : ''}`} />
+              </div>
+              <button
+                className="geft-btn-primary"
+                onClick={() => setTutorialStep(tutorialStep + 1)}
+                style={{
+                  background: isTutorialSuccess && tutorialStep === 2 ? 'linear-gradient(90deg, #10b981, #059669)' : 'linear-gradient(90deg, #3b82f6, #06b6d4)',
+                  boxShadow: isTutorialSuccess && tutorialStep === 2 ? '0 4px 15px rgba(16,185,129,0.3)' : '0 4px 15px rgba(33, 150, 243, 0.3)'
+                }}
+              >
+                {tutorialStep === 2 ? 'Lanjut ke Mulai Tes →' : 'Lanjut →'}
+              </button>
+            </div>
+
+          </div>
+        </main>
+      )
+    }
+
     return (
       <main className="geft-page-container">
         {renderNavbar("GEFT COGNITIVE ASSESSMENT ⏱️")}
-        
+
         <div style={{ maxWidth: '600px', margin: '80px auto 0', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '20px', padding: '36px', boxShadow: '0 15px 35px rgba(0,0,0,0.3)' }}>
           <h2 style={{ marginBottom: 16, fontSize: '24px', fontWeight: 800 }}>
             {isFirst ? 'Selamat datang di Tes GEFT' : `Mulai ${SECTION_LABELS[nextSection]}`}
@@ -294,9 +782,9 @@ export default function GeftPage() {
           </p>
           <button
             onClick={() => setPhase('test')}
-            style={{ 
+            style={{
               padding: '14px 32px', borderRadius: '12px', border: 'none',
-              background: 'linear-gradient(90deg, #3b82f6, #06b6d4)', 
+              background: 'linear-gradient(90deg, #3b82f6, #06b6d4)',
               color: '#fff', fontSize: '14px', fontWeight: 700, cursor: 'pointer',
               boxShadow: '0 4px 15px rgba(33, 150, 243, 0.3)'
             }}
@@ -328,6 +816,282 @@ export default function GeftPage() {
   return (
     <main className="geft-page-container">
       <style>{`
+        /* ── Tutorial Modal ──────────────────────────────── */
+        .geft-tutorial-modal {
+          max-width: 680px;
+          width: calc(100% - 32px);
+          margin: 32px auto 20px;
+          background: rgba(10, 15, 35, 0.85);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 24px;
+          padding: 32px 32px 24px;
+          box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(59,130,246,0.06);
+          backdrop-filter: blur(20px);
+          box-sizing: border-box;
+          display: flex;
+          flex-direction: column;
+          gap: 20px;
+        }
+        @media (max-width: 600px) {
+          .geft-tutorial-modal {
+            margin: 12px auto 12px;
+            padding: 20px 16px 16px;
+            border-radius: 18px;
+            gap: 14px;
+            max-height: calc(100dvh - 80px);
+            overflow-y: auto;
+          }
+        }
+        /* Header */
+        .geft-tut-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+        .geft-tut-eyebrow {
+          font-size: 10px;
+          font-weight: 700;
+          letter-spacing: 2px;
+          color: #3b82f6;
+          text-transform: uppercase;
+          margin-bottom: 4px;
+        }
+        .geft-tut-title {
+          font-size: 20px;
+          font-weight: 800;
+          background: linear-gradient(90deg, #e2e8f0, #94a3b8);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          margin: 0;
+        }
+        @media (max-width: 600px) {
+          .geft-tut-title { font-size: 17px; }
+        }
+        .geft-tut-progress-ring { flex-shrink: 0; }
+        /* Progress bar */
+        .geft-tut-progress-track {
+          height: 3px;
+          background: rgba(255,255,255,0.07);
+          border-radius: 99px;
+          overflow: hidden;
+        }
+        .geft-tut-progress-fill {
+          height: 100%;
+          background: linear-gradient(90deg, #3b82f6, #06b6d4);
+          border-radius: 99px;
+          transition: width 0.4s ease;
+        }
+        /* Slide container */
+        .geft-tutorial-container {
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+        }
+        .geft-tut-desc {
+          color: rgba(255,255,255,0.8);
+          font-size: 14px;
+          line-height: 1.65;
+          margin: 0;
+        }
+        /* Compare row */
+        .geft-tutorial-cols {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 16px;
+          align-items: stretch;
+        }
+        @media (max-width: 480px) {
+          .geft-tutorial-cols {
+            grid-template-columns: 1fr;
+            gap: 10px;
+          }
+        }
+        .geft-tutorial-box {
+          background: rgba(255,255,255,0.025);
+          border: 1px solid rgba(255,255,255,0.07);
+          border-radius: 14px;
+          padding: 16px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 10px;
+          box-sizing: border-box;
+        }
+        .geft-tut-interactive-box {
+          border-color: rgba(59,130,246,0.2);
+          background: rgba(59,130,246,0.03);
+        }
+        /* SVG wrappers */
+        .geft-tutorial-svg-wrapper {
+          width: 120px;
+          height: 120px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: #070d1f;
+          border: 1px solid rgba(255,255,255,0.07);
+          border-radius: 10px;
+          padding: 10px;
+          box-sizing: border-box;
+          flex-shrink: 0;
+        }
+        .geft-tutorial-svg-wrapper-lg {
+          width: 140px;
+          height: 140px;
+        }
+        @media (max-width: 600px) {
+          .geft-tutorial-svg-wrapper { width: 100px; height: 100px; padding: 8px; }
+          .geft-tutorial-svg-wrapper-lg { width: 115px; height: 115px; }
+        }
+        /* Found badge */
+        .geft-tut-found-badge {
+          font-size: 11px;
+          font-weight: 700;
+          color: #34d399;
+          background: rgba(16,185,129,0.12);
+          border: 1px solid rgba(16,185,129,0.2);
+          padding: 3px 10px;
+          border-radius: 99px;
+          letter-spacing: 0.5px;
+        }
+        .geft-tut-card-badge {
+          font-size: 10px;
+          font-weight: 700;
+          color: rgba(255,255,255,0.35);
+          letter-spacing: 1px;
+          text-transform: uppercase;
+        }
+        /* Reveal button */
+        .geft-tut-reveal-btn {
+          align-self: center;
+          padding: 10px 22px;
+          border-radius: 10px;
+          border: 1px solid rgba(255,255,255,0.12);
+          background: rgba(255,255,255,0.04);
+          color: rgba(255,255,255,0.75);
+          font-size: 13px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s;
+          width: fit-content;
+        }
+        .geft-tut-reveal-btn:hover {
+          background: rgba(255,255,255,0.08);
+          color: #fff;
+          transform: translateY(-1px);
+        }
+        .geft-tut-reveal-btn.active {
+          border-color: rgba(59,130,246,0.5);
+          background: rgba(59,130,246,0.1);
+          color: #60a5fa;
+        }
+        /* Tip */
+        .geft-tut-tip {
+          font-size: 12.5px;
+          color: rgba(255,255,255,0.5);
+          line-height: 1.55;
+          background: rgba(255,255,255,0.02);
+          border: 1px solid rgba(255,255,255,0.05);
+          border-radius: 10px;
+          padding: 10px 14px;
+        }
+        /* Slide 3 specifics */
+        .geft-tut-sel-count {
+          font-size: 12px;
+          font-weight: 700;
+          color: rgba(255,255,255,0.4);
+          letter-spacing: 0.5px;
+        }
+        .geft-tut-actions-row {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+        .geft-tut-reset-btn {
+          flex-shrink: 0;
+          padding: 9px 16px;
+          border-radius: 9px;
+          border: 1px solid rgba(239,68,68,0.3);
+          background: rgba(239,68,68,0.06);
+          color: #f87171;
+          font-size: 12px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s;
+          white-space: nowrap;
+        }
+        .geft-tut-reset-btn:disabled {
+          opacity: 0.3;
+          cursor: not-allowed;
+        }
+        .geft-tut-reset-btn:not(:disabled):hover {
+          background: rgba(239,68,68,0.12);
+        }
+        .geft-tut-feedback {
+          flex: 1;
+          font-size: 12.5px;
+          font-weight: 500;
+          padding: 9px 14px;
+          border-radius: 9px;
+          line-height: 1.45;
+          transition: all 0.25s;
+        }
+        .geft-tut-feedback.idle {
+          color: rgba(255,255,255,0.35);
+          background: rgba(255,255,255,0.02);
+          border: 1px solid rgba(255,255,255,0.05);
+        }
+        .geft-tut-feedback.hint {
+          color: rgba(251,191,36,0.9);
+          background: rgba(251,191,36,0.06);
+          border: 1px solid rgba(251,191,36,0.15);
+        }
+        .geft-tut-feedback.success {
+          color: #34d399;
+          background: rgba(16,185,129,0.08);
+          border: 1px solid rgba(16,185,129,0.2);
+          font-weight: 600;
+        }
+        /* Interactive lines */
+        .geft-interactive-line {
+          cursor: pointer;
+          stroke: #555;
+          stroke-width: 4px;
+          fill: none;
+          pointer-events: all;
+          stroke-linecap: round;
+          transition: stroke 0.15s, stroke-width 0.15s;
+        }
+        .geft-interactive-line:hover {
+          stroke: #60a5fa;
+          stroke-width: 6px;
+        }
+        .geft-interactive-line.selected {
+          stroke: #2196f3 !important;
+          stroke-width: 6.5px !important;
+        }
+        /* Nav */
+        .geft-tutorial-steps-nav {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding-top: 16px;
+          border-top: 1px solid rgba(255,255,255,0.06);
+        }
+        .geft-tutorial-indicator { display: flex; gap: 8px; }
+        .geft-tutorial-dot {
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          background: rgba(255,255,255,0.15);
+          transition: all 0.25s;
+        }
+        .geft-tutorial-dot.active {
+          background: #3b82f6;
+          box-shadow: 0 0 8px rgba(59,130,246,0.7);
+          transform: scale(1.2);
+        }
+
         .geft-page-container {
           min-height: 100vh;
           background: linear-gradient(135deg, #030712 0%, #080f25 50%, #020617 100%);
@@ -680,7 +1444,7 @@ export default function GeftPage() {
             <div className="geft-svg-instruction" style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', paddingLeft: 4 }}>
               KLIK PADA GARIS GAMBAR DI BAWAH UNTUK MEMILIH:
             </div>
-            <GeftSvgViewer 
+            <GeftSvgViewer
               svgContent={svgContent}
               selected={selected}
               onSvgClick={handleSvgClick}

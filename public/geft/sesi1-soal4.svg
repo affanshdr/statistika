@@ -1,0 +1,23 @@
+<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+  <rect width="400" height="400" fill="#0a1428" />
+  
+  <!-- Target shape E (Hexagon) - correct lines -->
+  <line id="q1-s4-line-1" x1="175" y1="195" x2="225" y2="245" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" data-correct="true" />
+  <line id="q1-s4-line-2" x1="225" y1="245" x2="275" y2="195" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" data-correct="true" />
+  <line id="q1-s4-line-3" x1="275" y1="195" x2="275" y2="225" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" data-correct="true" />
+  <line id="q1-s4-line-4" x1="275" y1="225" x2="225" y2="275" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" data-correct="true" />
+  <line id="q1-s4-line-5" x1="225" y1="275" x2="175" y2="225" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" data-correct="true" />
+  <line id="q1-s4-line-6" x1="175" y1="225" x2="175" y2="195" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" data-correct="true" />
+  
+  <!-- Distractor lines -->
+  <line id="q1-s4-line-7" x1="175" y1="100" x2="175" y2="195" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" />
+  <line id="q1-s4-line-8" x1="175" y1="225" x2="175" y2="320" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" />
+  <line id="q1-s4-line-9" x1="275" y1="100" x2="275" y2="195" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" />
+  <line id="q1-s4-line-10" x1="275" y1="225" x2="275" y2="320" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" />
+  <line id="q1-s4-line-11" x1="100" y1="100" x2="350" y2="100" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" />
+  <line id="q1-s4-line-12" x1="100" y1="320" x2="350" y2="320" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" />
+  <line id="q1-s4-line-13" x1="175" y1="195" x2="225" y2="145" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" />
+  <line id="q1-s4-line-14" x1="275" y1="195" x2="225" y2="145" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" />
+  <line id="q1-s4-line-15" x1="175" y1="100" x2="275" y2="320" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" />
+  <line id="q1-s4-line-16" x1="275" y1="100" x2="175" y2="320" stroke="#666" stroke-width="2" fill="none" pointer-events="all" style="cursor: pointer; transition: stroke 0.2s, stroke-width 0.2s;" />
+</svg>
