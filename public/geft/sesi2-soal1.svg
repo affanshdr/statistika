@@ -1,40 +1,62 @@
 <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
   <rect width="400" height="400" fill="#0a1428" />
 
-  <!-- ==========================================
-       SESI 2 SOAL 1: Bintang 8 titik (star/octagram) 
-       Target: Bentuk G (persegi dengan takik miring kiri atas)
-       ========================================== -->
+  <defs>
+    <!-- Pattern dot stipple berwarna orange/tan untuk arsir kuadran bintang -->
+    <pattern id="stipple" x="0" y="0" width="8" height="8" patternUnits="userSpaceOnUse">
+      <circle cx="4" cy="4" r="1.5" fill="#c4a482" opacity="0.85" />
+    </pattern>
+  </defs>
 
-  <!-- Bintang 8 titik dari 2 persegi yang dirotasi 45° -->
-  <!-- Persegi 1 (lurus) -->
-  <line id="q2-s1-line-1" x1="130" y1="130" x2="270" y2="130" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
-  <line id="q2-s1-line-2" x1="270" y1="130" x2="270" y2="270" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
-  <line id="q2-s1-line-3" x1="270" y1="270" x2="130" y2="270" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
-  <line id="q2-s1-line-4" x1="130" y1="270" x2="130" y2="130" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <!-- ── Bidang arsir di kuadran Kanan-Atas dan Kiri-Bawah ── -->
+  <!-- Kuadran Kanan-Atas (puncak, pusat, kanan) -->
+  <polygon points="200,50 200,200 320,200" fill="#c4a482" fill-opacity="0.12" />
+  <polygon points="200,50 200,200 320,200" fill="url(#stipple)" />
 
-  <!-- Persegi 2 (dirotasi 45° = belah ketupat) -->
-  <line id="q2-s1-line-5" x1="200" y1="60"  x2="340" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
-  <line id="q2-s1-line-6" x1="340" y1="200" x2="200" y2="340" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
-  <line id="q2-s1-line-7" x1="200" y1="340" x2="60"  y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
-  <line id="q2-s1-line-8" x1="60"  y1="200" x2="200" y2="60"  stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <!-- Kuadran Kiri-Bawah (kiri, pusat, bawah) -->
+  <polygon points="80,200 200,200 200,350" fill="#c4a482" fill-opacity="0.12" />
+  <polygon points="80,200 200,200 200,350" fill="url(#stipple)" />
 
-  <!-- Diagonal persegi 1 (untuk memperumit) -->
-  <line id="q2-s1-line-9"  x1="130" y1="130" x2="270" y2="270" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
-  <line id="q2-s1-line-10" x1="270" y1="130" x2="130" y2="270" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
-
-  <!-- Bentuk G tersembunyi di kuadran kanan atas persegi lurus:
-       G = sisi kiri vertikal, takik miring, atas, kanan, bawah
-       Posisi: pojok kanan atas (antara (200,130)-(270,130)-(270,200)-(200,200))
+  <!--
+    SESI 2 SOAL 1: Diamond + Persegi panjang horizontal
+    Target: Bentuk G (House with shoulders)
+    G = segi-7 (kiri vertikal -> shoulder kiri -> atap kiri -> atap kanan -> shoulder kanan -> kanan vertikal -> horizontal tengah)
   -->
-  <!-- Sisi bawah G -->
-  <line id="q2-s1-line-11" x1="200" y1="200" x2="270" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
-  <!-- Sisi kanan G -->
-  <line id="q2-s1-line-12" x1="270" y1="200" x2="270" y2="130" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
-  <!-- Sisi atas G -->
-  <line id="q2-s1-line-13" x1="270" y1="130" x2="230" y2="130" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
-  <!-- Takik miring G -->
-  <line id="q2-s1-line-14" x1="230" y1="130" x2="200" y2="165" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
-  <!-- Sisi kiri bawah G -->
-  <line id="q2-s1-line-15" x1="200" y1="165" x2="200" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
+
+  <!-- ── Sisi atas persegi panjang (terbagi di x=136 dan x=264) ── -->
+  <line id="q2-s1-line-1" x1="100" y1="130" x2="136" y2="130" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
+  <line id="q2-s1-line-2" x1="136" y1="130" x2="264" y2="130" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q2-s1-line-3" x1="264" y1="130" x2="300" y2="130" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
+
+  <!-- ── Sisi bawah persegi panjang (penuh) ── -->
+  <line id="q2-s1-line-4" x1="100" y1="270" x2="300" y2="270" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+
+  <!-- ── Sisi kiri persegi panjang (terbagi di y=200) ── -->
+  <line id="q2-s1-line-5" x1="100" y1="130" x2="100" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
+  <line id="q2-s1-line-6" x1="100" y1="200" x2="100" y2="270" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+
+  <!-- ── Sisi kanan persegi panjang (terbagi di y=200) ── -->
+  <line id="q2-s1-line-7" x1="300" y1="130" x2="300" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
+  <line id="q2-s1-line-8" x1="300" y1="200" x2="300" y2="270" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+
+  <!-- ── Sisi miring atas-kiri diamond (terbagi di y=130, x=136) ── -->
+  <line id="q2-s1-line-9"  x1="200" y1="50"  x2="136" y2="130" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
+  <line id="q2-s1-line-10" x1="136" y1="130" x2="80"  y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+
+  <!-- ── Sisi miring atas-kanan diamond (terbagi di y=130, x=264) ── -->
+  <line id="q2-s1-line-11" x1="200" y1="50"  x2="264" y2="130" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
+  <line id="q2-s1-line-12" x1="264" y1="130" x2="320" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+
+  <!-- ── Sisi miring bawah diamond (penuh) ── -->
+  <line id="q2-s1-line-13" x1="80"  y1="200" x2="200" y2="350" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q2-s1-line-14" x1="320" y1="200" x2="200" y2="350" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+
+  <!-- ── Garis sumbu pusat vertikal (terbagi di y=200) ── -->
+  <line id="q2-s1-line-15" x1="200" y1="50"  x2="200" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q2-s1-line-16" x1="200" y1="200" x2="200" y2="350" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+
+  <!-- ── Garis sumbu pusat horizontal (terbagi di x=100 dan x=300) ── -->
+  <line id="q2-s1-line-17" x1="80"  y1="200" x2="100" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q2-s1-line-18" x1="100" y1="200" x2="300" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
+  <line id="q2-s1-line-19" x1="300" y1="200" x2="320" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
 </svg>

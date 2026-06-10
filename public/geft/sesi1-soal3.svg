@@ -2,49 +2,36 @@
   <rect width="400" height="400" fill="#0a1428" />
 
   <!--
-    SESI 1 SOAL 3: Persegi panjang dengan diagonal X dan garis horizontal tengah
-    Target: Bentuk D (rumah asimetris — dinding bawah + atap miring kiri lebih curam)
-
-    Proporsi shape-D.svg:
-      Lebar kiri (dari kiri ke puncak):  45 unit
-      Lebar kanan (dari puncak ke kanan): 65 unit
-      Rasio kiri:kanan = 45:65 = 0.41:0.59
-
-    Dalam persegi panjang x=[80,320], lebar=240:
-      Puncak x = 80 + 0.41*240 = 80+98 = 178
-      → atap kiri lebih curam, atap kanan lebih landai (sesuai shape D asli)
+    SESI 1 SOAL 3: Persegi panjang dengan X-diagonal bawah dan shelf kanan
+    Target: Bentuk D (rumah asimetris dengan shelf kanan)
+    D = segi-6 (kiri bawah -> atap kiri -> atap kanan -> shelf kanan -> kanan bawah -> dasar bawah)
   -->
 
-  <!-- ── Persegi panjang besar ── -->
-  <line id="q1-s3-line-1" x1="80"  y1="100" x2="320" y2="100" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
-  <line id="q1-s3-line-2" x1="320" y1="100" x2="320" y2="300" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
-  <line id="q1-s3-line-3" x1="320" y1="300" x2="80"  y2="300" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
-  <line id="q1-s3-line-4" x1="80"  y1="300" x2="80"  y2="100" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <!-- ── Sisi atas persegi panjang (terbagi di puncak x=140) ── -->
+  <line id="q1-s3-line-1" x1="80"  y1="100" x2="140" y2="100" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q1-s3-line-2" x1="140" y1="100" x2="320" y2="100" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
 
-  <!-- ── Diagonal X ── -->
-  <!-- Dari pojok kiri-atas ke pojok kanan-bawah -->
-  <line id="q1-s3-line-5" x1="80"  y1="100" x2="320" y2="300" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
-  <!-- Dari pojok kanan-atas ke pojok kiri-bawah -->
-  <line id="q1-s3-line-6" x1="320" y1="100" x2="80"  y2="300" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <!-- ── Sisi kiri persegi panjang (terbagi di y=200) ── -->
+  <line id="q1-s3-line-3" x1="80"  y1="100" x2="80"  y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q1-s3-line-4" x1="80"  y1="200" x2="80"  y2="300" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
 
-  <!-- ── Garis horizontal tengah ── -->
-  <line id="q1-s3-line-7" x1="80"  y1="200" x2="320" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <!-- ── Sisi kanan persegi panjang (terbagi di y=200) ── -->
+  <line id="q1-s3-line-5" x1="320" y1="100" x2="320" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q1-s3-line-6" x1="320" y1="200" x2="320" y2="300" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
 
-  <!--
-    ── Bentuk D tersembunyi (asimetris, puncak di x=178) ──
-    Dinding kiri dan kanan mulai dari garis tengah y=200
-    Puncak di (178, 100) — lebih ke kiri dari tengah (200)
-    → Atap kiri lebih curam  (slope=100/98 ≈ 1.02)
-    → Atap kanan lebih landai (slope=100/142 ≈ 0.70)
-  -->
-  <!-- Sisi kiri D (dinding bawah kiri) -->
-  <line id="q1-s3-line-8"  x1="80"  y1="300" x2="80"  y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
-  <!-- Atap kiri D (miring curam ke puncak) -->
-  <line id="q1-s3-line-9"  x1="80"  y1="200" x2="178" y2="100" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
-  <!-- Atap kanan D (miring landai dari puncak) -->
-  <line id="q1-s3-line-10" x1="178" y1="100" x2="320" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
-  <!-- Sisi kanan D (dinding bawah kanan) -->
-  <line id="q1-s3-line-11" x1="320" y1="200" x2="320" y2="300" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
-  <!-- Dasar bawah D -->
-  <line id="q1-s3-line-12" x1="320" y1="300" x2="80"  y2="300" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
+  <!-- ── Sisi bawah persegi panjang (penuh, bagian dari D) ── -->
+  <line id="q1-s3-line-7" x1="80"  y1="300" x2="320" y2="300" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
+
+  <!-- ── Bagian Atap (bagian dari D) ── -->
+  <!-- Atap kiri -->
+  <line id="q1-s3-line-8" x1="80"  y1="200" x2="140" y2="100" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
+  <!-- Atap kanan -->
+  <line id="q1-s3-line-9" x1="140" y1="100" x2="200" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
+
+  <!-- ── Garis X-diagonal (bukan bagian dari D) ── -->
+  <line id="q1-s3-line-10" x1="80"  y1="300" x2="200" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q1-s3-line-11" x1="80"  y1="200" x2="200" y2="300" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+
+  <!-- ── Shelf kanan (bagian dari D) ── -->
+  <line id="q1-s3-line-12" x1="200" y1="200" x2="320" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
 </svg>

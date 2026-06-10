@@ -1,19 +1,22 @@
 <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
   <!--
-    Shape D: Rumah asimetris (peak offset ke kiri).
-    Koordinat identik dengan jawaban D di sesi1-soal3.svg:
-      kiri=80, kanan=320, tengah-y=200, bawah=300
-      puncak di (178,100) — lebih ke kiri dari tengah (200)
-    Warna putih agar terlihat di background gelap.
+    Shape D: Rumah asimetris dengan shelf kanan (simetris tengah).
+    Puncak di (140, 100), kaki di (80, 200) dan (200, 200)
+    Shelf kanan: (200, 200) ke (320, 200)
+    Dinding kiri: (80, 200) ke (80, 300)
+    Dinding kanan: (320, 200) ke (320, 300)
+    Dasar bawah: (80, 300) ke (320, 300)
   -->
-  <!-- Sisi kiri (dinding bawah kiri) -->
-  <line x1="80"  y1="300" x2="80"  y2="200" stroke="#fff" stroke-width="4" stroke-linecap="round" fill="none" />
-  <!-- Atap kiri (lebih curam) -->
-  <line x1="80"  y1="200" x2="178" y2="100" stroke="#fff" stroke-width="4" stroke-linecap="round" fill="none" />
-  <!-- Atap kanan (lebih landai) -->
-  <line x1="178" y1="100" x2="320" y2="200" stroke="#fff" stroke-width="4" stroke-linecap="round" fill="none" />
-  <!-- Sisi kanan (dinding bawah kanan) -->
+  <!-- Left shoulder/wall -->
+  <line x1="80"  y1="200" x2="80"  y2="300" stroke="#fff" stroke-width="4" stroke-linecap="round" fill="none" />
+  <!-- Left roof slope -->
+  <line x1="80"  y1="200" x2="140" y2="100" stroke="#fff" stroke-width="4" stroke-linecap="round" fill="none" />
+  <!-- Right roof slope -->
+  <line x1="140" y1="100" x2="200" y2="200" stroke="#fff" stroke-width="4" stroke-linecap="round" fill="none" />
+  <!-- Shelf kanan -->
+  <line x1="200" y1="200" x2="320" y2="200" stroke="#fff" stroke-width="4" stroke-linecap="round" fill="none" />
+  <!-- Right vertical edge -->
   <line x1="320" y1="200" x2="320" y2="300" stroke="#fff" stroke-width="4" stroke-linecap="round" fill="none" />
-  <!-- Dasar bawah -->
+  <!-- Bottom edge -->
   <line x1="320" y1="300" x2="80"  y2="300" stroke="#fff" stroke-width="4" stroke-linecap="round" fill="none" />
 </svg>

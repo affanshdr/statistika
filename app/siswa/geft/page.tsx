@@ -27,7 +27,7 @@ const QUESTIONS: Question[] = [
 ]
 
 const SECTION_LABELS: Record<number, string> = { 1: 'Sesi 1 (Latihan)', 2: 'Sesi 2', 3: 'Sesi 3' }
-const SECTION_TIME: Record<number, number> = { 1: 180, 2: 180, 3: 180 }
+const SECTION_TIME: Record<number, number> = { 1: 30, 2: 30, 3: 30 }
 
 // ── Memoized SVG Viewer ───────────────────────────────────────────────────
 type SvgViewerProps = {
@@ -840,7 +840,7 @@ export default function GeftPage() {
             }
           </p>
           <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: '13px', marginBottom: '28px', lineHeight: 1.5 }}>
-            💡 Caranya: <strong style={{ color: 'rgba(255,255,255,0.65)' }}>Ketuk / klik garis-garis</strong> pada gambar teka-teki yang membentuk bentuk sederhana yang diminta. Batas waktu: 3 menit per soal.
+            💡 Caranya: <strong style={{ color: 'rgba(255,255,255,0.65)' }}>Ketuk / klik garis-garis</strong> pada gambar teka-teki yang membentuk bentuk sederhana yang diminta. Batas waktu: 30 detik per soal.
           </p>
           <button
             onClick={() => setPhase('test')}
@@ -1253,6 +1253,16 @@ export default function GeftPage() {
           stroke-width: 28px !important;
           opacity: 1 !important;
         }
+        /* Disable pointer-events on original SVG lines so only hit-areas receive clicks */
+        .geft-svg-container svg line[id]:not(.hit-area),
+        .geft-svg-container svg path[id]:not(.hit-area) {
+          pointer-events: none !important;
+        }
+        /* Active state for touch feedback on mobile */
+        .geft-svg-container svg line.hit-area:active,
+        .geft-svg-container svg path.hit-area:active {
+          stroke: rgba(59, 130, 246, 0.15) !important;
+        }
         
         .geft-btn-primary {
           padding: 12px 28px;
@@ -1447,8 +1457,13 @@ export default function GeftPage() {
           /* Hit areas get even thicker strokes on touch screens */
           .geft-svg-container svg line.hit-area,
           .geft-svg-container svg path.hit-area {
-            stroke-width: 36px !important;
+            stroke-width: 44px !important;
             stroke: transparent !important;
+          }
+          /* Active tap feedback on mobile */
+          .geft-svg-container svg line.hit-area:active,
+          .geft-svg-container svg path.hit-area:active {
+            stroke: rgba(59, 130, 246, 0.2) !important;
           }
 
           .geft-actions-area {

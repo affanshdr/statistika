@@ -31,10 +31,11 @@
       "nomorSoal": 3,
       "targetBentuk": "D",
       "garisBenar": [
+        "q1-s3-line-4",
+        "q1-s3-line-6",
+        "q1-s3-line-7",
         "q1-s3-line-8",
         "q1-s3-line-9",
-        "q1-s3-line-10",
-        "q1-s3-line-11",
         "q1-s3-line-12"
       ]
     }
@@ -44,34 +45,38 @@
       "nomorSoal": 1,
       "targetBentuk": "G",
       "garisBenar": [
+        "q2-s1-line-1",
+        "q2-s1-line-3",
+        "q2-s1-line-5",
+        "q2-s1-line-7",
+        "q2-s1-line-9",
         "q2-s1-line-11",
-        "q2-s1-line-12",
-        "q2-s1-line-13",
-        "q2-s1-line-14",
-        "q2-s1-line-15"
+        "q2-s1-line-18"
       ]
     },
     {
       "nomorSoal": 2,
       "targetBentuk": "A",
       "garisBenar": [
-        "q2-s2-line-20",
-        "q2-s2-line-21",
-        "q2-s2-line-22",
-        "q2-s2-line-23",
-        "q2-s2-line-24",
-        "q2-s2-line-25"
+        "q2-s2-line-9",
+        "q2-s2-line-10",
+        "q2-s2-line-11",
+        "q2-s2-line-12",
+        "q2-s2-line-13",
+        "q2-s2-line-14"
       ]
     },
     {
       "nomorSoal": 3,
       "targetBentuk": "G",
       "garisBenar": [
-        "q2-s3-line-15",
-        "q2-s3-line-16",
-        "q2-s3-line-17",
-        "q2-s3-line-18",
-        "q2-s3-line-19"
+        "q2-s3-line-1",
+        "q2-s3-line-2",
+        "q2-s3-line-3",
+        "q2-s3-line-4",
+        "q2-s3-line-5",
+        "q2-s3-line-6",
+        "q2-s3-line-7"
       ]
     }
   ],
@@ -90,11 +95,13 @@
       "nomorSoal": 2,
       "targetBentuk": "G",
       "garisBenar": [
-        "q3-s2-line-12",
-        "q3-s2-line-13",
-        "q3-s2-line-14",
-        "q3-s2-line-15",
-        "q3-s2-line-16"
+        "q3-s2-line-1",
+        "q3-s2-line-2",
+        "q3-s2-line-3",
+        "q3-s2-line-4",
+        "q3-s2-line-5",
+        "q3-s2-line-6",
+        "q3-s2-line-7"
       ]
     },
     {
@@ -102,10 +109,11 @@
       "targetBentuk": "C",
       "garisBenar": [
         "q3-s3-line-1",
+        "q3-s3-line-2",
+        "q3-s3-line-3",
         "q3-s3-line-4",
-        "q3-s3-line-10",
-        "q3-s3-line-11",
-        "q3-s3-line-14"
+        "q3-s3-line-5",
+        "q3-s3-line-6"
       ]
     }
   ]

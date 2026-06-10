@@ -1,50 +1,111 @@
 <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
   <rect width="400" height="400" fill="#0a1428" />
 
+  <defs>
+    <!-- Pattern dot stipple berwarna orange/tan -->
+    <pattern id="stipple" x="0" y="0" width="8" height="8" patternUnits="userSpaceOnUse">
+      <circle cx="4" cy="4" r="1.5" fill="#c4a482" opacity="0.85" />
+    </pattern>
+  </defs>
+
   <!-- ==========================================
-       SESI 2 SOAL 3: Kotak besar dengan banyak garis radial dari sudut
-       Target: Bentuk G (persegi dengan takik miring kiri atas)
+       SESI 2 SOAL 3 (Normalized): Kotak besar dengan 16 garis radial dan 7 diagonal
+       Target: Bentuk G (House with shoulders)
        ========================================== -->
 
-  <!-- Persegi besar luar -->
-  <line id="q2-s3-line-1" x1="60"  y1="60"  x2="340" y2="60"  stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
-  <line id="q2-s3-line-2" x1="340" y1="60"  x2="340" y2="340" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
-  <line id="q2-s3-line-3" x1="340" y1="340" x2="60"  y2="340" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
-  <line id="q2-s3-line-4" x1="60"  y1="340" x2="60"  y2="60"  stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <!-- Bidang arsir stippling coklat/orange (8 fan blades) -->
+  <!-- Blade 1: Left-middle -->
+  <polygon points="270,200 60,200 60,130" fill="#c4a482" fill-opacity="0.15" />
+  <polygon points="270,200 60,200 60,130" fill="url(#stipple)" />
 
-  <!-- Garis horizontal dan vertikal tengah -->
-  <line id="q2-s3-line-5" x1="60"  y1="200" x2="340" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
-  <line id="q2-s3-line-6" x1="200" y1="60"  x2="200" y2="340" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <!-- Blade 2: Up-left corner -->
+  <polygon points="270,200 60,60 130,60" fill="#c4a482" fill-opacity="0.15" />
+  <polygon points="270,200 60,60 130,60" fill="url(#stipple)" />
 
-  <!-- Garis radial dari sudut kiri atas (ke titik tengah) -->
-  <line id="q2-s3-line-7"  x1="60"  y1="60"  x2="200" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
-  <!-- Garis radial dari sudut kanan atas -->
-  <line id="q2-s3-line-8"  x1="340" y1="60"  x2="200" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
-  <!-- Garis radial dari sudut kiri bawah -->
-  <line id="q2-s3-line-9"  x1="60"  y1="340" x2="200" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
-  <!-- Garis radial dari sudut kanan bawah -->
-  <line id="q2-s3-line-10" x1="340" y1="340" x2="200" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <!-- Blade 3: Up-middle -->
+  <polygon points="270,200 200,60 270,60" fill="#c4a482" fill-opacity="0.15" />
+  <polygon points="270,200 200,60 270,60" fill="url(#stipple)" />
 
-  <!-- Garis diagonal dari tengah sisi atas ke tengah sisi kanan -->
-  <line id="q2-s3-line-11" x1="200" y1="60"  x2="340" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
-  <!-- Garis diagonal dari tengah sisi kanan ke tengah sisi bawah -->
-  <line id="q2-s3-line-12" x1="340" y1="200" x2="200" y2="340" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
-  <!-- Garis diagonal dari tengah sisi bawah ke tengah sisi kiri -->
-  <line id="q2-s3-line-13" x1="200" y1="340" x2="60"  y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
-  <!-- Garis diagonal dari tengah sisi kiri ke tengah sisi atas -->
-  <line id="q2-s3-line-14" x1="60"  y1="200" x2="200" y2="60"  stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <!-- Blade 4: Up-right corner -->
+  <polygon points="270,200 340,60 340,130" fill="#c4a482" fill-opacity="0.15" />
+  <polygon points="270,200 340,60 340,130" fill="url(#stipple)" />
 
-  <!-- Bentuk G tersembunyi di kuadran kanan atas:
-       G di antara (200,60)-(340,60)-(340,200)-(200,200)
-  -->
-  <!-- Sisi bawah G -->
-  <line id="q2-s3-line-15" x1="200" y1="200" x2="340" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
-  <!-- Sisi kanan G -->
-  <line id="q2-s3-line-16" x1="340" y1="200" x2="340" y2="60"  stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
-  <!-- Sisi atas G -->
-  <line id="q2-s3-line-17" x1="340" y1="60"  x2="250" y2="60"  stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
-  <!-- Takik miring G -->
-  <line id="q2-s3-line-18" x1="250" y1="60"  x2="200" y2="115" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
-  <!-- Sisi kiri bawah G -->
-  <line id="q2-s3-line-19" x1="200" y1="115" x2="200" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
+  <!-- Blade 5: Right-middle -->
+  <polygon points="270,200 340,200 340,270" fill="#c4a482" fill-opacity="0.15" />
+  <polygon points="270,200 340,200 340,270" fill="url(#stipple)" />
+
+  <!-- Blade 6: Down-right corner -->
+  <polygon points="270,200 340,340 270,340" fill="#c4a482" fill-opacity="0.15" />
+  <polygon points="270,200 340,340 270,340" fill="url(#stipple)" />
+
+  <!-- Blade 7: Down-middle -->
+  <polygon points="270,200 200,340 130,340" fill="#c4a482" fill-opacity="0.15" />
+  <polygon points="270,200 200,340 130,340" fill="url(#stipple)" />
+
+  <!-- Blade 8: Down-left corner -->
+  <polygon points="270,200 60,340 60,270" fill="#c4a482" fill-opacity="0.15" />
+  <polygon points="270,200 60,340 60,270" fill="url(#stipple)" />
+
+  <!-- ── LINE SEGMENTS ── -->
+
+  <!-- KELOMPOK 1: 7 Garis Jawaban Benar (Bentuk G) -->
+  <!-- Left shoulder -->
+  <line id="q2-s3-line-1" x1="60"  y1="200" x2="130" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
+  <!-- Left roof slope -->
+  <line id="q2-s3-line-2" x1="130" y1="200" x2="200" y2="130" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
+  <!-- Right roof slope -->
+  <line id="q2-s3-line-3" x1="200" y1="130" x2="270" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
+  <!-- Right shoulder -->
+  <line id="q2-s3-line-4" x1="270" y1="200" x2="340" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
+  <!-- Left vertical lower -->
+  <line id="q2-s3-line-5" x1="60"  y1="200" x2="60"  y2="340" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
+  <!-- Right vertical lower -->
+  <line id="q2-s3-line-6" x1="340" y1="200" x2="340" y2="340" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
+  <!-- Bottom edge -->
+  <line id="q2-s3-line-7" x1="60"  y1="340" x2="340" y2="340" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
+
+  <!-- KELOMPOK 2: Garis Lainnya yang Terpotong oleh Jawaban -->
+  <!-- Middle horizontal center segment -->
+  <line id="q2-s3-line-8" x1="130" y1="200" x2="270" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <!-- Extension of right slope ray to top-left -->
+  <line id="q2-s3-line-9" x1="200" y1="130" x2="130" y2="60"  stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <!-- Extension of left slope diagonal to left edge -->
+  <line id="q2-s3-line-10" x1="60"  y1="270" x2="130" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <!-- Extension of left slope diagonal to top edge -->
+  <line id="q2-s3-line-11" x1="200" y1="130" x2="270" y2="60"  stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <!-- Left vertical upper -->
+  <line id="q2-s3-line-12" x1="60"  y1="60"  x2="60"  y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <!-- Right vertical upper -->
+  <line id="q2-s3-line-13" x1="340" y1="60"  x2="340" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+
+  <!-- KELOMPOK 3: Garis Radial Lainnya dari P(270, 200) -->
+  <!-- Vertical up -->
+  <line id="q2-s3-line-14" x1="270" y1="200" x2="270" y2="60"  stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <!-- Top edge radial lines -->
+  <line id="q2-s3-line-15" x1="270" y1="200" x2="200" y2="60"  stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q2-s3-line-16" x1="270" y1="200" x2="340" y2="60"  stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <!-- Left edge radial lines -->
+  <line id="q2-s3-line-17" x1="270" y1="200" x2="60"  y2="60"  stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q2-s3-line-18" x1="270" y1="200" x2="60"  y2="130" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q2-s3-line-19" x1="270" y1="200" x2="60"  y2="270" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q2-s3-line-20" x1="270" y1="200" x2="60"  y2="340" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <!-- Bottom edge radial lines -->
+  <line id="q2-s3-line-21" x1="270" y1="200" x2="130" y2="340" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q2-s3-line-22" x1="270" y1="200" x2="200" y2="340" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q2-s3-line-23" x1="270" y1="200" x2="270" y2="340" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q2-s3-line-24" x1="270" y1="200" x2="340" y2="340" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <!-- Right edge radial lines -->
+  <line id="q2-s3-line-25" x1="270" y1="200" x2="340" y2="270" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q2-s3-line-26" x1="270" y1="200" x2="340" y2="130" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+
+  <!-- KELOMPOK 4: Garis Diagonal Paralel Lainnya -->
+  <line id="q2-s3-line-27" x1="60"  y1="130" x2="130" y2="60"  stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q2-s3-line-28" x1="60"  y1="200" x2="200" y2="60"  stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q2-s3-line-29" x1="60"  y1="340" x2="340" y2="60"  stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q2-s3-line-30" x1="130" y1="340" x2="340" y2="130" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q2-s3-line-31" x1="200" y1="340" x2="340" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q2-s3-line-32" x1="270" y1="340" x2="340" y2="270" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+
+  <!-- Sisi atas persegi besar -->
+  <line id="q2-s3-line-33" x1="60"  y1="60"  x2="340" y2="60"  stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
 </svg>

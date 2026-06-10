@@ -1,6 +1,30 @@
 <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
   <rect width="400" height="400" fill="#0a1428" />
 
+  <defs>
+    <!-- Pattern dot stipple berwarna orange/tan -->
+    <pattern id="stipple" x="0" y="0" width="8" height="8" patternUnits="userSpaceOnUse">
+      <circle cx="4" cy="4" r="1.5" fill="#c4a482" opacity="0.85" />
+    </pattern>
+  </defs>
+
+  <!-- Bidang arsir stippling coklat/orange (4 dari 8 sektor bintang) -->
+  <!-- Sector 1: Top-Right -->
+  <polygon points="200,200 200,30 350,70" fill="#c4a482" fill-opacity="0.15" />
+  <polygon points="200,200 200,30 350,70" fill="url(#stipple)" />
+
+  <!-- Sector 3: Right-Bottom -->
+  <polygon points="200,200 370,200 350,330" fill="#c4a482" fill-opacity="0.15" />
+  <polygon points="200,200 370,200 350,330" fill="url(#stipple)" />
+
+  <!-- Sector 5: Bottom-Left -->
+  <polygon points="200,200 200,370 50,330" fill="#c4a482" fill-opacity="0.15" />
+  <polygon points="200,200 200,370 50,330" fill="url(#stipple)" />
+
+  <!-- Sector 7: Left-Top -->
+  <polygon points="200,200 30,200 50,70" fill="#c4a482" fill-opacity="0.15" />
+  <polygon points="200,200 30,200 50,70" fill="url(#stipple)" />
+
   <!-- ==========================================
        SESI 3 SOAL 1: Bintang besar dengan banyak spike/lancip
        Target: Bentuk F (layang-layang / kite memanjang)
@@ -34,12 +58,7 @@
   <line id="q3-s1-line-15" x1="30"  y1="200" x2="50"  y2="70"  stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
   <line id="q3-s1-line-16" x1="50"  y1="70"  x2="200" y2="30"  stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
 
-  <!-- Bentuk F tersembunyi: layang-layang/kite memanjang vertikal di tengah
-       F = spike atas + spike kiri + spike bawah + spike kanan (belah ketupat vertikal panjang)
-       Atau lebih tepatnya: titik atas-200,30 - kiri-30,200 - bawah-200,370 - kanan-... tidak
-       F = kite: puncak atas runcing, melebar di tengah, meruncing ke bawah
-       Disini: puncak=200,30 , kiri-tengah=120,200, bawah=200,310 , kanan-tengah=280,200
-  -->
+  <!-- Bentuk F tersembunyi: layang-layang/kite memanjang vertikal di tengah -->
   <line id="q3-s1-line-17" x1="200" y1="30"  x2="120" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
   <line id="q3-s1-line-18" x1="120" y1="200" x2="200" y2="310" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
   <line id="q3-s1-line-19" x1="200" y1="310" x2="280" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
