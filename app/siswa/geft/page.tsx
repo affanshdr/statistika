@@ -37,12 +37,36 @@ type SvgViewerProps = {
 }
 
 const GeftSvgViewer = memo(function GeftSvgViewer({ svgContent, selected, onSvgClick }: SvgViewerProps) {
+  // Effect 1: Inject hit-area clones setelah SVG dimuat
+  // Setiap line/path di-clone menjadi invisible thick layer untuk mempermudah sentuhan jari
+  useEffect(() => {
+    if (!svgContent) return
+
+    const container = document.querySelector('.geft-svg-container')
+    if (!container) return
+
+    // Hapus hit-area lama
+    container.querySelectorAll('.hit-area').forEach(el => el.remove())
+
+    // Cari semua SVG elements yang punya id (= clickable lines)
+    const lines = container.querySelectorAll<SVGElement>('line[id], path[id]')
+    lines.forEach(line => {
+      // Clone element
+      const clone = line.cloneNode(true) as SVGElement
+      clone.setAttribute('class', 'hit-area')
+      clone.removeAttribute('data-correct') // jangan duplikat data-correct
+      // Masukkan ke parent yang sama, di atas elemen asli
+      line.parentNode?.insertBefore(clone, line.nextSibling)
+    })
+  }, [svgContent])
+
+  // Effect 2: Update kelas 'selected' pada setiap perubahan selection
   useEffect(() => {
     if (!svgContent) return
     const lines = document.querySelectorAll('.geft-svg-container line, .geft-svg-container path')
     lines.forEach(line => {
       const lineId = line.getAttribute('id')
-      if (lineId) {
+      if (lineId && !line.classList.contains('hit-area')) {
         if (selected.has(lineId)) {
           line.classList.add('selected')
         } else {
@@ -514,12 +538,22 @@ export default function GeftPage() {
               font-weight: 600;
             }
             .geft-interactive-line {
-              cursor: pointer; stroke: #555; stroke-width: 4px;
-              fill: none; pointer-events: all; stroke-linecap: round;
+              cursor: pointer; stroke: #555; stroke-width: 5px;
+              fill: none; pointer-events: visibleStroke; stroke-linecap: round;
               transition: stroke 0.15s, stroke-width 0.15s;
             }
-            .geft-interactive-line:hover { stroke: #60a5fa; stroke-width: 6px; }
-            .geft-interactive-line.selected { stroke: #2196f3 !important; stroke-width: 6.5px !important; }
+            .geft-interactive-line:hover { stroke: #60a5fa; stroke-width: 7px; }
+            .geft-interactive-line.selected { stroke: #2196f3 !important; stroke-width: 8px !important; }
+            @media (max-width: 600px) {
+              .geft-interactive-line {
+                stroke-width: 8px !important;
+                /* Expand invisible hit area via a filter trick isn't needed —
+                   pointer-events: visibleStroke with bigger stroke-width does the job */
+              }
+              .geft-interactive-line.selected {
+                stroke-width: 10px !important;
+              }
+            }
             .geft-tutorial-steps-nav {
               display: flex; justify-content: space-between;
               align-items: center; padding-top: 14px;
@@ -759,10 +793,10 @@ export default function GeftPage() {
     }
 
     return (
-      <main className="geft-page-container">
+      <main className="geft-page-container" style={{ overflowY: 'auto' }}>
         {renderNavbar("GEFT COGNITIVE ASSESSMENT ⏱️")}
 
-        <div style={{ maxWidth: '600px', margin: '80px auto 0', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '20px', padding: '36px', boxShadow: '0 15px 35px rgba(0,0,0,0.3)' }}>
+        <div className="geft-intro-card" style={{ maxWidth: '600px', margin: '48px auto', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '20px', padding: '36px', boxShadow: '0 15px 35px rgba(0,0,0,0.3)' }}>
           <h2 style={{ marginBottom: 16, fontSize: '24px', fontWeight: 800 }}>
             {isFirst ? 'Selamat datang di Tes GEFT' : `Mulai ${SECTION_LABELS[nextSection]}`}
           </h2>
@@ -775,20 +809,34 @@ export default function GeftPage() {
             }
           </p>
           <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: '13px', marginBottom: '28px', lineHeight: 1.5 }}>
-            💡 Caranya: Klik garis-garis pada gambar teka-teki yang membentuk bentuk sederhana yang diminta. Batas waktu pengerjaan: 3 menit per soal.
+            💡 Caranya: <strong style={{ color: 'rgba(255,255,255,0.65)' }}>Ketuk / klik garis-garis</strong> pada gambar teka-teki yang membentuk bentuk sederhana yang diminta. Batas waktu: 3 menit per soal.
           </p>
           <button
             onClick={() => setPhase('test')}
             style={{
-              padding: '14px 32px', borderRadius: '12px', border: 'none',
+              width: '100%', padding: '16px 32px', borderRadius: '12px', border: 'none',
               background: 'linear-gradient(90deg, #3b82f6, #06b6d4)',
-              color: '#fff', fontSize: '14px', fontWeight: 700, cursor: 'pointer',
-              boxShadow: '0 4px 15px rgba(33, 150, 243, 0.3)'
+              color: '#fff', fontSize: '15px', fontWeight: 700, cursor: 'pointer',
+              boxShadow: '0 4px 15px rgba(33, 150, 243, 0.3)',
+              minHeight: '52px',
             }}
           >
             {isFirst ? 'Mulai Latihan →' : `Mulai ${SECTION_LABELS[nextSection]} →`}
           </button>
         </div>
+
+        <style>{`
+          .geft-intro-card {
+            width: calc(100% - 32px);
+          }
+          @media (max-width: 600px) {
+            .geft-intro-card {
+              margin: 20px auto 20px !important;
+              padding: 24px 18px !important;
+              border-radius: 16px !important;
+            }
+          }
+        `}</style>
       </main>
     )
   }
@@ -797,8 +845,8 @@ export default function GeftPage() {
     return (
       <main className="geft-page-container">
         {renderNavbar("GEFT COGNITIVE ASSESSMENT ⏱️")}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 1, marginTop: '80px' }}>
-          <div style={{ textAlign: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 1 }}>
+          <div style={{ textAlign: 'center', padding: '40px 20px' }}>
             <h2 style={{ marginBottom: 12, fontSize: '28px', fontWeight: 800 }}>Tes selesai! 🎉</h2>
             <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '15px' }}>{submitting ? 'Menyimpan hasil tes...' : 'Mengarahkan ke halaman utama...'}</p>
           </div>
@@ -1142,6 +1190,11 @@ export default function GeftPage() {
           max-height: 480px;
         }
 
+        /* ── SVG Line Styles ────────────────────────────── */
+        /* Each line has TWO layers in the SVG:
+           1. A transparent thick "hit" line for easy tapping (pointer-events: all)
+           2. A visible thin line on top (pointer-events: none)
+           Both share the same ID, so clicking the hit area still triggers selection. */
         .geft-svg-container svg line, .geft-svg-container svg path {
           cursor: pointer;
           stroke: #666;
@@ -1157,9 +1210,22 @@ export default function GeftPage() {
           stroke-width: 5px;
           opacity: 0.95;
         }
+        /* Hit-area lines: invisible but thick — these are the ones that receive touch */
+        .geft-svg-container svg line.hit-area, .geft-svg-container svg path.hit-area {
+          stroke: transparent !important;
+          stroke-width: 28px !important;
+          cursor: pointer;
+          pointer-events: stroke;
+        }
+        .geft-svg-container svg line.hit-area:hover, .geft-svg-container svg path.hit-area:hover {
+          stroke: transparent !important;
+          stroke-width: 28px !important;
+          opacity: 1 !important;
+        }
         
         .geft-btn-primary {
           padding: 12px 28px;
+          min-height: 48px;
           border-radius: 12px;
           border: none;
           background: linear-gradient(90deg, #3b82f6, #06b6d4);
@@ -1170,6 +1236,9 @@ export default function GeftPage() {
           box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3);
           transition: all 0.2s;
           text-align: center;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
         .geft-btn-primary:hover {
           transform: translateY(-1px);
@@ -1178,6 +1247,7 @@ export default function GeftPage() {
         
         .geft-btn-secondary {
           padding: 12px 20px;
+          min-height: 48px;
           border-radius: 12px;
           border: 1px solid rgba(255,80,80,0.5);
           background: rgba(255,80,80,0.08);
@@ -1187,6 +1257,9 @@ export default function GeftPage() {
           cursor: pointer;
           transition: all 0.2s;
           text-align: center;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
         .geft-btn-secondary:hover {
           background: rgba(255,80,80,0.15);
@@ -1194,6 +1267,7 @@ export default function GeftPage() {
 
         .geft-btn-text {
           padding: 12px 20px;
+          min-height: 48px;
           border-radius: 12px;
           border: 1px solid rgba(255,255,255,0.15);
           background: transparent;
@@ -1203,6 +1277,9 @@ export default function GeftPage() {
           cursor: pointer;
           transition: all 0.2s;
           text-align: center;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
         .geft-btn-text:hover {
           background: rgba(255,255,255,0.05);
@@ -1253,6 +1330,7 @@ export default function GeftPage() {
             align-items: center;
             width: 100%;
             box-sizing: border-box;
+            flex-shrink: 0;
           }
 
           .geft-target-card {
@@ -1263,6 +1341,7 @@ export default function GeftPage() {
             background: rgba(255, 255, 255, 0.02) !important;
             width: 100%;
             box-sizing: border-box;
+            flex-shrink: 0;
           }
 
           .geft-target-card .geft-target-img-container {
@@ -1271,8 +1350,8 @@ export default function GeftPage() {
           }
 
           .geft-target-card .geft-target-img-container > div {
-            width: 36px !important;
-            height: 36px !important;
+            width: 40px !important;
+            height: 40px !important;
             border-radius: 6px !important;
           }
 
@@ -1318,15 +1397,32 @@ export default function GeftPage() {
 
           .geft-svg-container svg {
             max-height: 100% !important;
-            width: auto !important;
+            width: 100% !important;
             height: 100% !important;
-            aspect-ratio: 1 / 1;
+            max-width: 100%;
+            object-fit: contain;
             margin: 0 auto;
+          }
+
+          /* ── Larger touch targets for SVG lines on mobile ── */
+          .geft-svg-container svg line,
+          .geft-svg-container svg path {
+            stroke-width: 5px !important;
+          }
+          .geft-svg-container svg line.selected,
+          .geft-svg-container svg path.selected {
+            stroke-width: 8px !important;
+          }
+          /* Hit areas get even thicker strokes on touch screens */
+          .geft-svg-container svg line.hit-area,
+          .geft-svg-container svg path.hit-area {
+            stroke-width: 36px !important;
+            stroke: transparent !important;
           }
 
           .geft-actions-area {
             order: 4;
-            gap: 8px !important;
+            gap: 6px !important;
             background: rgba(255, 255, 255, 0.02);
             border: 1px solid rgba(255, 255, 255, 0.06);
             border-radius: 12px;
@@ -1335,6 +1431,7 @@ export default function GeftPage() {
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
+            flex-shrink: 0;
           }
 
           .geft-buttons-row {
@@ -1342,7 +1439,8 @@ export default function GeftPage() {
           }
 
           .geft-btn-primary, .geft-btn-secondary, .geft-btn-text {
-            padding: 10px 14px !important;
+            padding: 11px 14px !important;
+            min-height: 44px !important;
             font-size: 13px !important;
             border-radius: 10px !important;
           }
@@ -1351,6 +1449,12 @@ export default function GeftPage() {
             padding: 6px 12px !important;
             font-size: 12px !important;
             border-radius: 8px !important;
+          }
+
+          /* Dot indicator: bigger for fingers */
+          .geft-selection-dot {
+            width: 10px !important;
+            height: 10px !important;
           }
         }
       `}</style>

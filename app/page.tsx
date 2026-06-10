@@ -132,7 +132,7 @@ export default function HomePage() {
         gap: '48px', alignItems: 'center', flexWrap: 'wrap'
       }}>
         {/* Left Column - Product Presentation */}
-        <div style={{ flex: 1.2, minWidth: '320px', display: 'flex', flexDirection: 'column', gap: '28px' }}>
+        <div style={{ flex: 1.2, minWidth: 'min(320px, 100%)', display: 'flex', flexDirection: 'column', gap: '28px' }}>
           
           {/* Badge */}
           <div style={{
@@ -146,7 +146,7 @@ export default function HomePage() {
           </div>
 
           {/* Slogan */}
-          <h1 style={{
+          <h1 className="home-hero-h1" style={{
             fontSize: '46px', fontWeight: 800, lineHeight: 1.15,
             margin: 0, letterSpacing: '-0.5px'
           }}>
@@ -330,11 +330,41 @@ export default function HomePage() {
 
       <style>{`
         input::placeholder { color: rgba(255,255,255,0.2); }
+        select { appearance: none; }
+
         @media (max-width: 800px) {
           .home-hero-section {
             flex-direction: column-reverse !important;
             gap: 32px !important;
-            padding: 40px 20px !important;
+            padding: 32px 16px 40px !important;
+          }
+          .home-hero-section > div {
+            min-width: 100% !important;
+            width: 100% !important;
+          }
+          .home-hero-h1 {
+            font-size: 32px !important;
+            letter-spacing: -0.2px !important;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .home-hero-h1 {
+            font-size: 26px !important;
+          }
+          /* Navbar: shrink logo text a bit */
+          header span[style*="18px"] {
+            font-size: 15px !important;
+          }
+          /* Navbar: shrink portal guru button */
+          header button {
+            padding: 7px 12px !important;
+            font-size: 12px !important;
+          }
+          /* Form card: reduce padding */
+          .home-form-card {
+            padding: 24px 18px !important;
+            border-radius: 18px !important;
           }
         }
       `}</style>
