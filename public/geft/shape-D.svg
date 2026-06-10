@@ -1,13 +1,19 @@
-<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-  <!-- Shape D: Rumah asimetris - persegi panjang bawah dengan atap miring di kiri -->
-  <!-- Sisi kiri bawah vertikal -->
-  <line id="shape-D-line-1" x1="45" y1="155" x2="45" y2="115" stroke="#333" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
-  <!-- Atap miring kiri (dari pojok kiri ke puncak) -->
-  <line id="shape-D-line-2" x1="45" y1="115" x2="90" y2="75" stroke="#333" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
-  <!-- Atap horizontal kanan (dari puncak ke kanan) -->
-  <line id="shape-D-line-3" x1="90" y1="75" x2="155" y2="115" stroke="#333" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
-  <!-- Sisi kanan vertikal turun -->
-  <line id="shape-D-line-4" x1="155" y1="115" x2="155" y2="155" stroke="#333" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
+<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+  <!--
+    Shape D: Rumah asimetris (peak offset ke kiri).
+    Koordinat identik dengan jawaban D di sesi1-soal3.svg:
+      kiri=80, kanan=320, tengah-y=200, bawah=300
+      puncak di (178,100) — lebih ke kiri dari tengah (200)
+    Warna putih agar terlihat di background gelap.
+  -->
+  <!-- Sisi kiri (dinding bawah kiri) -->
+  <line x1="80"  y1="300" x2="80"  y2="200" stroke="#fff" stroke-width="4" stroke-linecap="round" fill="none" />
+  <!-- Atap kiri (lebih curam) -->
+  <line x1="80"  y1="200" x2="178" y2="100" stroke="#fff" stroke-width="4" stroke-linecap="round" fill="none" />
+  <!-- Atap kanan (lebih landai) -->
+  <line x1="178" y1="100" x2="320" y2="200" stroke="#fff" stroke-width="4" stroke-linecap="round" fill="none" />
+  <!-- Sisi kanan (dinding bawah kanan) -->
+  <line x1="320" y1="200" x2="320" y2="300" stroke="#fff" stroke-width="4" stroke-linecap="round" fill="none" />
   <!-- Dasar bawah -->
-  <line id="shape-D-line-5" x1="155" y1="155" x2="45" y2="155" stroke="#333" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
+  <line x1="320" y1="300" x2="80"  y2="300" stroke="#fff" stroke-width="4" stroke-linecap="round" fill="none" />
 </svg>

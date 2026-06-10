@@ -1,14 +1,27 @@
-<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-  <!-- Shape G: Persegi panjang dengan takik segitiga kecil di sudut kiri atas -->
-  <!-- Mulai dari kiri bawah, ke kiri atas, takik ke dalam, lanjut ke kanan atas, kanan bawah -->
-  <!-- Sisi kiri vertikal naik -->
-  <line id="shape-G-line-1" x1="50" y1="155" x2="50" y2="85" stroke="#333" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
-  <!-- Takik kiri: miring ke dalam kanan atas -->
-  <line id="shape-G-line-2" x1="50" y1="85" x2="95" y2="65" stroke="#333" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
-  <!-- Sisi atas setelah takik ke kanan -->
-  <line id="shape-G-line-3" x1="95" y1="65" x2="150" y2="65" stroke="#333" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
-  <!-- Sisi kanan turun -->
-  <line id="shape-G-line-4" x1="150" y1="65" x2="150" y2="155" stroke="#333" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
-  <!-- Sisi bawah ke kiri -->
-  <line id="shape-G-line-5" x1="150" y1="155" x2="50" y2="155" stroke="#333" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
+<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+  <!--
+    Shape G: House with shoulders.
+    Koordinat identik dengan jawaban G di sesi1-soal2.svg:
+      Atap segitiga: puncak di (200, 140), kaki di (140, 215) dan (260, 215)
+      Shoulder kiri: (75, 215) ke (140, 215)
+      Shoulder kanan: (260, 215) ke (325, 215)
+      Dinding kiri: (75, 215) ke (75, 340)
+      Dinding kanan: (325, 215) ke (325, 340)
+      Dasar bawah: (75, 340) ke (325, 340)
+    Warna putih agar terlihat di background gelap.
+  -->
+  <!-- Left shoulder -->
+  <line x1="75" y1="215" x2="140" y2="215" stroke="#fff" stroke-width="4" stroke-linecap="round" fill="none" />
+  <!-- Left roof slope -->
+  <line x1="140" y1="215" x2="200" y2="140" stroke="#fff" stroke-width="4" stroke-linecap="round" fill="none" />
+  <!-- Right roof slope -->
+  <line x1="200" y1="140" x2="260" y2="215" stroke="#fff" stroke-width="4" stroke-linecap="round" fill="none" />
+  <!-- Right shoulder -->
+  <line x1="260" y1="215" x2="325" y2="215" stroke="#fff" stroke-width="4" stroke-linecap="round" fill="none" />
+  <!-- Right vertical edge -->
+  <line x1="325" y1="215" x2="325" y2="340" stroke="#fff" stroke-width="4" stroke-linecap="round" fill="none" />
+  <!-- Bottom edge -->
+  <line x1="325" y1="340" x2="75" y2="340" stroke="#fff" stroke-width="4" stroke-linecap="round" fill="none" />
+  <!-- Left vertical edge -->
+  <line x1="75" y1="340" x2="75" y2="215" stroke="#fff" stroke-width="4" stroke-linecap="round" fill="none" />
 </svg>

@@ -1,46 +1,35 @@
 <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
   <rect width="400" height="400" fill="#0a1428" />
 
-  <!-- ==========================================
-       SESI 1 SOAL 2: Segitiga di atas persegi panjang
-       Target: Bentuk G (persegi panjang dengan takik miring di kiri atas)
-       Jawaban = sisi kiri vertikal, takik miring kiri, sisi atas kanan, sisi kanan, sisi bawah
-       ========================================== -->
+  <!--
+    SESI 1 SOAL 2: Rumah (segitiga + persegi panjang)
+    Target: Bentuk G (House with shoulders)
+    G = segi-7 (outline terluar dari segitiga atas dan badan persegi bawah, tanpa alas dalam/atap bawah)
+  -->
 
-  <!-- Segitiga besar di atas (atap) -->
-  <line id="q1-s2-line-1" x1="200" y1="60"  x2="330" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
-  <line id="q1-s2-line-2" x1="200" y1="60"  x2="70"  y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <!-- ── Atap Segitiga atas (terbagi di titik pertemuan dengan atap persegi: x=140 dan x=260) ── -->
+  <!-- Sisi miring kiri atas (bagian dari G) -->
+  <line id="q1-s2-line-1" x1="200" y1="140" x2="140" y2="215" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
+  <!-- Sisi miring kiri bawah (lanjutan di dalam persegi) -->
+  <line id="q1-s2-line-2" x1="140" y1="215" x2="75" y2="296" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
 
-  <!-- Persegi panjang bawah -->
-  <line id="q1-s2-line-3" x1="70"  y1="200" x2="330" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
-  <line id="q1-s2-line-4" x1="330" y1="200" x2="330" y2="320" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
-  <line id="q1-s2-line-5" x1="330" y1="320" x2="70"  y2="320" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
-  <line id="q1-s2-line-6" x1="70"  y1="320" x2="70"  y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <!-- Sisi miring kanan atas (bagian dari G) -->
+  <line id="q1-s2-line-3" x1="200" y1="140" x2="260" y2="215" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
+  <!-- Sisi miring kanan bawah (lanjutan di dalam persegi) -->
+  <line id="q1-s2-line-4" x1="260" y1="215" x2="325" y2="296" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
 
-  <!-- Garis dalam persegi: vertikal dari tengah atas ke bawah -->
-  <line id="q1-s2-line-7" x1="200" y1="200" x2="200" y2="320" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <!-- ── Badan persegi panjang (terbagi di titik pertemuan dengan atap segitiga: x=140 dan x=260) ── -->
+  <!-- Garis atas persegi - bagian kiri (shoulder kiri, bagian dari G) -->
+  <line id="q1-s2-line-5" x1="75" y1="215" x2="140" y2="215" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
+  <!-- Garis atas persegi - bagian tengah (di dalam atap segitiga) -->
+  <line id="q1-s2-line-6" x1="140" y1="215" x2="260" y2="215" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <!-- Garis atas persegi - bagian kanan (shoulder kanan, bagian dari G) -->
+  <line id="q1-s2-line-7" x1="260" y1="215" x2="325" y2="215" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
 
-  <!-- Segitiga kecil sudut kiri bawah persegi -->
-  <line id="q1-s2-line-8" x1="70"  y1="200" x2="140" y2="320" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
-
-  <!-- Segitiga kecil sudut kanan bawah persegi -->
-  <line id="q1-s2-line-9" x1="330" y1="200" x2="260" y2="320" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
-
-  <!-- Garis horizontal tengah persegi -->
-  <line id="q1-s2-line-10" x1="70" y1="260" x2="330" y2="260" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
-
-  <!-- Bentuk G tersembunyi:
-       G = persegi panjang dengan sudut kiri atas yang miring/dipotong diagonal
-       Kiri bawah→kiri atas dipotong→atas horizontal→kanan→bawah
-       Posisi: kiri-tengah rectangle -->
-  <!-- Sisi bawah G -->
-  <line id="q1-s2-line-11" x1="70"  y1="320" x2="200" y2="320" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
-  <!-- Sisi kanan G -->
-  <line id="q1-s2-line-12" x1="200" y1="320" x2="200" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
-  <!-- Sisi atas G (horizontal dari kanan ke titik takik) -->
-  <line id="q1-s2-line-13" x1="200" y1="200" x2="110" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
-  <!-- Takik miring kiri atas G (diagonal dari atas ke sisi kiri bawah) -->
-  <line id="q1-s2-line-14" x1="110" y1="200" x2="70"  y2="260" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
-  <!-- Sisi kiri bawah G -->
-  <line id="q1-s2-line-15" x1="70"  y1="260" x2="70"  y2="320" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
+  <!-- Sisi kiri persegi (bagian dari G) -->
+  <line id="q1-s2-line-8" x1="75" y1="215" x2="75" y2="340" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
+  <!-- Sisi kanan persegi (bagian dari G) -->
+  <line id="q1-s2-line-9" x1="325" y1="215" x2="325" y2="340" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
+  <!-- Sisi bawah persegi (bagian dari G) -->
+  <line id="q1-s2-line-10" x1="75" y1="340" x2="325" y2="340" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
 </svg>

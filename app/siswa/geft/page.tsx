@@ -460,7 +460,12 @@ export default function GeftPage() {
             }
             @media (max-width: 600px) {
               .geft-tutorial-svg-wrapper { width: 95px; height: 95px; padding: 7px; }
-              .geft-tutorial-svg-wrapper-lg { width: 110px; height: 110px; }
+              /* Interaktif box: ambil lebar penuh agar mudah diklik jari */
+              .geft-tutorial-svg-wrapper-lg {
+                width: 100%;
+                height: 200px;
+                padding: 12px;
+              }
             }
             .geft-tut-found-badge {
               font-size: 11px; font-weight: 700;
@@ -539,26 +544,37 @@ export default function GeftPage() {
             }
             .geft-interactive-line {
               cursor: pointer; stroke: #555; stroke-width: 5px;
-              fill: none; pointer-events: visibleStroke; stroke-linecap: round;
+              fill: none; pointer-events: none; stroke-linecap: round;
               transition: stroke 0.15s, stroke-width 0.15s;
             }
             .geft-interactive-line:hover { stroke: #60a5fa; stroke-width: 7px; }
             .geft-interactive-line.selected { stroke: #2196f3 !important; stroke-width: 8px !important; }
+            /* Hit-area transparan yang lebar — pointer-events ditarget ke sini */
+            .geft-hit-area {
+              stroke: transparent;
+              stroke-width: 40px;
+              fill: none;
+              cursor: pointer;
+              stroke-linecap: round;
+            }
             @media (max-width: 600px) {
               .geft-interactive-line {
-                stroke-width: 8px !important;
-                /* Expand invisible hit area via a filter trick isn't needed —
-                   pointer-events: visibleStroke with bigger stroke-width does the job */
+                stroke-width: 10px !important;
               }
               .geft-interactive-line.selected {
-                stroke-width: 10px !important;
+                stroke-width: 12px !important;
+              }
+              .geft-hit-area {
+                stroke-width: 48px;
               }
             }
             .geft-tutorial-steps-nav {
-              display: flex; justify-content: space-between;
-              align-items: center; padding-top: 14px;
+              display: flex; align-items: center; padding-top: 14px;
               border-top: 1px solid rgba(255,255,255,0.06);
             }
+            .geft-tutorial-steps-nav > * { flex: 1; }
+            .geft-tutorial-steps-nav .geft-tutorial-indicator { display: flex; justify-content: center; }
+            .geft-tutorial-steps-nav > .geft-btn-primary-wrap { display: flex; justify-content: flex-end; }
             .geft-tutorial-indicator { display: flex; gap: 8px; }
             .geft-tutorial-dot {
               width: 7px; height: 7px; border-radius: 50%;
@@ -579,6 +595,7 @@ export default function GeftPage() {
               padding: 10px 20px; border-radius: 10px; border: none;
               color: #fff; font-size: 13px; font-weight: 700;
               cursor: pointer; transition: all 0.2s;
+              width: fit-content; white-space: nowrap; flex-shrink: 0;
             }
             .geft-btn-primary:hover { filter: brightness(1.1); transform: translateY(-1px); }
           `}</style>
@@ -732,14 +749,26 @@ export default function GeftPage() {
                   <div className="geft-tutorial-box geft-tut-interactive-box">
                     <div className="geft-tut-box-label">Klik Garisnya</div>
                     <div className="geft-tutorial-svg-wrapper geft-tutorial-svg-wrapper-lg">
+                      {/*
+                        Koordinat di-scale agar shape memenuhi hampir seluruh viewBox 200×200:
+                        A=(10,100)  B=(100,15)  C=(190,100)  D=(100,185)
+                        Sebelumnya: x=40-160, y=55-145  →  Sekarang: x=10-190, y=15-185
+                      */}
                       <svg viewBox="0 0 200 200" style={{ width: '100%', height: '100%' }}>
-                        <line className={`geft-interactive-line ${tutorialSelected.has('line-4') ? 'selected' : ''}`} x1="40" y1="100" x2="100" y2="55" onClick={() => handleTutorialLineClick('line-4')} />
-                        <line className={`geft-interactive-line ${tutorialSelected.has('line-5') ? 'selected' : ''}`} x1="40" y1="100" x2="100" y2="145" onClick={() => handleTutorialLineClick('line-5')} />
-                        <line className={`geft-interactive-line ${tutorialSelected.has('line-6') ? 'selected' : ''}`} x1="40" y1="100" x2="160" y2="100" onClick={() => handleTutorialLineClick('line-6')} />
-                        <line className={`geft-interactive-line ${tutorialSelected.has('line-1') ? 'selected' : ''}`} x1="100" y1="55" x2="100" y2="145" onClick={() => handleTutorialLineClick('line-1')} />
-                        <line className={`geft-interactive-line ${tutorialSelected.has('line-2') ? 'selected' : ''}`} x1="100" y1="145" x2="160" y2="100" onClick={() => handleTutorialLineClick('line-2')} />
-                        <line className={`geft-interactive-line ${tutorialSelected.has('line-3') ? 'selected' : ''}`} x1="160" y1="100" x2="100" y2="55" onClick={() => handleTutorialLineClick('line-3')} />
-
+                        {/* Visual lines */}
+                        <line className={`geft-interactive-line ${tutorialSelected.has('line-4') ? 'selected' : ''}`} x1="10" y1="100" x2="100" y2="15" />
+                        <line className={`geft-interactive-line ${tutorialSelected.has('line-5') ? 'selected' : ''}`} x1="10" y1="100" x2="100" y2="185" />
+                        <line className={`geft-interactive-line ${tutorialSelected.has('line-6') ? 'selected' : ''}`} x1="10" y1="100" x2="190" y2="100" />
+                        <line className={`geft-interactive-line ${tutorialSelected.has('line-1') ? 'selected' : ''}`} x1="100" y1="15" x2="100" y2="185" />
+                        <line className={`geft-interactive-line ${tutorialSelected.has('line-2') ? 'selected' : ''}`} x1="100" y1="185" x2="190" y2="100" />
+                        <line className={`geft-interactive-line ${tutorialSelected.has('line-3') ? 'selected' : ''}`} x1="190" y1="100" x2="100" y2="15" />
+                        {/* Invisible wide hit-areas (di atas visual, pointer-events aktif di sini) */}
+                        <line className="geft-hit-area" x1="10" y1="100" x2="100" y2="15" onClick={() => handleTutorialLineClick('line-4')} />
+                        <line className="geft-hit-area" x1="10" y1="100" x2="100" y2="185" onClick={() => handleTutorialLineClick('line-5')} />
+                        <line className="geft-hit-area" x1="10" y1="100" x2="190" y2="100" onClick={() => handleTutorialLineClick('line-6')} />
+                        <line className="geft-hit-area" x1="100" y1="15" x2="100" y2="185" onClick={() => handleTutorialLineClick('line-1')} />
+                        <line className="geft-hit-area" x1="100" y1="185" x2="190" y2="100" onClick={() => handleTutorialLineClick('line-2')} />
+                        <line className="geft-hit-area" x1="190" y1="100" x2="100" y2="15" onClick={() => handleTutorialLineClick('line-3')} />
                       </svg>
                     </div>
                     <div className="geft-tut-sel-count">{tutorialSelected.size}/3 garis dipilih</div>
@@ -775,16 +804,18 @@ export default function GeftPage() {
                 <span className={`geft-tutorial-dot ${tutorialStep === 1 ? 'active' : ''}`} />
                 <span className={`geft-tutorial-dot ${tutorialStep === 2 ? 'active' : ''}`} />
               </div>
-              <button
-                className="geft-btn-primary"
-                onClick={() => setTutorialStep(tutorialStep + 1)}
-                style={{
-                  background: isTutorialSuccess && tutorialStep === 2 ? 'linear-gradient(90deg, #10b981, #059669)' : 'linear-gradient(90deg, #3b82f6, #06b6d4)',
-                  boxShadow: isTutorialSuccess && tutorialStep === 2 ? '0 4px 15px rgba(16,185,129,0.3)' : '0 4px 15px rgba(33, 150, 243, 0.3)'
-                }}
-              >
-                {tutorialStep === 2 ? 'Lanjut ke Mulai Tes →' : 'Lanjut →'}
-              </button>
+              <div className="geft-btn-primary-wrap">
+                <button
+                  className="geft-btn-primary"
+                  onClick={() => setTutorialStep(tutorialStep + 1)}
+                  style={{
+                    background: isTutorialSuccess && tutorialStep === 2 ? 'linear-gradient(90deg, #10b981, #059669)' : 'linear-gradient(90deg, #3b82f6, #06b6d4)',
+                    boxShadow: isTutorialSuccess && tutorialStep === 2 ? '0 4px 15px rgba(16,185,129,0.3)' : '0 4px 15px rgba(33, 150, 243, 0.3)'
+                  }}
+                >
+                  {tutorialStep === 2 ? 'Lanjut ke Mulai Tes →' : 'Lanjut →'}
+                </button>
+              </div>
             </div>
 
           </div>
@@ -1483,8 +1514,8 @@ export default function GeftPage() {
           {/* Referensi bentuk */}
           <div className="geft-target-card" style={{ display: 'flex', gap: 16, alignItems: 'center', background: 'rgba(255,255,255,0.02)', padding: '16px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.05)' }}>
             <div className="geft-target-img-container" style={{ border: '1px solid rgba(255,255,255,0.12)', borderRadius: 12, padding: '12px', background: '#0a1428', textAlign: 'center', flexShrink: 0 }}>
-              <div style={{ width: 68, height: 68, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.05)', borderRadius: 8 }}>
-                <img src={`/geft/shape-${q.targetShape}.svg`} alt={q.targetShape} style={{ maxWidth: '90%', maxHeight: '90%', filter: 'invert(1)' }} />
+              <div style={{ width: 80, height: 80, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.05)', borderRadius: 8 }}>
+                <img src={`/geft/shape-${q.targetShape}.svg`} alt={q.targetShape} style={{ maxWidth: '90%', maxHeight: '90%' }} />
               </div>
             </div>
             <div className="geft-target-info">
