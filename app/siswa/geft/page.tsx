@@ -11,6 +11,34 @@ type Question = {
   targetShape: string
 }
 
+// ── SVG Hit Detection Utilities ────────────────────────────────────────────
+// Menghitung jarak terdekat dari titik (px, py) ke segmen garis (x1,y1)→(x2,y2)
+function pointToSegmentDistance(
+  px: number, py: number,
+  x1: number, y1: number,
+  x2: number, y2: number
+): number {
+  const dx = x2 - x1, dy = y2 - y1
+  const lenSq = dx * dx + dy * dy
+  if (lenSq === 0) return Math.hypot(px - x1, py - y1)
+  const t = Math.max(0, Math.min(1, ((px - x1) * dx + (py - y1) * dy) / lenSq))
+  return Math.hypot(px - (x1 + t * dx), py - (y1 + t * dy))
+}
+
+// Mengkonversi koordinat layar (clientX/Y) ke koordinat SVG user-unit
+function screenToSvgCoords(
+  clientX: number, clientY: number,
+  svg: SVGSVGElement
+): { x: number; y: number } | null {
+  const ctm = svg.getScreenCTM()
+  if (!ctm) return null
+  const pt = svg.createSVGPoint()
+  pt.x = clientX
+  pt.y = clientY
+  const svgPt = pt.matrixTransform(ctm.inverse())
+  return { x: svgPt.x, y: svgPt.y }
+}
+
 const QUESTIONS: Question[] = [
   // Sesi 1 — latihan (tidak dihitung)
   { id: 1, section: 1, no: 1, targetShape: 'B' },
@@ -37,27 +65,14 @@ type SvgViewerProps = {
 }
 
 const GeftSvgViewer = memo(function GeftSvgViewer({ svgContent, selected, onSvgClick }: SvgViewerProps) {
-  // Effect 1: Inject hit-area clones setelah SVG dimuat
-  // Setiap line/path di-clone menjadi invisible thick layer untuk mempermudah sentuhan jari
+  // Effect 1: Bersihkan hit-area lama jika ada (legacy cleanup)
+  // Hit detection sekarang ditangani oleh custom algoritma jarak di handleSvgClick,
+  // sehingga tidak perlu lagi membuat clone hit-area yang bisa tumpang-tindih.
   useEffect(() => {
     if (!svgContent) return
-
     const container = document.querySelector('.geft-svg-container')
     if (!container) return
-
-    // Hapus hit-area lama
     container.querySelectorAll('.hit-area').forEach(el => el.remove())
-
-    // Cari semua SVG elements yang punya id (= clickable lines)
-    const lines = container.querySelectorAll<SVGElement>('line[id], path[id]')
-    lines.forEach(line => {
-      // Clone element
-      const clone = line.cloneNode(true) as SVGElement
-      clone.setAttribute('class', 'hit-area')
-      clone.removeAttribute('data-correct') // jangan duplikat data-correct
-      // Masukkan ke parent yang sama, di atas elemen asli
-      line.parentNode?.insertBefore(clone, line.nextSibling)
-    })
   }, [svgContent])
 
   // Effect 2: Update kelas 'selected' pada setiap perubahan selection
@@ -66,7 +81,7 @@ const GeftSvgViewer = memo(function GeftSvgViewer({ svgContent, selected, onSvgC
     const lines = document.querySelectorAll('.geft-svg-container line, .geft-svg-container path')
     lines.forEach(line => {
       const lineId = line.getAttribute('id')
-      if (lineId && !line.classList.contains('hit-area')) {
+      if (lineId) {
         if (selected.has(lineId)) {
           line.classList.add('selected')
         } else {
@@ -180,17 +195,87 @@ export default function GeftPage() {
     return () => clearInterval(t)
   }, [qIndex, phase])
 
-  // ── Handle Line Clicks on the SVG ────────────────────────────────────────
+  // ── Handle Line Clicks on the SVG (Custom Distance-Based Hit Detection) ──
+  // Pendekatan lama: mengandalkan pointer-events SVG → hit-area yang tumpang-tindih
+  //   menyebabkan hanya 1 garis yang bisa diklik (yang paling atas di z-order).
+  // Pendekatan baru: hitung jarak dari titik klik ke setiap garis, pilih yang terdekat.
   function handleSvgClick(e: React.MouseEvent<HTMLDivElement>) {
-    const target = e.target as SVGElement
-    const tagName = target.tagName.toLowerCase()
-    if (tagName === 'line' || tagName === 'path') {
-      const lineId = target.getAttribute('id')
-      if (!lineId) return
+    const container = e.currentTarget
+    const svg = container.querySelector('svg') as SVGSVGElement | null
+    if (!svg) return
 
+    const coords = screenToSvgCoords(e.clientX, e.clientY, svg)
+    if (!coords) return
+
+    // Toleransi maksimal: 24 SVG unit (~18px pada layar 375px dengan viewBox 400)
+    const HIT_THRESHOLD = 24
+    const EPSILON = 1.5 // Toleransi untuk menganggap jarak "sama" (mengatasi overlap/subpixel)
+    let closestId: string | null = null
+    let closestDist = Infinity
+    let closestLength = Infinity
+
+    // Cek semua elemen <line> yang punya id
+    const lineEls = container.querySelectorAll<SVGElement>('line[id]:not(.hit-area)')
+    lineEls.forEach(lineEl => {
+      const id = lineEl.getAttribute('id')
+      if (!id) return
+      const x1 = parseFloat(lineEl.getAttribute('x1') ?? '0')
+      const y1 = parseFloat(lineEl.getAttribute('y1') ?? '0')
+      const x2 = parseFloat(lineEl.getAttribute('x2') ?? '0')
+      const y2 = parseFloat(lineEl.getAttribute('y2') ?? '0')
+      const dist = pointToSegmentDistance(coords.x, coords.y, x1, y1, x2, y2)
+      const len = Math.hypot(x2 - x1, y2 - y1)
+
+      if (dist <= HIT_THRESHOLD) {
+        if (closestDist - dist > EPSILON) {
+          // Jarak baru ini secara signifikan lebih dekat
+          closestDist = dist
+          closestLength = len
+          closestId = id
+        } else if (Math.abs(dist - closestDist) <= EPSILON) {
+          // Jarak dianggap sama/hampir sama (overlap), pilih garis yang lebih pendek
+          if (len < closestLength) {
+            closestDist = Math.min(dist, closestDist)
+            closestLength = len
+            closestId = id
+          }
+        }
+      }
+    })
+
+    // Cek semua elemen <path> yang punya id (sampling sepanjang path)
+    const pathEls = container.querySelectorAll<SVGPathElement>('path[id]:not(.hit-area)')
+    pathEls.forEach(pathEl => {
+      const id = pathEl.getAttribute('id')
+      if (!id) return
+      try {
+        const len = pathEl.getTotalLength()
+        const steps = Math.max(20, Math.floor(len / 5))
+        for (let i = 0; i <= steps; i++) {
+          const pt = pathEl.getPointAtLength((i / steps) * len)
+          const dist = Math.hypot(coords.x - pt.x, coords.y - pt.y)
+
+          if (dist <= HIT_THRESHOLD) {
+            if (closestDist - dist > EPSILON) {
+              closestDist = dist
+              closestLength = len
+              closestId = id
+            } else if (Math.abs(dist - closestDist) <= EPSILON) {
+              if (len < closestLength) {
+                closestDist = Math.min(dist, closestDist)
+                closestLength = len
+                closestId = id
+              }
+            }
+          }
+        }
+      } catch { /* path tidak valid, lewati */ }
+    })
+
+    if (closestId) {
       setSelected(prev => {
         const next = new Set(prev)
-        next.has(lineId) ? next.delete(lineId) : next.add(lineId)
+        next.has(closestId!) ? next.delete(closestId!) : next.add(closestId!)
         return next
       })
       setFeedback({ msg: '', type: '' })
@@ -232,16 +317,26 @@ export default function GeftPage() {
       type: correct ? 'correct' : 'wrong'
     })
 
-    setAnswers(prev => ({ ...prev, [q.id]: correct }))
-    setTimeout(() => handleNext(false), 1200)
+    // Buat salinan answers terbaru (termasuk jawaban soal ini) untuk dikirim ke handleNext
+    // agar tidak bergantung pada state React yang belum ter-flush
+    const updatedAnswers = { ...answers, [q.id]: correct }
+    setAnswers(updatedAnswers)
+    setTimeout(() => handleNext(false, updatedAnswers), 1200)
   }
 
-  function handleNext(timeout = false) {
-    if (timeout) setAnswers(prev => ({ ...prev, [q.id]: false }))
+  function handleNext(timeout = false, latestAnswers?: Record<number, boolean>) {
+    // Gunakan latestAnswers jika disediakan, agar jawaban soal terakhir selalu terhitung
+    const answersSnapshot = latestAnswers ?? answers
+
+    let timedOutAnswers = answersSnapshot
+    if (timeout) {
+      timedOutAnswers = { ...answersSnapshot, [q.id]: false }
+      setAnswers(timedOutAnswers)
+    }
 
     const nextIndex = qIndex + 1
     if (nextIndex >= QUESTIONS.length) {
-      finishTest()
+      finishTest(timedOutAnswers)
       return
     }
 
@@ -257,12 +352,15 @@ export default function GeftPage() {
     setFeedback({ msg: '', type: '' })
   }
 
-  async function finishTest() {
+  async function finishTest(finalAnswers?: Record<number, boolean>) {
     setPhase('done')
     setSubmitting(true)
 
+    // Gunakan finalAnswers yang diteruskan secara eksplisit agar jawaban soal terakhir
+    // selalu terhitung (mengatasi race condition setAnswers vs render React)
+    const answersToScore = finalAnswers ?? answers
     const scoredQuestions = QUESTIONS.filter(q => q.section !== 1)
-    const score = scoredQuestions.reduce((acc, q) => acc + (answers[q.id] ? 1 : 0), 0)
+    const score = scoredQuestions.reduce((acc, q) => acc + (answersToScore[q.id] ? 1 : 0), 0)
 
     try {
       const res = await fetch('/api/geft', {
@@ -1226,42 +1324,17 @@ export default function GeftPage() {
            1. A transparent thick "hit" line for easy tapping (pointer-events: all)
            2. A visible thin line on top (pointer-events: none)
            Both share the same ID, so clicking the hit area still triggers selection. */
+        /* Semua line/path: tidak menerima pointer events — klik ditangani oleh
+           container div melalui custom distance-based hit detection */
         .geft-svg-container svg line, .geft-svg-container svg path {
-          cursor: pointer;
           stroke: #666;
-          stroke-width: 3.5px;
+          stroke-width: 5px;
           transition: stroke 0.15s, stroke-width 0.15s;
+          pointer-events: none;
         }
         .geft-svg-container svg line.selected, .geft-svg-container svg path.selected {
           stroke: #2196f3 !important;
-          stroke-width: 6px !important;
-        }
-        .geft-svg-container svg line:hover, .geft-svg-container svg path:hover {
-          stroke: #42a5f5;
-          stroke-width: 5px;
-          opacity: 0.95;
-        }
-        /* Hit-area lines: invisible but thick — these are the ones that receive touch */
-        .geft-svg-container svg line.hit-area, .geft-svg-container svg path.hit-area {
-          stroke: transparent !important;
-          stroke-width: 28px !important;
-          cursor: pointer;
-          pointer-events: stroke;
-        }
-        .geft-svg-container svg line.hit-area:hover, .geft-svg-container svg path.hit-area:hover {
-          stroke: transparent !important;
-          stroke-width: 28px !important;
-          opacity: 1 !important;
-        }
-        /* Disable pointer-events on original SVG lines so only hit-areas receive clicks */
-        .geft-svg-container svg line[id]:not(.hit-area),
-        .geft-svg-container svg path[id]:not(.hit-area) {
-          pointer-events: none !important;
-        }
-        /* Active state for touch feedback on mobile */
-        .geft-svg-container svg line.hit-area:active,
-        .geft-svg-container svg path.hit-area:active {
-          stroke: rgba(59, 130, 246, 0.15) !important;
+          stroke-width: 8px !important;
         }
         
         .geft-btn-primary {
@@ -1402,6 +1475,17 @@ export default function GeftPage() {
             justify-content: space-between;
             width: 100%;
           }
+          /* Garis lebih tebal di mobile agar mudah terlihat;
+             pointer-events: none karena klik ditangani oleh custom hit detection */
+          .geft-svg-container svg line,
+          .geft-svg-container svg path {
+            stroke-width: 10px !important;
+            pointer-events: none !important;
+          }
+          .geft-svg-container svg line.selected,
+          .geft-svg-container svg path.selected {
+            stroke-width: 12px !important;
+          }
 
           .geft-target-card .geft-target-desc,
           .geft-target-card .geft-target-info > div:first-child {
@@ -1448,16 +1532,16 @@ export default function GeftPage() {
           /* ── Larger touch targets for SVG lines on mobile ── */
           .geft-svg-container svg line,
           .geft-svg-container svg path {
-            stroke-width: 5px !important;
+            stroke-width: 10px !important;
           }
           .geft-svg-container svg line.selected,
           .geft-svg-container svg path.selected {
-            stroke-width: 8px !important;
+            stroke-width: 12px !important;
           }
           /* Hit areas get even thicker strokes on touch screens */
           .geft-svg-container svg line.hit-area,
           .geft-svg-container svg path.hit-area {
-            stroke-width: 44px !important;
+            stroke-width: 48px !important;
             stroke: transparent !important;
           }
           /* Active tap feedback on mobile */

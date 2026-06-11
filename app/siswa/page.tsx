@@ -38,7 +38,7 @@ export default function SiswaPage() {
 
   return (
     <main style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #030712 0%, #080f25 50%, #020617 100%)', color: '#f3f4f6', fontFamily: 'var(--font-sans), sans-serif', position: 'relative' }}>
-      
+
       {/* Background blobs */}
       <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none', zIndex: 0 }}>
         <div style={{
@@ -91,7 +91,7 @@ export default function SiswaPage() {
 
       {/* Dashboard Body */}
       <div className="dashboard-container" style={{ maxWidth: '1200px', margin: '0 auto', padding: '40px 24px', position: 'relative', zIndex: 10, display: 'flex', flexDirection: 'column', gap: '32px' }}>
-        
+
         {/* Profile Card Header */}
         <div className="profile-header-card" style={{
           display: 'flex', gap: '20px', alignItems: 'center',
@@ -120,16 +120,17 @@ export default function SiswaPage() {
         {/* Two Column Dashboard Grid */}
         <div className="dashboard-grid" style={{ display: 'flex', gap: '28px', flexWrap: 'wrap' }}>
           
-          {/* Left Side: Learning Progress & Module Cards */}
-          <div className="dashboard-left" style={{ flex: 1.8, minWidth: '320px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          {/* Left Side: Game Mode */}
+          <div className="dashboard-left" style={{ flex: 1.2, minWidth: '320px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
             
             {/* GAME CARD */}
             <div
               onClick={() => router.push('/siswa/game/lobby')}
+              className="dashboard-game-card"
               style={{
                 background: 'linear-gradient(135deg, rgba(0,255,136,0.1) 0%, rgba(0,200,255,0.05) 100%)',
                 border: '1px solid rgba(0,255,136,0.25)',
-                borderRadius: '20px', padding: '20px 24px',
+                borderRadius: '20px', padding: '24px',
                 display: 'flex', gap: '16px', alignItems: 'center',
                 cursor: 'pointer', transition: 'all 0.25s',
                 boxShadow: '0 4px 30px rgba(0,255,136,0.08)',
@@ -153,112 +154,10 @@ export default function SiswaPage() {
               </div>
             </div>
 
-            <h3 className="modules-title" style={{ fontSize: '18px', fontWeight: 800, margin: 0, display: 'flex', alignItems: 'center', gap: '10px' }}>
-              📚 Modul Pembelajaran Statistika
-            </h3>
-
-            <div className="modules-container" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              
-              {/* Module 1 */}
-              <div className="module-card" style={{
-                background: 'rgba(255,255,255,0.02)',
-                border: '1px solid rgba(255,255,255,0.06)',
-                borderRadius: '20px', padding: '24px',
-                display: 'flex', gap: '20px', alignItems: 'flex-start',
-                transition: 'all 0.2s', cursor: 'pointer'
-              }}>
-                <div style={{ fontSize: '32px', padding: '16px', background: 'rgba(255,255,255,0.03)', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.05)' }}>📊</div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
-                    <h4 style={{ fontSize: '17px', fontWeight: 800, margin: 0 }}>Modul 1: Pengenalan Statistika & Pengumpulan Data</h4>
-                    <span style={{ fontSize: '11px', fontWeight: 700, color: '#10b981', background: 'rgba(16,185,129,0.1)', padding: '4px 10px', borderRadius: '50px' }}>Selesai</span>
-                  </div>
-                  <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.5)', lineHeight: 1.5, margin: '8px 0 16px' }}>
-                    Pelajari konsep dasar populasi, sampel, jenis-jenis data, dan cara menyajikan data dalam bentuk tabel distribusi frekuensi.
-                  </p>
-                  
-                  {/* Progress bar */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <div style={{ flex: 1, height: '6px', background: 'rgba(255,255,255,0.06)', borderRadius: '3px' }}>
-                      <div style={{ width: '100%', height: '100%', background: '#10b981', borderRadius: '3px' }} />
-                    </div>
-                    <span style={{ fontSize: '12px', fontWeight: 700, color: 'rgba(255,255,255,0.6)' }}>100%</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Module 2 */}
-              <div className="module-card" onClick={() => router.push('/siswa/modul/2')} style={{
-                background: 'rgba(255,255,255,0.02)',
-                border: '1px solid rgba(37,99,235,0.2)',
-                borderRadius: '20px', padding: '24px',
-                display: 'flex', gap: '20px', alignItems: 'flex-start',
-                boxShadow: '0 4px 25px rgba(37,99,235,0.05)',
-                transition: 'all 0.2s', cursor: 'pointer'
-              }}>
-                <div style={{ fontSize: '32px', padding: '16px', background: 'rgba(37,99,235,0.05)', borderRadius: '14px', border: '1px solid rgba(37,99,235,0.1)' }}>📐</div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
-                    <h4 style={{ fontSize: '17px', fontWeight: 800, margin: 0 }}>Modul 2: Ukuran Pemusatan Data (AR 3D)</h4>
-                    <span style={{ fontSize: '11px', fontWeight: 700, color: '#3b82f6', background: 'rgba(37,99,235,0.12)', padding: '4px 10px', borderRadius: '50px' }}>
-                      {isFI ? 'Cocok untuk FI' : 'Cocok untuk FD'} ⭐
-                    </span>
-                  </div>
-                  <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.5)', lineHeight: 1.5, margin: '8px 0 16px' }}>
-                    Eksplorasi Mean, Median, dan Modus data kelompok secara interaktif menggunakan Augmented Reality 3D yang disesuaikan dengan gaya belajar Anda.
-                  </p>
-                  
-                  {/* Progress bar */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-                    <div style={{ flex: 1, height: '6px', background: 'rgba(255,255,255,0.06)', borderRadius: '3px' }}>
-                      <div style={{ width: '40%', height: '100%', background: '#3b82f6', borderRadius: '3px' }} />
-                    </div>
-                    <span style={{ fontSize: '12px', fontWeight: 700, color: 'rgba(255,255,255,0.6)' }}>40%</span>
-                  </div>
-
-                  <button onClick={(e) => { e.stopPropagation(); router.push('/siswa/modul/2') }} style={{
-                    padding: '8px 18px', borderRadius: '10px', border: 'none',
-                    background: '#3b82f6', color: '#fff', fontSize: '13px', fontWeight: 700,
-                    cursor: 'pointer', boxShadow: '0 4px 12px rgba(37,99,235,0.2)'
-                  }}>
-                    Lanjutkan Belajar 🚀
-                  </button>
-                </div>
-              </div>
-
-              {/* Module 3 */}
-              <div className="module-card" style={{
-                background: 'rgba(255,255,255,0.02)',
-                border: '1px solid rgba(255,255,255,0.06)',
-                borderRadius: '20px', padding: '24px',
-                display: 'flex', gap: '20px', alignItems: 'flex-start',
-                transition: 'all 0.2s', cursor: 'pointer'
-              }}>
-                <div style={{ fontSize: '32px', padding: '16px', background: 'rgba(255,255,255,0.03)', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.05)' }}>📈</div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
-                    <h4 style={{ fontSize: '17px', fontWeight: 800, margin: 0 }}>Modul 3: Ukuran Penyebaran Data (AR 3D)</h4>
-                    <span style={{ fontSize: '11px', fontWeight: 700, color: 'rgba(255,255,255,0.4)', background: 'rgba(255,255,255,0.05)', padding: '4px 10px', borderRadius: '50px' }}>Belum Mulai</span>
-                  </div>
-                  <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.5)', lineHeight: 1.5, margin: '8px 0 16px' }}>
-                    Visualisasikan Simpangan Baku, Varians, dan Simpangan Rata-Rata secara spasial dalam ruang nyata menggunakan simulasi AR.
-                  </p>
-                  
-                  {/* Progress bar */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <div style={{ flex: 1, height: '6px', background: 'rgba(255,255,255,0.06)', borderRadius: '3px' }}>
-                      <div style={{ width: '0%', height: '100%', background: '#3b82f6', borderRadius: '3px' }} />
-                    </div>
-                    <span style={{ fontSize: '12px', fontWeight: 700, color: 'rgba(255,255,255,0.6)' }}>0%</span>
-                  </div>
-                </div>
-              </div>
-
-            </div>
           </div>
 
           {/* Right Side: Adaptive Profile Widget */}
-          <div className="dashboard-right" style={{ flex: 1.2, minWidth: '320px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <div className="dashboard-right" style={{ flex: 1, minWidth: '320px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
             <h3 className="cognitive-title" style={{ fontSize: '18px', fontWeight: 800, margin: 0, display: 'flex', alignItems: 'center', gap: '10px' }}>
               🧠 Analisis Gaya Kognitif
             </h3>
@@ -269,13 +168,13 @@ export default function SiswaPage() {
                 overflow: 'hidden',
                 borderRadius: '24px',
                 border: isFI ? '1px solid rgba(37,99,235,0.25)' : '1px solid rgba(6,182,212,0.25)',
-                background: isFI 
-                  ? 'linear-gradient(135deg, rgba(37,99,235,0.1) 0%, rgba(37,99,235,0.02) 100%)' 
+                background: isFI
+                  ? 'linear-gradient(135deg, rgba(37,99,235,0.1) 0%, rgba(37,99,235,0.02) 100%)'
                   : 'linear-gradient(135deg, rgba(6,182,212,0.1) 0%, rgba(6,182,212,0.02) 100%)',
                 padding: '28px',
                 boxShadow: '0 10px 30px rgba(0,0,0,0.25)',
               }}>
-                
+
                 {/* Glow Blob */}
                 <div style={{
                   position: 'absolute', top: '-40px', right: '-40px',
@@ -286,9 +185,9 @@ export default function SiswaPage() {
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ 
-                      fontSize: '10px', fontWeight: 800, letterSpacing: '1px', 
-                      color: isFI ? '#90caf9' : '#80deea', 
+                    <span style={{
+                      fontSize: '10px', fontWeight: 800, letterSpacing: '1px',
+                      color: isFI ? '#90caf9' : '#80deea',
                       background: isFI ? 'rgba(37,99,235,0.12)' : 'rgba(6,182,212,0.12)',
                       padding: '4px 10px', borderRadius: '50px'
                     }}>
@@ -304,7 +203,7 @@ export default function SiswaPage() {
                       {isFI ? 'Field Independent (FI)' : 'Field Dependent (FD)'}
                     </h4>
                     <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.6)', lineHeight: 1.6, margin: 0 }}>
-                      {isFI 
+                      {isFI
                         ? 'Anda cenderung analitis dan mandiri. Anda pandai memisahkan bagian-bagian kecil dari latar belakang yang rumit.'
                         : 'Anda memiliki cara pandang yang global dan kontekstual. Anda cenderung memahami masalah secara menyeluruh dan terintegrasi.'
                       }
@@ -363,42 +262,16 @@ export default function SiswaPage() {
               </div>
             )}
 
-            {/* Platform Stats Widget */}
-            <div className="platform-stats-widget" style={{
-              borderRadius: '24px',
-              border: '1px solid rgba(255,255,255,0.05)',
-              background: 'rgba(255,255,255,0.01)',
-              padding: '24px',
-              display: 'flex', flexDirection: 'column', gap: '14px'
-            }}>
-              <strong style={{ fontSize: '13px', color: '#fff' }}>📊 Statistik Pembelajaran Anda:</strong>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)', padding: '12px', borderRadius: '12px' }}>
-                  <span style={{ display: 'block', fontSize: '10px', color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}>MODUL SELESAI</span>
-                  <span style={{ fontSize: '18px', fontWeight: 800, color: '#10b981' }}>1 / 3</span>
-                </div>
-                <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)', padding: '12px', borderRadius: '12px' }}>
-                  <span style={{ display: 'block', fontSize: '10px', color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}>AKTIVITAS AR</span>
-                  <span style={{ fontSize: '18px', fontWeight: 800, color: '#3b82f6' }}>4 Sesi</span>
-                </div>
-              </div>
-            </div>
-
           </div>
 
         </div>
 
       </div>
-      
+
       {/* Interactive hover scale and responsive styles */}
       <style>{`
-        .module-card {
-          transition: all 0.2s;
-        }
-        .module-card:hover {
-          background: rgba(255, 255, 255, 0.04) !important;
-          border-color: rgba(255, 255, 255, 0.12) !important;
-          transform: translateY(-2px);
+        .dashboard-game-card {
+          transition: all 0.25s;
         }
 
         @media (max-width: 768px) {
@@ -432,6 +305,12 @@ export default function SiswaPage() {
             display: contents;
           }
 
+          .dashboard-game-card {
+            padding: 16px !important;
+            border-radius: 16px !important;
+            gap: 12px !important;
+          }
+
           /* Ordering of flat elements */
           .cognitive-title {
             order: 1;
@@ -444,49 +323,17 @@ export default function SiswaPage() {
             border-radius: 16px !important;
           }
 
-          .modules-title {
-            order: 3;
-            margin: 10px 0 0 0 !important;
-          }
-
-          .modules-container {
-            order: 4;
-            gap: 16px !important;
-          }
-
-          .platform-stats-widget {
-            order: 5;
-            padding: 20px !important;
-            border-radius: 16px !important;
-          }
-
-          .module-card {
-            padding: 16px !important;
-            gap: 14px !important;
-            border-radius: 16px !important;
-          }
-
-          /* Optimize module card icon sizing and padding on mobile */
-          .module-card > div:first-child {
-            font-size: 24px !important;
-            padding: 10px !important;
-            border-radius: 10px !important;
-          }
-
-          .module-card h4 {
-            font-size: 15px !important;
-            line-height: 1.35;
-          }
-          
-          .module-card p {
-            margin: 8px 0 12px !important;
-            font-size: 12px !important;
-          }
-
           /* Ensure all buttons have touch target optimization */
           button {
             padding-top: 10px !important;
             padding-bottom: 10px !important;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .dashboard-game-card {
+            flex-direction: column;
+            align-items: flex-start !important;
           }
         }
       `}</style>

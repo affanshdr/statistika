@@ -60,9 +60,9 @@ export default function FIPath() {
     const { numClasses, classWidth, min, max } = params
     const ok =
       parseInt(numClasses) === STATS.numClasses &&
-      parseInt(classWidth) === STATS.classWidth &&
-      parseInt(min) === STATS.min &&
-      parseInt(max) === STATS.max
+      parseFloat(classWidth) === STATS.classWidth &&
+      parseFloat(min) === STATS.min &&
+      parseFloat(max) === STATS.max
 
     if (ok) {
       addXP(10, 'Parameter benar', 2)
@@ -171,18 +171,18 @@ export default function FIPath() {
             <div className="game-card" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               <div>
                 <div style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 800, letterSpacing: '1px', marginBottom: '6px' }}>STEP 1 — DATA MENTAH</div>
-                <h2 style={{ margin: 0, fontSize: '20px' }}>Analisis Dataset Berikut</h2>
+                <h2 style={{ margin: 0, fontSize: '20px' }}>Analisis Data Screen Time Siswa</h2>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '14px', marginTop: '8px' }}>
-                  Jumlah share per jam selama 30 jam terakhir. Pelajari datanya, lalu klik tombol di bawah untuk memulai.
+                  Data screen time (jam/hari) dari <strong>40 siswa</strong>. Sebuah postingan viral mengklaim rata-rata lebih dari 8 jam — pelajari datanya, lalu buktikan!
                 </p>
               </div>
               <DataTable />
               {!timerStarted ? (
                 <button className="game-btn game-btn-primary" onClick={() => { startTimer(); setStep(1) }}>
-                  ⏱ Mulai Analisis →
+                  ⏱ Mulai Investigasi →
                 </button>
               ) : (
-                <button className="game-btn game-btn-secondary" onClick={() => setStep(1)}>Lihat Tabel Data →</button>
+                <button className="game-btn game-btn-secondary" onClick={() => setStep(1)}>Lihat Parameter →</button>
               )}
             </div>
           )}
@@ -194,16 +194,16 @@ export default function FIPath() {
                 <div style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 800, letterSpacing: '1px', marginBottom: '6px' }}>STEP 2 — PARAMETER</div>
                 <h2 style={{ margin: 0, fontSize: '20px' }}>Tentukan Parameter Distribusi</h2>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '14px', marginTop: '8px' }}>
-                  Gunakan Sturges Rule: k = 1 + 3.3 × log₁₀(n), lebar = Range / k
+                  Gunakan Sturges Rule: k = 1 + 3.3 × log₁₀(n), lebar = Range / k (boleh dibulatkan)
                 </p>
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
                 {[
-                  { label: 'Nilai Minimum', key: 'min', placeholder: 'min data' },
-                  { label: 'Nilai Maksimum', key: 'max', placeholder: 'max data' },
+                  { label: 'Nilai Minimum (jam)', key: 'min', placeholder: 'min data' },
+                  { label: 'Nilai Maksimum (jam)', key: 'max', placeholder: 'max data' },
                   { label: 'Jumlah Kelas (k)', key: 'numClasses', placeholder: 'Sturges rule' },
-                  { label: 'Lebar Kelas', key: 'classWidth', placeholder: 'Range / k' },
+                  { label: 'Lebar Kelas (jam)', key: 'classWidth', placeholder: 'Range / k' },
                 ].map(({ label, key, placeholder }) => (
                   <div key={key}>
                     <label style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '6px', fontWeight: 600 }}>
@@ -211,6 +211,7 @@ export default function FIPath() {
                     </label>
                     <input
                       type="number"
+                      step="0.1"
                       className="freq-table-input"
                       placeholder={placeholder}
                       value={(params as Record<string, string>)[key]}
@@ -248,7 +249,7 @@ export default function FIPath() {
                 <div style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 800, letterSpacing: '1px', marginBottom: '6px' }}>STEP 3 — TABEL DISTRIBUSI</div>
                 <h2 style={{ margin: 0, fontSize: '20px' }}>Isi Tabel Distribusi Frekuensi</h2>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '14px', marginTop: '8px' }}>
-                  Isi semua cell secara manual. Submit untuk validasi.
+                  Isi semua cell secara manual berdasarkan data screen time 40 siswa. Submit untuk validasi.
                 </p>
               </div>
               <FrequencyTable
@@ -266,9 +267,9 @@ export default function FIPath() {
             <div className="game-card" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               <div>
                 <div style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 800, letterSpacing: '1px', marginBottom: '6px' }}>STEP 4 — HISTOGRAM</div>
-                <h2 style={{ margin: 0, fontSize: '20px' }}>Bangun Histogram</h2>
+                <h2 style={{ margin: 0, fontSize: '20px' }}>Bangun Histogram Screen Time</h2>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '14px', marginTop: '8px' }}>
-                  Drag batang dari pool ke posisi yang tepat di histogram.
+                  Drag batang dari pool ke posisi yang tepat pada histogram berdasarkan frekuensinya.
                 </p>
               </div>
               <DraggableHistogram
@@ -286,16 +287,16 @@ export default function FIPath() {
             <div className="game-card" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               <div>
                 <div style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 800, letterSpacing: '1px', marginBottom: '6px' }}>STEP 5 — ANALISIS KRITIS</div>
-                <h2 style={{ margin: 0, fontSize: '20px' }}>Analisis Pola & Klaim</h2>
+                <h2 style={{ margin: 0, fontSize: '20px' }}>Analisis Pola & Validasi Klaim</h2>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '14px', marginTop: '8px' }}>
-                  Apa pola distribusi yang kamu temukan? Apakah data share ini cukup untuk membuktikan klaim "95% setuju"? Jelaskan. (min. 50 kata)
+                  Apa pola distribusi yang kamu temukan? Apakah mean screen time siswa membuktikan klaim "rata-rata 8+ jam"? Jelaskan secara kritis. (min. 50 kata)
                 </p>
               </div>
 
               <textarea
                 value={analysis}
                 onChange={e => setAnalysis(e.target.value)}
-                placeholder="Tuliskan analisismu di sini..."
+                placeholder="Tuliskan analisismu di sini... (contoh: distribusi menunjukkan, rata-rata sebenarnya, klaim tersebut...)"
                 disabled={analysisSubmitted}
                 style={{
                   width: '100%', minHeight: '160px', padding: '14px',
@@ -328,6 +329,9 @@ export default function FIPath() {
               <div style={{ marginBottom: '20px' }}>
                 <div style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 800, letterSpacing: '1px', marginBottom: '6px' }}>STEP 6 — VERDICT</div>
                 <h2 style={{ margin: 0, fontSize: '20px' }}>Tetapkan Verdict</h2>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '14px', marginTop: '8px' }}>
+                  Berdasarkan histogram dan analisismu — apakah klaim "rata-rata 8+ jam" itu VALID, MISLEADING, atau HOAKS?
+                </p>
               </div>
               <VerdictScreen onSubmit={handleVerdictSubmit} />
             </div>

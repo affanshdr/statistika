@@ -20,18 +20,18 @@ const STEP_LABELS = ['Konteks', 'Data + Statistik', 'Tabel Terbimbing', 'Histogr
 interface PendingBadge { icon: string; name: string; desc: string; id: string }
 
 const DIRA_MESSAGES: Record<number, string> = {
-  0: "Hei! Ada kasus seru nih, yuk kita selidiki bareng! 🔍",
-  1: "Aku udah hitung statistik dasarnya. Sekarang kita bagi datanya ke dalam kelompok yuk!",
+  0: "Hei! Ada postingan viral yang perlu kita cek faktanya nih! 📱🔍",
+  1: "Nah, ini datanya. Aku udah hitung statistik dasarnya — rata-ratanya ternyata bukan 8 jam lho! 🤔",
   2: "Bagus! Tinggal isi sel yang kosong ya. Klik ❓ di header kolom kalau perlu bantuan rumus.",
-  3: "Keren, tinggal 3 batang lagi! Drag batang ke posisi yang tepat.",
+  3: "Keren, tinggal 3 batang lagi! Drag batang ke posisi yang tepat di histogram.",
   4: "Hampir selesai! Jawab 3 soal pilihan ganda, lalu tulis kesimpulan singkat.",
-  5: "Berdasarkan analisismu... data share ini membuktikan klaim '95%' nggak? 🤔",
+  5: "Berdasarkan analisismu... apakah klaim 'rata-rata 8 jam' itu benar? 🤔",
 }
 
 const TIKTOK_COMMENTS = [
-  { user: '@dimas_rpl', text: 'Setuju banget!!! Sekolah libur 😭🙏' },
-  { user: '@nisa_mipa', text: 'ini viral karena beneran 95% siswa ngerasa gitu' },
-  { user: '@budi_senyum', text: 'Data valid ga nih? sumbernya mana ya 🤔' },
+  { user: '@anisa_XII', text: 'Pantesan nilai sekolah turun 😤📚' },
+  { user: '@budi_belajar', text: 'Generasi sekarang kecanduan HP banget 📵😭' },
+  { user: '@rizky_kritis', text: 'Tapi datanya valid ga nih? Sumbernya mana? 🤔' },
 ]
 
 export default function FDPath() {
@@ -79,7 +79,7 @@ export default function FDPath() {
     } else {
       loseLife()
       incrementMistake()
-      setDiraMsg('Psst, coba cek rumusnya lagi ya! Frekuensi relatif = (f/n) × 100% 😊')
+      setDiraMsg('Psst, coba cek rumusnya lagi ya! Frekuensi relatif = (f/n) × 100%, n = 40 siswa 😊')
       setShowDira(true)
     }
   }
@@ -112,7 +112,7 @@ export default function FDPath() {
     if (newResults.every(r => r === true)) {
       addXP(10, 'Semua MC benar', 5)
       awardBadge(BADGES.CRITICAL)
-      setDiraMsg('Keren! Sekarang tulis kesimpulanmu dalam 2 kalimat ya 📝')
+      setDiraMsg('Keren! Sekarang tulis kesimpulanmu tentang klaim viral itu ya 📝')
       setShowDira(true)
       setMcDone(true)
     }
@@ -131,7 +131,7 @@ export default function FDPath() {
     if (isCorrect) {
       addXP(10, 'Verdict benar', 6)
       awardBadge(BADGES.DETECTIVE)
-      setDiraMsg('Yess! Kamu berhasil! 🎉 Klaim tersebut MISLEADING karena data share ≠ data opini!')
+      setDiraMsg('Yess! Kamu berhasil! 🎉 Mean screen time ≈ 5.65 jam, jauh di bawah klaim 8 jam!')
       setShowDira(true)
       if (mistakeCount === 0) awardBadge(BADGES.PERFECT)
 
@@ -176,25 +176,25 @@ export default function FDPath() {
             <div className="game-card" style={{ display: 'flex', flexDirection: 'column', gap: '24px', alignItems: 'center' }}>
               <div style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 800, letterSpacing: '1px', marginBottom: '6px' }}>STEP 1 — KONTEKS KASUS</div>
-                <h2 style={{ margin: 0, fontSize: '20px' }}>Video Viral TikTok 📱</h2>
+                <h2 style={{ margin: 0, fontSize: '20px' }}>Postingan Viral Screen Time 📱</h2>
               </div>
 
               {/* TikTok mockup */}
               <div className="tiktok-card">
                 <div className="tiktok-video">
                   <div>
-                    <div style={{ fontSize: '48px', textAlign: 'center' }}>📊</div>
+                    <div style={{ fontSize: '48px', textAlign: 'center' }}>📱</div>
                     <div style={{ fontSize: '14px', color: '#eee', textAlign: 'center', marginTop: '8px' }}>
-                      95% Siswa SMA<br/>Setuju Sekolah Libur!
+                      Remaja Indonesia<br/>rata-rata <strong>8+ jam/hari</strong><br/>di media sosial! 😱
                     </div>
                   </div>
                   {/* Viral badge */}
                   <div style={{ position: 'absolute', top: '12px', right: '12px', background: '#ff0050', color: '#fff', padding: '3px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 800 }}>
-                    VIRAL 🔥 2.4M
+                    VIRAL 🔥 3.1M
                   </div>
                 </div>
                 <div className="tiktok-caption">
-                  <strong>@dataviral.id</strong> Berdasarkan data share terakhir, <strong>95% siswa SMA</strong> setuju sekolah harus diliburkan! #viral #siswa #sekolah
+                  <strong>@faktaviral.id</strong> Data terbaru membuktikan <strong>remaja Indonesia rata-rata 8+ jam/hari</strong> di media sosial! Pantas nilai sekolah turun! #viral #screentime #generasiZ
                 </div>
                 {TIKTOK_COMMENTS.map((c, i) => (
                   <motion.div
@@ -221,7 +221,10 @@ export default function FDPath() {
             <div className="game-card" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               <div>
                 <div style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 800, letterSpacing: '1px', marginBottom: '6px' }}>STEP 2 — DATA & STATISTIK DASAR</div>
-                <h2 style={{ margin: 0, fontSize: '20px' }}>Dataset yang Diterima</h2>
+                <h2 style={{ margin: 0, fontSize: '20px' }}>Data Screen Time 40 Siswa</h2>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '14px', marginTop: '8px' }}>
+                  Screen time dalam jam per hari. Perhatikan baik-baik sebelum membuat kesimpulan!
+                </p>
               </div>
 
               <DataTable />
@@ -231,12 +234,12 @@ export default function FDPath() {
                 <div style={{ fontSize: '12px', color: 'var(--accent)', fontWeight: 700, marginBottom: '12px', letterSpacing: '1px' }}>📊 STATISTIK DASAR (SUDAH DIHITUNG OTOMATIS)</div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '12px' }}>
                   {[
-                    { label: 'Mean', val: '56.9' },
-                    { label: 'Median', val: '56.5' },
-                    { label: 'Min', val: '12' },
-                    { label: 'Max', val: '98' },
-                    { label: 'Range', val: '86' },
-                    { label: 'n', val: '30' },
+                    { label: 'Mean', val: '5.65 jam' },
+                    { label: 'Median', val: '5.65 jam' },
+                    { label: 'Min', val: '3.5 jam' },
+                    { label: 'Max', val: '8.5 jam' },
+                    { label: 'Range', val: '5.0 jam' },
+                    { label: 'n', val: '40 siswa' },
                   ].map(({ label, val }) => (
                     <div key={label} style={{ textAlign: 'center', padding: '10px', background: 'rgba(255,255,255,0.03)', borderRadius: '10px' }}>
                       <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 700 }}>{label}</div>
@@ -244,6 +247,11 @@ export default function FDPath() {
                     </div>
                   ))}
                 </div>
+              </div>
+
+              {/* Hint box */}
+              <div style={{ background: 'rgba(255,107,53,0.08)', border: '1px solid rgba(255,107,53,0.3)', borderRadius: '12px', padding: '14px 18px', fontSize: '13px', color: 'rgba(255,255,255,0.8)' }}>
+                🤔 <strong style={{ color: '#FF6B35' }}>Pertanyaan kritis:</strong> Klaim viral bilang "8+ jam rata-rata" — tapi mean sebenarnya berapa? Apakah data mendukung klaim itu?
               </div>
 
               <button className="game-btn game-btn-primary" onClick={() => goNext(2)}>
@@ -260,6 +268,7 @@ export default function FDPath() {
                 <h2 style={{ margin: 0, fontSize: '20px' }}>Lengkapi Tabel Distribusi</h2>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '14px', marginTop: '8px' }}>
                   Sel <span style={{ color: '#ffdd00' }}>kuning</span> = perlu diisi. Klik ❓ untuk rumus.
+                  Kelas interval: lebar <strong>1.0 jam</strong>, mulai dari 3.5.
                 </p>
               </div>
               <FrequencyTable mode="FD" onSubmit={handleFreqTableSubmit} />
@@ -271,9 +280,9 @@ export default function FDPath() {
             <div className="game-card" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               <div>
                 <div style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 800, letterSpacing: '1px', marginBottom: '6px' }}>STEP 4 — HISTOGRAM TERBIMBING</div>
-                <h2 style={{ margin: 0, fontSize: '20px' }}>Lengkapi Histogram</h2>
+                <h2 style={{ margin: 0, fontSize: '20px' }}>Lengkapi Histogram Screen Time</h2>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '14px', marginTop: '8px' }}>
-                  3 batang sudah ada. Drag 3 batang lainnya ke posisi yang tepat.
+                  3 batang sudah tersedia. Drag 3 batang lainnya ke posisi yang tepat!
                 </p>
               </div>
               <DraggableHistogram mode="FD" onSubmit={handleHistogramSubmit} />
@@ -322,13 +331,13 @@ export default function FDPath() {
               {mcDone && (
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   <label style={{ fontSize: '14px', fontWeight: 700 }}>
-                    Tulis kesimpulanmu dalam 2 kalimat: (min. 20 kata)
+                    Apakah klaim "rata-rata 8+ jam" didukung data? Tulis kesimpulanmu! (min. 20 kata)
                   </label>
                   <textarea
                     value={summary}
                     onChange={e => setSummary(e.target.value)}
                     disabled={summaryDone}
-                    placeholder="Dari analisis data di atas, saya menyimpulkan..."
+                    placeholder="Dari analisis data screen time di atas, saya menyimpulkan bahwa..."
                     style={{
                       width: '100%', minHeight: '100px', padding: '12px 14px',
                       background: 'rgba(255,255,255,0.03)', border: '1px solid var(--game-border)',
@@ -357,6 +366,9 @@ export default function FDPath() {
               <div style={{ marginBottom: '20px' }}>
                 <div style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 800, letterSpacing: '1px', marginBottom: '6px' }}>STEP 6 — VERDICT</div>
                 <h2 style={{ margin: 0, fontSize: '20px' }}>Keputusan Akhir</h2>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '14px', marginTop: '8px' }}>
+                  Berdasarkan histogram dan analisismu — apakah klaim "remaja Indonesia rata-rata 8+ jam/hari di medsos" itu...
+                </p>
               </div>
               <VerdictScreen
                 onSubmit={handleVerdictSubmit}
@@ -382,7 +394,7 @@ export default function FDPath() {
           <div style={{ fontSize: '64px' }}>💀</div>
           <h2 style={{ fontSize: '28px', margin: 0 }}>Game Over</h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: '15px' }}>
-            Dira: "Jangan menyerah! Kamu hampir berhasil 💪"
+            Dira: &quot;Jangan menyerah! Kamu hampir berhasil 💪&quot;
           </p>
           <div style={{ display: 'flex', gap: '12px' }}>
             <button

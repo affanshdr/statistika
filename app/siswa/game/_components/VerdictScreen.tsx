@@ -31,7 +31,7 @@ export default function VerdictScreen({ onSubmit, guidedMode, onDiraHint }: Verd
     setResult(isCorrect ? 'correct' : 'wrong')
 
     if (!isCorrect && guidedMode && onDiraHint) {
-      onDiraHint('Hampir! Coba pikirin lagi — data share ≠ data survei opini. Apakah data ini cukup untuk membuktikan "95% setuju"? 🤔')
+      onDiraHint('Hampir! Coba pikirin lagi — mean screen time ≈ 5.65 jam, bukan 8 jam. Apakah klaim "rata-rata 8+ jam" benar-benar didukung data? 🤔')
     }
 
     if (isCorrect) {
@@ -55,7 +55,7 @@ export default function VerdictScreen({ onSubmit, guidedMode, onDiraHint }: Verd
           KEPUTUSAN AKHIR
         </div>
         <h3 style={{ margin: 0, fontSize: '18px' }}>
-          Berdasarkan analisismu — klaim ini...
+          Berdasarkan analisismu — klaim "rata-rata 8+ jam" ini...
         </h3>
       </div>
 
@@ -118,7 +118,7 @@ export default function VerdictScreen({ onSubmit, guidedMode, onDiraHint }: Verd
             </div>
             {!guidedMode && (
               <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.6)', marginBottom: '12px' }}>
-                Petunjuk: Perhatikan <em>jenis data</em> yang kamu analisis — apakah ini data opini?
+                Petunjuk: Perhatikan <em>mean sebenarnya</em> — apakah 5.65 jam sama dengan klaim "8+ jam"?
               </div>
             )}
             <button className="game-btn game-btn-secondary" onClick={handleRetry} style={{ fontSize: '13px', padding: '8px 20px' }}>

@@ -38,9 +38,8 @@ const RANK_EMOJIS = ['🥇', '🥈', '🥉', '4', '5']
 
 export default function LobbyPage() {
   const router = useRouter()
-  const { cognitiveStyle, setCognitiveStyle, xp, badges, startLevel, resetLevel } = useGameStore()
+  const { cognitiveStyle, setCognitiveStyle, startLevel, resetLevel } = useGameStore()
   const [student, setStudent] = useState<Student | null>(null)
-  const [leaderboard, setLeaderboard] = useState<LeaderEntry[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -69,12 +68,6 @@ export default function LobbyPage() {
       }
     }
     fetchStyle()
-
-    // Fetch leaderboard
-    fetch('/api/game/leaderboard')
-      .then(r => r.json())
-      .then(setLeaderboard)
-      .catch(() => {})
   }, [router, cognitiveStyle, setCognitiveStyle])
 
   const handlePlayLevel = (levelId: number) => {
@@ -85,9 +78,6 @@ export default function LobbyPage() {
   }
 
   const isFI = cognitiveStyle === 'FI'
-  const xpMax = 500 // arbitrary max for bar display
-  const xpPct = Math.min(100, (xp / xpMax) * 100)
-  const maxLives = isFI ? 3 : 4
 
   if (loading) return (
     <div className="game-root" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
@@ -124,7 +114,7 @@ export default function LobbyPage() {
         </button>
       </header>
 
-      <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '32px 20px', position: 'relative', zIndex: 1 }}>
+      <div style={{ maxWidth: '720px', margin: '0 auto', padding: '32px 20px', position: 'relative', zIndex: 1 }}>
 
         {/* ── Greeting + Profile Card ── */}
         <motion.div
@@ -150,151 +140,62 @@ export default function LobbyPage() {
             <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '4px' }}>SELAMAT DATANG KEMBALI</div>
             <h2 style={{ margin: '0 0 6px', fontSize: '22px', fontWeight: 800 }}>{student?.name}</h2>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: isFI ? 'rgba(59,130,246,0.12)' : 'rgba(0,255,136,0.1)', border: `1px solid ${isFI ? 'rgba(59,130,246,0.3)' : 'var(--game-border-accent)'}`, borderRadius: '50px', padding: '4px 12px', fontSize: '12px', fontWeight: 700, color: isFI ? '#60A5FA' : 'var(--accent)' }}>
-              {isFI ? '🧠 Field Independent' : '👥 Field Dependent'}
+              {isFI ? '🧠 Field Independent (FI)' : '👥 Field Dependent (FD)'}
             </div>
           </div>
-
-          {/* XP + Lives */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', minWidth: '200px' }}>
-            <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 700 }}>TOTAL XP</span>
-                <span style={{ fontFamily: 'var(--font-data)', color: 'var(--accent)', fontWeight: 700, fontSize: '14px' }}>{xp} / {xpMax}</span>
-              </div>
-              <div className="xp-bar-track">
-                <motion.div className="xp-bar-fill" initial={{ width: 0 }} animate={{ width: `${xpPct}%` }} transition={{ duration: 1, delay: 0.3 }} />
-              </div>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 700 }}>NYAWA:</span>
-              <div className="game-header-lives">
-                {Array.from({ length: maxLives }).map((_, i) => (
-                  <span key={i} style={{ fontSize: '16px' }}>❤️</span>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Badges */}
-          {badges.length > 0 && (
-            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-              {badges.map(b => (
-                <div key={b} style={{ background: 'rgba(0,255,136,0.08)', border: '1px solid var(--game-border-accent)', borderRadius: '50px', padding: '4px 10px', fontSize: '11px', color: 'var(--accent)', fontWeight: 700 }}>
-                  {b.includes('detective') ? '🔍' : b.includes('speed') ? '⚡' : b.includes('perfect') ? '🎯' : '🧠'} +1
-                </div>
-              ))}
-            </div>
-          )}
         </motion.div>
 
-        {/* ── Main layout: levels + leaderboard ── */}
-        <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start', flexWrap: 'wrap' }}>
-
-          {/* Levels grid */}
-          <div style={{ flex: 1.8, minWidth: '300px' }}>
-            <h3 style={{ margin: '0 0 16px', fontSize: '16px', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px' }}>
-              🗂️ Pilih Kasus Investigasi
-            </h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-              {LEVELS.map((level, i) => (
-                <motion.div
-                  key={level.id}
-                  className={`level-card ${level.locked ? 'locked' : ''}`}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.08 }}
-                  onClick={() => !level.locked && handlePlayLevel(level.id)}
-                >
-                  <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
-                    <div style={{ fontSize: '36px', padding: '12px', background: 'rgba(255,255,255,0.04)', borderRadius: '14px', flexShrink: 0 }}>
-                      {level.icon}
-                    </div>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px', marginBottom: '6px' }}>
-                        <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '1px' }}>LEVEL {level.id}</div>
-                        {!level.locked && <div style={{ fontSize: '12px', color: 'var(--accent)', fontWeight: 700 }}>Max {level.xpMax} XP</div>}
-                      </div>
-                      <h4 style={{ margin: '0 0 6px', fontSize: '15px', fontWeight: 800, color: level.locked ? 'var(--text-muted)' : '#fff' }}>
-                        {level.title}
-                      </h4>
-                      <p style={{ margin: '0 0 10px', fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-                        {level.desc}
-                      </p>
-                      {level.tags.length > 0 && (
-                        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                          {level.tags.map(tag => (
-                            <span key={tag} style={{ fontSize: '10px', color: 'var(--text-muted)', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--game-border)', borderRadius: '50px', padding: '3px 8px', fontWeight: 700 }}>
-                              {tag}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                    </div>
+        {/* ── Main layout: levels only ── */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <h3 style={{ margin: '0 0 4px', fontSize: '16px', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px' }}>
+            🗂️ Kasus Investigasi Aktif
+          </h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            {LEVELS.filter(level => level.id === 1).map((level, i) => (
+              <motion.div
+                key={level.id}
+                className={`level-card ${level.locked ? 'locked' : ''}`}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.08 }}
+                onClick={() => !level.locked && handlePlayLevel(level.id)}
+              >
+                <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+                  <div style={{ fontSize: '36px', padding: '12px', background: 'rgba(255,255,255,0.04)', borderRadius: '14px', flexShrink: 0 }}>
+                    {level.icon}
                   </div>
-
-                  {!level.locked && (
-                    <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid var(--game-border)' }}>
-                      <button className="game-btn game-btn-primary" style={{ fontSize: '13px', padding: '10px 20px' }}>
-                        {cognitiveStyle === 'FI' ? '🧠 Mulai (FI Path)' : '👥 Mulai (FD Path)'} →
-                      </button>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px', marginBottom: '6px' }}>
+                      <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '1px' }}>LEVEL {level.id}</div>
+                      {!level.locked && <div style={{ fontSize: '12px', color: 'var(--accent)', fontWeight: 700 }}>Max {level.xpMax} XP</div>}
                     </div>
-                  )}
-                </motion.div>
-              ))}
-            </div>
-          </div>
-
-          {/* Leaderboard */}
-          <div style={{ flex: 1, minWidth: '260px', position: 'sticky', top: '80px' }}>
-            <h3 style={{ margin: '0 0 16px', fontSize: '16px', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px' }}>
-              🏆 Leaderboard Top 5
-            </h3>
-            <div className="game-card" style={{ padding: '16px' }}>
-              {leaderboard.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '24px', color: 'var(--text-muted)', fontSize: '13px' }}>
-                  Belum ada data. Jadilah yang pertama! 🚀
-                </div>
-              ) : (
-                leaderboard.map((entry, i) => (
-                  <motion.div
-                    key={entry.studentId}
-                    className="leaderboard-item"
-                    initial={{ opacity: 0, x: 10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.1 }}
-                    style={{ background: entry.studentId === student?.id ? 'rgba(0,255,136,0.06)' : undefined }}
-                  >
-                    <span className="leaderboard-rank" style={{ color: RANK_COLORS[i] }}>{RANK_EMOJIS[i]}</span>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: '14px', fontWeight: 700, color: entry.studentId === student?.id ? 'var(--accent)' : '#fff' }}>
-                        {entry.username} {entry.studentId === student?.id && '(Kamu)'}
+                    <h4 style={{ margin: '0 0 6px', fontSize: '15px', fontWeight: 800, color: level.locked ? 'var(--text-muted)' : '#fff' }}>
+                      {level.title}
+                    </h4>
+                    <p style={{ margin: '0 0 10px', fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                      {level.desc}
+                    </p>
+                    {level.tags.length > 0 && (
+                      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                        {level.tags.map(tag => (
+                          <span key={tag} style={{ fontSize: '10px', color: 'var(--text-muted)', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--game-border)', borderRadius: '50px', padding: '3px 8px', fontWeight: 700 }}>
+                            {tag}
+                          </span>
+                        ))}
                       </div>
-                      <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-                        {entry.badges.length} badge{entry.badges.length !== 1 ? 's' : ''}
-                      </div>
-                    </div>
-                    <span style={{ fontFamily: 'var(--font-data)', fontWeight: 800, color: 'var(--accent)', fontSize: '14px' }}>
-                      {entry.totalXp} XP
-                    </span>
-                  </motion.div>
-                ))
-              )}
-            </div>
+                    )}
+                  </div>
+                </div>
 
-            {/* Quick stats */}
-            <div className="game-card" style={{ marginTop: '16px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '1px' }}>STATUS KAMU</div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                <div style={{ padding: '12px', background: 'rgba(255,255,255,0.03)', borderRadius: '10px', textAlign: 'center' }}>
-                  <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 700 }}>XP</div>
-                  <div style={{ fontSize: '20px', fontWeight: 800, color: 'var(--accent)', fontFamily: 'var(--font-data)' }}>{xp}</div>
-                </div>
-                <div style={{ padding: '12px', background: 'rgba(255,255,255,0.03)', borderRadius: '10px', textAlign: 'center' }}>
-                  <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 700 }}>BADGES</div>
-                  <div style={{ fontSize: '20px', fontWeight: 800, color: '#FFD700', fontFamily: 'var(--font-data)' }}>{badges.length}</div>
-                </div>
-              </div>
-            </div>
+                {!level.locked && (
+                  <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid var(--game-border)' }}>
+                    <button className="game-btn game-btn-primary" style={{ fontSize: '13px', padding: '10px 20px' }}>
+                      {cognitiveStyle === 'FI' ? '🧠 Mulai (FI Path)' : '👥 Mulai (FD Path)'} →
+                    </button>
+                  </div>
+                )}
+              </motion.div>
+            ))}
           </div>
         </div>
       </div>

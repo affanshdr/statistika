@@ -216,7 +216,7 @@ export default function DraggableHistogram({ mode, onSubmit }: DraggableHistogra
           textAlign: 'center', fontSize: '11px', color: 'var(--text-muted)', 
           fontWeight: 700, letterSpacing: '1px', marginTop: '-20px'
         }}>
-          KELAS INTERVAL (JUMLAH SHARE)
+          KELAS INTERVAL (SCREEN TIME JAM/HARI)
         </div>
       </div>
 

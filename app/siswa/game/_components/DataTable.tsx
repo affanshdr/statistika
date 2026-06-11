@@ -1,17 +1,14 @@
 'use client'
 
-import { shareData } from '../_data/level1'
+import { screenTimeData } from '../_data/level1'
 
 interface DataTableProps {
   highlightRow?: number
 }
 
 export default function DataTable({ highlightRow }: DataTableProps) {
-  // Arrange 30 data points into rows of 5
-  const rows: number[][] = []
-  for (let i = 0; i < shareData.length; i += 5) {
-    rows.push(shareData.slice(i, i + 5))
-  }
+  // Arrange 40 data points into 2 columns of 20 rows
+  const half = Math.ceil(screenTimeData.length / 2) // 20
 
   return (
     <div className="data-table-wrap">
@@ -19,34 +16,34 @@ export default function DataTable({ highlightRow }: DataTableProps) {
         <thead>
           <tr>
             <th>No</th>
-            <th>Jam ke-</th>
-            <th>Jumlah Share</th>
+            <th>Siswa ke-</th>
+            <th>Screen Time (jam/hari)</th>
             <th>No</th>
-            <th>Jam ke-</th>
-            <th>Jumlah Share</th>
+            <th>Siswa ke-</th>
+            <th>Screen Time (jam/hari)</th>
           </tr>
         </thead>
         <tbody>
-          {Array.from({ length: 15 }).map((_, rowIdx) => {
+          {Array.from({ length: half }).map((_, rowIdx) => {
             const left = rowIdx
-            const right = rowIdx + 15
+            const right = rowIdx + half
             return (
               <tr key={rowIdx}>
                 <td style={{ color: 'var(--text-muted)', fontSize: '12px' }}>{left + 1}</td>
-                <td style={{ color: 'var(--text-secondary)' }}>Jam {left + 1}</td>
-                <td style={{ 
+                <td style={{ color: 'var(--text-secondary)' }}>Siswa {left + 1}</td>
+                <td style={{
                   color: 'var(--accent)', fontWeight: 700,
                   background: highlightRow === left ? 'rgba(0,255,136,0.08)' : undefined,
                 }}>
-                  {shareData[left].toLocaleString()}
+                  {screenTimeData[left].toFixed(1)}
                 </td>
                 <td style={{ color: 'var(--text-muted)', fontSize: '12px' }}>{right + 1}</td>
-                <td style={{ color: 'var(--text-secondary)' }}>Jam {right + 1}</td>
-                <td style={{ 
+                <td style={{ color: 'var(--text-secondary)' }}>Siswa {right + 1}</td>
+                <td style={{
                   color: 'var(--accent)', fontWeight: 700,
                   background: highlightRow === right ? 'rgba(0,255,136,0.08)' : undefined,
                 }}>
-                  {shareData[right].toLocaleString()}
+                  {screenTimeData[right] !== undefined ? screenTimeData[right].toFixed(1) : '—'}
                 </td>
               </tr>
             )
