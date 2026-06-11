@@ -7,8 +7,8 @@ interface DataTableProps {
 }
 
 export default function DataTable({ highlightRow }: DataTableProps) {
-  // Arrange 40 data points into 2 columns of 20 rows
-  const half = Math.ceil(screenTimeData.length / 2) // 20
+  // Arrange data points dynamically into 2 columns
+  const half = Math.ceil(screenTimeData.length / 2)
 
   return (
     <div className="data-table-wrap">

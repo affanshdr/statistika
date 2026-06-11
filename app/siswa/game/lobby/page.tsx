@@ -21,7 +21,7 @@ const LEVELS = [
   {
     id: 1,
     icon: '🎬',
-    title: 'Kasus: Video Viral yang Mencurigakan',
+    title: 'Kasus: Postingan Viral Screen Time',
     desc: 'Selidiki klaim viral di TikTok menggunakan distribusi frekuensi & histogram.',
     tags: ['Distribusi Frekuensi', 'Histogram', 'Analisis Kritis'],
     locked: false,

@@ -14,7 +14,6 @@ export default function HomePage() {
   const router = useRouter()
   const [classrooms, setClassrooms] = useState<Classroom[]>([])
   const [name, setName] = useState('')
-  const [nisn, setNisn] = useState('')
   const [classroomId, setClassroomId] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -35,7 +34,6 @@ export default function HomePage() {
   async function handleMulaiBelajar() {
     setError('')
     if (!name.trim()) return setError('Nama lengkap wajib diisi.')
-    if (!/^\d{10}$/.test(nisn)) return setError('NISN harus 10 digit angka.')
     if (!classroomId) return setError('Pilih kelas terlebih dahulu.')
 
     setLoading(true)
@@ -43,7 +41,7 @@ export default function HomePage() {
       const res = await fetch('/api/students', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: name.trim(), nisn, classroomId }),
+        body: JSON.stringify({ name: name.trim(), classroomId }),
       })
       const data = await res.json()
       if (!res.ok) return setError(data.error || 'Terjadi kesalahan.')
@@ -239,29 +237,6 @@ export default function HomePage() {
                 />
               </div>
 
-              {/* NISN */}
-              <div>
-                <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: 'rgba(255,255,255,0.5)', letterSpacing: '1px', marginBottom: '6px' }}>
-                  NISN (NOMOR INDUK SISWA NASIONAL)
-                </label>
-                <input
-                  type="text"
-                  placeholder="10 digit angka NISN"
-                  value={nisn}
-                  maxLength={10}
-                  onChange={e => setNisn(e.target.value.replace(/\D/g, ''))}
-                  style={{
-                    width: '100%', boxSizing: 'border-box',
-                    padding: '14px 16px', borderRadius: '12px',
-                    background: 'rgba(255,255,255,0.04)',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    color: '#fff', fontSize: '14px', outline: 'none',
-                    transition: 'all 0.2s',
-                  }}
-                  onFocus={e => (e.target.style.borderColor = '#3b82f6')}
-                  onBlur={e => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')}
-                />
-              </div>
 
               {/* Kelas Dropdown */}
               <div>

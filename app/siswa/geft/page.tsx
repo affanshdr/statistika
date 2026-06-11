@@ -128,6 +128,7 @@ export default function GeftPage() {
   const [timeLeft, setTimeLeft] = useState(180)
   const [submitting, setSubmitting] = useState(false)
   const [phase, setPhase] = useState<'intro' | 'test' | 'done'>('intro')
+  const [showSkipModal, setShowSkipModal] = useState(false)
 
   // State untuk tutorial
   const [tutorialStep, setTutorialStep] = useState(0)
@@ -1312,11 +1313,20 @@ export default function GeftPage() {
           width: 100%;
         }
 
+        .geft-svg-container {
+          width: 100%;
+          max-width: 520px;
+          margin: 0 auto;
+          aspect-ratio: 1 / 1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
         .geft-svg-container svg {
           display: block;
-          width: 100%;
-          height: auto;
-          max-height: 480px;
+          width: 100% !important;
+          height: 100% !important;
         }
 
         /* ── SVG Line Styles ────────────────────────────── */
@@ -1331,6 +1341,8 @@ export default function GeftPage() {
           stroke-width: 5px;
           transition: stroke 0.15s, stroke-width 0.15s;
           pointer-events: none;
+          stroke-linecap: round;
+          stroke-linejoin: round;
         }
         .geft-svg-container svg line.selected, .geft-svg-container svg path.selected {
           stroke: #2196f3 !important;
@@ -1511,22 +1523,20 @@ export default function GeftPage() {
           }
 
           .geft-svg-container {
-            flex: 1;
+            width: 100%;
+            max-width: 420px;
+            aspect-ratio: 1 / 1;
+            margin: 0 auto;
             display: flex !important;
             align-items: center;
             justify-content: center;
-            min-height: 0;
-            height: 100%;
-            width: 100%;
+            height: auto !important;
           }
 
           .geft-svg-container svg {
-            max-height: 100% !important;
             width: 100% !important;
             height: 100% !important;
-            max-width: 100%;
-            object-fit: contain;
-            margin: 0 auto;
+            display: block;
           }
 
           /* ── Larger touch targets for SVG lines on mobile ── */
@@ -1647,11 +1657,19 @@ export default function GeftPage() {
                 <button className="geft-btn-secondary" style={{ flex: 1 }} onClick={handleClearSelection}>
                   Reset Jawaban
                 </button>
-                {q.section === 1 && (
-                  <button className="geft-btn-text" style={{ flex: 1 }} onClick={() => handleNext()}>
-                    Lewati
-                  </button>
-                )}
+                <button
+                  className="geft-btn-text"
+                  style={{ flex: 1 }}
+                  onClick={() => {
+                    if (q.section === 1) {
+                      handleNext() // Sesi latihan langsung lewati
+                    } else {
+                      setShowSkipModal(true) // Sesi dinilai tampilkan konfirmasi
+                    }
+                  }}
+                >
+                  Lewati Soal
+                </button>
               </div>
             </div>
 
@@ -1683,6 +1701,69 @@ export default function GeftPage() {
           </div>
         </div>
       </div>
+
+      {/* Confirmation Modal */}
+      {showSkipModal && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(3, 7, 18, 0.85)',
+          backdropFilter: 'blur(8px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 100,
+          padding: '20px',
+        }}>
+          <div style={{
+            maxWidth: '440px',
+            width: '100%',
+            background: '#0d1527',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            borderRadius: '20px',
+            padding: '28px',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '20px',
+            textAlign: 'center',
+          }}>
+            <div style={{ fontSize: '40px' }}>⚠️</div>
+            <div>
+              <h3 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: 800, color: '#f3f4f6' }}>
+                Lewati Soal Ini?
+              </h3>
+              <p style={{ margin: 0, fontSize: '14px', color: 'rgba(255,255,255,0.6)', lineHeight: 1.55 }}>
+                Apakah kamu yakin ingin melewati soal ini? Jawaban untuk soal ini akan dianggap <strong style={{ color: '#f87171' }}>belum tepat (0 poin)</strong>. Coba cari polanya dulu!
+              </p>
+            </div>
+            <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
+              <button
+                className="geft-btn-primary"
+                style={{ flex: 1 }}
+                onClick={() => setShowSkipModal(false)}
+              >
+                Kembali Mencoba
+              </button>
+              <button
+                className="geft-btn-secondary"
+                style={{
+                  flex: 1,
+                  background: 'rgba(239, 68, 68, 0.1)',
+                  border: '1px solid rgba(239, 68, 68, 0.3)',
+                  color: '#f87171',
+                }}
+                onClick={() => {
+                  setShowSkipModal(false)
+                  handleNext(true) // skip dan tandai sebagai salah (timeout/skipped = true)
+                }}
+              >
+                Ya, Lewati
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   )
 }

@@ -112,7 +112,7 @@ export default function SiswaPage() {
             <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', fontWeight: 600, letterSpacing: '1px' }}>DASHBOARD SISWA</span>
             <h2 style={{ fontSize: '24px', fontWeight: 800, margin: '2px 0 6px 0', color: '#fff' }}>{student.name}</h2>
             <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.5)', margin: 0 }}>
-              Kelas: <strong style={{ color: '#fff' }}>{student.classroom?.name}</strong> &middot; NISN: <strong style={{ color: '#fff' }}>{student.nisn}</strong>
+              Kelas: <strong style={{ color: '#fff' }}>{student.classroom?.name}</strong>
             </p>
           </div>
         </div>

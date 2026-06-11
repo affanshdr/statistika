@@ -10,8 +10,14 @@ interface CutsceneProps {
 const NARASI = [
   'Sebuah postingan viral mengklaim: "Remaja Indonesia rata-rata menghabiskan lebih dari 8 jam sehari di media sosial!"',
   'Postingan itu dibagikan jutaan kali. Komentar membanjiri: "Pantesan nilai turun!", "Generasi kecanduan HP!", "Harus dibatasi pemerintah!"',
-  'Data screen time 40 siswa tersedia untuk dianalisis. Tugasmu: buat histogram, lihat distribusinya, dan tentukan apakah klaim tersebut benar-benar didukung data.',
+  'Data screen time 10 siswa tersedia untuk dianalisis. Tugasmu: buat histogram, lihat distribusinya, dan tentukan apakah klaim tersebut benar-benar didukung data.',
   'Berpikirlah kritis sebelum menerima generalisasi. Gunakan statistika untuk menemukan kebenaran — jangan terbawa viral!',
+]
+
+const CUTSCENE_COMMENTS = [
+  { user: '@anisa_XII', text: 'Pantesan nilai sekolah turun. 😤📚' },
+  { user: '@budi_belajar', text: 'Generasi sekarang kecanduan HP. 📵😭' },
+  { user: '@pemerintah_rules', text: 'Harus dibatasi pemerintah. 🏛️' },
 ]
 
 function TypewriterText({ text, onDone }: { text: string; onDone: () => void }) {
@@ -27,9 +33,9 @@ function TypewriterText({ text, onDone }: { text: string; onDone: () => void }) 
         indexRef.current++
       } else {
         clearInterval(id)
-        setTimeout(onDone, 800)
+        setTimeout(onDone, 200)
       }
-    }, 30)
+    }, 25)
     return () => clearInterval(id)
   }, [text, onDone])
 
@@ -42,10 +48,24 @@ export default function Cutscene({ onComplete }: CutsceneProps) {
   const [paraIndex, setParaIndex] = useState(0)
   const [done, setDone] = useState(false)
   const [isMuted, setIsMuted] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
   const audioRef = useRef<HTMLAudioElement | null>(null)
 
+  const [audioDone, setAudioDone] = useState(false)
+  const [typingDone, setTypingDone] = useState(false)
+
+  // Track window size for responsiveness
   useEffect(() => {
-    // Hentikan audio sebelumnya jika sedang berjalan
+    setIsMobile(window.innerWidth < 768)
+    const handleResize = () => setIsMobile(window.innerWidth < 768)
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
+  useEffect(() => {
+    setAudioDone(false)
+    setTypingDone(false)
+
     if (audioRef.current) {
       audioRef.current.pause()
     }
@@ -55,30 +75,49 @@ export default function Cutscene({ onComplete }: CutsceneProps) {
     audio.muted = isMuted
     audioRef.current = audio
 
+    const handleEnded = () => {
+      setAudioDone(true)
+    }
+
+    const handleError = () => {
+      setAudioDone(true)
+    }
+
+    audio.addEventListener('ended', handleEnded)
+    audio.addEventListener('error', handleError)
+
     audio.play().catch(err => {
-      // Abaikan error jika file audio belum digenerate atau autoplay diblokir browser
       console.log('Audio autoplay blocked or file not found:', err)
+      setAudioDone(true)
     })
 
     return () => {
+      audio.removeEventListener('ended', handleEnded)
+      audio.removeEventListener('error', handleError)
       audio.pause()
     }
   }, [paraIndex])
 
-  // Sync mute state saat user menekan tombol volume
+  // Sync mute state when user toggles volume button
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.muted = isMuted
     }
   }, [isMuted])
 
-  const handleParaDone = () => {
-    if (paraIndex < NARASI.length - 1) {
-      setTimeout(() => setParaIndex(p => p + 1), 400)
-    } else {
-      setDone(true)
+  // Sync transition to next slide
+  useEffect(() => {
+    if (typingDone && audioDone) {
+      if (paraIndex < NARASI.length - 1) {
+        const timer = setTimeout(() => {
+          setParaIndex(p => p + 1)
+        }, 1200) // Small pause before next slide
+        return () => clearTimeout(timer)
+      } else {
+        setDone(true)
+      }
     }
-  }
+  }, [typingDone, audioDone, paraIndex])
 
   return (
     <motion.div
@@ -86,6 +125,7 @@ export default function Cutscene({ onComplete }: CutsceneProps) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
+      style={{ overflowY: 'auto', padding: '40px 20px' }}
     >
       {/* Header controls (Mute & Skip) */}
       <div style={{ position: 'absolute', top: '24px', right: '24px', display: 'flex', gap: '12px', zIndex: 210 }}>
@@ -101,46 +141,116 @@ export default function Cutscene({ onComplete }: CutsceneProps) {
         </button>
       </div>
 
-      {/* Animated logo */}
-      <motion.div
-        initial={{ scale: 0.5, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 0.6, ease: 'easeOut' }}
-        style={{ marginBottom: '48px', textAlign: 'center' }}
-      >
-        <div style={{ fontSize: '64px', marginBottom: '16px', animation: 'float 3s ease-in-out infinite' }}>📱</div>
-        <div style={{
-          fontSize: '11px', fontWeight: 800, letterSpacing: '3px',
-          color: 'var(--accent)', opacity: 0.8
-        }}>DIGITAL TRUTH SQUAD</div>
-      </motion.div>
-
-      {/* Narration text area */}
+      {/* Main Grid Layout */}
       <div style={{
-        background: 'rgba(0,255,136,0.04)',
-        border: '1px solid var(--game-border-accent)',
-        borderRadius: '20px',
-        padding: '40px',
-        maxWidth: '680px',
-        width: '100%',
-        minHeight: '160px',
         display: 'flex',
-        flexDirection: 'column',
-        gap: '16px'
+        flexDirection: isMobile ? 'column' : 'row',
+        gap: '32px',
+        alignItems: 'center',
+        justifyContent: 'center',
+        maxWidth: '1000px',
+        width: '100%',
+        margin: 'auto',
+        zIndex: 10
       }}>
-        {NARASI.slice(0, paraIndex + 1).map((text, i) => (
-          <motion.p
-            key={i}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="cutscene-text"
-            style={{ margin: 0, color: i < paraIndex ? 'rgba(255,255,255,0.4)' : '#fff' }}
+        {/* Left Column: Logo & Narration Card */}
+        <div style={{
+          flex: 1.2,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          width: '100%',
+        }}>
+          {/* Animated logo */}
+          <motion.div
+            initial={{ scale: 0.5, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.6, ease: 'easeOut' }}
+            style={{ marginBottom: '24px', textAlign: 'center' }}
           >
-            {i < paraIndex ? text : (
-              <TypewriterText text={text} onDone={handleParaDone} />
+            <div style={{ fontSize: '48px', marginBottom: '8px', animation: 'float 3s ease-in-out infinite' }}>📱</div>
+            <div style={{
+              fontSize: '11px', fontWeight: 800, letterSpacing: '3px',
+              color: 'var(--accent)', opacity: 0.8
+            }}>DIGITAL TRUTH SQUAD</div>
+          </motion.div>
+
+          {/* Narration box */}
+          <div style={{
+            background: 'rgba(0,255,136,0.04)',
+            border: '1px solid var(--game-border-accent)',
+            borderRadius: '20px',
+            padding: '30px',
+            width: '100%',
+            minHeight: '220px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '16px'
+          }}>
+            {NARASI.slice(0, paraIndex + 1).map((text, i) => (
+              <motion.p
+                key={i}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="cutscene-text"
+                style={{ margin: 0, color: i < paraIndex ? 'rgba(255,255,255,0.4)' : '#fff', textAlign: 'left' }}
+              >
+                {i < paraIndex ? text : (
+                  <TypewriterText text={text} onDone={() => setTypingDone(true)} />
+                )}
+              </motion.p>
+            ))}
+          </div>
+        </div>
+
+        {/* Right Column: TikTok Mockup Card */}
+        <motion.div
+          initial={{ opacity: 0, x: 50 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+          style={{
+            flex: 0.8,
+            display: 'flex',
+            justifyContent: 'center',
+            width: '100%'
+          }}
+        >
+          <div className="tiktok-card" style={{ width: '100%', maxWidth: '320px' }}>
+            <div className="tiktok-video">
+              <div>
+                <div style={{ fontSize: '48px', textAlign: 'center' }}>📱</div>
+                <div style={{ fontSize: '14px', color: '#eee', textAlign: 'center', marginTop: '8px' }}>
+                  Remaja Indonesia<br/>rata-rata <strong>8+ jam/hari</strong><br/>di media sosial! 😱
+                </div>
+              </div>
+              <div style={{ position: 'absolute', top: '12px', right: '12px', background: '#ff0050', color: '#fff', padding: '3px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 800 }}>
+                VIRAL 🔥
+              </div>
+            </div>
+            <div className="tiktok-caption">
+              <strong>@faktaviral.id</strong> Rata-rata 8+ jam/hari medsos! Nilai turun, kecanduan HP! #viral #screentime #generasiZ
+            </div>
+            
+            {/* Comments list - only displays for Slide 2 (index 1) onwards */}
+            {paraIndex >= 1 && (
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                {CUTSCENE_COMMENTS.map((c, i) => (
+                  <motion.div
+                    key={i}
+                    className="tiktok-comment"
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.4 }}
+                    style={{ background: 'rgba(255,255,255,0.02)', color: '#eee', padding: '8px 14px' }}
+                  >
+                    <span style={{ color: 'var(--accent)', fontWeight: 700, marginRight: '6px' }}>{c.user}</span>
+                    <span>{c.text}</span>
+                  </motion.div>
+                ))}
+              </div>
             )}
-          </motion.p>
-        ))}
+          </div>
+        </motion.div>
       </div>
 
       {/* Continue button when done */}
@@ -150,7 +260,7 @@ export default function Cutscene({ onComplete }: CutsceneProps) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="game-btn game-btn-primary"
-            style={{ marginTop: '32px', fontSize: '16px', padding: '16px 40px' }}
+            style={{ marginTop: '32px', fontSize: '16px', padding: '16px 40px', zIndex: 20 }}
             onClick={onComplete}
           >
             Mulai Investigasi →
@@ -159,7 +269,7 @@ export default function Cutscene({ onComplete }: CutsceneProps) {
       </AnimatePresence>
 
       {/* Progress dots */}
-      <div style={{ display: 'flex', gap: '8px', marginTop: '24px' }}>
+      <div style={{ display: 'flex', gap: '8px', marginTop: '24px', zIndex: 20 }}>
         {NARASI.map((_, i) => (
           <div key={i} style={{
             width: i === paraIndex ? '20px' : '6px',

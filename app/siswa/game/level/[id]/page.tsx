@@ -6,6 +6,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { useGameStore } from '@/lib/store/gameStore'
 import GameHeader from '../../_components/GameHeader'
 import Cutscene from '../../_components/Cutscene'
+import TutorialPhase from '../../_components/TutorialPhase'
 import FIPath from './_fi/FIPath'
 import FDPath from './_fd/FDPath'
 import '../../game.css'
@@ -17,8 +18,8 @@ export default function LevelPage({
 }) {
   const { id } = use(params)
   const router = useRouter()
-  const { cognitiveStyle, currentLevel } = useGameStore()
-  const [showCutscene, setShowCutscene] = useState(true)
+  const { cognitiveStyle } = useGameStore()
+  const [phase, setPhase] = useState<'cutscene' | 'tutorial' | 'game'>('cutscene')
   const [timerRunning, setTimerRunning] = useState(false)
 
   // Guard: if no cognitive style → back to lobby
@@ -41,22 +42,34 @@ export default function LevelPage({
 
   return (
     <div className="game-root">
-      {/* Cutscene overlay */}
+      {/* Phase 1: Cutscene */}
       <AnimatePresence>
-        {showCutscene && (
-          <Cutscene onComplete={() => { setShowCutscene(false); setTimerRunning(true) }} />
+        {phase === 'cutscene' && (
+          <Cutscene onComplete={() => setPhase('tutorial')} />
         )}
       </AnimatePresence>
 
-      {/* Game UI */}
-      {!showCutscene && (
+      {/* Phase 2: Tutorial Statistika Dasar */}
+      <AnimatePresence>
+        {phase === 'tutorial' && cognitiveStyle && (
+          <TutorialPhase
+            mode={cognitiveStyle as 'FI' | 'FD'}
+            onComplete={() => {
+              setPhase('game')
+              setTimerRunning(true)
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Phase 3: Game UI */}
+      {phase === 'game' && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
         >
           <GameHeader timerRunning={timerRunning} />
-
           {cognitiveStyle === 'FI' ? <FIPath /> : <FDPath />}
         </motion.div>
       )}
