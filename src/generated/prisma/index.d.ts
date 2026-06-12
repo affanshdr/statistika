@@ -2219,8 +2219,18 @@ export namespace Prisma {
 
   export type AggregateStudent = {
     _count: StudentCountAggregateOutputType | null
+    _avg: StudentAvgAggregateOutputType | null
+    _sum: StudentSumAggregateOutputType | null
     _min: StudentMinAggregateOutputType | null
     _max: StudentMaxAggregateOutputType | null
+  }
+
+  export type StudentAvgAggregateOutputType = {
+    diagnosticScore: number | null
+  }
+
+  export type StudentSumAggregateOutputType = {
+    diagnosticScore: number | null
   }
 
   export type StudentMinAggregateOutputType = {
@@ -2229,6 +2239,8 @@ export namespace Prisma {
     nisn: string | null
     classroomId: string | null
     geftStatus: $Enums.GeftStatus | null
+    diagnosticScore: number | null
+    diagnosticLevel: string | null
     createdAt: Date | null
   }
 
@@ -2238,6 +2250,8 @@ export namespace Prisma {
     nisn: string | null
     classroomId: string | null
     geftStatus: $Enums.GeftStatus | null
+    diagnosticScore: number | null
+    diagnosticLevel: string | null
     createdAt: Date | null
   }
 
@@ -2247,10 +2261,20 @@ export namespace Prisma {
     nisn: number
     classroomId: number
     geftStatus: number
+    diagnosticScore: number
+    diagnosticLevel: number
     createdAt: number
     _all: number
   }
 
+
+  export type StudentAvgAggregateInputType = {
+    diagnosticScore?: true
+  }
+
+  export type StudentSumAggregateInputType = {
+    diagnosticScore?: true
+  }
 
   export type StudentMinAggregateInputType = {
     id?: true
@@ -2258,6 +2282,8 @@ export namespace Prisma {
     nisn?: true
     classroomId?: true
     geftStatus?: true
+    diagnosticScore?: true
+    diagnosticLevel?: true
     createdAt?: true
   }
 
@@ -2267,6 +2293,8 @@ export namespace Prisma {
     nisn?: true
     classroomId?: true
     geftStatus?: true
+    diagnosticScore?: true
+    diagnosticLevel?: true
     createdAt?: true
   }
 
@@ -2276,6 +2304,8 @@ export namespace Prisma {
     nisn?: true
     classroomId?: true
     geftStatus?: true
+    diagnosticScore?: true
+    diagnosticLevel?: true
     createdAt?: true
     _all?: true
   }
@@ -2318,6 +2348,18 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
+     * Select which fields to average
+    **/
+    _avg?: StudentAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: StudentSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
      * Select which fields to find the minimum value
     **/
     _min?: StudentMinAggregateInputType
@@ -2348,6 +2390,8 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: StudentCountAggregateInputType | true
+    _avg?: StudentAvgAggregateInputType
+    _sum?: StudentSumAggregateInputType
     _min?: StudentMinAggregateInputType
     _max?: StudentMaxAggregateInputType
   }
@@ -2358,8 +2402,12 @@ export namespace Prisma {
     nisn: string
     classroomId: string
     geftStatus: $Enums.GeftStatus
+    diagnosticScore: number | null
+    diagnosticLevel: string | null
     createdAt: Date
     _count: StudentCountAggregateOutputType | null
+    _avg: StudentAvgAggregateOutputType | null
+    _sum: StudentSumAggregateOutputType | null
     _min: StudentMinAggregateOutputType | null
     _max: StudentMaxAggregateOutputType | null
   }
@@ -2384,6 +2432,8 @@ export namespace Prisma {
     nisn?: boolean
     classroomId?: boolean
     geftStatus?: boolean
+    diagnosticScore?: boolean
+    diagnosticLevel?: boolean
     createdAt?: boolean
     geftResult?: boolean | Student$geftResultArgs<ExtArgs>
     gameSessions?: boolean | Student$gameSessionsArgs<ExtArgs>
@@ -2398,6 +2448,8 @@ export namespace Prisma {
     nisn?: boolean
     classroomId?: boolean
     geftStatus?: boolean
+    diagnosticScore?: boolean
+    diagnosticLevel?: boolean
     createdAt?: boolean
     classroom?: boolean | ClassroomDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["student"]>
@@ -2408,6 +2460,8 @@ export namespace Prisma {
     nisn?: boolean
     classroomId?: boolean
     geftStatus?: boolean
+    diagnosticScore?: boolean
+    diagnosticLevel?: boolean
     createdAt?: boolean
   }
 
@@ -2436,6 +2490,8 @@ export namespace Prisma {
       nisn: string
       classroomId: string
       geftStatus: $Enums.GeftStatus
+      diagnosticScore: number | null
+      diagnosticLevel: string | null
       createdAt: Date
     }, ExtArgs["result"]["student"]>
     composites: {}
@@ -2839,6 +2895,8 @@ export namespace Prisma {
     readonly nisn: FieldRef<"Student", 'String'>
     readonly classroomId: FieldRef<"Student", 'String'>
     readonly geftStatus: FieldRef<"Student", 'GeftStatus'>
+    readonly diagnosticScore: FieldRef<"Student", 'Int'>
+    readonly diagnosticLevel: FieldRef<"Student", 'String'>
     readonly createdAt: FieldRef<"Student", 'DateTime'>
   }
     
@@ -6233,6 +6291,8 @@ export namespace Prisma {
     nisn: 'nisn',
     classroomId: 'classroomId',
     geftStatus: 'geftStatus',
+    diagnosticScore: 'diagnosticScore',
+    diagnosticLevel: 'diagnosticLevel',
     createdAt: 'createdAt'
   };
 
@@ -6294,6 +6354,14 @@ export namespace Prisma {
   export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
 
 
+  export const NullsOrder: {
+    first: 'first',
+    last: 'last'
+  };
+
+  export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
   /**
    * Field references 
    */
@@ -6328,20 +6396,6 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'DateTime'
-   */
-  export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
-    
-
-
-  /**
-   * Reference to a field of type 'DateTime[]'
-   */
-  export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
-    
-
-
-  /**
    * Reference to a field of type 'Int'
    */
   export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
@@ -6352,6 +6406,20 @@ export namespace Prisma {
    * Reference to a field of type 'Int[]'
    */
   export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'DateTime'
+   */
+  export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
+    
+
+
+  /**
+   * Reference to a field of type 'DateTime[]'
+   */
+  export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
     
 
 
@@ -6452,6 +6520,8 @@ export namespace Prisma {
     nisn?: StringFilter<"Student"> | string
     classroomId?: StringFilter<"Student"> | string
     geftStatus?: EnumGeftStatusFilter<"Student"> | $Enums.GeftStatus
+    diagnosticScore?: IntNullableFilter<"Student"> | number | null
+    diagnosticLevel?: StringNullableFilter<"Student"> | string | null
     createdAt?: DateTimeFilter<"Student"> | Date | string
     geftResult?: XOR<GeftResultNullableRelationFilter, GeftResultWhereInput> | null
     gameSessions?: GameSessionListRelationFilter
@@ -6465,6 +6535,8 @@ export namespace Prisma {
     nisn?: SortOrder
     classroomId?: SortOrder
     geftStatus?: SortOrder
+    diagnosticScore?: SortOrderInput | SortOrder
+    diagnosticLevel?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     geftResult?: GeftResultOrderByWithRelationInput
     gameSessions?: GameSessionOrderByRelationAggregateInput
@@ -6481,6 +6553,8 @@ export namespace Prisma {
     name?: StringFilter<"Student"> | string
     classroomId?: StringFilter<"Student"> | string
     geftStatus?: EnumGeftStatusFilter<"Student"> | $Enums.GeftStatus
+    diagnosticScore?: IntNullableFilter<"Student"> | number | null
+    diagnosticLevel?: StringNullableFilter<"Student"> | string | null
     createdAt?: DateTimeFilter<"Student"> | Date | string
     geftResult?: XOR<GeftResultNullableRelationFilter, GeftResultWhereInput> | null
     gameSessions?: GameSessionListRelationFilter
@@ -6494,10 +6568,14 @@ export namespace Prisma {
     nisn?: SortOrder
     classroomId?: SortOrder
     geftStatus?: SortOrder
+    diagnosticScore?: SortOrderInput | SortOrder
+    diagnosticLevel?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     _count?: StudentCountOrderByAggregateInput
+    _avg?: StudentAvgOrderByAggregateInput
     _max?: StudentMaxOrderByAggregateInput
     _min?: StudentMinOrderByAggregateInput
+    _sum?: StudentSumOrderByAggregateInput
   }
 
   export type StudentScalarWhereWithAggregatesInput = {
@@ -6509,6 +6587,8 @@ export namespace Prisma {
     nisn?: StringWithAggregatesFilter<"Student"> | string
     classroomId?: StringWithAggregatesFilter<"Student"> | string
     geftStatus?: EnumGeftStatusWithAggregatesFilter<"Student"> | $Enums.GeftStatus
+    diagnosticScore?: IntNullableWithAggregatesFilter<"Student"> | number | null
+    diagnosticLevel?: StringNullableWithAggregatesFilter<"Student"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Student"> | Date | string
   }
 
@@ -6771,6 +6851,8 @@ export namespace Prisma {
     name: string
     nisn: string
     geftStatus?: $Enums.GeftStatus
+    diagnosticScore?: number | null
+    diagnosticLevel?: string | null
     createdAt?: Date | string
     geftResult?: GeftResultCreateNestedOneWithoutStudentInput
     gameSessions?: GameSessionCreateNestedManyWithoutStudentInput
@@ -6784,6 +6866,8 @@ export namespace Prisma {
     nisn: string
     classroomId: string
     geftStatus?: $Enums.GeftStatus
+    diagnosticScore?: number | null
+    diagnosticLevel?: string | null
     createdAt?: Date | string
     geftResult?: GeftResultUncheckedCreateNestedOneWithoutStudentInput
     gameSessions?: GameSessionUncheckedCreateNestedManyWithoutStudentInput
@@ -6795,6 +6879,8 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     nisn?: StringFieldUpdateOperationsInput | string
     geftStatus?: EnumGeftStatusFieldUpdateOperationsInput | $Enums.GeftStatus
+    diagnosticScore?: NullableIntFieldUpdateOperationsInput | number | null
+    diagnosticLevel?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     geftResult?: GeftResultUpdateOneWithoutStudentNestedInput
     gameSessions?: GameSessionUpdateManyWithoutStudentNestedInput
@@ -6808,6 +6894,8 @@ export namespace Prisma {
     nisn?: StringFieldUpdateOperationsInput | string
     classroomId?: StringFieldUpdateOperationsInput | string
     geftStatus?: EnumGeftStatusFieldUpdateOperationsInput | $Enums.GeftStatus
+    diagnosticScore?: NullableIntFieldUpdateOperationsInput | number | null
+    diagnosticLevel?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     geftResult?: GeftResultUncheckedUpdateOneWithoutStudentNestedInput
     gameSessions?: GameSessionUncheckedUpdateManyWithoutStudentNestedInput
@@ -6820,6 +6908,8 @@ export namespace Prisma {
     nisn: string
     classroomId: string
     geftStatus?: $Enums.GeftStatus
+    diagnosticScore?: number | null
+    diagnosticLevel?: string | null
     createdAt?: Date | string
   }
 
@@ -6828,6 +6918,8 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     nisn?: StringFieldUpdateOperationsInput | string
     geftStatus?: EnumGeftStatusFieldUpdateOperationsInput | $Enums.GeftStatus
+    diagnosticScore?: NullableIntFieldUpdateOperationsInput | number | null
+    diagnosticLevel?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -6837,6 +6929,8 @@ export namespace Prisma {
     nisn?: StringFieldUpdateOperationsInput | string
     classroomId?: StringFieldUpdateOperationsInput | string
     geftStatus?: EnumGeftStatusFieldUpdateOperationsInput | $Enums.GeftStatus
+    diagnosticScore?: NullableIntFieldUpdateOperationsInput | number | null
+    diagnosticLevel?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -7118,6 +7212,32 @@ export namespace Prisma {
     not?: NestedEnumGeftStatusFilter<$PrismaModel> | $Enums.GeftStatus
   }
 
+  export type IntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type StringNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
+
   export type DateTimeFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
@@ -7150,6 +7270,11 @@ export namespace Prisma {
     isNot?: ClassroomWhereInput
   }
 
+  export type SortOrderInput = {
+    sort: SortOrder
+    nulls?: NullsOrder
+  }
+
   export type GameSessionOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -7160,7 +7285,13 @@ export namespace Prisma {
     nisn?: SortOrder
     classroomId?: SortOrder
     geftStatus?: SortOrder
+    diagnosticScore?: SortOrder
+    diagnosticLevel?: SortOrder
     createdAt?: SortOrder
+  }
+
+  export type StudentAvgOrderByAggregateInput = {
+    diagnosticScore?: SortOrder
   }
 
   export type StudentMaxOrderByAggregateInput = {
@@ -7169,6 +7300,8 @@ export namespace Prisma {
     nisn?: SortOrder
     classroomId?: SortOrder
     geftStatus?: SortOrder
+    diagnosticScore?: SortOrder
+    diagnosticLevel?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -7178,7 +7311,13 @@ export namespace Prisma {
     nisn?: SortOrder
     classroomId?: SortOrder
     geftStatus?: SortOrder
+    diagnosticScore?: SortOrder
+    diagnosticLevel?: SortOrder
     createdAt?: SortOrder
+  }
+
+  export type StudentSumOrderByAggregateInput = {
+    diagnosticScore?: SortOrder
   }
 
   export type EnumGeftStatusWithAggregatesFilter<$PrismaModel = never> = {
@@ -7189,6 +7328,40 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumGeftStatusFilter<$PrismaModel>
     _max?: NestedEnumGeftStatusFilter<$PrismaModel>
+  }
+
+  export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+
+  export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
   }
 
   export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
@@ -7487,6 +7660,18 @@ export namespace Prisma {
     set?: $Enums.GeftStatus
   }
 
+  export type NullableIntFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
+  export type NullableStringFieldUpdateOperationsInput = {
+    set?: string | null
+  }
+
   export type DateTimeFieldUpdateOperationsInput = {
     set?: Date | string
   }
@@ -7683,6 +7868,31 @@ export namespace Prisma {
     not?: NestedEnumGeftStatusFilter<$PrismaModel> | $Enums.GeftStatus
   }
 
+  export type NestedIntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type NestedStringNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
+
   export type NestedDateTimeFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
@@ -7702,6 +7912,50 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumGeftStatusFilter<$PrismaModel>
     _max?: NestedEnumGeftStatusFilter<$PrismaModel>
+  }
+
+  export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+
+  export type NestedFloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type NestedStringNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
   }
 
   export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
@@ -7780,6 +8034,8 @@ export namespace Prisma {
     name: string
     nisn: string
     geftStatus?: $Enums.GeftStatus
+    diagnosticScore?: number | null
+    diagnosticLevel?: string | null
     createdAt?: Date | string
     geftResult?: GeftResultCreateNestedOneWithoutStudentInput
     gameSessions?: GameSessionCreateNestedManyWithoutStudentInput
@@ -7791,6 +8047,8 @@ export namespace Prisma {
     name: string
     nisn: string
     geftStatus?: $Enums.GeftStatus
+    diagnosticScore?: number | null
+    diagnosticLevel?: string | null
     createdAt?: Date | string
     geftResult?: GeftResultUncheckedCreateNestedOneWithoutStudentInput
     gameSessions?: GameSessionUncheckedCreateNestedManyWithoutStudentInput
@@ -7832,6 +8090,8 @@ export namespace Prisma {
     nisn?: StringFilter<"Student"> | string
     classroomId?: StringFilter<"Student"> | string
     geftStatus?: EnumGeftStatusFilter<"Student"> | $Enums.GeftStatus
+    diagnosticScore?: IntNullableFilter<"Student"> | number | null
+    diagnosticLevel?: StringNullableFilter<"Student"> | string | null
     createdAt?: DateTimeFilter<"Student"> | Date | string
   }
 
@@ -8042,6 +8302,8 @@ export namespace Prisma {
     name: string
     nisn: string
     geftStatus?: $Enums.GeftStatus
+    diagnosticScore?: number | null
+    diagnosticLevel?: string | null
     createdAt?: Date | string
     gameSessions?: GameSessionCreateNestedManyWithoutStudentInput
     leaderboard?: LeaderboardCreateNestedOneWithoutStudentInput
@@ -8054,6 +8316,8 @@ export namespace Prisma {
     nisn: string
     classroomId: string
     geftStatus?: $Enums.GeftStatus
+    diagnosticScore?: number | null
+    diagnosticLevel?: string | null
     createdAt?: Date | string
     gameSessions?: GameSessionUncheckedCreateNestedManyWithoutStudentInput
     leaderboard?: LeaderboardUncheckedCreateNestedOneWithoutStudentInput
@@ -8080,6 +8344,8 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     nisn?: StringFieldUpdateOperationsInput | string
     geftStatus?: EnumGeftStatusFieldUpdateOperationsInput | $Enums.GeftStatus
+    diagnosticScore?: NullableIntFieldUpdateOperationsInput | number | null
+    diagnosticLevel?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     gameSessions?: GameSessionUpdateManyWithoutStudentNestedInput
     leaderboard?: LeaderboardUpdateOneWithoutStudentNestedInput
@@ -8092,6 +8358,8 @@ export namespace Prisma {
     nisn?: StringFieldUpdateOperationsInput | string
     classroomId?: StringFieldUpdateOperationsInput | string
     geftStatus?: EnumGeftStatusFieldUpdateOperationsInput | $Enums.GeftStatus
+    diagnosticScore?: NullableIntFieldUpdateOperationsInput | number | null
+    diagnosticLevel?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     gameSessions?: GameSessionUncheckedUpdateManyWithoutStudentNestedInput
     leaderboard?: LeaderboardUncheckedUpdateOneWithoutStudentNestedInput
@@ -8102,6 +8370,8 @@ export namespace Prisma {
     name: string
     nisn: string
     geftStatus?: $Enums.GeftStatus
+    diagnosticScore?: number | null
+    diagnosticLevel?: string | null
     createdAt?: Date | string
     geftResult?: GeftResultCreateNestedOneWithoutStudentInput
     leaderboard?: LeaderboardCreateNestedOneWithoutStudentInput
@@ -8114,6 +8384,8 @@ export namespace Prisma {
     nisn: string
     classroomId: string
     geftStatus?: $Enums.GeftStatus
+    diagnosticScore?: number | null
+    diagnosticLevel?: string | null
     createdAt?: Date | string
     geftResult?: GeftResultUncheckedCreateNestedOneWithoutStudentInput
     leaderboard?: LeaderboardUncheckedCreateNestedOneWithoutStudentInput
@@ -8140,6 +8412,8 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     nisn?: StringFieldUpdateOperationsInput | string
     geftStatus?: EnumGeftStatusFieldUpdateOperationsInput | $Enums.GeftStatus
+    diagnosticScore?: NullableIntFieldUpdateOperationsInput | number | null
+    diagnosticLevel?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     geftResult?: GeftResultUpdateOneWithoutStudentNestedInput
     leaderboard?: LeaderboardUpdateOneWithoutStudentNestedInput
@@ -8152,6 +8426,8 @@ export namespace Prisma {
     nisn?: StringFieldUpdateOperationsInput | string
     classroomId?: StringFieldUpdateOperationsInput | string
     geftStatus?: EnumGeftStatusFieldUpdateOperationsInput | $Enums.GeftStatus
+    diagnosticScore?: NullableIntFieldUpdateOperationsInput | number | null
+    diagnosticLevel?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     geftResult?: GeftResultUncheckedUpdateOneWithoutStudentNestedInput
     leaderboard?: LeaderboardUncheckedUpdateOneWithoutStudentNestedInput
@@ -8162,6 +8438,8 @@ export namespace Prisma {
     name: string
     nisn: string
     geftStatus?: $Enums.GeftStatus
+    diagnosticScore?: number | null
+    diagnosticLevel?: string | null
     createdAt?: Date | string
     geftResult?: GeftResultCreateNestedOneWithoutStudentInput
     gameSessions?: GameSessionCreateNestedManyWithoutStudentInput
@@ -8174,6 +8452,8 @@ export namespace Prisma {
     nisn: string
     classroomId: string
     geftStatus?: $Enums.GeftStatus
+    diagnosticScore?: number | null
+    diagnosticLevel?: string | null
     createdAt?: Date | string
     geftResult?: GeftResultUncheckedCreateNestedOneWithoutStudentInput
     gameSessions?: GameSessionUncheckedCreateNestedManyWithoutStudentInput
@@ -8200,6 +8480,8 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     nisn?: StringFieldUpdateOperationsInput | string
     geftStatus?: EnumGeftStatusFieldUpdateOperationsInput | $Enums.GeftStatus
+    diagnosticScore?: NullableIntFieldUpdateOperationsInput | number | null
+    diagnosticLevel?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     geftResult?: GeftResultUpdateOneWithoutStudentNestedInput
     gameSessions?: GameSessionUpdateManyWithoutStudentNestedInput
@@ -8212,6 +8494,8 @@ export namespace Prisma {
     nisn?: StringFieldUpdateOperationsInput | string
     classroomId?: StringFieldUpdateOperationsInput | string
     geftStatus?: EnumGeftStatusFieldUpdateOperationsInput | $Enums.GeftStatus
+    diagnosticScore?: NullableIntFieldUpdateOperationsInput | number | null
+    diagnosticLevel?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     geftResult?: GeftResultUncheckedUpdateOneWithoutStudentNestedInput
     gameSessions?: GameSessionUncheckedUpdateManyWithoutStudentNestedInput
@@ -8222,6 +8506,8 @@ export namespace Prisma {
     name: string
     nisn: string
     geftStatus?: $Enums.GeftStatus
+    diagnosticScore?: number | null
+    diagnosticLevel?: string | null
     createdAt?: Date | string
   }
 
@@ -8230,6 +8516,8 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     nisn?: StringFieldUpdateOperationsInput | string
     geftStatus?: EnumGeftStatusFieldUpdateOperationsInput | $Enums.GeftStatus
+    diagnosticScore?: NullableIntFieldUpdateOperationsInput | number | null
+    diagnosticLevel?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     geftResult?: GeftResultUpdateOneWithoutStudentNestedInput
     gameSessions?: GameSessionUpdateManyWithoutStudentNestedInput
@@ -8241,6 +8529,8 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     nisn?: StringFieldUpdateOperationsInput | string
     geftStatus?: EnumGeftStatusFieldUpdateOperationsInput | $Enums.GeftStatus
+    diagnosticScore?: NullableIntFieldUpdateOperationsInput | number | null
+    diagnosticLevel?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     geftResult?: GeftResultUncheckedUpdateOneWithoutStudentNestedInput
     gameSessions?: GameSessionUncheckedUpdateManyWithoutStudentNestedInput
@@ -8252,6 +8542,8 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     nisn?: StringFieldUpdateOperationsInput | string
     geftStatus?: EnumGeftStatusFieldUpdateOperationsInput | $Enums.GeftStatus
+    diagnosticScore?: NullableIntFieldUpdateOperationsInput | number | null
+    diagnosticLevel?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 

@@ -8,17 +8,22 @@ interface CutsceneProps {
 }
 
 const NARASI = [
-  'Sebuah postingan viral mengklaim: "Remaja Indonesia rata-rata menghabiskan lebih dari 8 jam sehari di media sosial!"',
-  'Postingan itu dibagikan jutaan kali. Komentar membanjiri: "Pantesan nilai turun!", "Generasi kecanduan HP!", "Harus dibatasi pemerintah!"',
-  'Data screen time 10 siswa tersedia untuk dianalisis. Tugasmu: buat histogram, lihat distribusinya, dan tentukan apakah klaim tersebut benar-benar didukung data.',
-  'Berpikirlah kritis sebelum menerima generalisasi. Gunakan statistika untuk menemukan kebenaran — jangan terbawa viral!',
+  'Sebuah postingan viral meledak di TikTok dan X: "BREAKING: Remaja Indonesia rata-rata habiskan >8 jam sehari di medsos! Generasi cemas kecanduan HP!"',
+  'Postingan itu dibagikan jutaan kali. Kolom komentar meledak dengan kemarahan dan kekhawatiran netizen dari berbagai penjuru Indonesia...',
+  'Data screen time dari 35 siswa tersedia untuk dianalisis. Tugasmu: buat histogram, lihat distribusinya, dan tentukan apakah klaim tersebut benar-benar didukung data.',
+  'Ingat pesan mentormu: "Jangan terbawa viral! Gunakan statistika untuk menemukan kebenaran. Berpikir kritis adalah senjata terkuatmu."',
 ]
 
 const CUTSCENE_COMMENTS = [
-  { user: '@anisa_XII', text: 'Pantesan nilai sekolah turun. 😤📚' },
-  { user: '@budi_belajar', text: 'Generasi sekarang kecanduan HP. 📵😭' },
-  { user: '@pemerintah_rules', text: 'Harus dibatasi pemerintah. 🏛️' },
+  { user: '@yyu', text: 'Pantesan nilai TKA jeblok! 😤📚' },
+  { user: '@t1ki', text: 'Pemerintah harus sita HP sekarang! 😡' },
+  { user: '@Rakyat_Skeptis', text: 'Pantesan nilai rapor anak zaman sekarang jeblok semua. Isinya cuma joget-joget di TikTok doang!' },
+  { user: '@Bunda_Khawatir99', text: 'Zaman dulu remaja sibuk OSIS sama belajar, sekarang dari bangun tidur sampai merem lagi matanya lengket sama layar. Miris 😢' },
+  { user: '@Dedy_Brader', text: '8 jam? Itu mah minimal. Malah ada yang sampai begadang demi nge-game sama scroll feed gak jelas. Generasi cemas kecanduan gadget!' },
+  { user: '@Andi_Tech_Savy', text: 'Efek dopamin instan. Otak remaja sekarang udah rusak sama algoritma video pendek.' },
+  { user: '@Fitri_Zzz', text: 'Wkwk pantesan kalau diajak ngomong langsung gak nyambung, fokusnya cuma bertahan 5 detik gara-gara keseringan nonton short video.' },
 ]
+
 
 function TypewriterText({ text, onDone }: { text: string; onDone: () => void }) {
   const [displayed, setDisplayed] = useState('')
@@ -218,9 +223,12 @@ export default function Cutscene({ onComplete }: CutsceneProps) {
           <div className="tiktok-card" style={{ width: '100%', maxWidth: '320px' }}>
             <div className="tiktok-video">
               <div>
-                <div style={{ fontSize: '48px', textAlign: 'center' }}>📱</div>
-                <div style={{ fontSize: '14px', color: '#eee', textAlign: 'center', marginTop: '8px' }}>
-                  Remaja Indonesia<br/>rata-rata <strong>8+ jam/hari</strong><br/>di media sosial! 😱
+                <div style={{ fontSize: '32px', textAlign: 'center' }}>📱🔥</div>
+                <div style={{ fontSize: '11px', color: '#ff0050', textAlign: 'center', fontWeight: 800, marginTop: '6px', letterSpacing: '1px' }}>
+                  BREAKING NEWS
+                </div>
+                <div style={{ fontSize: '13px', color: '#eee', textAlign: 'center', marginTop: '8px', lineHeight: 1.5 }}>
+                  Remaja Indonesia rata-rata habiskan <strong style={{ color: '#ff0050' }}>&gt;8 jam/hari</strong> di medsos! Generasi cemas kecanduan HP! 😱
                 </div>
               </div>
               <div style={{ position: 'absolute', top: '12px', right: '12px', background: '#ff0050', color: '#fff', padding: '3px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 800 }}>
@@ -228,8 +236,9 @@ export default function Cutscene({ onComplete }: CutsceneProps) {
               </div>
             </div>
             <div className="tiktok-caption">
-              <strong>@faktaviral.id</strong> Rata-rata 8+ jam/hari medsos! Nilai turun, kecanduan HP! #viral #screentime #generasiZ
+              <strong>@faktaviral.id</strong> BREAKING! Rata-rata &gt;8 jam/hari medsos! Nilai turun, kecanduan HP! Generasi cemas! #viral #screentime #generasiZ #breaking
             </div>
+
             
             {/* Comments list - only displays for Slide 2 (index 1) onwards */}
             {paraIndex >= 1 && (

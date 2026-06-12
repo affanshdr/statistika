@@ -13,19 +13,17 @@ export type FreqRow = {
 
 // Which cells are pre-filled for FD mode (indices: 0=first row, etc.)
 const FD_FILLED: Record<number, Partial<FreqRow>> = {
-  0: { kelas: '3.5 – 4.4', f: '2', fRel: '20.0', fKum: '2' },
-  1: { kelas: '4.5 – 5.4' },
-  2: { kelas: '5.5 – 6.4', f: '3' },
-  3: { kelas: '6.5 – 7.4' },
-  4: { kelas: '7.5 – 8.4', fKum: '9' },
-  5: { kelas: '8.5 – 9.4' },
+  0: { kelas: '1 – 4', f: '25', fRel: '71.4', fKum: '25' },
+  1: { kelas: '5 – 8' },
+  2: { kelas: '9 – 12' },
+  3: { kelas: '13 – 16', fKum: '35' },
 }
 
 const TOOLTIPS: Record<keyof FreqRow, string> = {
-  kelas: 'Kelas interval: dimulai dari 3.5, lebar tiap kelas = 1.0 jam',
-  f: 'Frekuensi (f): hitung berapa siswa yang masuk tiap kelas screen time',
-  fRel: 'Frekuensi Relatif (%): (f ÷ n) × 100, n = 10 siswa',
-  fKum: 'Frekuensi Kumulatif: jumlah semua frekuensi hingga kelas ini',
+  kelas: 'Kelas interval: lebar tiap kelas = 4 jam. Ada 4 kelas: 1-4, 5-8, 9-12, 13-16',
+  f: 'Frekuensi (f): hitung berapa siswa yang masuk tiap kelas screen time (total = 35)',
+  fRel: 'Frekuensi Relatif (%): (f ÷ n) × 100, n = 35 siswa. Dibulatkan 1 desimal.',
+  fKum: 'Frekuensi Kumulatif: jumlah semua frekuensi hingga kelas ini (terakhir = 35)',
 }
 
 type Mode = 'FI' | 'FD'

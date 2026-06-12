@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useRef, useCallback } from 'react'
+import { useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { screenTimeData } from '../_data/level1'
+import { screenTimeData, CLASS_LABELS, getClassIndex } from '../_data/level1'
 
 interface DataPoint {
   id: string
@@ -20,104 +20,83 @@ interface DraggableHistogramProps {
   readOnly?: boolean
 }
 
-function getClassIndex(val: number): number {
-  if (val >= 3.5 && val <= 4.4) return 0
-  if (val >= 4.5 && val <= 5.4) return 1
-  if (val >= 5.5 && val <= 6.4) return 2
-  if (val >= 6.5 && val <= 7.4) return 3
-  if (val >= 7.5 && val <= 8.4) return 4
-  if (val >= 8.5 && val <= 9.4) return 5
-  return -1
-}
-
-const CLASS_LABELS = [
-  '3.5 – 4.4',
-  '4.5 – 5.4',
-  '5.5 – 6.4',
-  '6.5 – 7.4',
-  '7.5 – 8.4',
-  '8.5 – 9.4',
-]
-
+// Scattered positions pool for 35 data points
 const SCATTERED_POSITIONS = [
-  { top: '20%', left: '15%' },
-  { top: '35%', left: '40%' },
-  { top: '15%', left: '65%' },
-  { top: '50%', left: '18%' },
-  { top: '75%', left: '25%' },
-  { top: '48%', left: '55%' },
-  { top: '25%', left: '82%' },
-  { top: '80%', left: '72%' },
-  { top: '55%', left: '85%' },
-  { top: '78%', left: '48%' },
+  { top: '12%', left: '8%' }, { top: '28%', left: '22%' }, { top: '18%', left: '42%' },
+  { top: '45%', left: '10%' }, { top: '60%', left: '28%' }, { top: '30%', left: '58%' },
+  { top: '72%', left: '15%' }, { top: '55%', left: '45%' }, { top: '80%', left: '38%' },
+  { top: '65%', left: '62%' }, { top: '20%', left: '72%' }, { top: '40%', left: '80%' },
+  { top: '75%', left: '72%' }, { top: '85%', left: '55%' }, { top: '10%', left: '55%' },
+  { top: '50%', left: '70%' }, { top: '35%', left: '35%' }, { top: '88%', left: '20%' },
+  { top: '22%', left: '88%' }, { top: '62%', left: '85%' }, { top: '48%', left: '90%' },
+  { top: '8%', left: '30%' },  { top: '38%', left: '68%' }, { top: '70%', left: '50%' },
+  { top: '15%', left: '18%' }, { top: '52%', left: '32%' }, { top: '78%', left: '85%' },
+  { top: '25%', left: '78%' }, { top: '90%', left: '70%' }, { top: '42%', left: '50%' },
+  { top: '5%', left: '65%' },  { top: '68%', left: '38%' }, { top: '33%', left: '12%' },
+  { top: '82%', left: '60%' }, { top: '58%', left: '78%' },
 ]
+
+const CLASS_COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444']
+
+// FD: pre-place all data in class 0 (1-4), leaving classes 1-3 for student to fill
+function initDataPoints(mode: Mode, readOnly: boolean): DataPoint[] {
+  return screenTimeData.map((val, idx) => {
+    const cIdx = getClassIndex(val)
+    const isPreplaced = readOnly || (mode === 'FD' && cIdx === 0)
+    return {
+      id: `dp-${idx}`,
+      val,
+      classIdx: cIdx,
+      placed: isPreplaced,
+      originalIdx: idx,
+    }
+  })
+}
 
 export default function DraggableHistogram({ mode, onSubmit, readOnly = false }: DraggableHistogramProps) {
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
 
-  // Initialize data points (pre-placed first 3 classes for FD scaffolding, or all if readOnly)
-  const [dataPoints, setDataPoints] = useState<DataPoint[]>(() => {
-    return screenTimeData.map((val, idx) => {
-      const cIdx = getClassIndex(val)
-      const isPreplaced = readOnly || (mode === 'FD' && (cIdx === 0 || cIdx === 1 || cIdx === 2))
-      return {
-        id: `dp-${idx}`,
-        val,
-        classIdx: cIdx,
-        placed: isPreplaced,
-        originalIdx: idx,
-      }
-    })
-  })
-
+  const [dataPoints, setDataPoints] = useState<DataPoint[]>(() => initDataPoints(mode, readOnly))
   const [draggingPoint, setDraggingPoint] = useState<DataPoint | null>(null)
-  const [selectedPoint, setSelectedPoint] = useState<DataPoint | null>(null) // mobile
+  const [selectedPoint, setSelectedPoint] = useState<DataPoint | null>(null)
   const [flashError, setFlashError] = useState<number | null>(null)
+  const [flashHint, setFlashHint] = useState<string | null>(null)
   const [submitted, setSubmitted] = useState(false)
 
-  // Drag handlers
-  const onDragStart = (dp: DataPoint) => {
-    setDraggingPoint(dp)
+  const triggerError = (slotIdx: number, hint: string) => {
+    setFlashError(slotIdx)
+    setFlashHint(hint)
+    setTimeout(() => { setFlashError(null); setFlashHint(null) }, 2500)
   }
 
-  const onDragEnd = () => {
-    setDraggingPoint(null)
-  }
+  // Drag handlers
+  const onDragStart = (dp: DataPoint) => setDraggingPoint(dp)
+  const onDragEnd = () => setDraggingPoint(null)
 
   const onDropSlot = useCallback((slotIdx: number) => {
     if (!draggingPoint) return
-
     if (draggingPoint.classIdx === slotIdx) {
-      setDataPoints(prev =>
-        prev.map(dp => (dp.id === draggingPoint.id ? { ...dp, placed: true } : dp))
-      )
+      setDataPoints(prev => prev.map(dp => dp.id === draggingPoint.id ? { ...dp, placed: true } : dp))
     } else {
-      setFlashError(slotIdx)
-      setTimeout(() => setFlashError(null), 500)
+      const correctLabel = CLASS_LABELS[draggingPoint.classIdx]
+      triggerError(slotIdx, `💡 Angka ${draggingPoint.val} seharusnya masuk ke kelas ${correctLabel}, bukan kelas ini!`)
     }
     setDraggingPoint(null)
   }, [draggingPoint])
 
-  // Mobile Tap Handlers
+  // Mobile tap handlers
   const onTapPoint = (dp: DataPoint) => {
-    if (selectedPoint?.id === dp.id) {
-      setSelectedPoint(null)
-    } else {
-      setSelectedPoint(dp)
-    }
+    setSelectedPoint(prev => prev?.id === dp.id ? null : dp)
   }
 
   const onTapSlot = useCallback((slotIdx: number) => {
     if (!selectedPoint) return
-
     if (selectedPoint.classIdx === slotIdx) {
-      setDataPoints(prev =>
-        prev.map(dp => (dp.id === selectedPoint.id ? { ...dp, placed: true } : dp))
-      )
+      setDataPoints(prev => prev.map(dp => dp.id === selectedPoint.id ? { ...dp, placed: true } : dp))
       setSelectedPoint(null)
     } else {
-      setFlashError(slotIdx)
-      setTimeout(() => setFlashError(null), 500)
+      const correctLabel = CLASS_LABELS[selectedPoint.classIdx]
+      triggerError(slotIdx, `💡 Angka ${selectedPoint.val} seharusnya masuk ke kelas ${correctLabel}!`)
     }
   }, [selectedPoint])
 
@@ -131,161 +110,97 @@ export default function DraggableHistogram({ mode, onSubmit, readOnly = false }:
   const allPlaced = dataPoints.every(dp => dp.placed)
   const activePool = dataPoints.filter(dp => !dp.placed)
 
-  // Render a static reference histogram when readOnly is true
+  // ── READ ONLY (reference histogram) ──
   if (readOnly) {
+    const maxF = 25
     return (
-      <div className="histogram-canvas" style={{ padding: '24px 20px 12px', height: '280px', position: 'relative' }}>
-        {/* Y axis label */}
-        <div style={{
-          position: 'absolute', left: 4, top: '50%', transform: 'translateY(-50%) rotate(-90deg)',
-          fontSize: '10px', color: 'var(--text-muted)', fontWeight: 800, letterSpacing: '1px',
-          whiteSpace: 'nowrap', zIndex: 5
-        }}>
-          FREKUENSI (JUMLAH SISWA)
-        </div>
-
-        {/* Columns & Stacked Bars */}
-        <div style={{ 
-          display: 'flex', gap: '8px', alignItems: 'flex-end', 
-          height: '100%', paddingLeft: '28px', paddingBottom: '24px'
-        }}>
-          {CLASS_LABELS.map((label, i) => {
-            const placedPoints = dataPoints.filter(dp => dp.placed && dp.classIdx === i)
-
-            return (
-              <div
-                key={i}
-                style={{ 
-                  flex: 1, 
-                  display: 'flex', 
-                  flexDirection: 'column', 
-                  alignItems: 'center', 
-                  height: '100%', 
-                  justifyContent: 'flex-end',
-                  borderRadius: '6px',
-                  padding: '2px'
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '16px 8px' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-end', height: '160px', gap: '6px', borderLeft: '2px solid rgba(255,255,255,0.15)', borderBottom: '2px solid rgba(255,255,255,0.15)', paddingLeft: '8px', paddingBottom: '4px' }}>
+          {CORRECT_TABLE.map((row, i) => (
+            <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', height: '100%' }}>
+              <motion.div
+                initial={{ height: 0 }}
+                animate={{ height: `${(row.f / maxF) * 100}%` }}
+                transition={{ delay: i * 0.15, duration: 0.7, ease: 'easeOut' }}
+                style={{
+                  width: '90%', borderRadius: '4px 4px 0 0',
+                  background: `linear-gradient(180deg, ${CLASS_COLORS[i]}99 0%, ${CLASS_COLORS[i]}55 100%)`,
+                  border: `1px solid ${CLASS_COLORS[i]}88`,
+                  display: 'flex', alignItems: 'flex-start', justifyContent: 'center', paddingTop: '4px',
+                  boxShadow: `0 0 8px ${CLASS_COLORS[i]}44`,
                 }}
               >
-                {/* Stacked Blocks container */}
-                <div style={{ 
-                  width: '100%', 
-                  display: 'flex', 
-                  flexDirection: 'column-reverse', 
-                  gap: '3px', 
-                  alignItems: 'center',
-                  minHeight: '36px',
-                  justifyContent: 'flex-start',
-                  paddingBottom: '6px',
-                  borderBottom: '2px solid rgba(255,255,255,0.1)'
-                }}>
-                  {placedPoints.map((dp) => (
-                    <div
-                      key={dp.id}
-                      style={{
-                        width: '100%',
-                        height: '34px',
-                        background: mode === 'FD' && (i === 0 || i === 1 || i === 2)
-                          ? 'linear-gradient(180deg, rgba(0,255,136,0.5) 0%, rgba(0,200,255,0.3) 100%)'
-                          : 'linear-gradient(180deg, #00FF88 0%, #00cc88 100%)',
-                        border: '1px solid rgba(0,0,0,0.2)',
-                        borderRadius: '6px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '12px',
-                        fontWeight: 800,
-                        color: '#000',
-                        boxShadow: '0 2px 6px rgba(0,255,136,0.3)',
-                      }}
-                    >
-                      {dp.val.toFixed(1)}
-                    </div>
-                  ))}
-                </div>
-
-                {/* X axis interval label */}
-                <div style={{ 
-                  fontSize: '9px', color: 'var(--text-muted)', textAlign: 'center',
-                  fontFamily: 'var(--font-data)', marginTop: '6px', lineHeight: 1.35,
-                  fontWeight: 700
-                }}>
-                  {label.replace('–', '–\n')}
-                </div>
+                <span style={{ fontSize: '11px', fontWeight: 800, color: '#fff' }}>f={row.f}</span>
+              </motion.div>
+              <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.5)', textAlign: 'center', marginTop: '6px', fontWeight: 700 }}>
+                {row.kelas}
               </div>
-            )
-          })}
+            </div>
+          ))}
         </div>
-
-        {/* X axis title */}
-        <div style={{ 
-          textAlign: 'center', fontSize: '10px', color: 'var(--text-muted)', 
-          fontWeight: 800, letterSpacing: '1.5px', marginTop: '-14px',
-          textTransform: 'uppercase'
-        }}>
-          KELAS INTERVAL (SCREEN TIME JAM/HARI)
+        <div style={{ textAlign: 'center', fontSize: '10px', color: 'rgba(255,255,255,0.4)', fontWeight: 700, letterSpacing: '1px' }}>
+          SCREEN TIME (JAM/HARI)
         </div>
       </div>
     )
   }
 
+  // How many data remain by class
+  const remainByClass = CLASS_LABELS.map((_, ci) => dataPoints.filter(dp => !dp.placed && dp.classIdx === ci).length)
+  const placedByClass = CLASS_LABELS.map((_, ci) => dataPoints.filter(dp => dp.placed && dp.classIdx === ci))
+  const maxPlaced = Math.max(...placedByClass.map(p => p.length), 1)
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-      
-      <div style={{
-        display: 'flex',
-        flexDirection: isMobile ? 'column' : 'row',
-        gap: '20px',
-        alignItems: 'stretch'
-      }}>
-        
-        {/* LEFT SECTION: Scattered Data Points Pool */}
-        <div className="game-card" style={{ 
-          flex: 1, 
-          padding: '16px 20px', 
-          background: 'rgba(255,255,255,0.02)',
-          display: 'flex',
-          flexDirection: 'column',
-          minHeight: isMobile ? '240px' : '320px'
+
+      {/* FD info bar */}
+      {mode === 'FD' && (
+        <div style={{
+          padding: '10px 14px', borderRadius: '12px', fontSize: '12px', lineHeight: 1.5,
+          background: 'rgba(0,255,136,0.05)', border: '1px solid rgba(0,255,136,0.2)',
+          color: 'rgba(255,255,255,0.75)',
         }}>
-          <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '10px', fontWeight: 700, letterSpacing: '0.5px' }}>
-            {allPlaced 
-              ? '✅ DATA SELESAI DIKELOMPOKKAN!' 
-              : `📍 KOLAM DATA ACAK (${activePool.length} data):`
+          🤖 <strong style={{ color: '#00FF88' }}>DiRA:</strong> Data kelas 1–4 (25 siswa) sudah dimasukkan otomatis sebagai bantuan. Tinggal drag/klik 10 data tersisa ke kelas yang tepat ya! 😉
+        </div>
+      )}
+
+      <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: '20px', alignItems: 'stretch' }}>
+
+        {/* LEFT: Data Pool */}
+        <div
+          className="game-card"
+          style={{ flex: 1, padding: '16px 20px', background: 'rgba(255,255,255,0.02)', display: 'flex', flexDirection: 'column', minHeight: isMobile ? '200px' : '300px' }}
+        >
+          <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: '10px', fontWeight: 700, letterSpacing: '0.5px' }}>
+            {allPlaced
+              ? '✅ SEMUA DATA BERHASIL DIKELOMPOKKAN!'
+              : `📍 KOLAM DATA (${activePool.length} data tersisa):`
             }
           </div>
-
+          {mode === 'FD' && (
+            <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', marginBottom: '8px' }}>
+              Sisa per kelas: {CLASS_LABELS.map((l, i) => remainByClass[i] > 0 ? `${l}: ${remainByClass[i]}` : null).filter(Boolean).join(' | ') || '—'}
+            </div>
+          )}
           <div style={{
-            position: 'relative',
-            flex: 1,
-            background: 'rgba(255,255,255,0.01)',
-            border: '1px dashed rgba(255,255,255,0.06)',
-            borderRadius: '12px',
-            overflow: 'hidden',
-            minHeight: '260px'
+            position: 'relative', flex: 1,
+            background: 'rgba(255,255,255,0.01)', border: '1px dashed rgba(255,255,255,0.06)',
+            borderRadius: '12px', overflow: 'hidden', minHeight: '220px',
           }}>
             <AnimatePresence>
               {activePool.length === 0 ? (
                 <motion.div
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  style={{ 
-                    position: 'absolute',
-                    inset: 0,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    textAlign: 'center',
-                    fontSize: '13px', 
-                    color: 'var(--accent)', 
-                    fontWeight: 700,
-                    padding: '20px'
-                  }}
+                  style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', fontSize: '13px', color: 'var(--accent)', fontWeight: 700, padding: '20px' }}
                 >
-                  Hebat! Semua data berhasil masuk ke dalam histogram. Klik submit di bawah! 🚀
+                  Hebat! Semua data berhasil masuk ke histogram 🚀<br/>Klik Submit di bawah!
                 </motion.div>
               ) : (
                 activePool.map(dp => {
-                  const pos = SCATTERED_POSITIONS[dp.originalIdx]
+                  const pos = SCATTERED_POSITIONS[dp.originalIdx % SCATTERED_POSITIONS.length]
+                  const isSelected = selectedPoint?.id === dp.id
+                  const classColor = CLASS_COLORS[dp.classIdx] || '#3B82F6'
                   return (
                     <motion.div
                       key={dp.id}
@@ -293,38 +208,28 @@ export default function DraggableHistogram({ mode, onSubmit, readOnly = false }:
                       initial={{ opacity: 0, scale: 0.5 }}
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.5 }}
-                      whileHover={{ scale: 1.1 }}
+                      whileHover={{ scale: 1.12 }}
                       whileTap={{ scale: 0.95 }}
                       draggable
                       onDragStart={() => onDragStart(dp)}
                       onDragEnd={onDragEnd}
                       onClick={() => onTapPoint(dp)}
                       style={{
-                        position: 'absolute',
-                        top: pos.top,
-                        left: pos.left,
+                        position: 'absolute', top: pos.top, left: pos.left,
                         transform: 'translate(-50%, -50%)',
-                        padding: '8px 16px',
-                        borderRadius: '50px',
-                        background: selectedPoint?.id === dp.id
-                          ? 'linear-gradient(135deg, #00FF88 0%, #06B6D4 100%)'
-                          : 'linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%)',
-                        border: selectedPoint?.id === dp.id ? '2px solid #fff' : '1px solid rgba(255,255,255,0.1)',
-                        color: selectedPoint?.id === dp.id ? '#000' : '#fff',
-                        fontSize: '13px',
-                        fontWeight: 800,
-                        cursor: 'grab',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        boxShadow: selectedPoint?.id === dp.id 
-                          ? '0 0 15px rgba(0,255,136,0.6)' 
-                          : '0 4px 10px rgba(0,0,0,0.3)',
-                        fontFamily: 'var(--font-data)',
-                        touchAction: 'none'
+                        padding: '7px 14px', borderRadius: '50px',
+                        background: isSelected
+                          ? `linear-gradient(135deg, ${classColor} 0%, #fff 100%)`
+                          : `linear-gradient(135deg, ${classColor}cc 0%, ${classColor}88 100%)`,
+                        border: isSelected ? '2px solid #fff' : `1px solid ${classColor}66`,
+                        color: isSelected ? '#000' : '#fff',
+                        fontSize: '13px', fontWeight: 800, cursor: 'grab',
+                        display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                        boxShadow: isSelected ? `0 0 16px ${classColor}` : `0 3px 8px rgba(0,0,0,0.4)`,
+                        fontFamily: 'var(--font-data)', touchAction: 'none', zIndex: isSelected ? 10 : 1,
                       }}
                     >
-                      {dp.val.toFixed(1)}
+                      {dp.val}
                     </motion.div>
                   )
                 })
@@ -333,172 +238,140 @@ export default function DraggableHistogram({ mode, onSubmit, readOnly = false }:
           </div>
         </div>
 
-        {/* RIGHT SECTION: Histogram Canvas */}
-        <div className="histogram-canvas" style={{ 
-          flex: 1.2, 
-          padding: '24px 20px 12px', 
-          minHeight: '320px', 
-          position: 'relative',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between'
-        }}>
-          {/* Y axis label */}
-          <div style={{
-            position: 'absolute', left: 4, top: '50%', transform: 'translateY(-50%) rotate(-90deg)',
-            fontSize: '10px', color: 'var(--text-muted)', fontWeight: 800, letterSpacing: '1px',
-            whiteSpace: 'nowrap', zIndex: 5
-          }}>
-            FREKUENSI (JUMLAH SISWA)
+        {/* RIGHT: Histogram Canvas */}
+        <div
+          className="histogram-canvas"
+          style={{ flex: 1.3, padding: '20px 16px 12px', minHeight: '300px', position: 'relative', display: 'flex', flexDirection: 'column' }}
+        >
+          {/* Y-axis label */}
+          <div style={{ position: 'absolute', left: 2, top: '50%', transform: 'translateY(-50%) rotate(-90deg)', fontSize: '9px', color: 'var(--text-muted)', fontWeight: 800, letterSpacing: '1px', whiteSpace: 'nowrap' }}>
+            FREKUENSI
           </div>
 
-          {/* Columns & Stacked Bars */}
-          <div style={{ 
-            display: 'flex', gap: '8px', alignItems: 'flex-end', 
-            height: '100%', paddingLeft: '28px', paddingBottom: '24px',
-            flex: 1
-          }}>
+          {/* Bars area */}
+          <div style={{ display: 'flex', gap: '4px', alignItems: 'flex-end', flex: 1, paddingLeft: '22px', paddingBottom: '24px' }}>
             {CLASS_LABELS.map((label, i) => {
-              const placedPoints = dataPoints.filter(dp => dp.placed && dp.classIdx === i)
+              const placed = placedByClass[i]
               const isError = flashError === i
+              const isTarget = selectedPoint && selectedPoint.classIdx === i
+              const barH = maxPlaced > 0 ? (placed.length / maxPlaced) * 100 : 0
 
               return (
                 <motion.div
                   key={i}
-                  animate={isError ? { x: [-6, 6, -6, 6, 0] } : {}}
+                  animate={isError ? { x: [-5, 5, -5, 5, 0] } : {}}
                   transition={{ duration: 0.4 }}
-                  onDragOver={e => { e.preventDefault() }}
+                  onDragOver={e => e.preventDefault()}
                   onDrop={() => onDropSlot(i)}
                   onClick={() => onTapSlot(i)}
-                  style={{ 
-                    flex: 1, 
-                    display: 'flex', 
-                    flexDirection: 'column', 
-                    alignItems: 'center', 
-                    height: '100%', 
-                    justifyContent: 'flex-end',
+                  style={{
+                    flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center',
+                    height: '100%', justifyContent: 'flex-end',
                     cursor: selectedPoint ? 'pointer' : 'default',
-                    borderRadius: '6px',
-                    background: isError 
-                      ? 'rgba(255,51,102,0.1)' 
-                      : selectedPoint && selectedPoint.classIdx === i
-                        ? 'rgba(0,255,136,0.03)'
-                        : 'transparent',
+                    borderRadius: '6px', padding: '2px',
+                    background: isError ? 'rgba(239,68,68,0.08)' : isTarget ? `${CLASS_COLORS[i]}08` : 'transparent',
                     transition: 'background 0.2s',
-                    padding: '2px'
                   }}
                 >
-                  {/* Stacked Blocks container */}
-                  <div style={{ 
-                    width: '100%', 
-                    display: 'flex', 
-                    flexDirection: 'column-reverse', 
-                    gap: '3px', 
-                    alignItems: 'center',
-                    minHeight: '36px',
-                    justifyContent: 'flex-start',
-                    paddingBottom: '6px',
-                    borderBottom: isError
-                      ? '2px solid var(--danger)'
-                      : selectedPoint && selectedPoint.classIdx === i
-                        ? '2px solid var(--accent)'
-                        : '2px solid rgba(255,255,255,0.1)'
+                  {/* Stacked data blocks */}
+                  <div style={{
+                    width: '100%', display: 'flex', flexDirection: 'column-reverse', gap: '2px',
+                    alignItems: 'center', paddingBottom: '4px',
+                    borderBottom: isError ? '2px solid var(--danger)' : isTarget ? `2px solid ${CLASS_COLORS[i]}` : '2px solid rgba(255,255,255,0.1)',
+                    minHeight: '200px', justifyContent: 'flex-start',
                   }}>
                     <AnimatePresence>
-                      {placedPoints.map((dp) => (
+                      {placed.map((dp) => (
                         <motion.div
                           key={dp.id}
                           initial={{ scale: 0.5, y: -20, opacity: 0 }}
                           animate={{ scale: 1, y: 0, opacity: 1 }}
                           transition={{ type: 'spring', stiffness: 300, damping: 20 }}
                           style={{
-                            width: '100%',
-                            height: '34px',
-                            background: mode === 'FD' && (i === 0 || i === 1 || i === 2)
-                              ? 'linear-gradient(180deg, rgba(0,255,136,0.5) 0%, rgba(0,200,255,0.3) 100%)'
-                              : 'linear-gradient(180deg, #00FF88 0%, #00cc88 100%)',
-                            border: '1px solid rgba(0,0,0,0.2)',
-                            borderRadius: '6px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            fontSize: '12px',
-                            fontWeight: 800,
-                            color: '#000',
-                            boxShadow: '0 2px 6px rgba(0,255,136,0.3)',
-                            transformOrigin: 'bottom',
+                            width: '100%', height: '22px',
+                            background: mode === 'FD' && i === 0
+                              ? `linear-gradient(180deg, ${CLASS_COLORS[i]}55 0%, ${CLASS_COLORS[i]}33 100%)`
+                              : `linear-gradient(180deg, ${CLASS_COLORS[i]}cc 0%, ${CLASS_COLORS[i]}88 100%)`,
+                            border: `1px solid ${CLASS_COLORS[i]}44`,
+                            borderRadius: '3px',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            fontSize: '9px', fontWeight: 800,
+                            color: mode === 'FD' && i === 0 ? 'rgba(255,255,255,0.5)' : '#fff',
+                            boxShadow: `0 1px 4px ${CLASS_COLORS[i]}33`,
                           }}
                         >
-                          {dp.val.toFixed(1)}
+                          {dp.val}
                         </motion.div>
                       ))}
                     </AnimatePresence>
-
-                    {/* Highlight box if slot is empty & mobile item is selected to show drop zone */}
-                    {placedPoints.length === 0 && (
+                    {/* Empty drop zone */}
+                    {placed.length === 0 && (
                       <div style={{
-                        width: '100%',
-                        height: '34px',
-                        border: isError 
-                          ? '2px dashed var(--danger)'
-                          : selectedPoint && selectedPoint.classIdx === i
-                            ? '2px dashed var(--accent)'
-                            : '1px dashed rgba(255,255,255,0.06)',
-                        borderRadius: '6px',
-                        background: selectedPoint && selectedPoint.classIdx === i
-                          ? 'rgba(0,255,136,0.05)'
-                          : 'rgba(255,255,255,0.01)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '14px',
-                        color: 'rgba(255,255,255,0.15)',
-                        transition: 'all 0.2s'
-                      }}>
-                        +
+                        width: '100%', height: '28px', borderRadius: '4px',
+                        border: isError ? '2px dashed var(--danger)' : isTarget ? `2px dashed ${CLASS_COLORS[i]}` : '1px dashed rgba(255,255,255,0.08)',
+                        background: isTarget ? `${CLASS_COLORS[i]}08` : 'transparent',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: '16px', color: 'rgba(255,255,255,0.12)', transition: 'all 0.2s',
+                      }}>+</div>
+                    )}
+                    {/* Frequency label */}
+                    {placed.length > 0 && (
+                      <div style={{ fontSize: '11px', fontWeight: 800, color: CLASS_COLORS[i], marginBottom: '2px' }}>
+                        f = {placed.length}
                       </div>
                     )}
                   </div>
-
-                  {/* X axis interval label */}
-                  <div style={{ 
-                    fontSize: '9px', color: 'var(--text-muted)', textAlign: 'center',
-                    fontFamily: 'var(--font-data)', marginTop: '6px', lineHeight: 1.35,
-                    fontWeight: 700
-                  }}>
-                    {label.replace('–', '–\n')}
+                  {/* X-label */}
+                  <div style={{ fontSize: '9px', color: 'var(--text-muted)', textAlign: 'center', marginTop: '4px', fontWeight: 700, lineHeight: 1.3, fontFamily: 'var(--font-data)' }}>
+                    {label}
                   </div>
                 </motion.div>
               )
             })}
           </div>
 
-          {/* X axis title */}
-          <div style={{ 
-            textAlign: 'center', fontSize: '10px', color: 'var(--text-muted)', 
-            fontWeight: 800, letterSpacing: '1.5px', marginTop: '6px',
-            textTransform: 'uppercase'
-          }}>
-            KELAS INTERVAL (SCREEN TIME JAM/HARI)
+          {/* X-axis title */}
+          <div style={{ textAlign: 'center', fontSize: '9px', color: 'var(--text-muted)', fontWeight: 800, letterSpacing: '1px', marginTop: '-16px' }}>
+            SCREEN TIME (JAM/HARI)
           </div>
         </div>
-
       </div>
 
-      {/* Submit Button */}
+      {/* Hint toast */}
+      <AnimatePresence>
+        {flashHint && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
+            style={{
+              padding: '12px 16px', borderRadius: '12px', fontSize: '13px',
+              background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)',
+              color: 'rgba(255,255,255,0.85)', lineHeight: 1.5,
+            }}
+          >
+            {flashHint}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Submit */}
       <button
         className="game-btn game-btn-primary"
         onClick={handleSubmit}
-        disabled={!allPlaced}
-        style={{ 
-          width: '100%', 
-          opacity: allPlaced ? 1 : 0.5,
-          cursor: allPlaced ? 'pointer' : 'not-allowed',
-          boxShadow: allPlaced ? 'var(--accent-glow)' : 'none'
-        }}
+        disabled={!allPlaced || submitted}
+        style={{ width: '100%', opacity: allPlaced && !submitted ? 1 : 0.5, cursor: allPlaced && !submitted ? 'pointer' : 'not-allowed', boxShadow: allPlaced ? 'var(--accent-glow)' : 'none' }}
       >
-        {allPlaced ? 'Submit Histogram →' : `Kelompokkan semua data (${activePool.length} data lagi)`}
+        {submitted ? '✅ Histogram Tersubmit!' : allPlaced ? 'Submit Histogram →' : `Kelompokkan semua data (${activePool.length} data lagi)`}
       </button>
     </div>
   )
 }
+
+// Re-export for readOnly histogram reference
+const CORRECT_TABLE = [
+  { kelas: '1 – 4',   f: 25 },
+  { kelas: '5 – 8',   f: 8  },
+  { kelas: '9 – 12',  f: 1  },
+  { kelas: '13 – 16', f: 1  },
+]

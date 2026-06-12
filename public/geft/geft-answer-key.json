@@ -95,13 +95,20 @@
       "nomorSoal": 2,
       "targetBentuk": "G",
       "garisBenar": [
-        "q3-s2-line-1",
-        "q3-s2-line-2",
-        "q3-s2-line-3",
-        "q3-s2-line-4",
-        "q3-s2-line-5",
-        "q3-s2-line-6",
-        "q3-s2-line-7"
+        "q3-s2-line-v-left-3",
+        "q3-s2-line-v-left-4",
+        "q3-s2-line-mid-1",
+        "q3-s2-line-rung-3a",
+        "q3-s2-line-rung-3b",
+        "q3-s2-line-diag-right-3a",
+        "q3-s2-line-diag-right-3b",
+        "q3-s2-line-mid-4",
+        "q3-s2-line-v-right-3",
+        "q3-s2-line-v-right-4",
+        "q3-s2-line-bottom-1",
+        "q3-s2-line-bottom-2",
+        "q3-s2-line-bottom-3",
+        "q3-s2-line-bottom-4"
       ]
     },
     {

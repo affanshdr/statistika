@@ -31,8 +31,10 @@ model Student {
   name        String
   nisn        String     @unique
   classroomId String     @map("classroom_id")
-  geftStatus  GeftStatus @default(not_taken) @map("geft_status")
-  createdAt   DateTime   @default(now()) @map("created_at")
+  geftStatus      GeftStatus @default(not_taken) @map("geft_status")
+  diagnosticScore Int?       @map("diagnostic_score")
+  diagnosticLevel String?    @map("diagnostic_level") // "tinggi" | "sedang" | "rendah"
+  createdAt       DateTime   @default(now()) @map("created_at")
 
   geftResult   GeftResult?
   gameSessions GameSession[]

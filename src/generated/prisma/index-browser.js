@@ -135,6 +135,8 @@ exports.Prisma.StudentScalarFieldEnum = {
   nisn: 'nisn',
   classroomId: 'classroomId',
   geftStatus: 'geftStatus',
+  diagnosticScore: 'diagnosticScore',
+  diagnosticLevel: 'diagnosticLevel',
   createdAt: 'createdAt'
 };
 
@@ -176,6 +178,11 @@ exports.Prisma.SortOrder = {
 exports.Prisma.QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
+};
+
+exports.Prisma.NullsOrder = {
+  first: 'first',
+  last: 'last'
 };
 exports.GeftStatus = exports.$Enums.GeftStatus = {
   not_taken: 'not_taken',

@@ -8,78 +8,128 @@
     </pattern>
   </defs>
 
-  <!-- ==========================================
-       SESI 3 SOAL 2: Kotak besar dengan pita diagonal dan garis horizontal
-       Target: Bentuk G (House with shoulders)
-       ========================================== -->
+  <!-- Bidang arsir stippling coklat/orange -->
+  <!-- 1. Bagian Kiri Bawah (Segitiga Sisi Diagonal) -->
+  <polygon points="80,140 80,320 260,320" fill="#c4a482" fill-opacity="0.15" />
+  <polygon points="80,140 80,320 260,320" fill="url(#stipple)" />
 
-  <!-- Bidang arsir stippling coklat/orange di luar pita diagonal -->
-  <!-- Segitiga kiri-bawah -->
-  <polygon points="60,130 270,340 60,340" fill="#c4a482" fill-opacity="0.15" />
-  <polygon points="60,130 270,340 60,340" fill="url(#stipple)" />
-
-  <!-- Segitiga kanan-atas -->
-  <polygon points="130,60 340,270 340,60" fill="#c4a482" fill-opacity="0.15" />
-  <polygon points="130,60 340,270 340,60" fill="url(#stipple)" />
+  <!-- 2. Bagian Kanan Atas (Segitiga Sisi Diagonal) -->
+  <polygon points="140,80 320,80 320,260" fill="#c4a482" fill-opacity="0.15" />
+  <polygon points="140,80 320,80 320,260" fill="url(#stipple)" />
 
   <!-- ── LINE SEGMENTS ── -->
 
-  <!-- KELOMPOK 1: 7 Garis Jawaban Benar (Bentuk G) -->
-  <!-- Left shoulder -->
-  <line id="q3-s2-line-1" x1="60"  y1="200" x2="130" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
-  <!-- Left roof slope -->
-  <line id="q3-s2-line-2" x1="130" y1="200" x2="200" y2="130" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
-  <!-- Right roof slope -->
-  <line id="q3-s2-line-3" x1="200" y1="130" x2="270" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
-  <!-- Right shoulder -->
-  <line id="q3-s2-line-4" x1="270" y1="200" x2="340" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
-  <!-- Left vertical lower -->
-  <line id="q3-s2-line-5" x1="60"  y1="200" x2="60"  y2="340" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
-  <!-- Right vertical lower -->
-  <line id="q3-s2-line-6" x1="340" y1="200" x2="340" y2="340" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
-  <!-- Bottom edge -->
-  <line id="q3-s2-line-7" x1="60"  y1="340" x2="340" y2="340" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
+  <!-- Left boundary vertical lines -->
+  <line id="q3-s2-line-v-left-1" x1="80" y1="80" x2="80" y2="140" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q3-s2-line-v-left-2" x1="80" y1="140" x2="80" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q3-s2-line-v-left-3" x1="80" y1="200" x2="80" y2="260" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
+  <line id="q3-s2-line-v-left-4" x1="80" y1="260" x2="80" y2="320" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
 
-  <!-- KELOMPOK 2: Garis Lainnya yang Terpotong oleh Jawaban -->
-  <!-- Middle horizontal center segment -->
-  <line id="q3-s2-line-8" x1="130" y1="200" x2="270" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
-  <!-- Left vertical upper -->
-  <line id="q3-s2-line-9" x1="60"  y1="60"  x2="60"  y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
-  <!-- Right vertical upper -->
-  <line id="q3-s2-line-10" x1="340" y1="60"  x2="340" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
-  <!-- Top edge -->
-  <line id="q3-s2-line-11" x1="60"  y1="60"  x2="340" y2="60"  stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <!-- Right boundary vertical lines -->
+  <line id="q3-s2-line-v-right-1" x1="320" y1="80" x2="320" y2="140" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q3-s2-line-v-right-2" x1="320" y1="140" x2="320" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q3-s2-line-v-right-3" x1="320" y1="200" x2="320" y2="260" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
+  <line id="q3-s2-line-v-right-4" x1="320" y1="260" x2="320" y2="320" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
 
-  <!-- KELOMPOK 3: Batas Pita Diagonal (Selain Right Roof Slope) -->
-  <!-- Bottom-left boundary (split by left shoulder (130,200)) -->
-  <line id="q3-s2-line-12" x1="60"  y1="130" x2="130" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
-  <line id="q3-s2-line-13" x1="130" y1="200" x2="270" y2="340" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
-  <!-- Top-right boundary (split by peak (200,130) and right shoulder (270,200)) -->
-  <line id="q3-s2-line-14" x1="130" y1="60"  x2="200" y2="130" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
-  <line id="q3-s2-line-15" x1="270" y1="200" x2="340" y2="270" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
-  <!-- Caps of the diagonal band -->
-  <line id="q3-s2-line-16" x1="60"  y1="130" x2="130" y2="60"  stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
-  <line id="q3-s2-line-17" x1="270" y1="340" x2="340" y2="270" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <!-- Top boundary horizontal lines (y = 80) -->
+  <line id="q3-s2-line-top-1" x1="80" y1="80" x2="140" y2="80" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q3-s2-line-top-2" x1="140" y1="80" x2="200" y2="80" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q3-s2-line-top-3" x1="200" y1="80" x2="260" y2="80" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q3-s2-line-top-4" x1="260" y1="80" x2="320" y2="80" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
 
-  <!-- KELOMPOK 4: Garis Diagonal Paralel di Dalam Pita -->
-  <line id="q3-s2-line-18" x1="70"  y1="140" x2="140" y2="70"  stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
-  <line id="q3-s2-line-19" x1="100" y1="170" x2="170" y2="100" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
-  <line id="q3-s2-line-20" x1="160" y1="230" x2="230" y2="160" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
-  <line id="q3-s2-line-21" x1="190" y1="260" x2="260" y2="190" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
-  <line id="q3-s2-line-22" x1="220" y1="290" x2="290" y2="220" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
-  <line id="q3-s2-line-23" x1="250" y1="320" x2="320" y2="250" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <!-- Bottom boundary horizontal lines (y = 320) -->
+  <line id="q3-s2-line-bottom-1" x1="80" y1="320" x2="140" y2="320" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
+  <line id="q3-s2-line-bottom-2" x1="140" y1="320" x2="200" y2="320" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
+  <line id="q3-s2-line-bottom-3" x1="200" y1="320" x2="260" y2="320" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
+  <line id="q3-s2-line-bottom-4" x1="260" y1="320" x2="320" y2="320" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
 
-  <!-- KELOMPOK 5: Garis Horizontal di Bidang Arsir Kiri-Bawah -->
-  <line id="q3-s2-line-24" x1="60"  y1="140" x2="70"  y2="140" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
-  <line id="q3-s2-line-25" x1="60"  y1="180" x2="110" y2="180" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
-  <line id="q3-s2-line-26" x1="60"  y1="220" x2="150" y2="220" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
-  <line id="q3-s2-line-27" x1="60"  y1="260" x2="190" y2="260" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
-  <line id="q3-s2-line-28" x1="60"  y1="300" x2="230" y2="300" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <!-- Middle divider horizontal lines (y = 200) -->
+  <line id="q3-s2-line-mid-1" x1="80" y1="200" x2="140" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
+  <line id="q3-s2-line-mid-2" x1="140" y1="200" x2="200" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q3-s2-line-mid-3" x1="200" y1="200" x2="260" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q3-s2-line-mid-4" x1="260" y1="200" x2="320" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
 
-  <!-- KELOMPOK 6: Garis Horizontal di Bidang Arsir Kanan-Atas -->
-  <line id="q3-s2-line-29" x1="170" y1="100" x2="340" y2="100" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
-  <line id="q3-s2-line-30" x1="210" y1="140" x2="340" y2="140" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
-  <line id="q3-s2-line-31" x1="250" y1="180" x2="340" y2="180" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
-  <line id="q3-s2-line-32" x1="290" y1="220" x2="340" y2="220" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
-  <line id="q3-s2-line-33" x1="330" y1="260" x2="340" y2="260" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <!-- Left diagonal channel boundary segments (y = x + 60) -->
+  <line id="q3-s2-line-diag-left-1" x1="80" y1="140" x2="110" y2="170" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q3-s2-line-diag-left-2" x1="110" y1="170" x2="140" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q3-s2-line-diag-left-3" x1="140" y1="200" x2="170" y2="230" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q3-s2-line-diag-left-4" x1="170" y1="230" x2="200" y2="260" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q3-s2-line-diag-left-5" x1="200" y1="260" x2="230" y2="290" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q3-s2-line-diag-left-6" x1="230" y1="290" x2="260" y2="320" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+
+  <!-- Right diagonal channel boundary segments (y = x - 60) -->
+  <line id="q3-s2-line-diag-right-1" x1="140" y1="80" x2="170" y2="110" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q3-s2-line-diag-right-2" x1="170" y1="110" x2="200" y2="140" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q3-s2-line-diag-right-3a" x1="200" y1="140" x2="230" y2="170" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
+  <line id="q3-s2-line-diag-right-3b" x1="230" y1="170" x2="260" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
+  <line id="q3-s2-line-diag-right-4" x1="260" y1="200" x2="290" y2="230" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q3-s2-line-diag-right-5" x1="290" y1="230" x2="320" y2="260" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+
+  <!-- Central diagonal line segments (y = x) -->
+  <line id="q3-s2-line-diag-center-1" x1="80" y1="80" x2="110" y2="110" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q3-s2-line-diag-center-2" x1="110" y1="110" x2="140" y2="140" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q3-s2-line-diag-center-3" x1="140" y1="140" x2="170" y2="170" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q3-s2-line-diag-center-4" x1="170" y1="170" x2="200" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q3-s2-line-diag-center-5" x1="200" y1="200" x2="230" y2="230" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q3-s2-line-diag-center-6" x1="230" y1="230" x2="260" y2="260" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q3-s2-line-diag-center-7" x1="260" y1="260" x2="290" y2="290" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q3-s2-line-diag-center-8" x1="290" y1="290" x2="320" y2="320" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+
+  <!-- Ladder rungs diagonal lines (y = -x + C) -->
+  <line id="q3-s2-line-rung-1" x1="80" y1="140" x2="140" y2="80" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  
+  <line id="q3-s2-line-rung-2a" x1="110" y1="170" x2="140" y2="140" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q3-s2-line-rung-2b" x1="140" y1="140" x2="170" y2="110" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+
+  <line id="q3-s2-line-rung-3a" x1="140" y1="200" x2="170" y2="170" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
+  <line id="q3-s2-line-rung-3b" x1="170" y1="170" x2="200" y2="140" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" data-correct="true" />
+
+  <line id="q3-s2-line-rung-4a" x1="170" y1="230" x2="200" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q3-s2-line-rung-4b" x1="200" y1="200" x2="230" y2="170" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+
+  <line id="q3-s2-line-rung-5a" x1="200" y1="260" x2="230" y2="230" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q3-s2-line-rung-5b" x1="230" y1="230" x2="260" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+
+  <line id="q3-s2-line-rung-6a" x1="230" y1="290" x2="260" y2="260" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q3-s2-line-rung-6b" x1="260" y1="260" x2="290" y2="230" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+
+  <line id="q3-s2-line-rung-7" x1="260" y1="320" x2="320" y2="260" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+
+  <!-- Bottom-left shaded region horizontal lines -->
+  <line id="q3-s2-line-horiz-bl-170" x1="80" y1="170" x2="110" y2="170" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q3-s2-line-horiz-bl-230a" x1="80" y1="230" x2="110" y2="230" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q3-s2-line-horiz-bl-230b" x1="110" y1="230" x2="170" y2="230" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q3-s2-line-horiz-bl-260a" x1="80" y1="260" x2="140" y2="260" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q3-s2-line-horiz-bl-260b" x1="140" y1="260" x2="200" y2="260" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q3-s2-line-horiz-bl-290a" x1="80" y1="290" x2="110" y2="290" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q3-s2-line-horiz-bl-290b" x1="110" y1="290" x2="170" y2="290" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q3-s2-line-horiz-bl-290c" x1="170" y1="290" x2="230" y2="290" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+
+  <!-- Top-right shaded region horizontal lines -->
+  <line id="q3-s2-line-horiz-tr-110a" x1="170" y1="110" x2="230" y2="110" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q3-s2-line-horiz-tr-110b" x1="230" y1="110" x2="290" y2="110" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q3-s2-line-horiz-tr-110c" x1="290" y1="110" x2="320" y2="110" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q3-s2-line-horiz-tr-140a" x1="200" y1="140" x2="260" y2="140" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q3-s2-line-horiz-tr-140b" x1="260" y1="140" x2="320" y2="140" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q3-s2-line-horiz-tr-170a" x1="230" y1="170" x2="290" y2="170" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q3-s2-line-horiz-tr-170b" x1="290" y1="170" x2="320" y2="170" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q3-s2-line-horiz-tr-230" x1="290" y1="230" x2="320" y2="230" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+
+  <!-- Diagonals inside bottom-left shaded region -->
+  <line id="q3-s2-line-diag-bl-120a" x1="80" y1="200" x2="110" y2="230" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q3-s2-line-diag-bl-120b" x1="110" y1="230" x2="140" y2="260" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q3-s2-line-diag-bl-120c" x1="140" y1="260" x2="170" y2="290" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q3-s2-line-diag-bl-120d" x1="170" y1="290" x2="200" y2="320" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+
+  <line id="q3-s2-line-diag-bl-180a" x1="80" y1="260" x2="110" y2="290" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q3-s2-line-diag-bl-180b" x1="110" y1="290" x2="140" y2="320" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+
+  <!-- Diagonals inside top-right shaded region -->
+  <line id="q3-s2-line-diag-tr-120a" x1="200" y1="80" x2="230" y2="110" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q3-s2-line-diag-tr-120b" x1="230" y1="110" x2="260" y2="140" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q3-s2-line-diag-tr-120c" x1="260" y1="140" x2="290" y2="170" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q3-s2-line-diag-tr-120d" x1="290" y1="170" x2="320" y2="200" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+
+  <line id="q3-s2-line-diag-tr-180a" x1="260" y1="80" x2="290" y2="110" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
+  <line id="q3-s2-line-diag-tr-180b" x1="290" y1="110" x2="320" y2="140" stroke="#666" stroke-width="2.5" fill="none" pointer-events="all" style="cursor:pointer;transition:stroke 0.2s,stroke-width 0.2s;" />
 </svg>

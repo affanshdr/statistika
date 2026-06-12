@@ -47,7 +47,7 @@ const QUESTIONS: Question[] = [
   // Sesi 2 — dinilai
   { id: 3, section: 2, no: 1, targetShape: 'G' },
   { id: 4, section: 2, no: 2, targetShape: 'A' },
-  { id: 5, section: 2, no: 3, targetShape: 'G' },
+  { id: 5, section: 2, no: 3, targetShape: 'D' },
   // Sesi 3 — dinilai
   { id: 7, section: 3, no: 1, targetShape: 'F' },
   { id: 8, section: 3, no: 2, targetShape: 'G' },
@@ -169,7 +169,7 @@ export default function GeftPage() {
     setSelected(new Set())
     setFeedback({ msg: '', type: '' })
 
-    const url = `/geft/sesi${q.section}-soal${q.no}.svg`
+    const url = `/geft/sesi${q.section}-soal${q.no}.svg?v=${Date.now()}`
     fetch(url)
       .then(res => {
         if (!res.ok) throw new Error('Gagal memuat gambar soal')
@@ -291,20 +291,45 @@ export default function GeftPage() {
 
   // ── Answer validation ────────────────────────────────────────────────────
   function checkAnswer(): boolean {
-    const correctElements = document.querySelectorAll('.geft-svg-container [data-correct="true"]')
-    const correctIds = new Set(
-      Array.from(correctElements)
+    // 1. Ambil solusi utama (data-correct="true")
+    const correctElements1 = document.querySelectorAll('.geft-svg-container [data-correct="true"]')
+    const correctIds1 = new Set(
+      Array.from(correctElements1)
         .map(el => el.getAttribute('id'))
         .filter(Boolean) as string[]
     )
 
-    if (correctIds.size === 0) return false
-    if (selected.size !== correctIds.size) return false
+    // 2. Ambil solusi alternatif (data-correct-alt="true")
+    const correctElements2 = document.querySelectorAll('.geft-svg-container [data-correct-alt="true"]')
+    const correctIds2 = new Set(
+      Array.from(correctElements2)
+        .map(el => el.getAttribute('id'))
+        .filter(Boolean) as string[]
+    )
 
-    for (const id of selected) {
-      if (!correctIds.has(id)) return false
+    // Cek kecocokan dengan Solusi 1
+    let match1 = correctIds1.size > 0 && selected.size === correctIds1.size
+    if (match1) {
+      for (const id of selected) {
+        if (!correctIds1.has(id)) {
+          match1 = false
+          break
+        }
+      }
     }
-    return true
+
+    // Cek kecocokan dengan Solusi 2
+    let match2 = correctIds2.size > 0 && selected.size === correctIds2.size
+    if (match2) {
+      for (const id of selected) {
+        if (!correctIds2.has(id)) {
+          match2 = false
+          break
+        }
+      }
+    }
+
+    return match1 || match2
   }
 
   function handleConfirm() {
@@ -1265,6 +1290,13 @@ export default function GeftPage() {
           background: #3b82f6;
           box-shadow: 0 0 8px rgba(59,130,246,0.7);
           transform: scale(1.2);
+        }
+
+        /* Mengurangi noise visual dari pattern stipple (titik-titik arsiran) */
+        .geft-svg-container svg pattern#stipple circle {
+          r: 0.6px !important;
+          opacity: 0.15 !important;
+          fill: #c4a482 !important;
         }
 
         .geft-page-container {
