@@ -655,25 +655,335 @@
 }
 
 /* ── Responsive ── */
+
+/* Extra small (xs) — narrow phones */
+@media (max-width: 480px) {
+  .game-card {
+    padding: 16px;
+  }
+
+  .game-header {
+    padding: 8px 12px;
+    gap: 8px;
+    flex-wrap: nowrap;
+  }
+
+  .game-header-xp {
+    padding: 4px 10px;
+  }
+
+  .game-header-xp-value {
+    font-size: 12px;
+  }
+
+  .game-header-lives {
+    font-size: 14px;
+    gap: 2px;
+  }
+
+  .game-header-timer {
+    font-size: 13px;
+    padding: 4px 10px;
+    min-width: 64px;
+  }
+
+  .cutscene-text {
+    font-size: 14px;
+    padding: 0 4px;
+  }
+
+  .cutscene-overlay {
+    padding: 20px 16px;
+  }
+
+  .badge-unlock-card {
+    padding: 24px 20px;
+    margin: 16px;
+  }
+
+  .badge-icon {
+    font-size: 44px;
+  }
+
+  .level-card {
+    padding: 16px;
+  }
+
+  .mc-option {
+    padding: 12px 14px;
+    font-size: 13px;
+    min-height: 44px;
+  }
+
+  .freq-table-input {
+    padding: 8px 6px;
+    font-size: 12px;
+    min-height: 40px;
+  }
+
+  .freq-table-cell-filled {
+    padding: 8px 6px;
+    font-size: 12px;
+  }
+
+  .verdict-options {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .verdict-option {
+    padding: 14px 12px;
+    font-size: 14px;
+  }
+
+  .step-indicator {
+    margin-bottom: 16px;
+  }
+
+  .data-table {
+    font-size: 11px;
+  }
+
+  .data-table th,
+  .data-table td {
+    padding: 6px 10px;
+  }
+}
+
+/* Small (sm) — standard phones */
 @media (max-width: 768px) {
   .verdict-options {
     grid-template-columns: 1fr;
   }
+
   .game-header {
     padding: 10px 16px;
+    gap: 10px;
   }
+
   .cutscene-text {
     font-size: 15px;
   }
-  .dira-container {
-    bottom: 16px;
-    right: 16px;
+
+  .cutscene-overlay {
+    padding: 24px 20px;
   }
+
+  .dira-container {
+    bottom: 12px;
+    right: 12px;
+  }
+
   .dira-bubble {
-    max-width: 220px;
+    max-width: 240px;
     font-size: 13px;
   }
+
+  .dira-avatar {
+    width: 52px;
+    height: 52px;
+    font-size: 24px;
+  }
+
   .level-card {
     padding: 20px;
+  }
+
+  /* Touch-friendly tap targets */
+  .game-btn {
+    min-height: 44px;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .mc-option {
+    min-height: 44px;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .verdict-option {
+    min-height: 52px;
+    touch-action: manipulation;
+  }
+
+  .freq-table-input {
+    min-height: 40px;
+    font-size: 13px;
+    touch-action: manipulation;
+  }
+
+  /* Histogram responsive */
+  .histogram-pool {
+    gap: 8px;
+    padding: 10px;
+    min-height: 48px;
+  }
+
+  /* Data table horizontal scroll */
+  .data-table-wrap {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .data-table th {
+    white-space: nowrap;
+  }
+}
+
+/* Utility classes */
+.mobile-only {
+  display: none !important;
+}
+.desktop-only {
+  display: initial;
+}
+
+@media (max-width: 768px) {
+  .mobile-only {
+    display: initial !important;
+  }
+  .desktop-only {
+    display: none !important;
+  }
+  .mobile-flex {
+    display: flex !important;
+  }
+  .mobile-block {
+    display: block !important;
+  }
+  .mobile-hidden {
+    display: none !important;
+  }
+}
+
+/* ── Landscape Mobile ── */
+/* Tangkap landscape phone: lebar bisa > 768px tapi tinggi sangat pendek */
+
+/* Case 1: Semua orientasi landscape dengan tinggi pendek (≤ 500px) */
+@media (max-height: 500px) and (orientation: landscape) {
+  .game-header {
+    padding: 6px 16px;
+    min-height: 44px;
+  }
+
+  .game-header-xp-value {
+    font-size: 11px;
+  }
+
+  .game-header-lives {
+    font-size: 13px;
+    gap: 2px;
+  }
+
+  .game-header-timer {
+    font-size: 12px;
+    padding: 3px 8px;
+    min-width: 56px;
+  }
+
+  .game-card {
+    padding: 12px 16px;
+  }
+
+  .mc-option {
+    padding: 10px 12px;
+    font-size: 13px;
+    min-height: 40px;
+  }
+
+  .verdict-options {
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+  }
+
+  .verdict-option {
+    padding: 10px 8px;
+    min-height: 44px;
+    font-size: 13px;
+  }
+
+  .cutscene-overlay {
+    padding: 12px 16px;
+  }
+
+  .cutscene-text {
+    font-size: 14px;
+  }
+
+  .badge-unlock-card {
+    padding: 16px 20px;
+    gap: 8px;
+  }
+
+  .badge-icon {
+    font-size: 36px;
+  }
+
+  .level-card {
+    padding: 12px 16px;
+  }
+
+  .dira-container {
+    bottom: 8px;
+    right: 12px;
+  }
+
+  .dira-bubble {
+    max-width: 200px;
+    font-size: 12px;
+    padding: 8px 12px;
+  }
+
+  .dira-avatar {
+    width: 44px;
+    height: 44px;
+    font-size: 20px;
+  }
+
+  .step-indicator {
+    margin-bottom: 10px;
+  }
+
+  .data-table {
+    font-size: 11px;
+  }
+
+  .data-table th,
+  .data-table td {
+    padding: 5px 8px;
+  }
+
+  .freq-table-input {
+    min-height: 34px;
+    font-size: 12px;
+    padding: 6px 4px;
+  }
+}
+
+/* Case 2: Landscape phone lebar (iPhone 12/13/14 landscape: ~844-932px) */
+/* Aktifkan mobile-only elements yang biasanya tersembunyi di desktop-width */
+@media (max-width: 1024px) and (orientation: landscape) and (max-height: 500px) {
+  .mobile-only {
+    display: initial !important;
+  }
+  .desktop-only {
+    display: none !important;
+  }
+  .mobile-flex {
+    display: flex !important;
+  }
+  .mobile-block {
+    display: block !important;
+  }
+  .mobile-hidden {
+    display: none !important;
+  }
+
+  .game-btn,
+  .mc-option,
+  .verdict-option,
+  .freq-table-input {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
   }
 }

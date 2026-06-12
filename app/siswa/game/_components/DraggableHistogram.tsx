@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { screenTimeData, CLASS_LABELS, getClassIndex } from '../_data/level1'
 
@@ -54,7 +54,14 @@ function initDataPoints(mode: Mode, readOnly: boolean): DataPoint[] {
 }
 
 export default function DraggableHistogram({ mode, onSubmit, readOnly = false }: DraggableHistogramProps) {
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
 
   const [dataPoints, setDataPoints] = useState<DataPoint[]>(() => initDataPoints(mode, readOnly))
   const [draggingPoint, setDraggingPoint] = useState<DataPoint | null>(null)
@@ -169,7 +176,7 @@ export default function DraggableHistogram({ mode, onSubmit, readOnly = false }:
         {/* LEFT: Data Pool */}
         <div
           className="game-card"
-          style={{ flex: 1, padding: '16px 20px', background: 'rgba(255,255,255,0.02)', display: 'flex', flexDirection: 'column', minHeight: isMobile ? '200px' : '300px' }}
+          style={{ flex: 1, padding: '16px 20px', background: 'rgba(255,255,255,0.02)', display: 'flex', flexDirection: 'column', minHeight: isMobile ? '160px' : '300px' }}
         >
           <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: '10px', fontWeight: 700, letterSpacing: '0.5px' }}>
             {allPlaced
@@ -241,7 +248,7 @@ export default function DraggableHistogram({ mode, onSubmit, readOnly = false }:
         {/* RIGHT: Histogram Canvas */}
         <div
           className="histogram-canvas"
-          style={{ flex: 1.3, padding: '20px 16px 12px', minHeight: '300px', position: 'relative', display: 'flex', flexDirection: 'column' }}
+          style={{ flex: 1.3, padding: '20px 16px 12px', minHeight: isMobile ? '220px' : '300px', position: 'relative', display: 'flex', flexDirection: 'column' }}
         >
           {/* Y-axis label */}
           <div style={{ position: 'absolute', left: 2, top: '50%', transform: 'translateY(-50%) rotate(-90deg)', fontSize: '9px', color: 'var(--text-muted)', fontWeight: 800, letterSpacing: '1px', whiteSpace: 'nowrap' }}>
@@ -278,7 +285,7 @@ export default function DraggableHistogram({ mode, onSubmit, readOnly = false }:
                     width: '100%', display: 'flex', flexDirection: 'column-reverse', gap: '2px',
                     alignItems: 'center', paddingBottom: '4px',
                     borderBottom: isError ? '2px solid var(--danger)' : isTarget ? `2px solid ${CLASS_COLORS[i]}` : '2px solid rgba(255,255,255,0.1)',
-                    minHeight: '200px', justifyContent: 'flex-start',
+                    minHeight: isMobile ? '140px' : '200px', justifyContent: 'flex-start',
                   }}>
                     <AnimatePresence>
                       {placed.map((dp) => (

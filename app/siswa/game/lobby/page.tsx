@@ -96,13 +96,14 @@ export default function LobbyPage() {
         position: 'sticky', top: 0, zIndex: 100,
         background: 'rgba(10,10,15,0.85)', backdropFilter: 'blur(20px)',
         borderBottom: '1px solid var(--game-border)',
-        padding: '14px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between'
+        padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        gap: '8px',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <span style={{ fontSize: '22px' }}>🕵️</span>
           <div>
             <div style={{ fontSize: '10px', color: 'var(--accent)', fontWeight: 800, letterSpacing: '2px' }}>DIGITAL TRUTH SQUAD</div>
-            <div style={{ fontSize: '14px', fontWeight: 700 }}>AR-COGNISTATS Game</div>
+            <div style={{ fontSize: '14px', fontWeight: 700 }} className="desktop-only">AR-COGNISTATS Game</div>
           </div>
         </div>
         <button
@@ -121,24 +122,24 @@ export default function LobbyPage() {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="game-card"
-          style={{ marginBottom: '28px', display: 'flex', gap: '24px', alignItems: 'center', flexWrap: 'wrap' }}
+          style={{ marginBottom: '28px', display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap' }}
         >
           {/* Avatar */}
           <div style={{
-            width: '64px', height: '64px', borderRadius: '50%', flexShrink: 0,
+            width: '56px', height: '56px', borderRadius: '50%', flexShrink: 0,
             background: isFI
               ? 'linear-gradient(135deg, #3B82F6, #8B5CF6)'
               : 'linear-gradient(135deg, #06B6D4, #00FF88)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: '26px', fontWeight: 800, color: '#fff',
+            fontSize: '22px', fontWeight: 800, color: '#fff',
             boxShadow: isFI ? '0 0 20px rgba(59,130,246,0.4)' : '0 0 20px rgba(0,255,136,0.4)'
           }}>
             {student?.name?.charAt(0).toUpperCase()}
           </div>
 
-          <div style={{ flex: 1, minWidth: '200px' }}>
-            <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '4px' }}>SELAMAT DATANG KEMBALI</div>
-            <h2 style={{ margin: '0 0 6px', fontSize: '22px', fontWeight: 800 }}>{student?.name}</h2>
+          <div style={{ flex: 1, minWidth: '160px' }}>
+            <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: '4px' }}>SELAMAT DATANG KEMBALI</div>
+            <h2 style={{ margin: '0 0 6px', fontSize: '20px', fontWeight: 800 }}>{student?.name}</h2>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: isFI ? 'rgba(59,130,246,0.12)' : 'rgba(0,255,136,0.1)', border: `1px solid ${isFI ? 'rgba(59,130,246,0.3)' : 'var(--game-border-accent)'}`, borderRadius: '50px', padding: '4px 12px', fontSize: '12px', fontWeight: 700, color: isFI ? '#60A5FA' : 'var(--accent)' }}>
               {isFI ? '🧠 Field Independent (FI)' : '👥 Field Dependent (FD)'}
             </div>

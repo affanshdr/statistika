@@ -41,3 +41,39 @@ h1, h2, h3, h4, h5, h6 {
 ::-webkit-scrollbar-thumb:hover {
   background: #334155;
 }
+
+/* ── Landscape Mobile Globals ── */
+@media (max-height: 500px) and (orientation: landscape) {
+  /* Thinner scrollbar on landscape phone */
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  /* Prevent zoom bounce on iOS landscape */
+  body {
+    overscroll-behavior: none;
+  }
+}
+
+/* Safe area inset for iPhone notch/home indicator */
+@supports (padding: env(safe-area-inset-left)) {
+  .safe-area-x {
+    padding-left: max(12px, env(safe-area-inset-left));
+    padding-right: max(12px, env(safe-area-inset-right));
+  }
+  .safe-area-bottom {
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
+  }
+}
+
+/* Chrome/Safari/Edge autofill override for dark theme */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #12121c inset !important;
+  -webkit-text-fill-color: #ffffff !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+

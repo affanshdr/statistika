@@ -120,6 +120,7 @@ export default function SiswaPage() {
   const router = useRouter()
   const [student, setStudent] = useState<Student | null>(null)
   const [showCognitiveModal, setShowCognitiveModal] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
   
   // Game state
   const { cognitiveStyle, setCognitiveStyle, startLevel, resetLevel } = useGameStore()
@@ -147,6 +148,22 @@ export default function SiswaPage() {
     }
   }, [router, setCognitiveStyle])
 
+  // Detect mobile & set initial scale-to-fit zoom
+  useEffect(() => {
+    const checkMobile = () => {
+      const isLandscapePhone = window.innerHeight < 500 && window.innerWidth > window.innerHeight
+      const mobile = window.innerWidth < 768 || isLandscapePhone
+      setIsMobile(mobile)
+      if (mobile) {
+        const fitScale = Math.min(window.innerWidth / 1920, window.innerHeight / 1080)
+        setZoomScale(Math.max(fitScale, 0.18))
+      }
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
   useEffect(() => {
     if (typeof window === 'undefined') return
     const handleResize = () => {
@@ -164,7 +181,7 @@ export default function SiswaPage() {
       window.removeEventListener('resize', handleResize)
       clearTimeout(t)
     }
-  }, [viewportRef])
+  }, [])
 
   useEffect(() => {
     if (viewportSize.width > 0 && !hasCentered) {
@@ -186,7 +203,7 @@ export default function SiswaPage() {
   }, [zoomScale, viewportSize, mapX, mapY])
 
   if (!student) return (
-    <main style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#030712' }}>
+    <main style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0A0A0F' }}>
       <p style={{ color: '#fff' }}>Loading...</p>
     </main>
   )
@@ -210,7 +227,7 @@ export default function SiswaPage() {
       height: '100vh',
       overflow: 'hidden',
       position: 'relative',
-      background: '#030712',
+      background: '#0A0A0F',
       color: '#f3f4f6',
       fontFamily: 'var(--font-sans), sans-serif'
     }}>
@@ -223,7 +240,7 @@ export default function SiswaPage() {
           height: '100%',
           position: 'relative',
           overflow: 'hidden',
-          background: '#070c1b',
+          background: '#0A0A0F',
           cursor: 'grab'
         }}
         onMouseDown={e => { e.currentTarget.style.cursor = 'grabbing' }}
@@ -433,51 +450,55 @@ export default function SiswaPage() {
           position: 'absolute',
           top: '20px',
           left: '20px',
-          width: '320px',
+          width: isMobile ? '50%' : '320px',
+          maxWidth: isMobile ? '50%' : '320px',
           zIndex: 100,
           display: 'flex',
           flexDirection: 'column',
-          gap: '12px'
+          gap: '8px'
         }}>
           <div style={{
-            background: 'rgba(10, 15, 30, 0.75)',
+            background: 'rgba(12, 12, 20, 0.95)',
             backdropFilter: 'blur(20px)',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
-            borderRadius: '20px',
-            padding: '16px 20px',
-            boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
+            border: '1px solid rgba(0, 255, 136, 0.15)',
+            borderRadius: isMobile ? '14px' : '20px',
+            padding: isMobile ? '10px 14px' : '16px 20px',
+            boxShadow: '0 10px 30px rgba(0,0,0,0.5), 0 0 15px rgba(0, 255, 136, 0.04)',
             display: 'flex',
             flexDirection: 'column',
-            gap: '12px'
+            gap: isMobile ? '8px' : '12px'
           }}>
             {/* Profile details */}
-            <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-              <div style={{
-                width: '42px', height: '42px', borderRadius: '50%',
-                background: isFI
-                  ? 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)'
-                  : 'linear-gradient(135deg, #06b6d4 0%, #00FF88 100%)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: '16px', fontWeight: 800, color: '#fff',
-                boxShadow: isFI ? '0 0 12px rgba(59,130,246,0.4)' : '0 0 12px rgba(0,255,136,0.3)'
-              }}>
-                {student.name.charAt(0).toUpperCase()}
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <span style={{ display: 'block', fontSize: '9px', color: 'rgba(255,255,255,0.4)', fontWeight: 700, letterSpacing: '1px' }}>
-                  DETEKTIF AKTIF
-                </span>
-                <h2 style={{ fontSize: '15px', fontWeight: 800, margin: '1px 0', color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {student.name}
-                </h2>
-                <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)' }}>
-                  Kelas: <strong style={{ color: '#fff' }}>{student.classroom?.name}</strong>
-                </span>
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'center', width: '100%' }}>
+              <div style={{ display: 'flex', gap: '10px', alignItems: 'center', minWidth: 0, flex: 1 }}>
+                <div style={{
+                  width: isMobile ? '34px' : '42px', height: isMobile ? '34px' : '42px', borderRadius: '50%', flexShrink: 0,
+                  background: isFI
+                    ? 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)'
+                    : 'linear-gradient(135deg, #06b6d4 0%, #00FF88 100%)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: isMobile ? '13px' : '16px', fontWeight: 800, color: '#fff',
+                  boxShadow: isFI ? '0 0 12px rgba(59,130,246,0.4)' : '0 0 12px rgba(0,255,136,0.3)'
+                }}>
+                  {student.name.charAt(0).toUpperCase()}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  {!isMobile && (
+                    <span style={{ display: 'block', fontSize: '9px', color: 'rgba(255,255,255,0.4)', fontWeight: 700, letterSpacing: '1px' }}>
+                      DETEKTIF AKTIF
+                    </span>
+                  )}
+                  <h2 style={{ fontSize: isMobile ? '13px' : '15px', fontWeight: 800, margin: '1px 0', color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {student.name}
+                  </h2>
+                  {!isMobile && (
+                    <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)' }}>
+                      Kelas: <strong style={{ color: '#fff' }}>{student.classroom?.name}</strong>
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
-
-
-
 
             {/* Cognitive Style Badge — Clickable */}
             {student.geftResult?.cognitiveStyle && (
@@ -485,13 +506,14 @@ export default function SiswaPage() {
                 onClick={() => setShowCognitiveModal(true)}
                 title="Klik untuk lihat detail gaya belajar"
                 style={{
-                  padding: '7px 12px', borderRadius: '8px',
+                  padding: isMobile ? '5px 10px' : '7px 12px', borderRadius: '8px',
                   background: isFI ? 'rgba(59,130,246,0.12)' : 'rgba(6,182,212,0.12)',
                   border: `1px solid ${isFI ? 'rgba(59,130,246,0.25)' : 'rgba(6,182,212,0.25)'}`,
-                  fontSize: '11px', color: isFI ? '#93c5fd' : '#a7f3d0',
+                  fontSize: isMobile ? '10px' : '11px', color: isFI ? '#93c5fd' : '#a7f3d0',
                   fontWeight: 700, cursor: 'pointer',
                   display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                  transition: 'all 0.2s',
+                  transition: 'all 0.2s', minHeight: '36px',
+                  touchAction: 'manipulation',
                 }}
                 onMouseEnter={e => { e.currentTarget.style.filter = 'brightness(1.2)' }}
                 onMouseLeave={e => { e.currentTarget.style.filter = 'none' }}
@@ -502,8 +524,8 @@ export default function SiswaPage() {
             )}
           </div>
 
-          {/* Greeting card below profile */}
-          {student.diagnosticLevel && student.geftResult?.cognitiveStyle && (
+          {/* Greeting card — desktop only */}
+          {!isMobile && student.diagnosticLevel && student.geftResult?.cognitiveStyle && (
             <motion.div
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
@@ -529,7 +551,8 @@ export default function SiswaPage() {
           )}
         </div>
 
-        {/* Floating Map Theme Controls (Top Left Center) */}
+        {/* Floating Map Theme Controls — Desktop only (Top Left Center) */}
+        {!isMobile && (
         <div style={{
           position: 'absolute',
           top: '20px',
@@ -570,61 +593,75 @@ export default function SiswaPage() {
             Satelit 🛰️
           </button>
         </div>
+        )}
 
-        {/* Floating Circular Keluar Sesi Button (Top Right) */}
+        {/* Floating Keluar Sesi Button (Top Right) */}
         <button
           onClick={() => setShowExitConfirm(true)}
-          title="Keluar Sesi"
           style={{
             position: 'absolute',
             top: '20px',
             right: '20px',
-            width: '42px',
-            height: '42px',
-            borderRadius: '50%',
-            border: '1px solid rgba(239, 68, 68, 0.35)',
-            background: 'rgba(15, 23, 42, 0.85)',
+            padding: '8px 16px',
+            borderRadius: '10px',
+            border: '1px solid rgba(239, 68, 68, 0.4)',
+            background: 'rgba(239, 68, 68, 0.05)',
             backdropFilter: 'blur(10px)',
-            color: '#f87171',
-            fontSize: '18px',
+            color: '#ff6b6b',
+            fontSize: '12px',
+            fontWeight: 700,
+            letterSpacing: '0.5px',
             cursor: 'pointer',
             zIndex: 110,
+            boxShadow: '0 4px 12px rgba(239, 68, 68, 0.1)',
+            transition: 'all 0.2s',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            boxShadow: '0 4px 15px rgba(239, 68, 68, 0.2)',
-            transition: 'all 0.2s'
           }}
           onMouseEnter={e => {
             e.currentTarget.style.background = 'rgba(239, 68, 68, 0.15)'
-            e.currentTarget.style.boxShadow = '0 4px 20px rgba(239, 68, 68, 0.4)'
+            e.currentTarget.style.boxShadow = '0 4px 16px rgba(239, 68, 68, 0.25)'
+            e.currentTarget.style.color = '#ff4d4d'
           }}
           onMouseLeave={e => {
-            e.currentTarget.style.background = 'rgba(15, 23, 42, 0.85)'
-            e.currentTarget.style.boxShadow = '0 4px 15px rgba(239, 68, 68, 0.2)'
+            e.currentTarget.style.background = 'rgba(239, 68, 68, 0.05)'
+            e.currentTarget.style.boxShadow = '0 4px 12px rgba(239, 68, 68, 0.1)'
+            e.currentTarget.style.color = '#ff6b6b'
           }}
         >
-          🚪
+          Keluar
         </button>
 
-        {/* Floating Case Details Panel (Right Side) */}
+        {/* Floating Case Details Panel — Desktop: Right Side / Mobile: Bottom Sheet */}
         {selectedLevel && (
           <div style={{
-            position: 'absolute',
-            top: '74px',
-            right: '20px',
-            width: '340px',
-            maxHeight: 'calc(100% - 94px)',
-            background: 'rgba(10, 15, 30, 0.85)',
+            position: 'fixed',
+            ...(isMobile ? {
+              bottom: 0,
+              left: 0,
+              right: 0,
+              top: 'auto',
+              width: '100%',
+              maxHeight: '78vh',
+              borderRadius: '24px 24px 0 0',
+              boxShadow: '0 -10px 40px rgba(0,0,0,0.7)',
+            } : {
+              top: '74px',
+              right: '20px',
+              width: '340px',
+              maxHeight: 'calc(100vh - 94px)',
+              borderRadius: '20px',
+              boxShadow: '-10px 0 30px rgba(0,0,0,0.5)',
+            }),
+            background: 'rgba(10, 15, 30, 0.95)',
             backdropFilter: 'blur(20px)',
             border: '1px solid rgba(255,255,255,0.1)',
-            borderRadius: '20px',
-            padding: '20px',
-            zIndex: 100,
+            padding: isMobile ? '20px 20px 32px' : '20px',
+            zIndex: 200,
             display: 'flex',
             flexDirection: 'column',
             gap: '14px',
-            boxShadow: '-10px 0 30px rgba(0,0,0,0.5)',
             color: '#fff',
             overflowY: 'auto'
           }}>
@@ -713,7 +750,8 @@ export default function SiswaPage() {
           </div>
         )}
 
-        {/* Floating Map Zoom Controls (Bottom Right) */}
+        {/* Floating Map Zoom Controls — Desktop only (Bottom Right) */}
+        {!isMobile && (
         <div style={{
           position: 'absolute',
           bottom: '20px',
@@ -750,8 +788,77 @@ export default function SiswaPage() {
             －
           </button>
         </div>
+        )}
 
-        {/* Blueprint / Satellite legend label (Bottom Left) */}
+        {/* Mobile Bottom Control Bar */}
+        {isMobile && (
+          <div style={{
+            position: 'fixed',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            zIndex: 150,
+            background: 'rgba(7, 12, 27, 0.92)',
+            backdropFilter: 'blur(16px)',
+            borderTop: '1px solid rgba(255,255,255,0.08)',
+            padding: '10px 16px 16px',
+            display: selectedLevel ? 'none' : 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '8px',
+          }}>
+            {/* Theme switcher */}
+            <div style={{ display: 'flex', gap: '4px', background: 'rgba(255,255,255,0.05)', borderRadius: '10px', padding: '4px' }}>
+              <button
+                onClick={() => setMapTheme('blueprint')}
+                style={{
+                  padding: '6px 10px', borderRadius: '7px', fontSize: '11px', fontWeight: 700,
+                  border: 'none', minHeight: '36px', touchAction: 'manipulation',
+                  background: mapTheme === 'blueprint' ? 'rgba(59,130,246,0.25)' : 'transparent',
+                  color: mapTheme === 'blueprint' ? '#60a5fa' : 'rgba(255,255,255,0.45)',
+                  cursor: 'pointer',
+                }}
+              >📐</button>
+              <button
+                onClick={() => setMapTheme('satellite')}
+                style={{
+                  padding: '6px 10px', borderRadius: '7px', fontSize: '11px', fontWeight: 700,
+                  border: 'none', minHeight: '36px', touchAction: 'manipulation',
+                  background: mapTheme === 'satellite' ? 'rgba(16,185,129,0.25)' : 'transparent',
+                  color: mapTheme === 'satellite' ? '#34d399' : 'rgba(255,255,255,0.45)',
+                  cursor: 'pointer',
+                }}
+              >🛰️</button>
+            </div>
+
+            <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)', fontFamily: 'monospace', letterSpacing: '0.5px' }}>DRAG TO EXPLORE</span>
+
+            {/* Zoom controls */}
+            <div style={{ display: 'flex', gap: '4px' }}>
+              <button
+                onClick={zoomIn}
+                style={{
+                  width: '38px', height: '38px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)',
+                  background: 'rgba(15,23,42,0.85)', color: '#fff',
+                  fontSize: '18px', fontWeight: 700, cursor: 'pointer', display: 'flex',
+                  alignItems: 'center', justifyContent: 'center', touchAction: 'manipulation',
+                }}
+              >+</button>
+              <button
+                onClick={zoomOut}
+                style={{
+                  width: '38px', height: '38px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)',
+                  background: 'rgba(15,23,42,0.85)', color: '#fff',
+                  fontSize: '18px', fontWeight: 700, cursor: 'pointer', display: 'flex',
+                  alignItems: 'center', justifyContent: 'center', touchAction: 'manipulation',
+                }}
+              >−</button>
+            </div>
+          </div>
+        )}
+
+        {/* Blueprint / Satellite legend label (Bottom Left) — Desktop only */}
+        {!isMobile && (
         <div style={{
           position: 'absolute',
           bottom: '20px',
@@ -771,6 +878,7 @@ export default function SiswaPage() {
         }}>
           MAP: DIGITAL_TRUTH_METROPOLIS [DRAG TO PAN]
         </div>
+        )}
       </div>
 
       {/* Exit Confirmation Modal */}
@@ -976,6 +1084,15 @@ export default function SiswaPage() {
             transform: scale(2.0);
             opacity: 0;
             box-shadow: 0 0 0 0 rgba(37,99,235, 0);
+          }
+        }
+        /* Bottom sheet backdrop for mobile */
+        @media (max-width: 767px) {
+          .map-bottom-sheet-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 199;
           }
         }
       `}</style>

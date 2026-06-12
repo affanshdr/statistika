@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useGameStore } from '@/lib/store/gameStore'
 
 interface GameHeaderProps {
@@ -10,6 +10,18 @@ interface GameHeaderProps {
 export default function GameHeader({ timerRunning = true }: GameHeaderProps) {
   const { xp, lives, cognitiveStyle, currentLevel, timeRemaining, setTimeRemaining } = useGameStore()
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const [isMobile, setIsMobile] = useState(false)
+  const [isLandscape, setIsLandscape] = useState(false)
+
+  useEffect(() => {
+    const check = () => {
+      setIsMobile(window.innerWidth < 480)
+      setIsLandscape(window.innerHeight < 500 && window.innerWidth > window.innerHeight)
+    }
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
 
   useEffect(() => {
     if (!timerRunning) return
@@ -27,15 +39,17 @@ export default function GameHeader({ timerRunning = true }: GameHeaderProps) {
   return (
     <header className="game-header">
       {/* Left: logo + level */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-        <span style={{ fontSize: '20px' }}>🕵️</span>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <span style={{ fontSize: isLandscape ? '14px' : '18px' }}>🕵️</span>
         <div>
           <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '1px' }}>
-            LEVEL {currentLevel}
+            LVL {currentLevel}
           </div>
-          <div style={{ fontSize: '12px', color: 'var(--text-secondary)', fontWeight: 600 }}>
-            Video Viral Investigation
-          </div>
+          {!isMobile && !isLandscape && (
+            <div style={{ fontSize: '12px', color: 'var(--text-secondary)', fontWeight: 600 }}>
+              Video Viral Investigation
+            </div>
+          )}
         </div>
       </div>
 

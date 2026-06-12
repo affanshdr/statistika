@@ -57,24 +57,25 @@ const SLIDES = [
 
 function SlideData({ step }: { step: number }) {
   return (
-    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center', marginTop: '8px' }}>
+    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: 'center', marginTop: '8px' }}>
       {screenTimeData.map((val, i) => (
         <motion.div
           key={i}
           initial={{ opacity: 0, scale: 0.3, y: -30 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          transition={{ delay: i * 0.08, type: 'spring', stiffness: 260, damping: 20 }}
+          transition={{ delay: i * 0.06, type: 'spring', stiffness: 260, damping: 20 }}
           style={{
-            width: '68px', height: '68px',
+            width: '58px', height: '58px',
             borderRadius: '50%',
             background: 'linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%)',
             border: '2px solid rgba(99,179,237,0.5)',
             display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
             boxShadow: '0 4px 15px rgba(59,130,246,0.4)',
+            flexShrink: 0,
           }}
         >
-          <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.6)', fontWeight: 700 }}>siswa {i + 1}</div>
-          <div style={{ fontSize: '16px', fontWeight: 800, color: '#fff', fontFamily: 'var(--font-data)' }}>{val}</div>
+          <div style={{ fontSize: '8px', color: 'rgba(255,255,255,0.6)', fontWeight: 700 }}>s{i + 1}</div>
+          <div style={{ fontSize: '14px', fontWeight: 800, color: '#fff', fontFamily: 'var(--font-data)' }}>{val}</div>
           <div style={{ fontSize: '8px', color: 'rgba(255,255,255,0.5)' }}>jam</div>
         </motion.div>
       ))}
@@ -328,6 +329,18 @@ const SLIDE_VISUALS = [SlideData, SlideDistribusi, SlideHistogram, SlideMean, Sl
 export default function TutorialPhase({ mode, onComplete }: TutorialPhaseProps) {
   const [slideIndex, setSlideIndex] = useState(0)
   const [confirmed, setConfirmed] = useState<boolean[]>(Array(SLIDES.length).fill(false))
+  const [isMobile, setIsMobile] = useState(false)
+  const [isLandscape, setIsLandscape] = useState(false)
+
+  useEffect(() => {
+    const check = () => {
+      setIsMobile(window.innerWidth < 640)
+      setIsLandscape(window.innerHeight < 500 && window.innerWidth > window.innerHeight)
+    }
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
 
   const isFD = mode === 'FD'
   const currentSlide = SLIDES[slideIndex]
@@ -357,7 +370,7 @@ export default function TutorialPhase({ mode, onComplete }: TutorialPhaseProps) 
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        padding: '24px 20px 32px',
+        padding: isLandscape ? '8px 12px' : isMobile ? '16px 12px 24px' : '24px 20px 32px',
         overflowY: 'auto',
       }}
     >
@@ -368,30 +381,32 @@ export default function TutorialPhase({ mode, onComplete }: TutorialPhaseProps) 
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        marginBottom: '20px',
+        marginBottom: isLandscape ? '6px' : isMobile ? '12px' : '20px',
+        gap: '8px',
       }}>
         <div style={{
-          fontSize: '11px',
+          fontSize: isLandscape ? '9px' : isMobile ? '10px' : '11px',
           fontWeight: 800,
-          letterSpacing: '2px',
+          letterSpacing: '1.5px',
           color: 'var(--accent)',
           opacity: 0.9,
         }}>
-          📚 TUTORIAL STATISTIKA DASAR
+          📚 {(isMobile || isLandscape) ? 'TUTORIAL' : 'TUTORIAL STATISTIKA DASAR'}
         </div>
         {!isFD && (
           <button
             className="game-btn game-btn-secondary"
-            style={{ padding: '8px 16px', fontSize: '13px' }}
+            style={{ padding: '5px 10px', fontSize: '11px', whiteSpace: 'nowrap' }}
             onClick={onComplete}
           >
-            Lewati Tutorial ›
+            {(isMobile || isLandscape) ? 'Lewati ›' : 'Lewati Tutorial ›'}
           </button>
         )}
       </div>
 
-      {/* Progress bar */}
-      <div style={{ width: '100%', maxWidth: '820px', marginBottom: '28px' }}>
+      {/* Progress bar — hidden in landscape */}
+      {!isLandscape && (
+      <div style={{ width: '100%', maxWidth: '820px', marginBottom: isMobile ? '16px' : '28px' }}>
         <div style={{ display: 'flex', gap: '6px' }}>
           {SLIDES.map((_, i) => (
             <motion.div
@@ -419,6 +434,7 @@ export default function TutorialPhase({ mode, onComplete }: TutorialPhaseProps) 
           ))}
         </div>
       </div>
+      )}
 
       {/* Slide card */}
       <AnimatePresence mode="wait">
@@ -433,24 +449,27 @@ export default function TutorialPhase({ mode, onComplete }: TutorialPhaseProps) 
             maxWidth: '820px',
             background: 'var(--game-card)',
             border: '1px solid var(--game-border-accent)',
-            borderRadius: '24px',
-            padding: '32px 28px',
+            borderRadius: isLandscape ? '14px' : isMobile ? '18px' : '24px',
+            padding: isLandscape ? '12px 14px' : isMobile ? '20px 16px' : '32px 28px',
             display: 'flex',
-            flexDirection: 'column',
-            gap: '20px',
+            flexDirection: isLandscape ? 'row' : 'column',
+            gap: isLandscape ? '12px' : isMobile ? '14px' : '20px',
             boxShadow: '0 0 40px rgba(0,255,136,0.06)',
           }}
         >
+          {/* LEFT column in landscape, normal flow otherwise */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: isLandscape ? '10px' : isMobile ? '14px' : '20px', flex: 1, minWidth: 0 }}>
+
           {/* Slide header */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: isLandscape ? '8px' : isMobile ? '10px' : '14px' }}>
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ type: 'spring', stiffness: 300, damping: 20 }}
               style={{
-                fontSize: '40px',
-                width: '64px',
-                height: '64px',
+                fontSize: isLandscape ? '20px' : isMobile ? '28px' : '40px',
+                width: isLandscape ? '36px' : isMobile ? '48px' : '64px',
+                height: isLandscape ? '36px' : isMobile ? '48px' : '64px',
                 borderRadius: '50%',
                 background: 'rgba(0,255,136,0.08)',
                 border: '1px solid var(--game-border-accent)',
@@ -463,10 +482,10 @@ export default function TutorialPhase({ mode, onComplete }: TutorialPhaseProps) 
               {currentSlide.icon}
             </motion.div>
             <div>
-              <div style={{ fontSize: '10px', color: 'var(--accent)', fontWeight: 800, letterSpacing: '1.5px', marginBottom: '4px' }}>
+              <div style={{ fontSize: isLandscape ? '8px' : isMobile ? '9px' : '10px', color: 'var(--accent)', fontWeight: 800, letterSpacing: '1.5px', marginBottom: '2px' }}>
                 {currentSlide.tagline}
               </div>
-              <h2 style={{ margin: 0, fontSize: '22px', fontWeight: 800, lineHeight: 1.2 }}>
+              <h2 style={{ margin: 0, fontSize: isLandscape ? '14px' : isMobile ? '17px' : '22px', fontWeight: 800, lineHeight: 1.2 }}>
                 {currentSlide.title}
               </h2>
             </div>
@@ -479,30 +498,20 @@ export default function TutorialPhase({ mode, onComplete }: TutorialPhaseProps) 
             transition={{ delay: 0.15 }}
             style={{
               margin: 0,
-              fontSize: '14px',
-              lineHeight: 1.7,
+              fontSize: isLandscape ? '12px' : isMobile ? '13px' : '14px',
+              lineHeight: 1.6,
               color: 'var(--text-secondary)',
               background: 'rgba(255,255,255,0.02)',
               border: '1px solid var(--game-border)',
-              borderRadius: '12px',
-              padding: '14px 16px',
+              borderRadius: '10px',
+              padding: isLandscape ? '8px 12px' : isMobile ? '12px 14px' : '14px 16px',
             }}
           >
             {isFD ? currentSlide.descFD : currentSlide.desc}
           </motion.p>
 
-          {/* Visual area */}
-          <div style={{
-            background: 'rgba(0,0,0,0.2)',
-            borderRadius: '16px',
-            padding: '20px',
-            border: '1px solid rgba(255,255,255,0.04)',
-          }}>
-            <SlideVisual step={slideIndex} />
-          </div>
-
-          {/* FD: Dira hint bubble */}
-          {isFD && (
+          {/* FD: Dira hint bubble — hidden in landscape */}
+          {isFD && !isLandscape && (
             <motion.div
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
@@ -540,16 +549,35 @@ export default function TutorialPhase({ mode, onComplete }: TutorialPhaseProps) 
             onClick={handleConfirm}
             style={{
               width: '100%',
-              padding: '14px',
-              fontSize: '15px',
+              padding: isLandscape ? '9px' : isMobile ? '12px' : '14px',
+              fontSize: isLandscape ? '12px' : isMobile ? '13px' : '15px',
               letterSpacing: '0.5px',
+              touchAction: 'manipulation',
             }}
           >
             {slideIndex < SLIDES.length - 1
-              ? `Aku Mengerti — Lanjut ke ${SLIDES[slideIndex + 1].title} →`
+              ? (isMobile || isLandscape)
+                ? `Lanjut: ${SLIDES[slideIndex + 1].icon} →`
+                : `Aku Mengerti — Lanjut ke ${SLIDES[slideIndex + 1].title} →`
               : '✅ Siap! Mulai Investigasi →'
             }
           </motion.button>
+          </div>{/* end LEFT col */}
+
+          {/* RIGHT column: visual — only in landscape, hidden in portrait via normal flow */}
+          {isLandscape && (
+            <div style={{
+              width: '220px',
+              flexShrink: 0,
+              background: 'rgba(0,0,0,0.2)',
+              borderRadius: '12px',
+              padding: '10px',
+              border: '1px solid rgba(255,255,255,0.04)',
+              overflowY: 'auto',
+            }}>
+              <SlideVisual step={slideIndex} />
+            </div>
+          )}
         </motion.div>
       </AnimatePresence>
 

@@ -65,6 +65,7 @@ export default function HomePage() {
   const [error, setError] = useState('')
   const [loadingClass, setLoadingClass] = useState(true)
   const [nameFocus, setNameFocus] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
 
   // Card tilt on mouse
   const mouseX = useMotionValue(0)
@@ -80,6 +81,13 @@ export default function HomePage() {
     mouseY.set(e.clientY - rect.top - rect.height / 2)
   }
   const handleMouseLeave = () => { mouseX.set(0); mouseY.set(0) }
+
+  // Scroll detection for sticky header
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 20)
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
 
   useEffect(() => {
     fetch('/api/classrooms')
@@ -130,68 +138,86 @@ export default function HomePage() {
       background: 'var(--game-bg, #0A0A0F)',
       color: '#fff',
       position: 'relative',
-      overflowX: 'hidden',
       fontFamily: "'Outfit', 'Inter', sans-serif",
     }}>
 
-      {/* ── Animated grid background ── */}
-      <div style={{
-        position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none',
-        backgroundImage:
-          'linear-gradient(rgba(0,255,136,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,136,0.03) 1px, transparent 1px)',
-        backgroundSize: '40px 40px',
-      }} />
-
-      {/* Glow blobs */}
+      {/* Overflow wrapper untuk background decorations — terpisah dari main agar sticky bekerja */}
       <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', overflow: 'hidden' }}>
+        {/* ── Animated grid background ── */}
+        <div style={{
+          position: 'absolute', inset: 0,
+          backgroundImage:
+            'linear-gradient(rgba(0,255,136,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,136,0.03) 1px, transparent 1px)',
+          backgroundSize: '40px 40px',
+        }} />
+
+        {/* Glow blobs */}
         <div style={{ position: 'absolute', top: '-5%', left: '-8%', width: '600px', height: '600px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(0,255,136,0.06) 0%, transparent 70%)', filter: 'blur(60px)' }} />
         <div style={{ position: 'absolute', bottom: '5%', right: '-8%', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(59,130,246,0.08) 0%, transparent 70%)', filter: 'blur(50px)' }} />
         <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: '800px', height: '800px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(0,255,136,0.02) 0%, transparent 60%)', filter: 'blur(80px)' }} />
-      </div>
 
-      {/* Floating particles */}
-      <div style={{ position: 'fixed', inset: 0, zIndex: 1, pointerEvents: 'none' }}>
+        {/* Floating particles */}
         {PARTICLES.map((p, i) => <Particle key={i} {...p} />)}
       </div>
 
-      {/* ── Navbar ── */}
+      {/* ── Navbar — sticky ── */}
       <header style={{
         position: 'sticky', top: 0, zIndex: 50,
-        background: 'rgba(10,10,15,0.8)',
-        backdropFilter: 'blur(20px)',
-        borderBottom: '1px solid rgba(0,255,136,0.08)',
+        background: scrolled ? 'rgba(6,8,14,0.96)' : 'rgba(10,10,15,0.65)',
+        backdropFilter: 'blur(24px)',
+        borderBottom: scrolled ? '1px solid rgba(0,255,136,0.14)' : '1px solid rgba(0,255,136,0.06)',
+        boxShadow: scrolled ? '0 4px 24px rgba(0,0,0,0.4)' : 'none',
+        transition: 'background 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease',
       }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '14px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <style>{`
+          .nav-inner {
+            max-width: 1200px; margin: 0 auto;
+            padding: 12px 20px;
+            display: flex; justify-content: space-between; align-items: center;
+          }
+          .nav-subtitle { display: block; }
+          .nav-badge { display: flex; }
+          .nav-btn-full { display: inline; }
+          .nav-btn-short { display: none; }
+          @media (max-width: 480px) {
+            .nav-inner { padding: 10px 16px; }
+            .nav-subtitle { display: none; }
+            .nav-badge { display: none; }
+            .nav-btn-full { display: none; }
+            .nav-btn-short { display: inline; }
+          }
+        `}</style>
+        <div className="nav-inner">
           {/* Logo */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <motion.div
               animate={{ filter: ['drop-shadow(0 0 6px #00FF88)', 'drop-shadow(0 0 14px #00FF88)', 'drop-shadow(0 0 6px #00FF88)'] }}
               transition={{ duration: 2.5, repeat: Infinity }}
-              style={{ fontSize: '28px' }}
+              style={{ fontSize: '24px', lineHeight: 1 }}
             >
               🕵️
             </motion.div>
             <div>
               <div style={{
-                fontWeight: 900, fontSize: '17px', letterSpacing: '1px',
+                fontWeight: 900, fontSize: '16px', letterSpacing: '0.5px',
                 background: 'linear-gradient(90deg, #00FF88, #06b6d4)',
                 WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+                whiteSpace: 'nowrap',
               }}>
                 AR-COGNISTATS
               </div>
-              <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.35)', letterSpacing: '2px', fontWeight: 700, marginTop: '1px' }}>
+              <div className="nav-subtitle" style={{ fontSize: '9px', color: 'rgba(255,255,255,0.35)', letterSpacing: '2px', fontWeight: 700, marginTop: '1px' }}>
                 DATA DETECTIVE ACADEMY
               </div>
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-            {/* Status badge */}
-            <div style={{
-              padding: '5px 12px', borderRadius: '50px', fontSize: '11px', fontWeight: 700,
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            {/* Status badge — desktop only */}
+            <div className="nav-badge" style={{
+              padding: '4px 10px', borderRadius: '50px', fontSize: '11px', fontWeight: 700,
               border: '1px solid rgba(0,255,136,0.2)', background: 'rgba(0,255,136,0.06)',
-              color: '#00FF88', letterSpacing: '0.5px',
-              display: 'flex', alignItems: 'center', gap: '6px',
+              color: '#00FF88', letterSpacing: '0.5px', alignItems: 'center', gap: '6px',
             }}>
               <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#00FF88', display: 'inline-block', animation: 'blink 1.5s infinite' }} />
               ONLINE
@@ -199,16 +225,18 @@ export default function HomePage() {
             <button
               onClick={() => router.push('/guru')}
               style={{
-                padding: '8px 18px', borderRadius: '10px',
+                padding: '7px 14px', borderRadius: '10px',
                 border: '1px solid rgba(255,255,255,0.1)',
                 background: 'rgba(255,255,255,0.04)',
                 color: 'rgba(255,255,255,0.7)', fontSize: '13px',
                 fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s',
+                whiteSpace: 'nowrap',
               }}
               onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = '#fff' }}
               onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; e.currentTarget.style.color = 'rgba(255,255,255,0.7)' }}
             >
-              🧑‍🏫 Portal Guru
+              <span className="nav-btn-full">🧑‍🏫 Portal Guru</span>
+              <span className="nav-btn-short">Portal Guru</span>
             </button>
           </div>
         </div>
@@ -416,43 +444,64 @@ export default function HomePage() {
                     </div>
 
                     {/* Kelas */}
-                    <div>
-                      <label style={{ display: 'block', fontSize: '10px', fontWeight: 800, color: 'rgba(255,255,255,0.4)', letterSpacing: '2px', marginBottom: '8px' }}>
-                        UNIT / KELAS
-                      </label>
-                      <div style={{ position: 'relative' }}>
-                        <select
-                          id="classroom-select"
-                          value={classroomId}
-                          onChange={e => setClassroomId(e.target.value)}
-                          disabled={loadingClass}
-                          style={{
-                            width: '100%', boxSizing: 'border-box',
-                            padding: '14px 16px 14px 44px', borderRadius: '12px',
-                            background: 'rgba(11,14,25,0.9)',
-                            border: '1px solid rgba(255,255,255,0.08)',
-                            color: classroomId ? '#fff' : 'rgba(255,255,255,0.3)',
-                            fontSize: '14px', outline: 'none', cursor: 'pointer',
-                            appearance: 'none', transition: 'all 0.2s',
-                          }}
-                          onFocus={e => e.target.style.borderColor = 'rgba(0,255,136,0.5)'}
-                          onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.08)'}
-                        >
-                          <option value="">— Pilih Unit —</option>
-                          {classrooms.map(c => (
-                            <option key={c.id} value={c.id} style={{ background: '#0b1329', color: '#fff' }}>
-                              {c.name}
-                            </option>
-                          ))}
-                        </select>
-                        <span style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', fontSize: '18px', pointerEvents: 'none' }}>
-                          🏛️
-                        </span>
-                        <span style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.3)', fontSize: '12px', pointerEvents: 'none' }}>
-                          ▼
-                        </span>
+                    {classrooms.length > 1 ? (
+                      <div>
+                        <label style={{ display: 'block', fontSize: '10px', fontWeight: 800, color: 'rgba(255,255,255,0.4)', letterSpacing: '2px', marginBottom: '8px' }}>
+                          UNIT / KELAS
+                        </label>
+                        <div style={{ position: 'relative' }}>
+                          <select
+                            id="classroom-select"
+                            value={classroomId}
+                            onChange={e => setClassroomId(e.target.value)}
+                            disabled={loadingClass}
+                            style={{
+                              width: '100%', boxSizing: 'border-box',
+                              padding: '14px 16px 14px 44px', borderRadius: '12px',
+                              background: 'rgba(11,14,25,0.9)',
+                              border: '1px solid rgba(255,255,255,0.08)',
+                              color: classroomId ? '#fff' : 'rgba(255,255,255,0.3)',
+                              fontSize: '14px', outline: 'none', cursor: 'pointer',
+                              appearance: 'none', transition: 'all 0.2s',
+                            }}
+                            onFocus={e => e.target.style.borderColor = 'rgba(0,255,136,0.5)'}
+                            onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.08)'}
+                          >
+                            <option value="">— Pilih Unit —</option>
+                            {classrooms.map(c => (
+                              <option key={c.id} value={c.id} style={{ background: '#0b1329', color: '#fff' }}>
+                                {c.name}
+                              </option>
+                            ))}
+                          </select>
+                          <span style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', fontSize: '18px', pointerEvents: 'none' }}>
+                            🏛️
+                          </span>
+                          <span style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.3)', fontSize: '12px', pointerEvents: 'none' }}>
+                            ▼
+                          </span>
+                        </div>
                       </div>
-                    </div>
+                    ) : classrooms.length === 1 ? (
+                      <div style={{
+                        padding: '12px 16px',
+                        borderRadius: '12px',
+                        background: 'rgba(0,255,136,0.04)',
+                        border: '1px solid rgba(0,255,136,0.15)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                          <span style={{ fontSize: '18px' }}>🏛️</span>
+                          <div style={{ display: 'flex', flexDirection: 'column' }}>
+                            <span style={{ fontSize: '9px', fontWeight: 800, color: 'rgba(255,255,255,0.4)', letterSpacing: '1px' }}>UNIT / KELAS</span>
+                            <span style={{ fontSize: '14px', fontWeight: 700, color: '#fff' }}>{classrooms[0].name}</span>
+                          </div>
+                        </div>
+                        <span style={{ fontSize: '11px', color: '#00FF88', fontWeight: 800 }}>AUTO-SELECT</span>
+                      </div>
+                    ) : null}
 
                     {/* Error */}
                     <AnimatePresence>

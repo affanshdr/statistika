@@ -253,7 +253,7 @@ export default function DiagnostikPage() {
   return (
     <main style={{
       minHeight: '100vh',
-      background: 'linear-gradient(135deg, #030712 0%, #080f25 50%, #020617 100%)',
+      background: '#0A0A0F',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
@@ -262,10 +262,11 @@ export default function DiagnostikPage() {
       overflow: 'hidden',
       fontFamily: 'var(--font-sans, sans-serif)',
     }}>
-      {/* Background glow */}
+      {/* Background grid + glow */}
+      <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', backgroundImage: 'linear-gradient(rgba(0,255,136,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,136,0.03) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
       <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
-        <div style={{ position: 'absolute', top: '-10%', left: '-10%', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(59,130,246,0.08) 0%, transparent 70%)', filter: 'blur(60px)' }} />
-        <div style={{ position: 'absolute', bottom: '-10%', right: '-10%', width: '400px', height: '400px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(0,255,136,0.06) 0%, transparent 70%)', filter: 'blur(50px)' }} />
+        <div style={{ position: 'absolute', top: '-10%', left: '-10%', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(0,255,136,0.06) 0%, transparent 70%)', filter: 'blur(60px)' }} />
+        <div style={{ position: 'absolute', bottom: '-10%', right: '-10%', width: '400px', height: '400px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(6,182,212,0.06) 0%, transparent 70%)', filter: 'blur(50px)' }} />
       </div>
 
       <AnimatePresence mode="wait">
@@ -282,7 +283,7 @@ export default function DiagnostikPage() {
               backdropFilter: 'blur(20px)',
               border: '1px solid rgba(255,255,255,0.08)',
               borderRadius: '28px',
-              padding: '40px 36px',
+              padding: 'clamp(24px, 5vw, 40px) clamp(20px, 5vw, 36px)',
               zIndex: 10,
               textAlign: 'center',
               color: '#fff',
@@ -294,16 +295,16 @@ export default function DiagnostikPage() {
               transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
               style={{ fontSize: '64px', marginBottom: '20px' }}
             >
-              🔬
+              🕵️
             </motion.div>
-            <div style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '2px', color: '#3b82f6', marginBottom: '12px' }}>
+            <div style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '2px', color: '#00FF88', marginBottom: '12px' }}>
               TES DIAGNOSTIK AWAL
             </div>
             <h1 style={{ fontSize: '26px', fontWeight: 800, margin: '0 0 16px', lineHeight: 1.2 }}>
               Ukur Kemampuan Statistika Awalmu!
             </h1>
             <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.6)', lineHeight: 1.7, margin: '0 0 28px' }}>
-              Sebelum memulai petualangan sebagai Detektif Data, kami perlu mengetahui kemampuan awal statistika kamu. Jawab <strong style={{ color: '#fff' }}>15 pertanyaan</strong> singkat dengan jujur — tidak ada yang benar atau salah!
+              Sebelum memulai petualangan sebagai Detektif Data, kami perlu mengetahui kemampuan awal statistika kamu. Jawab <strong style={{ color: '#00FF88' }}>15 pertanyaan</strong> singkat dengan jujur — tidak ada yang benar atau salah!
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '28px', textAlign: 'left' }}>
               {[
@@ -311,7 +312,7 @@ export default function DiagnostikPage() {
                 { icon: '📊', text: 'Hasil menentukan jalur belajar terbaikmu' },
                 { icon: '🔒', text: 'Tes ini hanya dilakukan sekali' },
               ].map((item, i) => (
-                <div key={i} style={{ display: 'flex', gap: '12px', alignItems: 'center', padding: '10px 14px', background: 'rgba(255,255,255,0.03)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <div key={i} style={{ display: 'flex', gap: '12px', alignItems: 'center', padding: '10px 14px', background: 'rgba(0,255,136,0.04)', borderRadius: '12px', border: '1px solid rgba(0,255,136,0.12)' }}>
                   <span style={{ fontSize: '20px' }}>{item.icon}</span>
                   <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.7)' }}>{item.text}</span>
                 </div>
@@ -321,10 +322,10 @@ export default function DiagnostikPage() {
               onClick={() => setPhase('test')}
               style={{
                 width: '100%', padding: '16px', borderRadius: '14px', border: 'none',
-                background: 'linear-gradient(90deg, #3b82f6, #06b6d4)',
-                color: '#fff', fontSize: '15px', fontWeight: 800,
+                background: 'linear-gradient(90deg, #00FF88, #06b6d4)',
+                color: '#000', fontSize: '15px', fontWeight: 800,
                 cursor: 'pointer', letterSpacing: '0.5px',
-                boxShadow: '0 4px 20px rgba(59,130,246,0.35)',
+                boxShadow: '0 4px 20px rgba(0,255,136,0.35)',
                 transition: 'all 0.2s',
               }}
               onMouseEnter={e => e.currentTarget.style.filter = 'brightness(1.1)'}
@@ -352,7 +353,7 @@ export default function DiagnostikPage() {
             <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
               <div style={{ flex: 1, height: '6px', background: 'rgba(255,255,255,0.08)', borderRadius: '3px', overflow: 'hidden' }}>
                 <motion.div
-                  style={{ height: '100%', background: 'linear-gradient(90deg, #3b82f6, #06b6d4)', borderRadius: '3px' }}
+                  style={{ height: '100%', background: 'linear-gradient(90deg, #00FF88, #00cc6a)', borderRadius: '3px', boxShadow: '0 0 8px rgba(0,255,136,0.4)' }}
                   animate={{ width: `${((currentQ + 1) / QUESTIONS.length) * 100}%` }}
                   transition={{ duration: 0.4 }}
                 />
@@ -368,11 +369,11 @@ export default function DiagnostikPage() {
               backdropFilter: 'blur(20px)',
               border: '1px solid rgba(255,255,255,0.08)',
               borderRadius: '24px',
-              padding: '32px 28px',
+              padding: 'clamp(20px, 4vw, 32px) clamp(16px, 4vw, 28px)',
               color: '#fff',
             }}>
-              <div style={{ fontSize: '10px', fontWeight: 800, letterSpacing: '2px', color: '#3b82f6', marginBottom: '14px' }}>
-                SOAL {currentQ + 1}
+              <div style={{ fontSize: '10px', fontWeight: 800, letterSpacing: '2px', color: '#00FF88', marginBottom: '14px' }}>
+                SOAL {currentQ + 1} / {QUESTIONS.length}
               </div>
               <p style={{ fontSize: '16px', lineHeight: 1.7, margin: '0 0 24px', fontWeight: 600 }}>
                 {q.text}
@@ -387,9 +388,9 @@ export default function DiagnostikPage() {
                   let border = '1px solid rgba(255,255,255,0.08)'
                   let color = 'rgba(255,255,255,0.8)'
 
-                  if (isSelected && isCorrect) { bg = 'rgba(0,255,136,0.1)'; border = '1px solid rgba(0,255,136,0.4)'; color = '#00FF88' }
+                  if (isSelected && isCorrect) { bg = 'rgba(0,255,136,0.1)'; border = '1px solid rgba(0,255,136,0.5)'; color = '#00FF88' }
                   else if (isWrong) { bg = 'rgba(239,68,68,0.1)'; border = '1px solid rgba(239,68,68,0.35)'; color = '#f87171' }
-                  else if (isSelected) { bg = 'rgba(59,130,246,0.1)'; border = '1px solid rgba(59,130,246,0.4)'; color = '#60a5fa' }
+                  else if (isSelected) { bg = 'rgba(0,255,136,0.06)'; border = '1px solid rgba(0,255,136,0.3)'; color = 'rgba(255,255,255,0.9)' }
                   else if (selected !== null && isCorrect) { bg = 'rgba(0,255,136,0.08)'; border = '1px solid rgba(0,255,136,0.3)'; color = '#6ee7b7' }
 
                   return (
@@ -400,11 +401,12 @@ export default function DiagnostikPage() {
                       onClick={() => handleAnswer(i)}
                       disabled={selected !== null}
                       style={{
-                        width: '100%', padding: '14px 18px', borderRadius: '14px',
+                        width: '100%', padding: '12px 16px', borderRadius: '14px',
                         border, background: bg, color,
                         fontSize: '14px', fontWeight: 600, textAlign: 'left',
                         cursor: selected === null ? 'pointer' : 'default',
                         transition: 'all 0.2s', display: 'flex', gap: '12px', alignItems: 'center',
+                        minHeight: '52px', touchAction: 'manipulation',
                       }}
                     >
                       <span style={{ minWidth: '26px', height: '26px', borderRadius: '50%', background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 800, flexShrink: 0 }}>
@@ -426,9 +428,9 @@ export default function DiagnostikPage() {
                   onClick={handleNext}
                   style={{
                     width: '100%', marginTop: '20px', padding: '14px', borderRadius: '14px',
-                    border: 'none', background: 'linear-gradient(90deg, #3b82f6, #06b6d4)',
-                    color: '#fff', fontSize: '14px', fontWeight: 800, cursor: 'pointer',
-                    transition: 'all 0.2s',
+                    border: 'none', background: 'linear-gradient(90deg, #00FF88, #06b6d4)',
+                    color: '#000', fontSize: '14px', fontWeight: 800, cursor: 'pointer',
+                    transition: 'all 0.2s', boxShadow: '0 4px 20px rgba(0,255,136,0.3)',
                   }}
                   onMouseEnter={e => e.currentTarget.style.filter = 'brightness(1.1)'}
                   onMouseLeave={e => e.currentTarget.style.filter = 'none'}
@@ -453,7 +455,7 @@ export default function DiagnostikPage() {
               backdropFilter: 'blur(20px)',
               border: '1px solid rgba(255,255,255,0.08)',
               borderRadius: '28px',
-              padding: '40px 36px',
+              padding: 'clamp(24px, 5vw, 40px) clamp(20px, 5vw, 36px)',
               textAlign: 'center', color: '#fff',
             }}
           >
