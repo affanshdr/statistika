@@ -126,8 +126,9 @@ export default function SiswaPage() {
   const { cognitiveStyle, setCognitiveStyle, startLevel, resetLevel } = useGameStore()
   const [selectedLevel, setSelectedLevel] = useState<typeof LEVELS[0] | null>(null)
   const [zoomScale, setZoomScale] = useState(1.0)
-  const [mapTheme, setMapTheme] = useState<'blueprint' | 'satellite'>('blueprint')
+  const [mapTheme, setMapTheme] = useState<'blueprint' | 'satellite'>('satellite')
   const [showExitConfirm, setShowExitConfirm] = useState(false)
+  const [showGreeting, setShowGreeting] = useState(true)
   
   const viewportRef = useRef<HTMLDivElement>(null)
   const [viewportSize, setViewportSize] = useState({ width: 1536, height: 730 })
@@ -524,76 +525,40 @@ export default function SiswaPage() {
             )}
           </div>
 
-          {/* Greeting card — desktop only */}
-          {!isMobile && student.diagnosticLevel && student.geftResult?.cognitiveStyle && (
-            <motion.div
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
+          {/* Greeting Waving Hand Button */}
+          {student.diagnosticLevel && student.geftResult?.cognitiveStyle && (
+            <motion.button
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              whileHover={{ scale: 1.1, background: 'rgba(0, 255, 136, 0.15)', borderColor: 'rgba(0, 255, 136, 0.5)' }}
+              whileTap={{ scale: 0.9 }}
+              onClick={() => setShowGreeting(true)}
+              title="Buka Greeting"
               style={{
-                background: 'rgba(10, 15, 30, 0.65)',
-                backdropFilter: 'blur(12px)',
-                border: '1px solid rgba(255,255,255,0.06)',
-                borderRadius: '16px',
-                padding: '14px 16px',
-                fontSize: '12px',
-                lineHeight: 1.6,
-                color: 'rgba(255,255,255,0.7)',
+                alignSelf: 'flex-start',
+                width: isMobile ? '34px' : '40px',
+                height: isMobile ? '34px' : '40px',
+                borderRadius: '50%',
+                border: '1px solid rgba(0, 255, 136, 0.25)',
+                background: 'rgba(12, 12, 20, 0.95)',
+                backdropFilter: 'blur(10px)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: isMobile ? '16px' : '18px',
+                cursor: 'pointer',
+                boxShadow: '0 4px 12px rgba(0,255,136,0.08)',
+                transition: 'all 0.2s',
+                marginLeft: '4px',
               }}
             >
-              <span style={{ color: '#fff', fontWeight: 700 }}>Halo, {student.name.split(' ')[0]}! 👋</span>{' '}
-              {student.diagnosticLevel === 'tinggi'
-                ? 'Kemampuan statistikamu sudah mantap! Langsung terjun ke investigasi kasus yang menantang.'
-                : student.diagnosticLevel === 'sedang'
-                ? 'Dasar statistikamu sudah oke. Siap perkuat dengan investigasi data nyata!'
-                : 'Tenang, kita mulai dari dasar bareng-bareng. Setiap detektif besar dimulai dari sini!'
-              }
-            </motion.div>
+              👋
+            </motion.button>
           )}
         </div>
 
-        {/* Floating Map Theme Controls — Desktop only (Top Left Center) */}
-        {!isMobile && (
-        <div style={{
-          position: 'absolute',
-          top: '20px',
-          left: '360px',
-          zIndex: 100,
-          display: 'flex',
-          gap: '8px',
-          background: 'rgba(10, 15, 30, 0.65)',
-          backdropFilter: 'blur(12px)',
-          border: '1px solid rgba(255,255,255,0.08)',
-          borderRadius: '12px',
-          padding: '6px'
-        }}>
-          <button
-            onClick={() => setMapTheme('blueprint')}
-            style={{
-              padding: '6px 12px', borderRadius: '8px', fontSize: '11px', fontWeight: 700,
-              border: 'none',
-              background: mapTheme === 'blueprint' ? 'rgba(59,130,246,0.2)' : 'transparent',
-              color: mapTheme === 'blueprint' ? '#60a5fa' : 'rgba(255,255,255,0.5)',
-              cursor: 'pointer',
-              transition: 'all 0.2s'
-            }}
-          >
-            Blueprint 📐
-          </button>
-          <button
-            onClick={() => setMapTheme('satellite')}
-            style={{
-              padding: '6px 12px', borderRadius: '8px', fontSize: '11px', fontWeight: 700,
-              border: 'none',
-              background: mapTheme === 'satellite' ? 'rgba(16,185,129,0.2)' : 'transparent',
-              color: mapTheme === 'satellite' ? '#34d399' : 'rgba(255,255,255,0.5)',
-              cursor: 'pointer',
-              transition: 'all 0.2s'
-            }}
-          >
-            Satelit 🛰️
-          </button>
-        </div>
-        )}
+
+
 
         {/* Floating Keluar Sesi Button (Top Right) */}
         <button
@@ -807,29 +772,7 @@ export default function SiswaPage() {
             justifyContent: 'space-between',
             gap: '8px',
           }}>
-            {/* Theme switcher */}
-            <div style={{ display: 'flex', gap: '4px', background: 'rgba(255,255,255,0.05)', borderRadius: '10px', padding: '4px' }}>
-              <button
-                onClick={() => setMapTheme('blueprint')}
-                style={{
-                  padding: '6px 10px', borderRadius: '7px', fontSize: '11px', fontWeight: 700,
-                  border: 'none', minHeight: '36px', touchAction: 'manipulation',
-                  background: mapTheme === 'blueprint' ? 'rgba(59,130,246,0.25)' : 'transparent',
-                  color: mapTheme === 'blueprint' ? '#60a5fa' : 'rgba(255,255,255,0.45)',
-                  cursor: 'pointer',
-                }}
-              >📐</button>
-              <button
-                onClick={() => setMapTheme('satellite')}
-                style={{
-                  padding: '6px 10px', borderRadius: '7px', fontSize: '11px', fontWeight: 700,
-                  border: 'none', minHeight: '36px', touchAction: 'manipulation',
-                  background: mapTheme === 'satellite' ? 'rgba(16,185,129,0.25)' : 'transparent',
-                  color: mapTheme === 'satellite' ? '#34d399' : 'rgba(255,255,255,0.45)',
-                  cursor: 'pointer',
-                }}
-              >🛰️</button>
-            </div>
+
 
             <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)', fontFamily: 'monospace', letterSpacing: '0.5px' }}>DRAG TO EXPLORE</span>
 
@@ -1066,6 +1009,85 @@ export default function SiswaPage() {
           </motion.div>
         )
       })()}
+
+      {/* Greeting Center Modal */}
+      {showGreeting && student && student.diagnosticLevel && student.geftResult?.cognitiveStyle && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          onClick={() => setShowGreeting(false)}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 300,
+            background: 'rgba(3,7,18,0.85)', backdropFilter: 'blur(12px)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: '20px',
+          }}
+        >
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            onClick={e => e.stopPropagation()}
+            style={{
+              background: 'rgba(10,15,30,0.95)',
+              border: '1px solid rgba(0, 255, 136, 0.25)',
+              borderRadius: '24px', padding: '32px 28px',
+              width: '100%', maxWidth: '440px',
+              boxShadow: '0 20px 60px rgba(0,0,0,0.7), 0 0 40px rgba(0, 255, 136, 0.1)',
+              color: '#fff',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
+              <div>
+                <div style={{ fontSize: '11px', color: '#00FF88', fontWeight: 800, letterSpacing: '1.5px', marginBottom: '6px' }}>
+                  LAPORAN MASUK
+                </div>
+                <h3 style={{ margin: 0, fontSize: '20px', fontWeight: 900 }}>
+                  👋 Halo, {student.name.split(' ')[0]}!
+                </h3>
+              </div>
+              <button
+                onClick={() => setShowGreeting(false)}
+                style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', fontSize: '20px', cursor: 'pointer', padding: '4px', lineHeight: 1 }}
+                onMouseEnter={e => e.currentTarget.style.color = '#ff6b6b'}
+                onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.4)'}
+              >✕</button>
+            </div>
+
+            <div style={{
+              padding: '16px',
+              borderRadius: '16px',
+              background: 'rgba(0, 255, 136, 0.04)',
+              border: '1px solid rgba(0, 255, 136, 0.15)',
+              fontSize: '13.5px',
+              lineHeight: 1.6,
+              color: 'rgba(255, 255, 255, 0.85)',
+              marginBottom: '20px'
+            }}>
+              {student.diagnosticLevel === 'tinggi'
+                ? 'Kemampuan statistikamu sudah mantap! Langsung terjun ke investigasi kasus yang menantang.'
+                : student.diagnosticLevel === 'sedang'
+                ? 'Dasar statistikamu sudah oke. Siap perkuat dengan investigasi data nyata!'
+                : 'Tenang, kita mulai dari dasar bareng-bareng. Setiap detektif besar dimulai dari sini!'
+              }
+            </div>
+
+            <button
+              onClick={() => setShowGreeting(false)}
+              style={{
+                width: '100%', padding: '12px', borderRadius: '12px', border: 'none',
+                background: isFI ? '#2563eb' : '#10b981',
+                color: '#fff', fontSize: '14px', fontWeight: 800, cursor: 'pointer',
+                boxShadow: isFI ? '0 4px 15px rgba(37,99,235,0.3)' : '0 4px 15px rgba(16,185,129,0.3)',
+                transition: 'all 0.2s'
+              }}
+              onMouseEnter={e => e.currentTarget.style.filter = 'brightness(1.15)'}
+              onMouseLeave={e => e.currentTarget.style.filter = 'none'}
+            >
+              Mulai Penyelidikan 🕵️‍♂️
+            </button>
+          </motion.div>
+        </motion.div>
+      )}
 
       {/* Ripple Animation and Responsive styles */}
       <style>{`

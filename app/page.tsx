@@ -353,7 +353,7 @@ export default function HomePage() {
           </div>
 
           {/* ── RIGHT: Login Card ── */}
-          <div style={{ flex: 0.85, minWidth: '320px', display: 'flex', justifyContent: 'center', perspective: '1000px' }}>
+          <div className="login-card-container" style={{ flex: 0.85, minWidth: '320px', display: 'flex', justifyContent: 'center', perspective: '1000px' }}>
             <motion.div
               ref={cardRef}
               onMouseMove={handleMouseMove}
@@ -595,6 +595,14 @@ export default function HomePage() {
         * { box-sizing: border-box; }
         input::placeholder { color: rgba(255,255,255,0.2); }
         select { appearance: none; }
+
+        @media (min-width: 901px) {
+          .login-card-container {
+            position: sticky !important;
+            top: 100px !important;
+            align-self: flex-start !important;
+          }
+        }
 
         @keyframes blink {
           0%, 100% { opacity: 1; }
