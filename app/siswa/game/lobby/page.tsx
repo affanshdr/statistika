@@ -15,8 +15,6 @@ type Student = {
   geftResult?: { cognitiveStyle: 'FI' | 'FD'; score: number }
 }
 
-type LeaderEntry = { username: string; totalXp: number; badges: string[]; studentId: string }
-
 const LEVELS = [
   {
     id: 1,
@@ -32,9 +30,6 @@ const LEVELS = [
   { id: 4, icon: '🏥', title: 'Kasus: Data Kesehatan', desc: 'Segera hadir', tags: [], locked: true, xpMax: 0 },
   { id: 5, icon: '📊', title: 'Kasus: Survei Ekonomi', desc: 'Segera hadir', tags: [], locked: true, xpMax: 0 },
 ]
-
-const RANK_COLORS = ['#FFD700', '#C0C0C0', '#CD7F32', '#8888AA', '#8888AA']
-const RANK_EMOJIS = ['🥇', '🥈', '🥉', '4', '5']
 
 export default function LobbyPage() {
   const router = useRouter()
@@ -71,13 +66,32 @@ export default function LobbyPage() {
   }, [router, cognitiveStyle, setCognitiveStyle])
 
   const handlePlayLevel = (levelId: number) => {
-    if (!cognitiveStyle || !student) return
+    let activeStyle = student?.geftResult?.cognitiveStyle || cognitiveStyle
+    
+    // Direct localStorage fallback to prevent state/hydration lag from blocking clicks
+    if (!activeStyle && typeof window !== 'undefined') {
+      try {
+        const raw = localStorage.getItem('student')
+        if (raw) {
+          const s = JSON.parse(raw)
+          activeStyle = s?.geftResult?.cognitiveStyle || null
+        }
+      } catch (e) {
+        console.error('Error reading cognitiveStyle fallback in lobby:', e)
+      }
+    }
+
+    // Default safe fallback if everything else is null
+    if (!activeStyle) {
+      activeStyle = 'FI'
+    }
+
     resetLevel()
-    startLevel(levelId, cognitiveStyle)
+    startLevel(levelId, activeStyle)
     router.push(`/siswa/game/level/${levelId}`)
   }
 
-  const isFI = cognitiveStyle === 'FI'
+  const isFI = (student?.geftResult?.cognitiveStyle || cognitiveStyle) === 'FI'
 
   if (loading) return (
     <div className="game-root" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
@@ -190,7 +204,14 @@ export default function LobbyPage() {
 
                 {!level.locked && (
                   <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid var(--game-border)' }}>
-                    <button className="game-btn game-btn-primary" style={{ fontSize: '13px', padding: '10px 20px' }}>
+                    <button
+                      className="game-btn game-btn-primary"
+                      style={{ fontSize: '13px', padding: '10px 20px' }}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handlePlayLevel(level.id)
+                      }}
+                    >
                       {cognitiveStyle === 'FI' ? '🧠 Mulai (FI Path)' : '👥 Mulai (FD Path)'} →
                     </button>
                   </div>

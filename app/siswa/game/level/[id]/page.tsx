@@ -1,14 +1,14 @@
 'use client'
 
-import { use, useEffect, useState } from 'react'
+import { use, useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useGameStore } from '@/lib/store/gameStore'
 import GameHeader from '../../_components/GameHeader'
 import Cutscene from '../../_components/Cutscene'
-import TutorialPhase from '../../_components/TutorialPhase'
 import FIPath from './_fi/FIPath'
 import FDPath from './_fd/FDPath'
+import OrientationGuard from '../../_components/OrientationGuard'
 import '../../game.css'
 
 export default function LevelPage({
@@ -18,14 +18,59 @@ export default function LevelPage({
 }) {
   const { id } = use(params)
   const router = useRouter()
-  const { cognitiveStyle } = useGameStore()
-  const [phase, setPhase] = useState<'cutscene' | 'tutorial' | 'game'>('cutscene')
+  const { cognitiveStyle, resetLevel } = useGameStore()
+  const [phase, setPhase] = useState<'cutscene' | 'game'>('cutscene')
   const [timerRunning, setTimerRunning] = useState(false)
+  // Track whether we've finished waiting for Zustand hydration
+  const [hydrated, setHydrated] = useState(false)
+  const didResetRef = useRef(false)
 
-  // Guard: if no cognitive style → back to lobby
+  // Wait one tick for Zustand persist to rehydrate from localStorage.
+  // Also always reset level state on fresh mount so that a back-navigation
+  // into this page always starts from scratch (no stale isCompleted/lives).
   useEffect(() => {
-    if (!cognitiveStyle) router.replace('/siswa/game/lobby')
-  }, [cognitiveStyle, router])
+    if (!didResetRef.current) {
+      resetLevel()
+      didResetRef.current = true
+    }
+    setHydrated(true)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Read cognitive style: prefer persisted Zustand value, fall back to localStorage
+  const resolvedStyle: 'FI' | 'FD' | null = (() => {
+    if (cognitiveStyle) return cognitiveStyle
+    if (typeof window !== 'undefined') {
+      try {
+        const raw = localStorage.getItem('student')
+        if (raw) {
+          const s = JSON.parse(raw)
+          return s?.geftResult?.cognitiveStyle ?? null
+        }
+      } catch { /* ignore */ }
+    }
+    return null
+  })()
+
+  // Guard: only redirect after we've confirmed hydration finished and still no style
+  useEffect(() => {
+    if (hydrated && !resolvedStyle) {
+      router.replace('/siswa/game/lobby')
+    }
+  }, [hydrated, resolvedStyle, router])
+
+  // Show loading spinner while Zustand is still hydrating
+  if (!hydrated) {
+    return (
+      <div className="game-root" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+          style={{ fontSize: '40px' }}
+        >⚙️</motion.div>
+      </div>
+    )
+  }
 
   // Only Level 1 exists
   if (id !== '1') {
@@ -33,46 +78,46 @@ export default function LevelPage({
       <div className="game-root" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', flexDirection: 'column', gap: '16px' }}>
         <div style={{ fontSize: '48px' }}>🚧</div>
         <h2>Level {id} belum tersedia</h2>
-        <button className="game-btn game-btn-primary" onClick={() => router.push('/siswa/game/lobby')}>
-          Kembali ke Lobby
+        <button className="game-btn game-btn-primary" onClick={() => router.push('/siswa')}>
+          Kembali ke Dashboard
         </button>
       </div>
     )
   }
 
+  if (!resolvedStyle) return null
+
   return (
-    <div className="game-root">
-      {/* Phase 1: Cutscene */}
-      <AnimatePresence>
-        {phase === 'cutscene' && (
-          <Cutscene onComplete={() => setPhase('tutorial')} />
-        )}
-      </AnimatePresence>
+    <OrientationGuard>
+      <div className="game-root" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+        <GameHeader timerRunning={timerRunning && phase === 'game'} />
 
-      {/* Phase 2: Tutorial Statistika Dasar */}
-      <AnimatePresence>
-        {phase === 'tutorial' && cognitiveStyle && (
-          <TutorialPhase
-            mode={cognitiveStyle as 'FI' | 'FD'}
-            onComplete={() => {
-              setPhase('game')
-              setTimerRunning(true)
-            }}
-          />
-        )}
-      </AnimatePresence>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative' }}>
+          {/* Phase 1: Cutscene */}
+          <AnimatePresence>
+            {phase === 'cutscene' && (
+              <Cutscene
+                onComplete={() => {
+                  setPhase('game')
+                  setTimerRunning(true)
+                }}
+              />
+            )}
+          </AnimatePresence>
 
-      {/* Phase 3: Game UI */}
-      {phase === 'game' && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
-        >
-          <GameHeader timerRunning={timerRunning} />
-          {cognitiveStyle === 'FI' ? <FIPath /> : <FDPath />}
-        </motion.div>
-      )}
-    </div>
+          {/* Phase 2: Game UI */}
+          {phase === 'game' && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
+              style={{ flex: 1, display: 'flex', flexDirection: 'column' }}
+            >
+              {resolvedStyle === 'FI' ? <FIPath /> : <FDPath />}
+            </motion.div>
+          )}
+        </div>
+      </div>
+    </OrientationGuard>
   )
 }

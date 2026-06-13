@@ -10,8 +10,6 @@ interface CutsceneProps {
 const NARASI = [
   'Sebuah postingan viral meledak di TikTok dan X: "BREAKING: Remaja Indonesia rata-rata habiskan >8 jam sehari di medsos! Generasi cemas kecanduan HP!"',
   'Postingan itu dibagikan jutaan kali. Kolom komentar meledak dengan kemarahan dan kekhawatiran netizen dari berbagai penjuru Indonesia...',
-  'Data screen time dari 35 siswa tersedia untuk dianalisis. Tugasmu: buat histogram, lihat distribusinya, dan tentukan apakah klaim tersebut benar-benar didukung data.',
-  'Ingat pesan mentormu: "Jangan terbawa viral! Gunakan statistika untuk menemukan kebenaran. Berpikir kritis adalah senjata terkuatmu."',
 ]
 
 const CUTSCENE_COMMENTS = [
@@ -23,7 +21,6 @@ const CUTSCENE_COMMENTS = [
   { user: '@Andi_Tech_Savy', text: 'Efek dopamin instan. Otak remaja sekarang udah rusak sama algoritma video pendek.' },
   { user: '@Fitri_Zzz', text: 'Wkwk pantesan kalau diajak ngomong langsung gak nyambung, fokusnya cuma bertahan 5 detik gara-gara keseringan nonton short video.' },
 ]
-
 
 function TypewriterText({ text, onDone }: { text: string; onDone: () => void }) {
   const [displayed, setDisplayed] = useState('')
@@ -40,7 +37,7 @@ function TypewriterText({ text, onDone }: { text: string; onDone: () => void }) 
         clearInterval(id)
         setTimeout(onDone, 200)
       }
-    }, 25)
+    }, 22)
     return () => clearInterval(id)
   }, [text, onDone])
 
@@ -61,10 +58,10 @@ export default function Cutscene({ onComplete }: CutsceneProps) {
 
   // Track window size for responsiveness
   useEffect(() => {
-    setIsMobile(window.innerWidth < 768)
-    const handleResize = () => setIsMobile(window.innerWidth < 768)
-    window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
+    const check = () => setIsMobile(window.innerWidth < 768)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
   }, [])
 
   useEffect(() => {
@@ -80,21 +77,13 @@ export default function Cutscene({ onComplete }: CutsceneProps) {
     audio.muted = isMuted
     audioRef.current = audio
 
-    const handleEnded = () => {
-      setAudioDone(true)
-    }
-
-    const handleError = () => {
-      setAudioDone(true)
-    }
+    const handleEnded = () => { setAudioDone(true) }
+    const handleError = () => { setAudioDone(true) }
 
     audio.addEventListener('ended', handleEnded)
     audio.addEventListener('error', handleError)
 
-    audio.play().catch(err => {
-      console.log('Audio autoplay blocked or file not found:', err)
-      setAudioDone(true)
-    })
+    audio.play().catch(() => { setAudioDone(true) })
 
     return () => {
       audio.removeEventListener('ended', handleEnded)
@@ -103,20 +92,20 @@ export default function Cutscene({ onComplete }: CutsceneProps) {
     }
   }, [paraIndex])
 
-  // Sync mute state when user toggles volume button
+  // Sync mute state
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.muted = isMuted
     }
   }, [isMuted])
 
-  // Sync transition to next slide
+  // Advance or complete
   useEffect(() => {
     if (typingDone && audioDone) {
       if (paraIndex < NARASI.length - 1) {
         const timer = setTimeout(() => {
           setParaIndex(p => p + 1)
-        }, 1200) // Small pause before next slide
+        }, 1000)
         return () => clearTimeout(timer)
       } else {
         setDone(true)
@@ -124,13 +113,15 @@ export default function Cutscene({ onComplete }: CutsceneProps) {
     }
   }, [typingDone, audioDone, paraIndex])
 
+  // Determine if we're on the mentor slide (last slide)
+  const isMentorSlide = paraIndex === NARASI.length - 1
+
   return (
     <motion.div
       className="cutscene-overlay"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      style={{ overflowY: 'auto', padding: '40px 20px' }}
     >
       {/* Header controls (Mute & Skip) */}
       <div style={{ position: 'absolute', top: '24px', right: '24px', display: 'flex', gap: '12px', zIndex: 210 }}>
@@ -158,6 +149,7 @@ export default function Cutscene({ onComplete }: CutsceneProps) {
         margin: 'auto',
         zIndex: 10
       }}>
+
         {/* Left Column: Logo & Narration Card */}
         <div style={{
           flex: 1.2,
@@ -206,9 +198,42 @@ export default function Cutscene({ onComplete }: CutsceneProps) {
               </motion.p>
             ))}
           </div>
+
+          {/* Mentor appears on last slide */}
+          <AnimatePresence>
+            {isMentorSlide && (
+              <motion.div
+                key="mentor-slide"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+                style={{
+                  marginTop: '20px', width: '100%',
+                  display: 'flex', gap: '16px', alignItems: 'flex-start',
+                  padding: '16px 20px', borderRadius: '16px',
+                  background: 'rgba(0,255,136,0.06)',
+                  border: '1px solid rgba(0,255,136,0.3)',
+                }}
+              >
+                <div style={{
+                  fontSize: '36px', flexShrink: 0,
+                  animation: 'float 2.5s ease-in-out infinite',
+                }}>🕵️</div>
+                <div>
+                  <div style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 800, letterSpacing: '1.5px', marginBottom: '6px' }}>
+                    MENTOR:
+                  </div>
+                  <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.85)', lineHeight: 1.7 }}>
+                    &quot;Tunggu dulu... Benar nggak sih klaim ini? Jangan langsung kemakan emosi netizen. Kita punya data screen time dari sampel 35 siswa acak.{' '}
+                    <strong style={{ color: '#00FF88' }}>Yuk, kita uji validitasnya!</strong>&quot;
+                  </p>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
-        {/* Right Column: TikTok Mockup Card */}
+        {/* Right Column: Instagram/Social Media Mockup Card */}
         <motion.div
           initial={{ opacity: 0, x: 50 }}
           animate={{ opacity: 1, x: 0 }}
@@ -220,40 +245,202 @@ export default function Cutscene({ onComplete }: CutsceneProps) {
             width: '100%'
           }}
         >
-          <div className="tiktok-card" style={{ width: '100%', maxWidth: '320px' }}>
-            <div className="tiktok-video">
-              <div>
-                <div style={{ fontSize: '32px', textAlign: 'center' }}>📱🔥</div>
-                <div style={{ fontSize: '11px', color: '#ff0050', textAlign: 'center', fontWeight: 800, marginTop: '6px', letterSpacing: '1px' }}>
-                  BREAKING NEWS
+          <div className="instagram-card" style={{
+            width: '100%',
+            maxWidth: '340px',
+            background: '#000',
+            border: '1px solid rgba(255, 255, 255, 0.12)',
+            borderRadius: '16px',
+            overflow: 'hidden',
+            boxShadow: '0 20px 40px rgba(0, 0, 0, 0.6)',
+            color: '#fff',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+          }}>
+            {/* Header */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '10px 12px',
+              borderBottom: '1px solid rgba(255, 255, 255, 0.08)'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                {/* Gradient avatar ring */}
+                <div style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '50%',
+                  background: 'linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)',
+                  padding: '2px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}>
+                  <div style={{
+                    width: '100%',
+                    height: '100%',
+                    borderRadius: '50%',
+                    background: '#fff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontWeight: 900,
+                    fontSize: '12px',
+                    color: '#000'
+                  }}>
+                    P
+                  </div>
                 </div>
-                <div style={{ fontSize: '13px', color: '#eee', textAlign: 'center', marginTop: '8px', lineHeight: 1.5 }}>
-                  Remaja Indonesia rata-rata habiskan <strong style={{ color: '#ff0050' }}>&gt;8 jam/hari</strong> di medsos! Generasi cemas kecanduan HP! 😱
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <span style={{ fontSize: '13px', fontWeight: 700, color: '#fff' }}>pinterpolitik</span>
+                  {/* Verified Badge */}
+                  <svg viewBox="0 0 24 24" width="12" height="12" style={{ fill: '#3897f0', marginLeft: '4px', display: 'inline-block', verticalAlign: 'middle' }}>
+                    <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+                  </svg>
                 </div>
               </div>
-              <div style={{ position: 'absolute', top: '12px', right: '12px', background: '#ff0050', color: '#fff', padding: '3px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 800 }}>
-                VIRAL 🔥
-              </div>
-            </div>
-            <div className="tiktok-caption">
-              <strong>@faktaviral.id</strong> BREAKING! Rata-rata &gt;8 jam/hari medsos! Nilai turun, kecanduan HP! Generasi cemas! #viral #screentime #generasiZ #breaking
+              <div style={{ color: '#8e8e8e', cursor: 'pointer', fontSize: '18px', fontWeight: 'bold' }}>•••</div>
             </div>
 
-            
+            {/* Post Image Body */}
+            <motion.div
+              style={{
+                background: '#fff',
+                position: 'relative',
+                height: '300px',
+                overflow: 'hidden',
+                display: 'flex',
+                color: '#000',
+              }}
+              animate={paraIndex === 0 ? {
+                boxShadow: ['inset 0 0 0px rgba(239,68,68,0)', 'inset 0 0 20px rgba(239,68,68,0.7)', 'inset 0 0 0px rgba(239,68,68,0)'],
+              } : {}}
+              transition={{ duration: 1.2, repeat: Infinity }}
+            >
+              {/* Left Text */}
+              <div style={{
+                flex: 1,
+                padding: '24px 0px 24px 20px',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                zIndex: 2,
+                lineHeight: 1.1,
+              }}>
+                <div style={{
+                  fontSize: '28px',
+                  fontWeight: 900,
+                  color: '#c90000',
+                  fontFamily: 'Impact, "Arial Black", sans-serif',
+                  letterSpacing: '0.5px',
+                  marginBottom: '6px',
+                }}>
+                  BREAKING:
+                </div>
+                <div style={{
+                  fontSize: '20px',
+                  fontWeight: 800,
+                  color: '#000',
+                  fontFamily: '"Arial Narrow", Arial, sans-serif',
+                  textTransform: 'uppercase',
+                  letterSpacing: '-0.5px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '2px',
+                }}>
+                  <span>Remaja Indonesia</span>
+                  <span>rata-rata</span>
+                  <span>habiskan</span>
+                  <span style={{ color: '#c90000' }}>&gt;8 jam</span>
+                  <span style={{ color: '#c90000' }}>sehari di</span>
+                  <span style={{ color: '#c90000' }}>medsos!</span>
+                  <span style={{ marginTop: '6px', fontSize: '15px', fontWeight: 800 }}>Generasi cemas</span>
+                  <span style={{ fontSize: '15px', fontWeight: 800 }}>kecanduan HP!</span>
+                </div>
+              </div>
+
+              {/* Right Silhouette Image */}
+              <div style={{
+                position: 'absolute',
+                top: 0,
+                right: 0,
+                width: '60%',
+                height: '100%',
+                zIndex: 1,
+              }}>
+                <img
+                  src="/teen_silhouette.png"
+                  alt="Teen Silhouette"
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    objectPosition: 'center',
+                  }}
+                />
+              </div>
+            </motion.div>
+
+            {/* Actions Bar */}
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              padding: '12px 14px 8px',
+            }}>
+              <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
+                <span style={{ cursor: 'pointer', fontSize: '16px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  ❤️ <span style={{ fontSize: '11px', fontWeight: 600, color: '#b3b3b3' }}>12,9rb</span>
+                </span>
+                <span style={{ cursor: 'pointer', fontSize: '16px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  💬 <span style={{ fontSize: '11px', fontWeight: 600, color: '#b3b3b3' }}>1.134</span>
+                </span>
+                <span style={{ cursor: 'pointer', fontSize: '16px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  ✈️ <span style={{ fontSize: '11px', fontWeight: 600, color: '#b3b3b3' }}>3.560</span>
+                </span>
+              </div>
+              <span style={{ cursor: 'pointer', fontSize: '16px' }}>🔖</span>
+            </div>
+
+            {/* Caption Info */}
+            <div style={{
+              padding: '0 14px 14px',
+              fontSize: '12px',
+              lineHeight: 1.4,
+              color: '#f5f5f5',
+            }}>
+              <div style={{ marginBottom: '6px', color: '#b3b3b3' }}>
+                Disukai oleh <strong>edukasi.kompas</strong> dan <strong>lainnya</strong>
+              </div>
+              <div>
+                <strong>pinterpolitik</strong> Sebuah studi terbaru mengungkap fakta mencengangkan: remaja Indonesia rata-rata menghabiskan lebih dari 8 jam sehari di media sosial!... <span style={{ color: '#b3b3b3', cursor: 'pointer' }}>selengkapnya</span>
+              </div>
+              
+              <div style={{ color: '#b3b3b3', marginTop: '6px', cursor: 'pointer', fontSize: '11px' }}>
+                Lihat semua komentar
+              </div>
+            </div>
+
             {/* Comments list - only displays for Slide 2 (index 1) onwards */}
             {paraIndex >= 1 && (
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                {CUTSCENE_COMMENTS.map((c, i) => (
+              <div style={{ display: 'flex', flexDirection: 'column', borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}>
+                {CUTSCENE_COMMENTS.slice(0, 3).map((c, i) => (
                   <motion.div
                     key={i}
                     className="tiktok-comment"
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.4 }}
-                    style={{ background: 'rgba(255,255,255,0.02)', color: '#eee', padding: '8px 14px' }}
+                    transition={{ delay: i * 0.35 }}
+                    style={{
+                      background: 'rgba(255,255,255,0.01)',
+                      color: '#eee',
+                      padding: '8px 14px',
+                      fontSize: '11.5px',
+                      borderBottom: '1px solid rgba(255, 255, 255, 0.04)',
+                    }}
                   >
-                    <span style={{ color: 'var(--accent)', fontWeight: 700, marginRight: '6px' }}>{c.user}</span>
-                    <span>{c.text}</span>
+                    <span style={{ color: '#3897f0', fontWeight: 700, marginRight: '6px' }}>{c.user}</span>
+                    <span style={{ color: '#e5e5e5' }}>{c.text}</span>
                   </motion.div>
                 ))}
               </div>

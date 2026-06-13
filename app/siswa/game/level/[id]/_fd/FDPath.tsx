@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import dynamic from 'next/dynamic'
 import { useGameStore } from '@/lib/store/gameStore'
@@ -8,34 +8,48 @@ import DiRA from '../../../_components/DiRA'
 import BadgeUnlock from '../../../_components/BadgeUnlock'
 import MythBustedStamp from '../../../_components/MythBustedStamp'
 import DetektivBooklet from '../../../_components/DetektivBooklet'
-import { BADGES, FD_MC_QUESTIONS } from '../../../_data/level1'
+import { BADGES, CRITICAL_KEYWORDS_POSITIVE, FD_CRITICAL_KEYWORDS_EVIDENCE, STATS } from '../../../_data/level1'
 import { useRouter } from 'next/navigation'
 
 const DraggableHistogram = dynamic(() => import('../../../_components/DraggableHistogram'), { ssr: false })
 
-// Steps: 0 = Histogram (guided), 1 = MC Questions, 2 = MythBusted, 3 = Materi Booklet
+// Steps: 0 = Histogram (guided), 1 = Text Analysis, 2 = MythBusted, 3 = Materi Booklet
 type GameStep = 0 | 1 | 2 | 3
 
 interface PendingBadge { icon: string; name: string; desc: string; id: string }
 
+function checkAnalysisFD(text: string): { pass: boolean; missingPositive: boolean; missingEvidence: boolean } {
+  const lower = text.toLowerCase()
+  const hasPositive = CRITICAL_KEYWORDS_POSITIVE.some(kw => lower.includes(kw))
+  // FD: threshold lebih rendah — cukup 1 kata bukti dari daftar yang lebih luas
+  const hasEvidence = FD_CRITICAL_KEYWORDS_EVIDENCE.some(kw => lower.includes(kw))
+  return { pass: hasPositive && hasEvidence, missingPositive: !hasPositive, missingEvidence: !hasEvidence }
+}
+
 export default function FDPath() {
   const router = useRouter()
-  const { addXP, loseLife, lives, isCompleted, completeLevel, unlockBadge, incrementMistake, mistakeCount, sessionStartTime } = useGameStore()
+  const { addXP, lives, isCompleted, completeLevel, unlockBadge, incrementMistake, mistakeCount, sessionStartTime } = useGameStore()
 
   const [step, setStep] = useState<GameStep>(0)
   const [gameOver, setGameOver] = useState(false)
   const [pendingBadges, setPendingBadges] = useState<PendingBadge[]>([])
+  // Track if isCompleted came from this active session (not stale persist)
+  const sessionActiveRef = useRef(false)
+  useEffect(() => { sessionActiveRef.current = true }, [])
 
-  // DiRA state
+  // DiRA state (step 0)
   const [diraMsg, setDiraMsg] = useState<string | null>('Yuk pindahkan data screen time 35 siswa ke histogram! Data kelas 1–4 (25 siswa) sudah aku masukkan otomatis sebagai bantuan. Tinggal drag 10 data tersisa ya! 😉')
   const [showDira, setShowDira] = useState(true)
 
-  // MC state
-  const [mcAnswers, setMcAnswers] = useState<(number | null)[]>(Array(FD_MC_QUESTIONS.length).fill(null))
-  const [mcSubmitted, setMcSubmitted] = useState<boolean[]>(Array(FD_MC_QUESTIONS.length).fill(false))
-  const [mcCurrentQ, setMcCurrentQ] = useState(0)
-  const [showHint, setShowHint] = useState(false)
+  // Flash wrong overlay (FD only — no life lost)
   const [flashWrong, setFlashWrong] = useState(false)
+
+  // Text analysis state (step 1)
+  const [analysisText, setAnalysisText] = useState('')
+  const [analysisResult, setAnalysisResult] = useState<null | { pass: boolean; missingPositive: boolean; missingEvidence: boolean }>(null)
+  const [analysisAttempts, setAnalysisAttempts] = useState(0)
+  // DiRA hint for step 1
+  const [showAnalysisDira, setShowAnalysisDira] = useState(false)
 
   useEffect(() => {
     if (lives <= 0) setGameOver(true)
@@ -55,60 +69,42 @@ export default function FDPath() {
       setShowDira(false)
       setStep(1)
     } else {
-      // FD: only red flash, no life lost — but show DiRA
+      // FD: hanya red flash, tanpa life lost — eksplorasi mandiri
       setFlashWrong(true)
       setTimeout(() => setFlashWrong(false), 600)
-      setDiraMsg('Oops, ada data yang masuk ke kelas yang salah nih! Coba periksa lagi — ingat interval: 1-4, 5-8, 9-12, 13-16 jam. Semangat! 💪')
+      setDiraMsg('Oops, ada data yang masuk ke kelas yang salah nih! Coba periksa lagi — ingat interval: 1-4, 5-8, 9-12, 13-16 jam. Angka yang terlalu besar atau terlalu kecil berarti harus masuk ke kelas yang berbeda. Semangat! 💪')
       setShowDira(true)
     }
   }
 
-  // ── STEP 1: MC Questions ──
-  const handleMCSelect = (optIdx: number) => {
-    if (mcSubmitted[mcCurrentQ]) return
-    const newAnswers = [...mcAnswers]
-    newAnswers[mcCurrentQ] = optIdx
-    setMcAnswers(newAnswers)
-  }
+  // ── STEP 1: Text Analysis ──
+  const handleAnalysisSubmit = () => {
+    if (analysisText.trim().length < 15) return
+    const result = checkAnalysisFD(analysisText)
+    setAnalysisResult(result)
+    const attempts = analysisAttempts + 1
+    setAnalysisAttempts(attempts)
 
-  const handleMCSubmit = () => {
-    const q = FD_MC_QUESTIONS[mcCurrentQ]
-    const selected = mcAnswers[mcCurrentQ]
-    if (selected === null) return
-
-    const newSubmitted = [...mcSubmitted]
-    newSubmitted[mcCurrentQ] = true
-    setMcSubmitted(newSubmitted)
-
-    const isCorrect = selected === q.correct
-    if (!isCorrect) {
-      // FD: red flash only, show hint, no life lost — explore mandiri
-      setFlashWrong(true)
-      setTimeout(() => setFlashWrong(false), 600)
-      setShowHint(true)
-    } else {
-      addXP(5, `MC Q${mcCurrentQ + 1} benar`, 1)
-      setShowHint(false)
-    }
-  }
-
-  const handleMCNext = () => {
-    setShowHint(false)
-    if (mcCurrentQ < FD_MC_QUESTIONS.length - 1) {
-      setMcCurrentQ(prev => prev + 1)
-    } else {
-      // All MC done — award badges and go to MYTH BUSTED
+    if (result.pass) {
+      addXP(25, 'Analisis distribusi FD tepat', 1)
       awardBadge(BADGES.DETECTIVE)
       if (mistakeCount === 0) awardBadge(BADGES.PERFECT)
+
+      // Speed bonus
       const initialTime = 900
       const elapsed = sessionStartTime ? Math.floor((Date.now() - sessionStartTime) / 1000) : initialTime
       if (elapsed < initialTime * 0.5) awardBadge(BADGES.SPEED)
+
       awardBadge(BADGES.MYTHBUST)
-      setTimeout(() => setStep(2), 400)
+      setTimeout(() => setStep(2), 500)
+    } else {
+      // FD: setelah gagal pertama, DiRA langsung aktif memberi hint
+      if (attempts >= 1) setShowAnalysisDira(true)
+      incrementMistake()
     }
   }
 
-  // ── STEP 2: Myth Busted complete → go to materi ──
+  // ── STEP 2: MythBusted complete → Booklet ──
   const handleMythBustedComplete = () => setStep(3)
 
   // ── STEP 3: Booklet complete → finish level ──
@@ -118,18 +114,14 @@ export default function FDPath() {
   }
 
   useEffect(() => {
-    if (isCompleted) {
+    if (isCompleted && sessionActiveRef.current) {
       const t = setTimeout(() => router.push('/siswa/game/results/1'), 1200)
       return () => clearTimeout(t)
     }
   }, [isCompleted, router])
 
-  const STEP_LABELS = ['Histogram', 'Analisis MC', 'Buku Saku']
+  const STEP_LABELS = ['Histogram', 'Analisis', 'Buku Saku']
   const displayStep = step >= 2 ? 2 : step
-
-  const currentQ = FD_MC_QUESTIONS[mcCurrentQ]
-  const isCurrentSubmitted = mcSubmitted[mcCurrentQ]
-  const selectedAnswer = mcAnswers[mcCurrentQ]
 
   return (
     <div style={{ maxWidth: '820px', margin: '0 auto', padding: '24px 16px', paddingBottom: '120px' }}>
@@ -145,7 +137,7 @@ export default function FDPath() {
         ))}
       </div>
 
-      {/* Red flash overlay */}
+      {/* Red flash overlay — FD only, no life lost */}
       <AnimatePresence>
         {flashWrong && (
           <motion.div
@@ -173,13 +165,18 @@ export default function FDPath() {
                 </p>
               </div>
 
+              {/* Klaim viral reminder */}
+              <div style={{ padding: '12px 14px', borderRadius: '12px', background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.2)', fontSize: '13px', color: 'rgba(255,255,255,0.75)', lineHeight: 1.5 }}>
+                🚨 <strong style={{ color: '#f87171' }}>Klaim Viral:</strong> &quot;Remaja Indonesia rata-rata &gt;8 jam/hari di medsos!&quot; — Buktikan dengan data!
+              </div>
+
               {/* Pre-computed stats */}
               <div style={{ background: 'rgba(0,255,136,0.04)', border: '1px solid var(--game-border-accent)', borderRadius: '14px', padding: '14px 18px' }}>
                 <div style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 700, marginBottom: '10px', letterSpacing: '1px' }}>📊 STATISTIK DASAR (SUDAH DIHITUNG)</div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
                   {[
-                    { label: 'Mean', val: '4.23 jam' },
-                    { label: 'Median', val: '4 jam' },
+                    { label: 'Mean', val: `${STATS.mean} jam` },
+                    { label: 'Median', val: `${STATS.median} jam` },
                     { label: 'Min', val: '1 jam' },
                     { label: 'Max', val: '16 jam' },
                     { label: 'Range', val: '15 jam' },
@@ -198,113 +195,126 @@ export default function FDPath() {
           </motion.div>
         )}
 
-        {/* ── STEP 1: Multiple Choice Questions ── */}
+        {/* ── STEP 1: Text Analysis (FD) ── */}
         {step === 1 && (
           <motion.div key="step1" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }}>
             <div className="game-card" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               <div>
                 <div style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 800, letterSpacing: '1px', marginBottom: '6px' }}>
-                  TAHAP B — ANALISIS DATA ({mcCurrentQ + 1}/{FD_MC_QUESTIONS.length})
+                  TAHAP B — ANALISIS DISTRIBUSI &amp; VERDICT
                 </div>
-                <h2 style={{ margin: 0, fontSize: '20px' }}>Uji Pemahamanmu dari Histogram</h2>
+                <h2 style={{ margin: 0, fontSize: '20px' }}>The Verdict: Apakah Klaim Ini Valid?</h2>
               </div>
 
-              {/* Progress */}
-              <div style={{ display: 'flex', gap: '6px' }}>
-                {FD_MC_QUESTIONS.map((_, i) => (
-                  <div key={i} style={{
-                    flex: 1, height: '4px', borderRadius: '2px',
-                    background: i < mcCurrentQ ? 'rgba(0,255,136,0.6)' : i === mcCurrentQ ? 'var(--accent)' : 'rgba(255,255,255,0.1)',
-                    transition: 'background 0.3s',
-                  }} />
+              {/* Mentor dialog */}
+              <div style={{ display: 'flex', gap: '14px', alignItems: 'flex-start', padding: '16px', borderRadius: '14px', background: 'rgba(0,255,136,0.04)', border: '1px solid rgba(0,255,136,0.2)' }}>
+                <div style={{ fontSize: '36px', flexShrink: 0 }}>🕵️</div>
+                <div>
+                  <div style={{ fontSize: '12px', color: 'var(--accent)', fontWeight: 800, marginBottom: '6px' }}>DIALOG MENTOR:</div>
+                  <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.85)', lineHeight: 1.7 }}>
+                    &quot;Detektif, perhatikan baik-baik histogram yang sudah kamu bangun dari data 35 siswa nyata ini. Sekarang, bandingkan dengan postingan viral yang mengklaim bahwa &apos;Remaja Indonesia rata-rata menghabiskan{' '}
+                    <strong style={{ color: '#f87171' }}>lebih dari 8 jam sehari</strong> di medsos&apos;.&quot;
+                  </p>
+                  <p style={{ margin: '10px 0 0', fontSize: '14px', fontWeight: 700, color: '#fff' }}>
+                    ❓ Apakah klaim postingan viral tersebut <strong style={{ color: '#f87171' }}>valid</strong> dan didukung oleh data? Berikan alasan analisis statistikamu secara singkat!
+                  </p>
+                </div>
+              </div>
+
+              {/* Reference mini-stats */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+                {[
+                  { label: 'Mean', val: `${STATS.mean} jam`, color: '#F59E0B' },
+                  { label: 'Median', val: `${STATS.median} jam`, color: '#00FF88' },
+                  { label: 'Mayoritas (1-4 jam)', val: '25/35 = 71.4%', color: '#3B82F6' },
+                ].map(({ label, val, color }) => (
+                  <div key={label} style={{ padding: '10px', background: 'rgba(255,255,255,0.03)', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.06)', textAlign: 'center' }}>
+                    <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 700, marginBottom: '4px' }}>{label}</div>
+                    <div style={{ fontSize: '15px', fontWeight: 800, color, fontFamily: 'var(--font-data)' }}>{val}</div>
+                  </div>
                 ))}
               </div>
 
-              {/* Question */}
-              <motion.div
-                key={mcCurrentQ}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}
+              {/* Text input */}
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '8px', letterSpacing: '0.5px' }}>
+                  ANALISIS JAWABANMU:
+                </label>
+                <textarea
+                  value={analysisText}
+                  onChange={e => { setAnalysisText(e.target.value); setAnalysisResult(null) }}
+                  placeholder={`Contoh: "Tidak valid, karena mayoritas siswa (25 orang) hanya bermain 1-4 jam sehari. Angka 8 jam ke atas hanya beberapa orang saja (outlier/pencilan), jadi tidak bisa mewakili rata-rata seluruh remaja..."`}
+                  style={{
+                    width: '100%', boxSizing: 'border-box',
+                    minHeight: '110px', padding: '14px 16px', borderRadius: '12px',
+                    background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)',
+                    color: '#fff', fontSize: '14px', lineHeight: 1.6, resize: 'vertical',
+                    outline: 'none', transition: 'border-color 0.2s',
+                    fontFamily: 'var(--font-sans, sans-serif)',
+                  }}
+                  onFocus={e => e.target.style.borderColor = 'var(--accent)'}
+                  onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'}
+                />
+                <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '6px' }}>
+                  {analysisText.length} karakter — minimal ~15 karakter
+                </div>
+              </div>
+
+              {/* DiRA hint (FD — proaktif setelah gagal pertama) */}
+              <AnimatePresence>
+                {showAnalysisDira && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    style={{ display: 'flex', gap: '12px', alignItems: 'flex-start', padding: '12px 14px', borderRadius: '12px', background: 'rgba(0,255,136,0.05)', border: '1px solid rgba(0,255,136,0.2)' }}
+                  >
+                    <span style={{ fontSize: '24px', flexShrink: 0 }}>🤖</span>
+                    <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.85)', lineHeight: 1.6 }}>
+                      <strong style={{ color: 'var(--accent)' }}>DiRA: </strong>
+                      Coba sebutkan apakah klaim itu &quot;<strong>valid</strong>&quot; atau &quot;<strong>tidak valid</strong>&quot;. Kemudian, dukung dengan menyebut kata seperti &quot;mayoritas&quot;, &quot;outlier&quot;, atau &quot;histogram&quot;. Kamu pasti bisa! 💪
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Feedback on wrong answer */}
+              <AnimatePresence>
+                {analysisResult && !analysisResult.pass && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    style={{ padding: '14px 16px', borderRadius: '12px', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', fontSize: '13px', lineHeight: 1.6 }}
+                  >
+                    <div style={{ fontWeight: 800, color: '#f87171', marginBottom: '8px' }}>
+                      ⚠️ Jawabanmu belum lengkap — coba lagi!
+                    </div>
+                    {analysisResult.missingPositive && (
+                      <p style={{ margin: '0 0 6px', color: 'rgba(255,255,255,0.7)' }}>
+                        💡 <strong>Petunjuk 1:</strong> Sebutkan apakah klaim tersebut &quot;tidak valid&quot;, &quot;salah&quot;, atau &quot;menyesatkan&quot;.
+                      </p>
+                    )}
+                    {analysisResult.missingEvidence && (
+                      <p style={{ margin: '0 0 6px', color: 'rgba(255,255,255,0.7)' }}>
+                        💡 <strong>Petunjuk 2:</strong> Gunakan kata bukti seperti &quot;mayoritas&quot;, &quot;outlier&quot;, &quot;histogram&quot;, atau &quot;kebanyakan&quot;.
+                      </p>
+                    )}
+                    {analysisAttempts >= 2 && (
+                      <p style={{ margin: '6px 0 0', color: 'rgba(0,255,136,0.8)', fontStyle: 'italic' }}>
+                        🔍 Contoh jawaban: &quot;Tidak valid, karena mayoritas (25 siswa / 71%) hanya bermain 1-4 jam. Nilai 11 dan 16 jam adalah outlier yang membuat mean tampak lebih tinggi.&quot;
+                      </p>
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              <button
+                className="game-btn game-btn-primary"
+                onClick={handleAnalysisSubmit}
+                disabled={analysisText.trim().length < 15}
+                style={{ opacity: analysisText.trim().length >= 15 ? 1 : 0.5 }}
               >
-                <p style={{ margin: 0, fontSize: '15px', lineHeight: 1.7, fontWeight: 600, color: '#fff' }}>
-                  {currentQ.question}
-                </p>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  {currentQ.options.map((opt, i) => {
-                    const isSelected = selectedAnswer === i
-                    const isCorrect = isCurrentSubmitted && i === currentQ.correct
-                    const isWrong = isCurrentSubmitted && isSelected && i !== currentQ.correct
-
-                    let bg = 'rgba(255,255,255,0.03)'
-                    let border = '1px solid rgba(255,255,255,0.08)'
-                    let color = 'rgba(255,255,255,0.8)'
-                    if (isCorrect) { bg = 'rgba(0,255,136,0.1)'; border = '1px solid rgba(0,255,136,0.4)'; color = '#00FF88' }
-                    else if (isWrong) { bg = 'rgba(239,68,68,0.1)'; border = '1px solid rgba(239,68,68,0.35)'; color = '#f87171' }
-                    else if (isSelected) { bg = 'rgba(59,130,246,0.1)'; border = '1px solid rgba(59,130,246,0.35)'; color = '#60a5fa' }
-
-                    return (
-                      <motion.button
-                        key={i}
-                        whileHover={!isCurrentSubmitted ? { scale: 1.01, x: 4 } : {}}
-                        whileTap={!isCurrentSubmitted ? { scale: 0.99 } : {}}
-                        onClick={() => handleMCSelect(i)}
-                        disabled={isCurrentSubmitted}
-                        style={{
-                          width: '100%', padding: '12px 16px', borderRadius: '12px',
-                          border, background: bg, color,
-                          fontSize: '13px', fontWeight: 600, textAlign: 'left',
-                          cursor: isCurrentSubmitted ? 'default' : 'pointer',
-                          transition: 'all 0.2s', display: 'flex', gap: '10px', alignItems: 'center',
-                        }}
-                      >
-                        <span style={{ minWidth: '24px', height: '24px', borderRadius: '50%', background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 800, flexShrink: 0 }}>
-                          {['A', 'B', 'C', 'D'][i]}
-                        </span>
-                        <span>{opt}</span>
-                        {isCorrect && <span style={{ marginLeft: 'auto' }}>✅</span>}
-                        {isWrong && <span style={{ marginLeft: 'auto' }}>❌</span>}
-                      </motion.button>
-                    )
-                  })}
-                </div>
-
-                {/* Hint for FD on wrong */}
-                <AnimatePresence>
-                  {showHint && isCurrentSubmitted && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      style={{ padding: '12px 14px', borderRadius: '12px', background: 'rgba(0,255,136,0.05)', border: '1px solid rgba(0,255,136,0.2)', fontSize: '13px', lineHeight: 1.6, color: 'rgba(255,255,255,0.8)' }}
-                    >
-                      <strong style={{ color: 'var(--accent)' }}>💡 DiRA: </strong>{currentQ.hint}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-
-                {/* Buttons */}
-                <div style={{ display: 'flex', gap: '10px' }}>
-                  {!isCurrentSubmitted ? (
-                    <button
-                      className="game-btn game-btn-primary"
-                      onClick={handleMCSubmit}
-                      disabled={selectedAnswer === null}
-                      style={{ flex: 1, opacity: selectedAnswer !== null ? 1 : 0.5 }}
-                    >
-                      Submit Jawaban →
-                    </button>
-                  ) : (
-                    <button
-                      className="game-btn game-btn-primary"
-                      onClick={handleMCNext}
-                      style={{ flex: 1 }}
-                    >
-                      {mcCurrentQ < FD_MC_QUESTIONS.length - 1 ? 'Lanjut Soal Berikutnya →' : '✅ Selesaikan Analisis →'}
-                    </button>
-                  )}
-                </div>
-              </motion.div>
+                Submit Analisis →
+              </button>
             </div>
           </motion.div>
         )}
@@ -336,7 +346,7 @@ export default function FDPath() {
           <div style={{ fontSize: '64px' }}>💀</div>
           <h2 style={{ fontSize: '28px', margin: 0 }}>Game Over</h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: '15px' }}>
-            DiRA: "Jangan menyerah! Kamu pasti bisa 💪"
+            DiRA: &quot;Jangan menyerah! Kamu pasti bisa 💪&quot;
           </p>
           <div style={{ display: 'flex', gap: '12px' }}>
             <button

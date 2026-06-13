@@ -157,41 +157,12 @@ const QUESTIONS = [
   },
 ]
 
-const LEVEL_INFO = {
-  tinggi: {
-    icon: '🌟',
-    label: 'Kemampuan Awal: TINGGI',
-    color: '#00FF88',
-    bg: 'rgba(0,255,136,0.1)',
-    border: 'rgba(0,255,136,0.3)',
-    desc: 'Kamu sudah memiliki pemahaman statistika yang kuat! Siap menjadi Detektif Data kelas atas.',
-  },
-  sedang: {
-    icon: '⚡',
-    label: 'Kemampuan Awal: SEDANG',
-    color: '#F59E0B',
-    bg: 'rgba(245,158,11,0.1)',
-    border: 'rgba(245,158,11,0.3)',
-    desc: 'Kamu punya dasar yang baik! Belajar sambil bermain akan memperkuat pemahamanmu.',
-  },
-  rendah: {
-    icon: '🚀',
-    label: 'Kemampuan Awal: RENDAH',
-    color: '#3B82F6',
-    bg: 'rgba(59,130,246,0.1)',
-    border: 'rgba(59,130,246,0.3)',
-    desc: 'Jangan khawatir! Setiap detektif hebat dimulai dari nol. Ayo belajar bersama!',
-  },
-}
-
 export default function DiagnostikPage() {
   const router = useRouter()
   const [currentQ, setCurrentQ] = useState(0)
   const [answers, setAnswers] = useState<(number | null)[]>(Array(15).fill(null))
   const [selected, setSelected] = useState<number | null>(null)
   const [phase, setPhase] = useState<'intro' | 'test' | 'result'>('intro')
-  const [score, setScore] = useState(0)
-  const [level, setLevel] = useState<'tinggi' | 'sedang' | 'rendah'>('rendah')
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
@@ -223,13 +194,6 @@ export default function DiagnostikPage() {
         return acc + (ans === QUESTIONS[i].correct ? 1 : 0)
       }, 0)
 
-      let lvl: 'tinggi' | 'sedang' | 'rendah'
-      if (totalScore >= 11) lvl = 'tinggi'
-      else if (totalScore >= 6) lvl = 'sedang'
-      else lvl = 'rendah'
-
-      setScore(totalScore)
-      setLevel(lvl)
       setPhase('result')
 
       // Simpan ke API
@@ -248,7 +212,6 @@ export default function DiagnostikPage() {
   }, [selected, currentQ, answers])
 
   const q = QUESTIONS[currentQ]
-  const progress = ((currentQ) / QUESTIONS.length) * 100
 
   return (
     <main style={{

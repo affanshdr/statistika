@@ -62,52 +62,32 @@ export const CORRECT_VERDICT = 'MISLEADING'
 // Verdict explanation
 export const VERDICT_EXPLANATION = `Rata-rata screen time dari 35 siswa adalah <strong>${STATS.mean} jam/hari</strong> — jauh di bawah klaim "lebih dari 8 jam". Mayoritas siswa (<strong>25 dari 35 siswa atau 71.4%</strong>) hanya bermain medsos <strong>1–4 jam/hari</strong>. Hanya 2 siswa (yang punya screen time 11 dan 16 jam) yang jauh di atas rata-rata — ini disebut <strong>outlier/pencilan</strong>. Distribusi data menunjukkan pola <strong>skewed kanan (menceng kanan)</strong> karena data menumpuk di kiri dan ada ekor panjang ke kanan. Klaim tersebut bersifat <strong>MISLEADING</strong> karena menggeneralisasi dari data ekstrem yang tidak mewakili mayoritas.`
 
-// Keyword checker for FI text analysis (Tahap B)
+// ─────────────────────────────────────────────────────────────────────────────
+// Keyword checker for TEXT ANALYSIS (Tahap B) — dipakai KEDUA path FI & FD
+// ─────────────────────────────────────────────────────────────────────────────
 export const CRITICAL_KEYWORDS_POSITIVE = [
   'tidak valid', 'tidak benar', 'salah', 'misleading', 'tidak didukung',
   'tidak terbukti', 'hoaks', 'menyesatkan',
 ]
+
 export const CRITICAL_KEYWORDS_EVIDENCE = [
   'mayoritas', 'outlier', 'pencilan', 'menceng', 'skewed', 'grafik', 'distribusi',
   'histogram', '25', '71', 'kiri', 'ekor', 'ekstrem', 'data',
 ]
 
-// FD: Multiple choice questions for Tahap B
-export const FD_MC_QUESTIONS = [
-  {
-    id: 'mc1',
-    question: 'Berdasarkan histogram, kelas interval dengan frekuensi TERTINGGI adalah?',
-    options: ['1 – 4 jam (f = 25)', '5 – 8 jam (f = 8)', '9 – 12 jam (f = 1)', '13 – 16 jam (f = 1)'],
-    correct: 0,
-    hint: 'Lihat batang mana yang paling tinggi di histogram yang baru kamu buat!',
-  },
-  {
-    id: 'mc2',
-    question: 'Berapa persen siswa yang memiliki screen time di ATAS 8 jam/hari?',
-    options: ['71.4%', '22.9%', '5.7%', '2.9%'],
-    correct: 2,
-    hint: 'Siswa dengan screen time >8 jam: yang masuk kelas 9-12 (1 siswa) + kelas 13-16 (1 siswa) = 2 siswa. 2/35 × 100% ≈ 5.7%',
-  },
-  {
-    id: 'mc3',
-    question: 'Pola distribusi data screen time ini berbentuk...',
-    options: ['Simetris / Normal', 'Skewed kiri (menceng kiri)', 'Skewed kanan (menceng kanan)', 'Uniform (merata)'],
-    correct: 2,
-    hint: 'Data menumpuk di nilai rendah (1-4) tapi ada "ekor" panjang ke nilai tinggi (11, 16). Ini ciri khas distribusi menceng kanan!',
-  },
-  {
-    id: 'mc4',
-    question: 'Apakah klaim "remaja rata-rata >8 jam/hari" didukung oleh data histogram ini?',
-    options: [
-      'Ya, karena ada siswa yang main 16 jam',
-      'Tidak, karena mayoritas (71.4%) hanya 1-4 jam/hari',
-      'Ya, karena mean = 8 jam',
-      'Tidak bisa ditentukan dari histogram',
-    ],
-    correct: 1,
-    hint: 'Lihat frekuensi kelas 1-4 jam: ada 25 siswa atau 71.4% dari total. Klaim ">8 jam rata-rata" jelas tidak sesuai fakta!',
-  },
+// FD-specific: lower threshold — only 1 keyword from evidence required
+export const FD_CRITICAL_KEYWORDS_EVIDENCE = [
+  'mayoritas', 'outlier', 'pencilan', 'menceng', 'skewed', 'grafik', 'distribusi',
+  'histogram', '25', '71', 'kiri', 'ekor', 'ekstrem', 'data',
+  'kebanyakan', 'banyak', 'sedikit', 'jarang', 'tidak sesuai', 'tidak cocok',
 ]
+
+// Mentor dialog setelah MYTH BUSTED
+export const MENTOR_DIALOG_AFTER_MYTHBUST = `Luar biasa, Detektif! 🎉 Kamu baru saja menyelamatkan linimasa dari hoaks! Analisismu membuktikan bahwa mata kita sering ditipu oleh angka rata-rata yang dimanipulasi oleh data ekstrem (outlier).
+
+Tapi, tahukah kamu apa nama ilmiah dari bentuk grafik yang kamu buat tadi? Dan bagaimana outlier bisa merusak nilai rata-rata (mean) secara matematis?
+
+Sebelum kita lanjut ke Kasus Level 2, kamu wajib membuka "Buku Saku Detektif" di bawah ini untuk memperkuat senjata analisismu!`
 
 // Badges
 export const BADGES = {

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import dynamic from 'next/dynamic'
 import { useGameStore } from '@/lib/store/gameStore'
@@ -31,6 +31,9 @@ export default function FIPath() {
   const [step, setStep] = useState<GameStep>(0)
   const [gameOver, setGameOver] = useState(false)
   const [pendingBadges, setPendingBadges] = useState<PendingBadge[]>([])
+  // Track if isCompleted came from this active session (not stale persist)
+  const sessionActiveRef = useRef(false)
+  useEffect(() => { sessionActiveRef.current = true }, [])
 
   // Tahap B state
   const [analysisText, setAnalysisText] = useState('')
@@ -101,7 +104,7 @@ export default function FIPath() {
   }
 
   useEffect(() => {
-    if (isCompleted) {
+    if (isCompleted && sessionActiveRef.current) {
       const timer = setTimeout(() => router.push('/siswa/game/results/1'), 1200)
       return () => clearTimeout(timer)
     }
@@ -140,10 +143,18 @@ export default function FIPath() {
                   Drag atau klik data dari kolam kiri ke kelas interval yang tepat pada histogram kanan. Data dikelompokkan dalam interval lebar 4 jam.
                 </p>
               </div>
+
               {/* Context: viral claim */}
               <div style={{ padding: '12px 14px', borderRadius: '12px', background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.2)', fontSize: '13px', color: 'rgba(255,255,255,0.75)', lineHeight: 1.5 }}>
-                🚨 <strong style={{ color: '#f87171' }}>Klaim Viral:</strong> "Remaja Indonesia rata-rata &gt;8 jam/hari di medsos!" — Buktikan dengan data!
+                🚨 <strong style={{ color: '#f87171' }}>Klaim Viral:</strong> &quot;Remaja Indonesia rata-rata &gt;8 jam/hari di medsos!&quot; — Buktikan dengan data!
               </div>
+
+              {/* FI tip about histogram */}
+              <div style={{ padding: '12px 14px', borderRadius: '12px', background: 'rgba(59,130,246,0.06)', border: '1px solid rgba(59,130,246,0.2)', fontSize: '13px', color: 'rgba(255,255,255,0.75)', lineHeight: 1.5 }}>
+                📊 <strong style={{ color: '#60a5fa' }}>Ingat:</strong> Histogram berbeda dari diagram batang! Balok-balok histogram harus{' '}
+                <strong>saling berdempetan</strong> (tanpa celah) karena datanya kontinu (menyambung).
+              </div>
+
               <DraggableHistogram mode="FI" onSubmit={handleHistogramSubmit} />
             </div>
           </motion.div>
@@ -155,7 +166,7 @@ export default function FIPath() {
             <div className="game-card" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               <div>
                 <div style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 800, letterSpacing: '1px', marginBottom: '6px' }}>
-                  TAHAP B — ANALISIS DISTRIBUSI & VERDICT
+                  TAHAP B — ANALISIS DISTRIBUSI &amp; VERDICT
                 </div>
                 <h2 style={{ margin: 0, fontSize: '20px' }}>The Verdict: Apakah Klaim Ini Valid?</h2>
               </div>
@@ -166,7 +177,8 @@ export default function FIPath() {
                 <div>
                   <div style={{ fontSize: '12px', color: 'var(--accent)', fontWeight: 800, marginBottom: '6px' }}>DIALOG MENTOR:</div>
                   <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.85)', lineHeight: 1.7 }}>
-                    "Detektif, perhatikan baik-baik histogram yang sudah kamu bangun dari data 35 siswa nyata ini. Sekarang, bandingkan dengan postingan viral yang mengklaim bahwa 'Remaja Indonesia rata-rata menghabiskan <strong style={{ color: '#f87171' }}>lebih dari 8 jam sehari</strong> di medsos'."
+                    &quot;Detektif, perhatikan baik-baik histogram yang sudah kamu bangun dari data 35 siswa nyata ini. Sekarang, bandingkan dengan postingan viral yang mengklaim bahwa &apos;Remaja Indonesia rata-rata menghabiskan{' '}
+                    <strong style={{ color: '#f87171' }}>lebih dari 8 jam sehari</strong> di medsos&apos;.&quot;
                   </p>
                   <p style={{ margin: '10px 0 0', fontSize: '14px', fontWeight: 700, color: '#fff' }}>
                     ❓ Apakah klaim postingan viral tersebut <strong style={{ color: '#f87171' }}>valid</strong> dan didukung oleh data? Berikan alasan analisis statistikamu secara singkat!
@@ -226,17 +238,17 @@ export default function FIPath() {
                     </div>
                     {analysisResult.missingPositive && (
                       <p style={{ margin: '0 0 6px', color: 'rgba(255,255,255,0.7)' }}>
-                        💡 <strong>Petunjuk 1:</strong> Sertakan penilaian apakah klaim tersebut "tidak valid", "salah", "misleading", atau "tidak benar".
+                        💡 <strong>Petunjuk 1:</strong> Sertakan penilaian apakah klaim tersebut &quot;tidak valid&quot;, &quot;salah&quot;, &quot;misleading&quot;, atau &quot;tidak benar&quot;.
                       </p>
                     )}
                     {analysisResult.missingEvidence && (
                       <p style={{ margin: '0 0 6px', color: 'rgba(255,255,255,0.7)' }}>
-                        💡 <strong>Petunjuk 2:</strong> Dukung dengan bukti data: kata kunci seperti "mayoritas", "outlier", "menceng", "71%", atau "distribusi" akan memperkuat analisismu.
+                        💡 <strong>Petunjuk 2:</strong> Dukung dengan bukti data: kata kunci seperti &quot;mayoritas&quot;, &quot;outlier&quot;, &quot;menceng&quot;, &quot;71%&quot;, atau &quot;distribusi&quot; akan memperkuat analisismu.
                       </p>
                     )}
                     {analysisAttempts >= 2 && (
                       <p style={{ margin: '6px 0 0', color: 'rgba(0,255,136,0.8)', fontStyle: 'italic' }}>
-                        🔍 Contoh jawaban: "Tidak valid, karena mayoritas (25 siswa / 71%) hanya bermain 1-4 jam. Nilai 11 dan 16 jam adalah outlier yang membuat mean tampak lebih tinggi. Distribusi data menceng kanan."
+                        🔍 Contoh jawaban: &quot;Tidak valid, karena mayoritas (25 siswa / 71%) hanya bermain 1-4 jam. Nilai 11 dan 16 jam adalah outlier yang membuat mean tampak lebih tinggi. Distribusi data menceng kanan.&quot;
                       </p>
                     )}
                   </motion.div>

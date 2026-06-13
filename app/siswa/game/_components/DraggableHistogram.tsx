@@ -86,7 +86,8 @@ export default function DraggableHistogram({ mode, onSubmit, readOnly = false }:
       setDataPoints(prev => prev.map(dp => dp.id === draggingPoint.id ? { ...dp, placed: true } : dp))
     } else {
       const correctLabel = CLASS_LABELS[draggingPoint.classIdx]
-      triggerError(slotIdx, `💡 Angka ${draggingPoint.val} seharusnya masuk ke kelas ${correctLabel}, bukan kelas ini!`)
+      // GDD Kasus Salah 1: angka masuk ke kelas yang salah
+      triggerError(slotIdx, `💡 Eh, tunggu dulu! Angka ${draggingPoint.val} sudah melewati batas kelas ini. Dia harus masuk ke rumah berikutnya: kelas ${correctLabel}!`)
     }
     setDraggingPoint(null)
   }, [draggingPoint])
@@ -103,7 +104,8 @@ export default function DraggableHistogram({ mode, onSubmit, readOnly = false }:
       setSelectedPoint(null)
     } else {
       const correctLabel = CLASS_LABELS[selectedPoint.classIdx]
-      triggerError(slotIdx, `💡 Angka ${selectedPoint.val} seharusnya masuk ke kelas ${correctLabel}!`)
+      // GDD Kasus Salah 1: angka masuk ke kelas yang salah (tap/klik)
+      triggerError(slotIdx, `💡 Periksa lagi batas kelasnya! Angka ${selectedPoint.val} seharusnya masuk ke kelas ${correctLabel}.`)
     }
   }, [selectedPoint])
 
