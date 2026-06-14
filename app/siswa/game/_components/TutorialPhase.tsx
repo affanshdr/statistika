@@ -526,7 +526,7 @@ export default function TutorialPhase({ mode, onComplete }: TutorialPhaseProps) 
                 padding: '12px 16px',
               }}
             >
-              <div style={{ fontSize: '28px', flexShrink: 0, lineHeight: 1 }}>🤖</div>
+              <img src="/dira-avatar.png" alt="Dira" style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
               <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.85)', lineHeight: 1.6 }}>
                 <strong style={{ color: 'var(--accent)' }}>Dira:</strong>{' '}
                 {slideIndex === 0 && 'Hei! Sebelum kita mulai investigasi, aku mau ajarin kamu beberapa hal penting dulu. Siap? 😊'}

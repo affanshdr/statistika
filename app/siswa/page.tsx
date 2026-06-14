@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { useGameStore } from '@/lib/store/gameStore'
-import OrientationGuard from '@/app/siswa/game/_components/OrientationGuard'
 
 type Student = {
   id: string
@@ -55,8 +54,8 @@ const LEVELS = [
   {
     id: 1,
     icon: '📊',
-    title: 'Kasus: Postingan Viral Screen Time',
-    desc: 'Selidiki klaim viral di TikTok menggunakan distribusi frekuensi & histogram.',
+    title: 'Level 1 (The Viral Myth)',
+    desc: 'Topik Materi: Statistika Deskriptif (Histogram, Distribusi Data, Outlier, & Ukuran Pemusatan Data)',
     tags: ['Distribusi Frekuensi', 'Histogram', 'Analisis Kritis'],
     locked: false,
     xpMax: 75,
@@ -90,7 +89,7 @@ export default function SiswaPage() {
   const [showCognitiveModal, setShowCognitiveModal] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const [showExitConfirm, setShowExitConfirm] = useState(false)
-  const [showGreeting, setShowGreeting] = useState(true)
+  const [showGreeting, setShowGreeting] = useState(false)
   
   // Game store variables
   const { cognitiveStyle, setCognitiveStyle, startLevel, resetLevel } = useGameStore()
@@ -100,11 +99,21 @@ export default function SiswaPage() {
     if (!data) { router.push('/'); return }
     const s = JSON.parse(data) as Student
     setStudent(s)
-    
+
     if (s.geftStatus === 'not_taken') {
       router.push('/siswa/geft')
     } else if (s.geftResult?.cognitiveStyle) {
       setCognitiveStyle(s.geftResult.cognitiveStyle)
+    }
+
+    // Show greeting once per browser session (right after login).
+    // sessionStorage resets when the tab is closed, so a new login always shows it again.
+    if (s.diagnosticLevel && s.geftResult?.cognitiveStyle) {
+      const alreadyShown = sessionStorage.getItem('greeting_shown')
+      if (!alreadyShown) {
+        setShowGreeting(true)
+        sessionStorage.setItem('greeting_shown', '1')
+      }
     }
   }, [router, setCognitiveStyle])
 
@@ -149,17 +158,17 @@ export default function SiswaPage() {
 
     resetLevel()
     startLevel(levelId, activeStyle)
-    router.push(`/siswa/game/level/${levelId}`)
+    // Use hard navigation to guarantee a fresh level page mount,
+    // bypassing the Next.js App Router client-side cache.
+    window.location.href = `/siswa/game/level/${levelId}`
   }
 
   const isFI = (student?.geftResult?.cognitiveStyle || cognitiveStyle) === 'FI'
 
   return (
-    <OrientationGuard>
     <main style={{
-      width: '100vw',
+      width: '100%',
       minHeight: '100vh',
-      overflowY: 'auto',
       position: 'relative',
       background: '#0A0A0F',
       color: '#f3f4f6',
@@ -326,7 +335,7 @@ export default function SiswaPage() {
             marginBottom: '8px',
             textShadow: '0 0 10px rgba(0, 255, 136, 0.3)',
           }}>
-            Misi Detektif Data
+            Misi Investigasi
           </div>
           <h1 style={{
             fontSize: isMobile ? '24px' : '36px',
@@ -335,7 +344,7 @@ export default function SiswaPage() {
             margin: 0,
             letterSpacing: '-0.5px',
           }}>
-            Metropolis Kebenaran Digital
+            Skeptikos
           </h1>
           <p style={{
             fontSize: isMobile ? '13px' : '14.5px',
@@ -371,6 +380,7 @@ export default function SiswaPage() {
                 <div
                   key={level.id}
                   className={`level-card ${isUnlocked ? 'unlocked' : 'locked'}`}
+                  onClick={() => isUnlocked && handlePlayLevel(level.id)}
                   style={{
                     width: isMobile ? '100%' : '300px',
                     maxWidth: isMobile ? '400px' : 'none',
@@ -526,7 +536,10 @@ export default function SiswaPage() {
                   <div>
                     {isUnlocked ? (
                       <button
-                        onClick={() => handlePlayLevel(level.id)}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handlePlayLevel(level.id)
+                        }}
                         style={{
                           width: '100%',
                           padding: '12px',
@@ -593,13 +606,15 @@ export default function SiswaPage() {
           <motion.div
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
+            className="modal-scrollbar"
             style={{
               background: 'rgba(10, 15, 30, 0.92)',
               border: '1px solid rgba(255, 255, 255, 0.08)',
               borderRadius: '24px',
               padding: '28px',
               width: '380px',
-              boxShadow: '0 20px 50px rgba(0, 0, 0, 0.7)',
+              maxHeight: 'calc(100vh - 40px)',
+              overflowY: 'auto',
               display: 'flex',
               flexDirection: 'column',
               gap: '20px'
@@ -642,6 +657,7 @@ export default function SiswaPage() {
               <button
                 onClick={() => {
                   localStorage.removeItem('student')
+                  sessionStorage.removeItem('greeting_shown')
                   router.push('/')
                 }}
                 style={{
@@ -687,11 +703,14 @@ export default function SiswaPage() {
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               onClick={e => e.stopPropagation()}
+              className="modal-scrollbar"
               style={{
                 background: 'rgba(10,15,30,0.95)',
                 border: `1px solid ${info.border}`,
                 borderRadius: '24px', padding: '32px 28px',
                 width: '100%', maxWidth: '440px',
+                maxHeight: 'calc(100vh - 40px)',
+                overflowY: 'auto',
                 boxShadow: `0 20px 60px rgba(0,0,0,0.7), 0 0 40px ${info.bg}`,
                 color: '#fff',
               }}
@@ -781,11 +800,14 @@ export default function SiswaPage() {
             initial={{ scale: 0.9, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             onClick={e => e.stopPropagation()}
+            className="modal-scrollbar"
             style={{
               background: 'rgba(10,15,30,0.95)',
               border: '1px solid rgba(0, 255, 136, 0.25)',
               borderRadius: '24px', padding: '32px 28px',
               width: '100%', maxWidth: '440px',
+              maxHeight: 'calc(100vh - 40px)',
+              overflowY: 'auto',
               boxShadow: '0 20px 60px rgba(0,0,0,0.7), 0 0 40px rgba(0, 255, 136, 0.1)',
               color: '#fff',
             }}
@@ -878,6 +900,21 @@ export default function SiswaPage() {
           background: rgba(0, 255, 136, 0.45);
         }
 
+        .modal-scrollbar::-webkit-scrollbar {
+          width: 6px;
+        }
+        .modal-scrollbar::-webkit-scrollbar-track {
+          background: rgba(10, 15, 30, 0.3);
+          border-radius: 10px;
+        }
+        .modal-scrollbar::-webkit-scrollbar-thumb {
+          background: rgba(255, 255, 255, 0.15);
+          border-radius: 10px;
+        }
+        .modal-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: rgba(255, 255, 255, 0.35);
+        }
+
         .level-card {
           transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
@@ -891,6 +928,5 @@ export default function SiswaPage() {
         }
       `}</style>
     </main>
-    </OrientationGuard>
   )
 }

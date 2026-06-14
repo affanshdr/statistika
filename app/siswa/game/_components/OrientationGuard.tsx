@@ -8,20 +8,31 @@ import { motion, AnimatePresence } from 'framer-motion'
  *
  * Strategy:
  *   Layer 1 (Android Chrome): requestFullscreen() + screen.orientation.lock('landscape')
- *              → screen rotates automatically.
+ *              → screen rotates automatically. Only attempted when lockScreen={true}.
  *   Layer 2 (iOS / denied): show an animated overlay that disappears as soon
  *              as the user rotates the device themselves.
  *
- * On desktop (window.innerWidth >= 1024 and not a touch device) → does nothing.
+ * On desktop (non-touch device) → does nothing.
+ * 
+ * Props:
+ *   lockScreen  — set to true only on game-level pages (default: false).
+ *                 On dashboard pages, leave false so requestFullscreen is never
+ *                 called, preventing the browser from intercepting user events.
  */
-export default function OrientationGuard({ children }: { children: React.ReactNode }) {
+export default function OrientationGuard({
+  children,
+  lockScreen = false,
+}: {
+  children: React.ReactNode
+  lockScreen?: boolean
+}) {
   const [isPortraitMobile, setIsPortraitMobile] = useState(false)
   const [lockAttempted, setLockAttempted] = useState(false)
 
+  // Only true for actual touch devices — avoids false positives on small desktop windows
   const isMobileDevice = () => {
     if (typeof window === 'undefined') return false
     return (
-      window.innerWidth < 1024 ||
       ('ontouchstart' in window) ||
       navigator.maxTouchPoints > 0
     )
@@ -33,7 +44,9 @@ export default function OrientationGuard({ children }: { children: React.ReactNo
   }
 
   // Attempt Layer 1: Fullscreen + Orientation Lock (works on Android Chrome)
+  // Only invoked when lockScreen prop is true
   const tryOrientationLock = useCallback(async () => {
+    if (!lockScreen) return
     if (!isMobileDevice()) return
     if (lockAttempted) return
     setLockAttempted(true)
@@ -48,7 +61,6 @@ export default function OrientationGuard({ children }: { children: React.ReactNo
       }
 
       // Lock orientation to landscape
-      // screen.orientation.lock is not in all TypeScript lib definitions — use explicit cast
       const orientationAny = screen.orientation as unknown as { lock?: (type: string) => Promise<void> }
       if (orientationAny?.lock) {
         await orientationAny.lock('landscape')
@@ -56,7 +68,7 @@ export default function OrientationGuard({ children }: { children: React.ReactNo
     } catch {
       // Silently fail — Layer 2 overlay will handle iOS / denied cases
     }
-  }, [lockAttempted])
+  }, [lockScreen, lockAttempted])
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -72,7 +84,7 @@ export default function OrientationGuard({ children }: { children: React.ReactNo
     // Initial check
     checkOrientation()
 
-    // Attempt orientation lock on mount (Layer 1)
+    // Attempt orientation lock on mount (Layer 1) — only when lockScreen=true
     tryOrientationLock()
 
     // Listen for orientation changes

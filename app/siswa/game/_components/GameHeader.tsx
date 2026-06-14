@@ -8,7 +8,7 @@ interface GameHeaderProps {
 }
 
 export default function GameHeader({ timerRunning = true }: GameHeaderProps) {
-  const { xp, lives, cognitiveStyle, currentLevel, timeRemaining, setTimeRemaining } = useGameStore()
+  const { xp, lives, cognitiveStyle, currentLevel, timeRemaining, setTimeRemaining, resetLevel } = useGameStore()
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const [isMobile, setIsMobile] = useState(false)
   const [isLandscape, setIsLandscape] = useState(false)
@@ -38,8 +38,45 @@ export default function GameHeader({ timerRunning = true }: GameHeaderProps) {
 
   return (
     <header className="game-header">
-      {/* Left: logo + level */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+      {/* Left: back button + logo + level */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <button
+          onClick={() => {
+            if (confirm("Apakah kamu yakin ingin kembali ke dashboard? Progress penyelidikan level ini akan di-reset.")) {
+              resetLevel()
+              // Hard navigation to guarantee the game page fully unmounts,
+              // clearing all game CSS/overlays so the dashboard loads completely fresh.
+              window.location.href = '/siswa'
+            }
+          }}
+          style={{
+            background: 'rgba(255, 255, 255, 0.05)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            borderRadius: '8px',
+            color: 'rgba(255, 255, 255, 0.7)',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '6px 10px',
+            fontSize: '12px',
+            fontWeight: 700,
+            gap: '6px',
+            transition: 'all 0.2s',
+          }}
+          onMouseEnter={e => {
+            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.12)'
+            e.currentTarget.style.color = '#fff'
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)'
+            e.currentTarget.style.color = 'rgba(255, 255, 255, 0.7)'
+          }}
+        >
+          <span>←</span>
+          {!isMobile && <span>Kembali</span>}
+        </button>
+
         <span style={{ fontSize: isLandscape ? '14px' : '18px' }}>🕵️</span>
         <div>
           <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '1px' }}>

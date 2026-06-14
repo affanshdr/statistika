@@ -213,13 +213,58 @@ export default function DiagnostikPage() {
 
   const q = QUESTIONS[currentQ]
 
+  const renderNavbar = () => (
+    <header style={{
+      width: '100%',
+      background: 'rgba(10, 10, 15, 0.85)',
+      backdropFilter: 'blur(16px)',
+      borderBottom: '1px solid rgba(0, 255, 136, 0.08)',
+      margin: '-24px -16px 24px -16px',
+      position: 'sticky',
+      top: 0,
+      zIndex: 50,
+    }}>
+      <div style={{
+        maxWidth: '1040px',
+        margin: '0 auto',
+        padding: '12px 20px',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <motion.div
+            animate={{ filter: ['drop-shadow(0 0 6px #00FF88)', 'drop-shadow(0 0 14px #00FF88)', 'drop-shadow(0 0 6px #00FF88)'] }}
+            transition={{ duration: 2.5, repeat: Infinity }}
+            style={{ fontSize: '24px', lineHeight: 1 }}
+          >
+            🕵️
+          </motion.div>
+          <div>
+            <div style={{
+              fontWeight: 900, fontSize: '16px', letterSpacing: '0.5px',
+              background: 'linear-gradient(90deg, #00FF88, #06b6d4)',
+              WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+              whiteSpace: 'nowrap',
+              fontFamily: 'var(--font-heading), sans-serif',
+            }}>
+              Skeptikos
+            </div>
+            <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.35)', letterSpacing: '2px', fontWeight: 700, marginTop: '1px' }}>
+              INVESTIGASI DATA
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+  )
+
   return (
     <main style={{
       minHeight: '100vh',
       background: '#0A0A0F',
       display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
+      flexDirection: 'column',
       padding: '24px 16px',
       position: 'relative',
       overflow: 'hidden',
@@ -232,250 +277,260 @@ export default function DiagnostikPage() {
         <div style={{ position: 'absolute', bottom: '-10%', right: '-10%', width: '400px', height: '400px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(6,182,212,0.06) 0%, transparent 70%)', filter: 'blur(50px)' }} />
       </div>
 
-      <AnimatePresence mode="wait">
-        {/* ── INTRO ── */}
-        {phase === 'intro' && (
-          <motion.div
-            key="intro"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -30 }}
-            style={{
-              width: '100%', maxWidth: '560px',
-              background: 'rgba(255,255,255,0.02)',
-              backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(255,255,255,0.08)',
-              borderRadius: '28px',
-              padding: 'clamp(24px, 5vw, 40px) clamp(20px, 5vw, 36px)',
-              zIndex: 10,
-              textAlign: 'center',
-              color: '#fff',
-            }}
-          >
+      {renderNavbar()}
+
+      <div style={{
+        flex: 1,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '100%',
+      }}>
+        <AnimatePresence mode="wait">
+          {/* ── INTRO ── */}
+          {phase === 'intro' && (
             <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
-              style={{ fontSize: '64px', marginBottom: '20px' }}
-            >
-              🕵️
-            </motion.div>
-            <div style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '2px', color: '#00FF88', marginBottom: '12px' }}>
-              TES DIAGNOSTIK AWAL
-            </div>
-            <h1 style={{ fontSize: '26px', fontWeight: 800, margin: '0 0 16px', lineHeight: 1.2 }}>
-              Ukur Kemampuan Statistika Awalmu!
-            </h1>
-            <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.6)', lineHeight: 1.7, margin: '0 0 28px' }}>
-              Sebelum memulai petualangan sebagai Detektif Data, kami perlu mengetahui kemampuan awal statistika kamu. Jawab <strong style={{ color: '#00FF88' }}>15 pertanyaan</strong> singkat dengan jujur — tidak ada yang benar atau salah!
-            </p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '28px', textAlign: 'left' }}>
-              {[
-                { icon: '⏱', text: '15 soal pilihan ganda — tidak ada batas waktu' },
-                { icon: '📊', text: 'Hasil menentukan jalur belajar terbaikmu' },
-                { icon: '🔒', text: 'Tes ini hanya dilakukan sekali' },
-              ].map((item, i) => (
-                <div key={i} style={{ display: 'flex', gap: '12px', alignItems: 'center', padding: '10px 14px', background: 'rgba(0,255,136,0.04)', borderRadius: '12px', border: '1px solid rgba(0,255,136,0.12)' }}>
-                  <span style={{ fontSize: '20px' }}>{item.icon}</span>
-                  <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.7)' }}>{item.text}</span>
-                </div>
-              ))}
-            </div>
-            <button
-              onClick={() => setPhase('test')}
-              style={{
-                width: '100%', padding: '16px', borderRadius: '14px', border: 'none',
-                background: 'linear-gradient(90deg, #00FF88, #06b6d4)',
-                color: '#000', fontSize: '15px', fontWeight: 800,
-                cursor: 'pointer', letterSpacing: '0.5px',
-                boxShadow: '0 4px 20px rgba(0,255,136,0.35)',
-                transition: 'all 0.2s',
-              }}
-              onMouseEnter={e => e.currentTarget.style.filter = 'brightness(1.1)'}
-              onMouseLeave={e => e.currentTarget.style.filter = 'none'}
-            >
-              Mulai Tes Diagnostik 🚀
-            </button>
-          </motion.div>
-        )}
-
-        {/* ── TEST ── */}
-        {phase === 'test' && (
-          <motion.div
-            key={`q-${currentQ}`}
-            initial={{ opacity: 0, x: 40 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -40 }}
-            transition={{ duration: 0.3 }}
-            style={{
-              width: '100%', maxWidth: '680px', zIndex: 10,
-              display: 'flex', flexDirection: 'column', gap: '20px',
-            }}
-          >
-            {/* Progress */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-              <div style={{ flex: 1, height: '6px', background: 'rgba(255,255,255,0.08)', borderRadius: '3px', overflow: 'hidden' }}>
-                <motion.div
-                  style={{ height: '100%', background: 'linear-gradient(90deg, #00FF88, #00cc6a)', borderRadius: '3px', boxShadow: '0 0 8px rgba(0,255,136,0.4)' }}
-                  animate={{ width: `${((currentQ + 1) / QUESTIONS.length) * 100}%` }}
-                  transition={{ duration: 0.4 }}
-                />
-              </div>
-              <span style={{ fontSize: '12px', fontWeight: 800, color: 'rgba(255,255,255,0.5)', whiteSpace: 'nowrap' }}>
-                {currentQ + 1} / {QUESTIONS.length}
-              </span>
-            </div>
-
-            {/* Question card */}
-            <div style={{
-              background: 'rgba(255,255,255,0.02)',
-              backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(255,255,255,0.08)',
-              borderRadius: '24px',
-              padding: 'clamp(20px, 4vw, 32px) clamp(16px, 4vw, 28px)',
-              color: '#fff',
-            }}>
-              <div style={{ fontSize: '10px', fontWeight: 800, letterSpacing: '2px', color: '#00FF88', marginBottom: '14px' }}>
-                SOAL {currentQ + 1} / {QUESTIONS.length}
-              </div>
-              <p style={{ fontSize: '16px', lineHeight: 1.7, margin: '0 0 24px', fontWeight: 600 }}>
-                {q.text}
-              </p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                {q.options.map((opt, i) => {
-                  const isSelected = selected === i
-                  const isCorrect = selected !== null && i === q.correct
-                  const isWrong = selected === i && i !== q.correct
-
-                  let bg = 'rgba(255,255,255,0.03)'
-                  let border = '1px solid rgba(255,255,255,0.08)'
-                  let color = 'rgba(255,255,255,0.8)'
-
-                  if (isSelected && isCorrect) { bg = 'rgba(0,255,136,0.1)'; border = '1px solid rgba(0,255,136,0.5)'; color = '#00FF88' }
-                  else if (isWrong) { bg = 'rgba(239,68,68,0.1)'; border = '1px solid rgba(239,68,68,0.35)'; color = '#f87171' }
-                  else if (isSelected) { bg = 'rgba(0,255,136,0.06)'; border = '1px solid rgba(0,255,136,0.3)'; color = 'rgba(255,255,255,0.9)' }
-                  else if (selected !== null && isCorrect) { bg = 'rgba(0,255,136,0.08)'; border = '1px solid rgba(0,255,136,0.3)'; color = '#6ee7b7' }
-
-                  return (
-                    <motion.button
-                      key={i}
-                      whileHover={selected === null ? { scale: 1.01, x: 4 } : {}}
-                      whileTap={selected === null ? { scale: 0.99 } : {}}
-                      onClick={() => handleAnswer(i)}
-                      disabled={selected !== null}
-                      style={{
-                        width: '100%', padding: '12px 16px', borderRadius: '14px',
-                        border, background: bg, color,
-                        fontSize: '14px', fontWeight: 600, textAlign: 'left',
-                        cursor: selected === null ? 'pointer' : 'default',
-                        transition: 'all 0.2s', display: 'flex', gap: '12px', alignItems: 'center',
-                        minHeight: '52px', touchAction: 'manipulation',
-                      }}
-                    >
-                      <span style={{ minWidth: '26px', height: '26px', borderRadius: '50%', background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 800, flexShrink: 0 }}>
-                        {['A', 'B', 'C', 'D'][i]}
-                      </span>
-                      <span style={{ lineHeight: 1.5 }}>{opt}</span>
-                      {isSelected && isCorrect && <span style={{ marginLeft: 'auto', fontSize: '18px' }}>✅</span>}
-                      {isWrong && <span style={{ marginLeft: 'auto', fontSize: '18px' }}>❌</span>}
-                      {selected !== null && !isSelected && isCorrect && <span style={{ marginLeft: 'auto', fontSize: '14px' }}>✓</span>}
-                    </motion.button>
-                  )
-                })}
-              </div>
-
-              {selected !== null && (
-                <motion.button
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  onClick={handleNext}
-                  style={{
-                    width: '100%', marginTop: '20px', padding: '14px', borderRadius: '14px',
-                    border: 'none', background: 'linear-gradient(90deg, #00FF88, #06b6d4)',
-                    color: '#000', fontSize: '14px', fontWeight: 800, cursor: 'pointer',
-                    transition: 'all 0.2s', boxShadow: '0 4px 20px rgba(0,255,136,0.3)',
-                  }}
-                  onMouseEnter={e => e.currentTarget.style.filter = 'brightness(1.1)'}
-                  onMouseLeave={e => e.currentTarget.style.filter = 'none'}
-                >
-                  {currentQ < QUESTIONS.length - 1 ? 'Lanjut Soal Berikutnya →' : 'Lihat Hasil →'}
-                </motion.button>
-              )}
-            </div>
-          </motion.div>
-        )}
-
-        {/* ── RESULT ── */}
-        {phase === 'result' && (
-          <motion.div
-            key="result"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ type: 'spring', stiffness: 200 }}
-            style={{
-              width: '100%', maxWidth: '560px', zIndex: 10,
-              background: 'rgba(255,255,255,0.02)',
-              backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(255,255,255,0.08)',
-              borderRadius: '28px',
-              padding: 'clamp(24px, 5vw, 40px) clamp(20px, 5vw, 36px)',
-              textAlign: 'center', color: '#fff',
-            }}
-          >
-            <motion.div
-              initial={{ scale: 0, rotate: -20 }}
-              animate={{ scale: 1, rotate: 0 }}
-              transition={{ type: 'spring', stiffness: 300, delay: 0.1 }}
-              style={{ fontSize: '72px', marginBottom: '16px' }}
-            >
-              🎉
-            </motion.div>
-            <div style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '2px', color: '#00FF88', marginBottom: '10px' }}>
-              TES DIAGNOSTIK SELESAI
-            </div>
-            <h2 style={{ fontSize: '24px', fontWeight: 800, margin: '0 0 8px' }}>
-              Terima kasih sudah mengerjakan!
-            </h2>
-
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
+              key="intro"
+              initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
+              exit={{ opacity: 0, y: -30 }}
               style={{
-                margin: '20px 0',
-                padding: '16px 20px',
-                borderRadius: '16px',
-                background: 'rgba(0,255,136,0.06)',
-                border: '1px solid rgba(0,255,136,0.2)',
+                width: '100%', maxWidth: '560px',
+                background: 'rgba(255,255,255,0.02)',
+                backdropFilter: 'blur(20px)',
+                border: '1px solid rgba(255,255,255,0.08)',
+                borderRadius: '28px',
+                padding: 'clamp(24px, 5vw, 40px) clamp(20px, 5vw, 36px)',
+                zIndex: 10,
+                textAlign: 'center',
+                color: '#fff',
               }}
             >
-              <div style={{ fontSize: '20px', marginBottom: '10px' }}>🕵️</div>
-              <p style={{ margin: 0, fontSize: '14px', color: 'rgba(255,255,255,0.8)', lineHeight: 1.7 }}>
-                Jawabanmu sudah direkam dan akan digunakan untuk menyesuaikan <strong style={{ color: '#00FF88' }}>pengalaman belajarmu</strong> secara personal. Setiap detektif punya kekuatan yang berbeda — dan kamu punya potensimu sendiri!
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
+                style={{ fontSize: '64px', marginBottom: '20px' }}
+              >
+                🕵️
+              </motion.div>
+              <div style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '2px', color: '#00FF88', marginBottom: '12px' }}>
+                TES DIAGNOSTIK AWAL
+              </div>
+              <h1 style={{ fontSize: '26px', fontWeight: 800, margin: '0 0 16px', lineHeight: 1.2 }}>
+                Ukur Kemampuan Statistika Awalmu!
+              </h1>
+              <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.6)', lineHeight: 1.7, margin: '0 0 28px' }}>
+                Sebelum memulai petualangan sebagai Detektif Data, kami perlu mengetahui kemampuan awal statistika kamu. Jawab <strong style={{ color: '#00FF88' }}>15 pertanyaan</strong> singkat dengan jujur — tidak ada yang benar atau salah!
               </p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '28px', textAlign: 'left' }}>
+                {[
+                  { icon: '⏱', text: '15 soal pilihan ganda — tidak ada batas waktu' },
+                  { icon: '📊', text: 'Hasil menentukan jalur belajar terbaikmu' },
+                  { icon: '🔒', text: 'Tes ini hanya dilakukan sekali' },
+                ].map((item, i) => (
+                  <div key={i} style={{ display: 'flex', gap: '12px', alignItems: 'center', padding: '10px 14px', background: 'rgba(0,255,136,0.04)', borderRadius: '12px', border: '1px solid rgba(0,255,136,0.12)' }}>
+                    <span style={{ fontSize: '20px' }}>{item.icon}</span>
+                    <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.7)' }}>{item.text}</span>
+                  </div>
+                ))}
+              </div>
+              <button
+                onClick={() => setPhase('test')}
+                style={{
+                  width: '100%', padding: '16px', borderRadius: '14px', border: 'none',
+                  background: 'linear-gradient(90deg, #00FF88, #06b6d4)',
+                  color: '#000', fontSize: '15px', fontWeight: 800,
+                  cursor: 'pointer', letterSpacing: '0.5px',
+                  boxShadow: '0 4px 20px rgba(0,255,136,0.35)',
+                  transition: 'all 0.2s',
+                }}
+                onMouseEnter={e => e.currentTarget.style.filter = 'brightness(1.1)'}
+                onMouseLeave={e => e.currentTarget.style.filter = 'none'}
+              >
+                Mulai Tes Diagnostik 🚀
+              </button>
             </motion.div>
+          )}
 
-            <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.5)', margin: '0 0 24px', lineHeight: 1.6 }}>
-              Selanjutnya, ikuti <strong style={{ color: '#fff' }}>Tes GEFT</strong> untuk menentukan gaya kognitifmu (Field Independent / Field Dependent). Ini akan menentukan cara game memandumu!
-            </p>
-
-            <button
-              onClick={() => router.push('/siswa/geft')}
-              disabled={saving}
+          {/* ── TEST ── */}
+          {phase === 'test' && (
+            <motion.div
+              key={`q-${currentQ}`}
+              initial={{ opacity: 0, x: 40 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -40 }}
+              transition={{ duration: 0.3 }}
               style={{
-                width: '100%', padding: '16px', borderRadius: '14px', border: 'none',
-                background: saving ? 'rgba(0,255,136,0.3)' : 'linear-gradient(90deg, #00FF88, #06b6d4)',
-                color: '#000', fontSize: '15px', fontWeight: 800,
-                cursor: saving ? 'wait' : 'pointer',
-                boxShadow: '0 4px 20px rgba(0,255,136,0.3)',
-                transition: 'all 0.2s',
+                width: '100%', maxWidth: '680px', zIndex: 10,
+                display: 'flex', flexDirection: 'column', gap: '20px',
               }}
             >
-              {saving ? 'Menyimpan...' : 'Lanjut ke Tes GEFT →'}
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
+              {/* Progress */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                <div style={{ flex: 1, height: '6px', background: 'rgba(255,255,255,0.08)', borderRadius: '3px', overflow: 'hidden' }}>
+                  <motion.div
+                    style={{ height: '100%', background: 'linear-gradient(90deg, #00FF88, #00cc6a)', borderRadius: '3px', boxShadow: '0 0 8px rgba(0,255,136,0.4)' }}
+                    animate={{ width: `${((currentQ + 1) / QUESTIONS.length) * 100}%` }}
+                    transition={{ duration: 0.4 }}
+                  />
+                </div>
+                <span style={{ fontSize: '12px', fontWeight: 800, color: 'rgba(255,255,255,0.5)', whiteSpace: 'nowrap' }}>
+                  {currentQ + 1} / {QUESTIONS.length}
+                </span>
+              </div>
+
+              {/* Question card */}
+              <div style={{
+                background: 'rgba(255,255,255,0.02)',
+                backdropFilter: 'blur(20px)',
+                border: '1px solid rgba(255,255,255,0.08)',
+                borderRadius: '24px',
+                padding: 'clamp(20px, 4vw, 32px) clamp(16px, 4vw, 28px)',
+                color: '#fff',
+              }}>
+                <div style={{ fontSize: '10px', fontWeight: 800, letterSpacing: '2px', color: '#00FF88', marginBottom: '14px' }}>
+                  SOAL {currentQ + 1} / {QUESTIONS.length}
+                </div>
+                <p style={{ fontSize: '16px', lineHeight: 1.7, margin: '0 0 24px', fontWeight: 600 }}>
+                  {q.text}
+                </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {q.options.map((opt, i) => {
+                    const isSelected = selected === i
+                    const isCorrect = selected !== null && i === q.correct
+                    const isWrong = selected === i && i !== q.correct
+
+                    let bg = 'rgba(255,255,255,0.03)'
+                    let border = '1px solid rgba(255,255,255,0.08)'
+                    let color = 'rgba(255,255,255,0.8)'
+
+                    if (isSelected && isCorrect) { bg = 'rgba(0,255,136,0.1)'; border = '1px solid rgba(0,255,136,0.5)'; color = '#00FF88' }
+                    else if (isWrong) { bg = 'rgba(239,68,68,0.1)'; border = '1px solid rgba(239,68,68,0.35)'; color = '#f87171' }
+                    else if (isSelected) { bg = 'rgba(0,255,136,0.06)'; border = '1px solid rgba(0,255,136,0.3)'; color = 'rgba(255,255,255,0.9)' }
+                    else if (selected !== null && isCorrect) { bg = 'rgba(0,255,136,0.08)'; border = '1px solid rgba(0,255,136,0.3)'; color = '#6ee7b7' }
+
+                    return (
+                      <motion.button
+                        key={i}
+                        whileHover={selected === null ? { scale: 1.01, x: 4 } : {}}
+                        whileTap={selected === null ? { scale: 0.99 } : {}}
+                        onClick={() => handleAnswer(i)}
+                        disabled={selected !== null}
+                        style={{
+                          width: '100%', padding: '12px 16px', borderRadius: '14px',
+                          border, background: bg, color,
+                          fontSize: '14px', fontWeight: 600, textAlign: 'left',
+                          cursor: selected === null ? 'pointer' : 'default',
+                          transition: 'all 0.2s', display: 'flex', gap: '12px', alignItems: 'center',
+                          minHeight: '52px', touchAction: 'manipulation',
+                        }}
+                      >
+                        <span style={{ minWidth: '26px', height: '26px', borderRadius: '50%', background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 800, flexShrink: 0 }}>
+                          {['A', 'B', 'C', 'D'][i]}
+                        </span>
+                        <span style={{ lineHeight: 1.5 }}>{opt}</span>
+                        {isSelected && isCorrect && <span style={{ marginLeft: 'auto', fontSize: '18px' }}>✅</span>}
+                        {isWrong && <span style={{ marginLeft: 'auto', fontSize: '18px' }}>❌</span>}
+                        {selected !== null && !isSelected && isCorrect && <span style={{ marginLeft: 'auto', fontSize: '14px' }}>✓</span>}
+                      </motion.button>
+                    )
+                  })}
+                </div>
+
+                {selected !== null && (
+                  <motion.button
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    onClick={handleNext}
+                    style={{
+                      width: '100%', marginTop: '20px', padding: '14px', borderRadius: '14px',
+                      border: 'none', background: 'linear-gradient(90deg, #00FF88, #06b6d4)',
+                      color: '#000', fontSize: '14px', fontWeight: 800, cursor: 'pointer',
+                      transition: 'all 0.2s', boxShadow: '0 4px 20px rgba(0,255,136,0.3)',
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.filter = 'brightness(1.1)'}
+                    onMouseLeave={e => e.currentTarget.style.filter = 'none'}
+                  >
+                    {currentQ < QUESTIONS.length - 1 ? 'Lanjut Soal Berikutnya →' : 'Lihat Hasil →'}
+                  </motion.button>
+                )}
+              </div>
+            </motion.div>
+          )}
+
+          {/* ── RESULT ── */}
+          {phase === 'result' && (
+            <motion.div
+              key="result"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ type: 'spring', stiffness: 200 }}
+              style={{
+                width: '100%', maxWidth: '560px', zIndex: 10,
+                background: 'rgba(255,255,255,0.02)',
+                backdropFilter: 'blur(20px)',
+                border: '1px solid rgba(255,255,255,0.08)',
+                borderRadius: '28px',
+                padding: 'clamp(24px, 5vw, 40px) clamp(20px, 5vw, 36px)',
+                textAlign: 'center', color: '#fff',
+              }}
+            >
+              <motion.div
+                initial={{ scale: 0, rotate: -20 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ type: 'spring', stiffness: 300, delay: 0.1 }}
+                style={{ fontSize: '72px', marginBottom: '16px' }}
+              >
+                🎉
+              </motion.div>
+              <div style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '2px', color: '#00FF88', marginBottom: '10px' }}>
+                TES DIAGNOSTIK SELESAI
+              </div>
+              <h2 style={{ fontSize: '24px', fontWeight: 800, margin: '0 0 8px' }}>
+                Terima kasih sudah mengerjakan!
+              </h2>
+
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                style={{
+                  margin: '20px 0',
+                  padding: '16px 20px',
+                  borderRadius: '16px',
+                  background: 'rgba(0,255,136,0.06)',
+                  border: '1px solid rgba(0,255,136,0.2)',
+                }}
+              >
+                <div style={{ fontSize: '20px', marginBottom: '10px' }}>🕵️</div>
+                <p style={{ margin: 0, fontSize: '14px', color: 'rgba(255,255,255,0.8)', lineHeight: 1.7 }}>
+                  Jawabanmu sudah direkam dan akan digunakan untuk menyesuaikan <strong style={{ color: '#00FF88' }}>pengalaman belajarmu</strong> secara personal. Setiap detektif punya kekuatan yang berbeda — dan kamu punya potensimu sendiri!
+                </p>
+              </motion.div>
+
+              <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.5)', margin: '0 0 24px', lineHeight: 1.6 }}>
+                Selanjutnya, ikuti <strong style={{ color: '#fff' }}>Tes GEFT</strong> untuk menentukan gaya kognitifmu (Field Independent / Field Dependent). Ini akan menentukan cara game memandumu!
+              </p>
+
+              <button
+                onClick={() => router.push('/siswa/geft')}
+                disabled={saving}
+                style={{
+                  width: '100%', padding: '16px', borderRadius: '14px', border: 'none',
+                  background: saving ? 'rgba(0,255,136,0.3)' : 'linear-gradient(90deg, #00FF88, #06b6d4)',
+                  color: '#000', fontSize: '15px', fontWeight: 800,
+                  cursor: saving ? 'wait' : 'pointer',
+                  boxShadow: '0 4px 20px rgba(0,255,136,0.3)',
+                  transition: 'all 0.2s',
+                }}
+              >
+                {saving ? 'Menyimpan...' : 'Lanjut ke Tes GEFT →'}
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
     </main>
   )
 }

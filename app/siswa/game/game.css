@@ -40,7 +40,9 @@
   color: var(--text-primary);
   font-family: var(--font-ui);
   position: relative;
-  overflow-x: hidden;
+  overflow-x: clip;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Animated background grid */
@@ -61,7 +63,7 @@
   background: var(--game-card);
   border: 1px solid var(--game-border);
   border-radius: var(--radius-lg);
-  padding: 24px;
+  padding: 16px 20px;
 }
 
 .game-card-accent {
@@ -992,3 +994,61 @@
     -webkit-tap-highlight-color: transparent;
   }
 }
+
+/* ================================================================
+   TAHAP A — Scrollable Layout (Step 0)
+   ================================================================ */
+
+/* 2-column grid styling */
+.tahap-a-grid {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+/* Container wrapper for Tahap A */
+.tahap-a-fullscreen {
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 16px 20px 48px;
+  box-sizing: border-box;
+}
+
+/* Left description column */
+.tahap-a-left-col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Right challenge column */
+.tahap-a-right-col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ── Responsive breakpoints ── */
+@media (max-width: 1024px) {
+  .tahap-a-grid {
+    grid-template-columns: 280px 1fr;
+    gap: 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .tahap-a-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .tahap-a-fullscreen {
+    padding: 12px 14px 32px;
+  }
+  .tahap-b-reference-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px;
+  }
+}
+

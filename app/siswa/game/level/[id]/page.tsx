@@ -88,8 +88,8 @@ export default function LevelPage({
   if (!resolvedStyle) return null
 
   return (
-    <OrientationGuard>
-      <div className="game-root" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+    <OrientationGuard lockScreen={true}>
+      <div className="game-root">
         <GameHeader timerRunning={timerRunning && phase === 'game'} />
 
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative' }}>

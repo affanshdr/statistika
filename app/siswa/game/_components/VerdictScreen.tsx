@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { CORRECT_VERDICT, VERDICT_EXPLANATION } from '../_data/level1'
+import { CORRECT_VERDICT, VERDICT_EXPLANATION, STATS } from '../_data/level1'
 
 type VerdictType = 'VALID' | 'MISLEADING' | 'HOAKS'
 
@@ -31,7 +31,7 @@ export default function VerdictScreen({ onSubmit, guidedMode, onDiraHint }: Verd
     setResult(isCorrect ? 'correct' : 'wrong')
 
     if (!isCorrect && guidedMode && onDiraHint) {
-      onDiraHint('Hampir! Coba pikirin lagi — mean screen time ≈ 5.65 jam, bukan 8 jam. Apakah klaim "rata-rata 8+ jam" benar-benar didukung data? 🤔')
+      onDiraHint(`Hampir! Coba pikirin lagi — mean screen time ≈ ${STATS.mean} jam, bukan 8 jam. Apakah klaim "rata-rata 8+ jam" benar-benar didukung data? 🤔`)
     }
 
     if (isCorrect) {
@@ -118,7 +118,7 @@ export default function VerdictScreen({ onSubmit, guidedMode, onDiraHint }: Verd
             </div>
             {!guidedMode && (
               <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.6)', marginBottom: '12px' }}>
-                Petunjuk: Perhatikan <em>mean sebenarnya</em> — apakah 5.65 jam sama dengan klaim "8+ jam"?
+                Petunjuk: Perhatikan <em>mean sebenarnya</em> — apakah {STATS.mean} jam sama dengan klaim "8+ jam"?
               </div>
             )}
             <button className="game-btn game-btn-secondary" onClick={handleRetry} style={{ fontSize: '13px', padding: '8px 20px' }}>

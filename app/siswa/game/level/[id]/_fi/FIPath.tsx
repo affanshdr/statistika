@@ -114,10 +114,10 @@ export default function FIPath() {
   const displayStep = step >= 2 ? 2 : step // steps 2 & 3 both map to visual step 2 (materi)
 
   return (
-    <div style={{ maxWidth: '820px', margin: '0 auto', padding: '24px 16px', paddingBottom: '40px' }}>
+    <div className={step === 0 ? 'tahap-a-fullscreen' : undefined} style={step !== 0 ? { maxWidth: '820px', margin: '0 auto', padding: '24px 16px', paddingBottom: '40px' } : undefined}>
 
       {/* Step indicator */}
-      <div className="step-indicator" style={{ marginBottom: '24px' }}>
+      <div className="step-indicator" style={{ marginBottom: step === 0 ? '8px' : '24px', flexShrink: 0 }}>
         {STEP_LABELS.map((label, i) => (
           <div
             key={i}
@@ -128,34 +128,43 @@ export default function FIPath() {
         ))}
       </div>
 
+      <div style={{ width: '100%' }}>
       <AnimatePresence mode="wait">
 
         {/* ── STEP 0: Histogram Builder ── */}
         {step === 0 && (
-          <motion.div key="step0" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }}>
-            <div className="game-card" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              <div>
-                <div style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 800, letterSpacing: '1px', marginBottom: '6px' }}>
-                  TAHAP A — HISTOGRAM BUILDER
+          <motion.div key="step0" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }} style={{ width: '100%' }}>
+            <div className="game-card">
+              <div className="tahap-a-grid">
+                {/* Left Column: Description & Metadata */}
+                <div className="tahap-a-left-col">
+                  <div>
+                    <div style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 800, letterSpacing: '1px', marginBottom: '6px' }}>
+                      TAHAP A — HISTOGRAM BUILDER
+                    </div>
+                    <h2 style={{ margin: 0, fontSize: '20px' }}>Kelompokkan 35 Data Screen Time</h2>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '14px', marginTop: '8px', lineHeight: 1.6 }}>
+                      Drag atau klik data dari kolam kiri ke kelas interval yang tepat pada histogram kanan. Data dikelompokkan dalam interval lebar 4 jam.
+                    </p>
+                  </div>
+
+                  {/* Context: viral claim */}
+                  <div style={{ padding: '12px 14px', borderRadius: '12px', background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.2)', fontSize: '13px', color: 'rgba(255,255,255,0.75)', lineHeight: 1.5 }}>
+                    🚨 <strong style={{ color: '#f87171' }}>Klaim Viral:</strong> &quot;Remaja Indonesia rata-rata &gt;8 jam/hari di medsos!&quot; — Buktikan dengan data!
+                  </div>
+
+                  {/* FI tip about histogram */}
+                  <div style={{ padding: '12px 14px', borderRadius: '12px', background: 'rgba(59,130,246,0.06)', border: '1px solid rgba(59,130,246,0.2)', fontSize: '13px', color: 'rgba(255,255,255,0.75)', lineHeight: 1.5 }}>
+                    📊 <strong style={{ color: '#60a5fa' }}>Ingat:</strong> Histogram berbeda dari diagram batang! Balok-balok histogram harus{' '}
+                    <strong>saling berdempetan</strong> (tanpa celah) karena datanya kontinu (menyambung).
+                  </div>
                 </div>
-                <h2 style={{ margin: 0, fontSize: '20px' }}>Kelompokkan 35 Data Screen Time</h2>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '14px', marginTop: '8px', lineHeight: 1.6 }}>
-                  Drag atau klik data dari kolam kiri ke kelas interval yang tepat pada histogram kanan. Data dikelompokkan dalam interval lebar 4 jam.
-                </p>
-              </div>
 
-              {/* Context: viral claim */}
-              <div style={{ padding: '12px 14px', borderRadius: '12px', background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.2)', fontSize: '13px', color: 'rgba(255,255,255,0.75)', lineHeight: 1.5 }}>
-                🚨 <strong style={{ color: '#f87171' }}>Klaim Viral:</strong> &quot;Remaja Indonesia rata-rata &gt;8 jam/hari di medsos!&quot; — Buktikan dengan data!
+                {/* Right Column: Challenge */}
+                <div className="tahap-a-right-col">
+                  <DraggableHistogram mode="FI" onSubmit={handleHistogramSubmit} />
+                </div>
               </div>
-
-              {/* FI tip about histogram */}
-              <div style={{ padding: '12px 14px', borderRadius: '12px', background: 'rgba(59,130,246,0.06)', border: '1px solid rgba(59,130,246,0.2)', fontSize: '13px', color: 'rgba(255,255,255,0.75)', lineHeight: 1.5 }}>
-                📊 <strong style={{ color: '#60a5fa' }}>Ingat:</strong> Histogram berbeda dari diagram batang! Balok-balok histogram harus{' '}
-                <strong>saling berdempetan</strong> (tanpa celah) karena datanya kontinu (menyambung).
-              </div>
-
-              <DraggableHistogram mode="FI" onSubmit={handleHistogramSubmit} />
             </div>
           </motion.div>
         )}
@@ -186,18 +195,27 @@ export default function FIPath() {
                 </div>
               </div>
 
-              {/* Reference mini-stats */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
-                {[
-                  { label: 'Mean', val: `${STATS.mean} jam`, color: '#F59E0B' },
-                  { label: 'Median', val: `${STATS.median} jam`, color: '#00FF88' },
-                  { label: 'Mayoritas (1-4 jam)', val: '25/35 = 71.4%', color: '#3B82F6' },
-                ].map(({ label, val, color }) => (
-                  <div key={label} style={{ padding: '10px', background: 'rgba(255,255,255,0.03)', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.06)', textAlign: 'center' }}>
-                    <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 700, marginBottom: '4px' }}>{label}</div>
-                    <div style={{ fontSize: '16px', fontWeight: 800, color, fontFamily: 'var(--font-data)' }}>{val}</div>
-                  </div>
-                ))}
+              {/* Histogram & Mini Stats Grid */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: '16px', alignItems: 'stretch' }} className="tahap-b-reference-grid">
+                {/* Left: Histogram */}
+                <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--game-border)', borderRadius: '14px', padding: '12px' }}>
+                  <div style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 700, marginBottom: '8px', letterSpacing: '1px' }}>📊 HISTOGRAM HASIL TAHAP A</div>
+                  <DraggableHistogram mode="FI" readOnly={true} />
+                </div>
+
+                {/* Right: Mini-stats */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', background: 'rgba(255,255,255,0.01)', border: '1px solid var(--game-border)', borderRadius: '14px', padding: '14px', justifyContent: 'center' }}>
+                  {[
+                    { label: 'Mean', val: `${STATS.mean} jam`, color: '#F59E0B' },
+                    { label: 'Median', val: `${STATS.median} jam`, color: '#00FF88' },
+                    { label: '8 Jam atau Kurang', val: '25/35 = 71.4%', color: '#3B82F6' },
+                  ].map(({ label, val, color }) => (
+                    <div key={label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', background: 'rgba(255,255,255,0.03)', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                      <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 700 }}>{label}</div>
+                      <div style={{ fontSize: '15px', fontWeight: 800, color, fontFamily: 'var(--font-data)' }}>{val}</div>
+                    </div>
+                  ))}
+                </div>
               </div>
 
               {/* Text input */}
@@ -208,7 +226,7 @@ export default function FIPath() {
                 <textarea
                   value={analysisText}
                   onChange={e => { setAnalysisText(e.target.value); setAnalysisResult(null) }}
-                  placeholder={`Contoh: "Tidak valid, karena mayoritas siswa (25 orang) hanya bermain 1-4 jam sehari. Angka 8 jam ke atas hanya beberapa orang saja (outlier/pencilan), jadi tidak bisa mewakili rata-rata seluruh remaja..."`}
+                  placeholder={`Contoh: "Tidak valid, karena mayoritas siswa (24 orang) hanya bermain 1-4 jam sehari. Angka 8 jam ke atas hanya beberapa orang saja (outlier/pencilan), jadi tidak bisa mewakili rata-rata seluruh remaja..."`}
                   style={{
                     width: '100%', boxSizing: 'border-box',
                     minHeight: '120px', padding: '14px 16px', borderRadius: '12px',
@@ -248,7 +266,7 @@ export default function FIPath() {
                     )}
                     {analysisAttempts >= 2 && (
                       <p style={{ margin: '6px 0 0', color: 'rgba(0,255,136,0.8)', fontStyle: 'italic' }}>
-                        🔍 Contoh jawaban: &quot;Tidak valid, karena mayoritas (25 siswa / 71%) hanya bermain 1-4 jam. Nilai 11 dan 16 jam adalah outlier yang membuat mean tampak lebih tinggi. Distribusi data menceng kanan.&quot;
+                        🔍 Contoh jawaban: &quot;Tidak valid, karena mayoritas (13 siswa / 37.1%) hanya bermain 1-4 jam. Nilai 17 dan 18 jam adalah outlier yang membuat mean tampak lebih tinggi. Distribusi data menceng kanan.&quot;
                       </p>
                     )}
                   </motion.div>
@@ -275,6 +293,7 @@ export default function FIPath() {
         )}
 
       </AnimatePresence>
+      </div>{/* /flex-fill wrapper */}
 
       {/* ── STEP 2: Myth Busted Stamp (fullscreen overlay) ── */}
       <AnimatePresence>

@@ -368,12 +368,7 @@ export default function GeftPage() {
       return
     }
 
-    const nextQ = QUESTIONS[nextIndex]
-    if (nextQ.section !== q.section) {
-      setPhase('intro')
-    } else {
-      setPhase('test')
-    }
+    setPhase('test')
 
     setQIndex(nextIndex)
     setSelected(new Set())
@@ -440,10 +435,10 @@ export default function GeftPage() {
               whiteSpace: 'nowrap',
               fontFamily: 'var(--font-heading), sans-serif',
             }}>
-              AR-COGNISTATS
+              Skeptikos
             </div>
             <div className="nav-subtitle" style={{ fontSize: '9px', color: 'rgba(255,255,255,0.35)', letterSpacing: '2px', fontWeight: 700, marginTop: '1px' }}>
-              DATA DETECTIVE ACADEMY
+              INVESTIGASI DATA
             </div>
           </div>
         </div>
@@ -461,7 +456,7 @@ export default function GeftPage() {
     if (isFirst && tutorialStep < 3) {
       return (
         <main className="geft-page-container">
-          {renderNavbar("TUTORIAL TES GEFT 🔬")}
+          {renderNavbar("TUTORIAL TES DIAGNOSTIK (GEFT) 🔬")}
           <style>{`
             .geft-page-container {
               min-height: 100vh;
@@ -979,7 +974,7 @@ export default function GeftPage() {
 
     return (
       <main className="geft-page-container" style={{ overflowY: 'auto' }}>
-        {renderNavbar("GEFT COGNITIVE ASSESSMENT ⏱️")}
+        {renderNavbar("TES DIAGNOSTIK (GEFT) ⏱️")}
 
         <div className="geft-intro-card" style={{ maxWidth: '600px', margin: '48px auto', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '20px', padding: '36px', boxShadow: '0 15px 35px rgba(0,0,0,0.3)' }}>
           <h2 style={{ marginBottom: 16, fontSize: '24px', fontWeight: 800 }}>
@@ -1029,7 +1024,7 @@ export default function GeftPage() {
   if (phase === 'done') {
     return (
       <main className="geft-page-container">
-        {renderNavbar("GEFT COGNITIVE ASSESSMENT ⏱️")}
+        {renderNavbar("TES DIAGNOSTIK (GEFT) ⏱️")}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 1 }}>
           <div style={{ textAlign: 'center', padding: '40px 20px' }}>
             <h2 style={{ marginBottom: 12, fontSize: '28px', fontWeight: 800 }}>Tes selesai! 🎉</h2>
@@ -1673,7 +1668,7 @@ export default function GeftPage() {
         }
       `}</style>
 
-      {renderNavbar("GEFT COGNITIVE ASSESSMENT ⏱️")}
+      {renderNavbar("TES DIAGNOSTIK (GEFT) ⏱️")}
 
       {/* Progress */}
       <div className="geft-progress-container" style={{ height: 5, background: 'rgba(255,255,255,0.1)', borderRadius: 3, marginBottom: 20, maxWidth: 1040, margin: '0 auto 20px' }}>

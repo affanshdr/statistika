@@ -8,15 +8,15 @@ interface CutsceneProps {
 }
 
 const NARASI = [
-  'Sebuah postingan viral meledak di TikTok dan X: "BREAKING: Remaja Indonesia rata-rata habiskan >8 jam sehari di medsos! Generasi cemas kecanduan HP!"',
-  'Postingan itu dibagikan jutaan kali. Kolom komentar meledak dengan kemarahan dan kekhawatiran netizen dari berbagai penjuru Indonesia...',
+  'Sebuah postingan viral meledak di Instagram: "BREAKING: Remaja Indonesia rata-rata habiskan >8 jam sehari di medsos! Generasi cemas kecanduan HP!"',
+  'Kolom komentar meledak dengan kemarahan dan kekhawatiran netizen dari berbagai penjuru Indonesia...',
 ]
 
 const CUTSCENE_COMMENTS = [
-  { user: '@yyu', text: 'Pantesan nilai TKA jeblok! 😤📚' },
-  { user: '@t1ki', text: 'Pemerintah harus sita HP sekarang! 😡' },
+  { user: '@yyu', text: 'Pantesan nilai TKA jeblok!' },
+  { user: '@t1ki', text: 'Pemerintah harus sita HP' },
   { user: '@Rakyat_Skeptis', text: 'Pantesan nilai rapor anak zaman sekarang jeblok semua. Isinya cuma joget-joget di TikTok doang!' },
-  { user: '@Bunda_Khawatir99', text: 'Zaman dulu remaja sibuk OSIS sama belajar, sekarang dari bangun tidur sampai merem lagi matanya lengket sama layar. Miris 😢' },
+  { user: '@Bunda_Khawatir99', text: 'Zaman dulu remaja sibuk OSIS sama belajar, zaman sekarang dari bangun tidur sampai merem lagi matanya lengket sama layar. Miris 😢' },
   { user: '@Dedy_Brader', text: '8 jam? Itu mah minimal. Malah ada yang sampai begadang demi nge-game sama scroll feed gak jelas. Generasi cemas kecanduan gadget!' },
   { user: '@Andi_Tech_Savy', text: 'Efek dopamin instan. Otak remaja sekarang udah rusak sama algoritma video pendek.' },
   { user: '@Fitri_Zzz', text: 'Wkwk pantesan kalau diajak ngomong langsung gak nyambung, fokusnya cuma bertahan 5 detik gara-gara keseringan nonton short video.' },
@@ -25,6 +25,12 @@ const CUTSCENE_COMMENTS = [
 function TypewriterText({ text, onDone }: { text: string; onDone: () => void }) {
   const [displayed, setDisplayed] = useState('')
   const indexRef = useRef(0)
+  const onDoneRef = useRef(onDone)
+
+  // Update ref when onDone changes without triggering the typewriter effect
+  useEffect(() => {
+    onDoneRef.current = onDone
+  }, [onDone])
 
   useEffect(() => {
     setDisplayed('')
@@ -35,11 +41,13 @@ function TypewriterText({ text, onDone }: { text: string; onDone: () => void }) 
         indexRef.current++
       } else {
         clearInterval(id)
-        setTimeout(onDone, 200)
+        setTimeout(() => {
+          onDoneRef.current()
+        }, 200)
       }
     }, 22)
     return () => clearInterval(id)
-  }, [text, onDone])
+  }, [text])
 
   return (
     <span>{displayed}<span style={{ animation: 'blink 1s infinite', color: 'var(--accent)' }}>|</span></span>
@@ -55,10 +63,11 @@ export default function Cutscene({ onComplete }: CutsceneProps) {
 
   const [audioDone, setAudioDone] = useState(false)
   const [typingDone, setTypingDone] = useState(false)
+  const [showComments, setShowComments] = useState(true)
 
   // Track window size for responsiveness
   useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 768)
+    const check = () => setIsMobile(window.innerWidth < 680)
     check()
     window.addEventListener('resize', check)
     return () => window.removeEventListener('resize', check)
@@ -123,7 +132,7 @@ export default function Cutscene({ onComplete }: CutsceneProps) {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
     >
-      {/* Header controls (Mute & Skip) */}
+      {/* Header controls (Mute) */}
       <div style={{ position: 'absolute', top: '24px', right: '24px', display: 'flex', gap: '12px', zIndex: 210 }}>
         <button
           className="game-btn game-btn-secondary"
@@ -132,46 +141,30 @@ export default function Cutscene({ onComplete }: CutsceneProps) {
         >
           {isMuted ? '🔇' : '🔊'}
         </button>
-        <button className="game-btn game-btn-secondary" onClick={onComplete}>
-          Skip ›
-        </button>
       </div>
+
 
       {/* Main Grid Layout */}
       <div style={{
         display: 'flex',
         flexDirection: isMobile ? 'column' : 'row',
         gap: '32px',
-        alignItems: 'center',
+        alignItems: isMobile ? 'center' : 'stretch',
         justifyContent: 'center',
         maxWidth: '1000px',
         width: '100%',
-        margin: 'auto',
+        margin: '0 auto',
         zIndex: 10
       }}>
 
-        {/* Left Column: Logo & Narration Card */}
+        {/* Left Column: Narration Card & Mentor Card & Action button */}
         <div style={{
           flex: 1.2,
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'center',
+          alignItems: 'stretch',
           width: '100%',
         }}>
-          {/* Animated logo */}
-          <motion.div
-            initial={{ scale: 0.5, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.6, ease: 'easeOut' }}
-            style={{ marginBottom: '24px', textAlign: 'center' }}
-          >
-            <div style={{ fontSize: '48px', marginBottom: '8px', animation: 'float 3s ease-in-out infinite' }}>📱</div>
-            <div style={{
-              fontSize: '11px', fontWeight: 800, letterSpacing: '3px',
-              color: 'var(--accent)', opacity: 0.8
-            }}>DIGITAL TRUTH SQUAD</div>
-          </motion.div>
-
           {/* Narration box */}
           <div style={{
             background: 'rgba(0,255,136,0.04)',
@@ -190,7 +183,7 @@ export default function Cutscene({ onComplete }: CutsceneProps) {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="cutscene-text"
-                style={{ margin: 0, color: i < paraIndex ? 'rgba(255,255,255,0.4)' : '#fff', textAlign: 'left' }}
+                style={{ margin: 0, color: '#fff', textAlign: 'left' }}
               >
                 {i < paraIndex ? text : (
                   <TypewriterText text={text} onDone={() => setTypingDone(true)} />
@@ -231,6 +224,34 @@ export default function Cutscene({ onComplete }: CutsceneProps) {
               </motion.div>
             )}
           </AnimatePresence>
+
+          {/* Continue button when done */}
+          <AnimatePresence>
+            {done && (
+              <motion.button
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="game-btn game-btn-primary"
+                style={{ marginTop: '24px', fontSize: '16px', padding: '16px 40px', zIndex: 20, alignSelf: 'center' }}
+                onClick={onComplete}
+              >
+                Mulai Investigasi →
+              </motion.button>
+            )}
+          </AnimatePresence>
+
+          {/* Progress dots */}
+          <div style={{ display: 'flex', gap: '8px', marginTop: '20px', zIndex: 20, alignSelf: 'center' }}>
+            {NARASI.map((_, i) => (
+              <div key={i} style={{
+                width: i === paraIndex ? '20px' : '6px',
+                height: '6px',
+                borderRadius: '3px',
+                background: i <= paraIndex ? 'var(--accent)' : 'rgba(255,255,255,0.15)',
+                transition: 'all 0.3s',
+              }} />
+            ))}
+          </div>
         </div>
 
         {/* Right Column: Instagram/Social Media Mockup Card */}
@@ -248,10 +269,11 @@ export default function Cutscene({ onComplete }: CutsceneProps) {
           <div className="instagram-card" style={{
             width: '100%',
             maxWidth: '340px',
+            maxHeight: '480px',
+            overflowY: 'auto',
             background: '#000',
             border: '1px solid rgba(255, 255, 255, 0.12)',
             borderRadius: '16px',
-            overflow: 'hidden',
             boxShadow: '0 20px 40px rgba(0, 0, 0, 0.6)',
             color: '#fff',
             fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
@@ -262,7 +284,11 @@ export default function Cutscene({ onComplete }: CutsceneProps) {
               alignItems: 'center',
               justifyContent: 'space-between',
               padding: '10px 12px',
-              borderBottom: '1px solid rgba(255, 255, 255, 0.08)'
+              borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+              position: 'sticky',
+              top: 0,
+              background: '#000',
+              zIndex: 5
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 {/* Gradient avatar ring */}
@@ -299,7 +325,7 @@ export default function Cutscene({ onComplete }: CutsceneProps) {
                   </svg>
                 </div>
               </div>
-              <div style={{ color: '#8e8e8e', cursor: 'pointer', fontSize: '18px', fontWeight: 'bold' }}>•••</div>
+              <div style={{ color: '#fff', cursor: 'pointer', fontSize: '18px', fontWeight: 'bold' }}>•••</div>
             </div>
 
             {/* Post Image Body */}
@@ -390,13 +416,28 @@ export default function Cutscene({ onComplete }: CutsceneProps) {
             }}>
               <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
                 <span style={{ cursor: 'pointer', fontSize: '16px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  ❤️ <span style={{ fontSize: '11px', fontWeight: 600, color: '#b3b3b3' }}>12,9rb</span>
+                  ❤️ <span style={{ fontSize: '11px', fontWeight: 600, color: '#fff' }}>12,9rb</span>
+                </span>
+                <span 
+                  onClick={() => setShowComments(prev => !prev)}
+                  style={{
+                    cursor: 'pointer',
+                    fontSize: '16px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    animation: (!showComments && paraIndex >= 1) ? 'pulse-comment 1.5s infinite' : 'none',
+                    padding: '2px 6px',
+                    borderRadius: '6px',
+                    background: showComments ? 'rgba(255,255,255,0.08)' : 'transparent',
+                    border: showComments ? '1px solid rgba(255,255,255,0.15)' : '1px solid transparent',
+                    transition: 'all 0.2s',
+                  }}
+                >
+                  💬 <span style={{ fontSize: '11px', fontWeight: 600, color: '#fff' }}>1.134</span>
                 </span>
                 <span style={{ cursor: 'pointer', fontSize: '16px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  💬 <span style={{ fontSize: '11px', fontWeight: 600, color: '#b3b3b3' }}>1.134</span>
-                </span>
-                <span style={{ cursor: 'pointer', fontSize: '16px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  ✈️ <span style={{ fontSize: '11px', fontWeight: 600, color: '#b3b3b3' }}>3.560</span>
+                  ✈️ <span style={{ fontSize: '11px', fontWeight: 600, color: '#fff' }}>3.560</span>
                 </span>
               </div>
               <span style={{ cursor: 'pointer', fontSize: '16px' }}>🔖</span>
@@ -407,40 +448,51 @@ export default function Cutscene({ onComplete }: CutsceneProps) {
               padding: '0 14px 14px',
               fontSize: '12px',
               lineHeight: 1.4,
-              color: '#f5f5f5',
+              color: '#fff',
             }}>
-              <div style={{ marginBottom: '6px', color: '#b3b3b3' }}>
+              <div style={{ marginBottom: '6px', color: '#fff' }}>
                 Disukai oleh <strong>edukasi.kompas</strong> dan <strong>lainnya</strong>
               </div>
               <div>
-                <strong>pinterpolitik</strong> Sebuah studi terbaru mengungkap fakta mencengangkan: remaja Indonesia rata-rata menghabiskan lebih dari 8 jam sehari di media sosial!... <span style={{ color: '#b3b3b3', cursor: 'pointer' }}>selengkapnya</span>
+                <strong>pinterpolitik</strong> Sebuah studi terbaru mengungkap fakta mencengangkan: remaja Indonesia rata-rata menghabiskan lebih dari 8 jam sehari di media sosial!... <span style={{ color: '#fff', cursor: 'pointer' }}>selengkapnya</span>
               </div>
               
-              <div style={{ color: '#b3b3b3', marginTop: '6px', cursor: 'pointer', fontSize: '11px' }}>
-                Lihat semua komentar
+              <div 
+                onClick={() => setShowComments(prev => !prev)}
+                style={{
+                  color: showComments ? '#3897f0' : '#fff',
+                  marginTop: '6px',
+                  cursor: 'pointer',
+                  fontSize: '11px',
+                  fontWeight: showComments ? 700 : 500,
+                  display: 'inline-block',
+                  transition: 'all 0.2s',
+                }}
+              >
+                {showComments ? 'Sembunyikan komentar' : 'Lihat semua komentar'}
               </div>
             </div>
 
-            {/* Comments list - only displays for Slide 2 (index 1) onwards */}
-            {paraIndex >= 1 && (
+            {/* Comments list - only displays when showComments is true */}
+            {showComments && (
               <div style={{ display: 'flex', flexDirection: 'column', borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}>
-                {CUTSCENE_COMMENTS.slice(0, 3).map((c, i) => (
+                {CUTSCENE_COMMENTS.map((c, i) => (
                   <motion.div
                     key={i}
                     className="tiktok-comment"
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.35 }}
+                    transition={{ delay: i * 0.2 }}
                     style={{
                       background: 'rgba(255,255,255,0.01)',
-                      color: '#eee',
+                      color: '#fff',
                       padding: '8px 14px',
                       fontSize: '11.5px',
                       borderBottom: '1px solid rgba(255, 255, 255, 0.04)',
                     }}
                   >
                     <span style={{ color: '#3897f0', fontWeight: 700, marginRight: '6px' }}>{c.user}</span>
-                    <span style={{ color: '#e5e5e5' }}>{c.text}</span>
+                    <span style={{ color: '#fff' }}>{c.text}</span>
                   </motion.div>
                 ))}
               </div>
@@ -449,33 +501,7 @@ export default function Cutscene({ onComplete }: CutsceneProps) {
         </motion.div>
       </div>
 
-      {/* Continue button when done */}
-      <AnimatePresence>
-        {done && (
-          <motion.button
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="game-btn game-btn-primary"
-            style={{ marginTop: '32px', fontSize: '16px', padding: '16px 40px', zIndex: 20 }}
-            onClick={onComplete}
-          >
-            Mulai Investigasi →
-          </motion.button>
-        )}
-      </AnimatePresence>
 
-      {/* Progress dots */}
-      <div style={{ display: 'flex', gap: '8px', marginTop: '24px', zIndex: 20 }}>
-        {NARASI.map((_, i) => (
-          <div key={i} style={{
-            width: i === paraIndex ? '20px' : '6px',
-            height: '6px',
-            borderRadius: '3px',
-            background: i <= paraIndex ? 'var(--accent)' : 'rgba(255,255,255,0.15)',
-            transition: 'all 0.3s',
-          }} />
-        ))}
-      </div>
 
       <style>{`
         @keyframes float {
@@ -485,6 +511,10 @@ export default function Cutscene({ onComplete }: CutsceneProps) {
         @keyframes blink {
           0%, 100% { opacity: 1; }
           50% { opacity: 0; }
+        }
+        @keyframes pulse-comment {
+          0%, 100% { border-color: rgba(0, 255, 136, 0.2); background: rgba(0, 255, 136, 0); }
+          50% { border-color: rgba(0, 255, 136, 0.8); background: rgba(0, 255, 136, 0.15); box-shadow: 0 0 10px rgba(0, 255, 136, 0.3); }
         }
       `}</style>
     </motion.div>

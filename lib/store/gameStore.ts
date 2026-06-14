@@ -102,15 +102,17 @@ export const useGameStore = create<GameStore>()(
         set((state) => ({ mistakeCount: state.mistakeCount + 1 })),
 
       resetLevel: () =>
-        set({
+        set((state) => ({
           currentStep: 0,
           answers: {},
+          lives: state.cognitiveStyle === 'FD' ? 4 : 3,
+          timeRemaining: state.cognitiveStyle === 'FD' ? 900 : 600,
           isCompleted: false,
           sessionStartTime: null,
           xpBreakdown: [],
           mistakeCount: 0,
           verdictAnswer: null,
-        }),
+        })),
 
       startLevel: (levelId, cognitiveStyle) => {
         const isFD = cognitiveStyle === 'FD'

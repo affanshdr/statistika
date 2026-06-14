@@ -38,8 +38,8 @@ export default function FDPath() {
   useEffect(() => { sessionActiveRef.current = true }, [])
 
   // DiRA state (step 0)
-  const [diraMsg, setDiraMsg] = useState<string | null>('Yuk pindahkan data screen time 35 siswa ke histogram! Data kelas 1–4 (25 siswa) sudah aku masukkan otomatis sebagai bantuan. Tinggal drag 10 data tersisa ya! 😉')
-  const [showDira, setShowDira] = useState(true)
+  const [diraMsg, setDiraMsg] = useState<string | null>('Yuk pindahkan data screen time 35 siswa ke histogram! Data kelas 1–4 (13 siswa) sudah aku masukkan otomatis sebagai bantuan. Tinggal drag 22 data tersisa ya! 😉')
+  const [showDira, setShowDira] = useState(false)
 
   // Flash wrong overlay (FD only — no life lost)
   const [flashWrong, setFlashWrong] = useState(false)
@@ -72,7 +72,7 @@ export default function FDPath() {
       // FD: hanya red flash, tanpa life lost — eksplorasi mandiri
       setFlashWrong(true)
       setTimeout(() => setFlashWrong(false), 600)
-      setDiraMsg('Oops, ada data yang masuk ke kelas yang salah nih! Coba periksa lagi — ingat interval: 1-4, 5-8, 9-12, 13-16 jam. Angka yang terlalu besar atau terlalu kecil berarti harus masuk ke kelas yang berbeda. Semangat! 💪')
+      setDiraMsg('Oops, ada data yang masuk ke kelas yang salah nih! Coba periksa lagi — ingat interval: 1-4, 5-8, 9-12, 13-16, 17-20 jam. Angka yang terlalu besar atau terlalu kecil berarti harus masuk ke kelas yang berbeda. Semangat! 💪')
       setShowDira(true)
     }
   }
@@ -124,10 +124,10 @@ export default function FDPath() {
   const displayStep = step >= 2 ? 2 : step
 
   return (
-    <div style={{ maxWidth: '820px', margin: '0 auto', padding: '24px 16px', paddingBottom: '120px' }}>
+    <div className={step === 0 ? 'tahap-a-fullscreen' : undefined} style={step !== 0 ? { maxWidth: '820px', margin: '0 auto', padding: '24px 16px', paddingBottom: '120px' } : undefined}>
 
       {/* Step indicator */}
-      <div className="step-indicator" style={{ marginBottom: '24px' }}>
+      <div className="step-indicator" style={{ marginBottom: step === 0 ? '8px' : '24px', flexShrink: 0 }}>
         {STEP_LABELS.map((label, i) => (
           <div
             key={i}
@@ -149,48 +149,66 @@ export default function FDPath() {
         )}
       </AnimatePresence>
 
+      <div style={{ width: '100%' }}>
       <AnimatePresence mode="wait">
 
         {/* ── STEP 0: Histogram Terbimbing ── */}
         {step === 0 && (
-          <motion.div key="step0" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }}>
-            <div className="game-card" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              <div>
-                <div style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 800, letterSpacing: '1px', marginBottom: '6px' }}>
-                  TAHAP A — HISTOGRAM TERBIMBING
-                </div>
-                <h2 style={{ margin: 0, fontSize: '20px' }}>Lengkapi Histogram Screen Time</h2>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '14px', marginTop: '8px', lineHeight: 1.6 }}>
-                  Ada 35 data screen time remaja. Data kelas 1–4 jam (25 siswa) sudah dimasukkan otomatis. Silakan drag/klik <strong>10 data tersisa</strong> ke kelas yang tepat!
-                </p>
-              </div>
-
-              {/* Klaim viral reminder */}
-              <div style={{ padding: '12px 14px', borderRadius: '12px', background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.2)', fontSize: '13px', color: 'rgba(255,255,255,0.75)', lineHeight: 1.5 }}>
-                🚨 <strong style={{ color: '#f87171' }}>Klaim Viral:</strong> &quot;Remaja Indonesia rata-rata &gt;8 jam/hari di medsos!&quot; — Buktikan dengan data!
-              </div>
-
-              {/* Pre-computed stats */}
-              <div style={{ background: 'rgba(0,255,136,0.04)', border: '1px solid var(--game-border-accent)', borderRadius: '14px', padding: '14px 18px' }}>
-                <div style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 700, marginBottom: '10px', letterSpacing: '1px' }}>📊 STATISTIK DASAR (SUDAH DIHITUNG)</div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
-                  {[
-                    { label: 'Mean', val: `${STATS.mean} jam` },
-                    { label: 'Median', val: `${STATS.median} jam` },
-                    { label: 'Min', val: '1 jam' },
-                    { label: 'Max', val: '16 jam' },
-                    { label: 'Range', val: '15 jam' },
-                    { label: 'n', val: '35 siswa' },
-                  ].map(({ label, val }) => (
-                    <div key={label} style={{ textAlign: 'center', padding: '8px', background: 'rgba(255,255,255,0.03)', borderRadius: '10px' }}>
-                      <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 700 }}>{label}</div>
-                      <div style={{ fontSize: '16px', fontWeight: 800, color: 'var(--accent)', fontFamily: 'var(--font-data)' }}>{val}</div>
+          <motion.div key="step0" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }} style={{ width: '100%' }}>
+            <div className="game-card">
+              <div className="tahap-a-grid">
+                {/* Left Column: Description & Agent Dialogue */}
+                <div className="tahap-a-left-col">
+                  <div>
+                    <div style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 800, letterSpacing: '1px', marginBottom: '6px' }}>
+                      TAHAP A — HISTOGRAM TERBIMBING
                     </div>
-                  ))}
+                    <h2 style={{ margin: 0, fontSize: '20px' }}>Lengkapi Histogram</h2>
+                  </div>
+
+                  {/* DiRA Agent Speech Bubble Card */}
+                  <div style={{ 
+                    display: 'flex', gap: '14px', alignItems: 'flex-start', 
+                    padding: '16px', borderRadius: '16px', 
+                    background: 'rgba(0,255,136,0.04)', border: '1px solid rgba(0,255,136,0.2)',
+                    boxShadow: '0 4px 20px rgba(0,255,136,0.02)'
+                  }}>
+                    {/* DiRA Avatar */}
+                    <div style={{ 
+                      width: '48px', height: '48px', borderRadius: '50%', 
+                      border: '2px solid var(--accent)', boxShadow: 'var(--accent-glow)',
+                      overflow: 'hidden', background: 'var(--game-card)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      flexShrink: 0
+                    }}>
+                      <img
+                        src="/dira-avatar.png"
+                        alt="Dira"
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      />
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 800, marginBottom: '6px', letterSpacing: '0.5px' }}>
+                        ASISTEN DIRA:
+                      </div>
+                      <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.85)', lineHeight: 1.7 }}>
+                        &quot;Halo Detektif! Ada <strong>35 data screen time</strong> remaja yang harus kita kelompokkan. Sebagai bantuan awal, data kelas 1–4 jam (<strong>13 siswa</strong>) sudah aku masukkan otomatis ya. 
+                      Sekarang, silakan drag atau klik <strong>22 data tersisa</strong> ke kelas interval yang tepat pada histogram!&quot;
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Klaim viral reminder */}
+                  <div style={{ padding: '12px 14px', borderRadius: '12px', background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.2)', fontSize: '13px', color: 'rgba(255,255,255,0.75)', lineHeight: 1.5 }}>
+                    🚨 <strong style={{ color: '#f87171' }}>Klaim Viral:</strong> &quot;Remaja Indonesia rata-rata &gt;8 jam/hari di medsos!&quot; — Buktikan dengan data!
+                  </div>
+                </div>
+
+                {/* Right Column: Challenge */}
+                <div className="tahap-a-right-col">
+                  <DraggableHistogram mode="FD" onSubmit={handleHistogramSubmit} />
                 </div>
               </div>
-
-              <DraggableHistogram mode="FD" onSubmit={handleHistogramSubmit} />
             </div>
           </motion.div>
         )}
@@ -221,18 +239,33 @@ export default function FDPath() {
                 </div>
               </div>
 
-              {/* Reference mini-stats */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
-                {[
-                  { label: 'Mean', val: `${STATS.mean} jam`, color: '#F59E0B' },
-                  { label: 'Median', val: `${STATS.median} jam`, color: '#00FF88' },
-                  { label: 'Mayoritas (1-4 jam)', val: '25/35 = 71.4%', color: '#3B82F6' },
-                ].map(({ label, val, color }) => (
-                  <div key={label} style={{ padding: '10px', background: 'rgba(255,255,255,0.03)', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.06)', textAlign: 'center' }}>
-                    <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 700, marginBottom: '4px' }}>{label}</div>
-                    <div style={{ fontSize: '15px', fontWeight: 800, color, fontFamily: 'var(--font-data)' }}>{val}</div>
+              {/* Histogram & Stats Grid */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: '16px', alignItems: 'stretch' }} className="tahap-b-reference-grid">
+                {/* Left: Histogram */}
+                <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--game-border)', borderRadius: '14px', padding: '12px' }}>
+                  <div style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 700, marginBottom: '8px', letterSpacing: '1px' }}>📊 HISTOGRAM HASIL TAHAP A</div>
+                  <DraggableHistogram mode="FD" readOnly={true} />
+                </div>
+
+                {/* Right: Pre-computed stats */}
+                <div style={{ background: 'rgba(0,255,136,0.04)', border: '1px solid var(--game-border-accent)', borderRadius: '14px', padding: '14px 18px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                  <div style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 700, marginBottom: '10px', letterSpacing: '1px' }}>📈 STATISTIK DASAR (SUDAH DIHITUNG)</div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px' }}>
+                    {[
+                      { label: 'Mean', val: `${STATS.mean} jam` },
+                      { label: 'Median', val: `${STATS.median} jam` },
+                      { label: 'Min', val: `${STATS.min} jam` },
+                      { label: 'Max', val: `${STATS.max} jam` },
+                      { label: 'Range', val: `${STATS.range} jam` },
+                      { label: 'n', val: '35 siswa' },
+                    ].map(({ label, val }) => (
+                      <div key={label} style={{ textAlign: 'center', padding: '8px', background: 'rgba(255,255,255,0.03)', borderRadius: '10px' }}>
+                        <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 700 }}>{label}</div>
+                        <div style={{ fontSize: '15px', fontWeight: 800, color: 'var(--accent)', fontFamily: 'var(--font-data)' }}>{val}</div>
+                      </div>
+                    ))}
                   </div>
-                ))}
+                </div>
               </div>
 
               {/* Text input */}
@@ -268,7 +301,7 @@ export default function FDPath() {
                     animate={{ opacity: 1, y: 0 }}
                     style={{ display: 'flex', gap: '12px', alignItems: 'flex-start', padding: '12px 14px', borderRadius: '12px', background: 'rgba(0,255,136,0.05)', border: '1px solid rgba(0,255,136,0.2)' }}
                   >
-                    <span style={{ fontSize: '24px', flexShrink: 0 }}>🤖</span>
+                    <img src="/dira-avatar.png" alt="Dira" style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
                     <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.85)', lineHeight: 1.6 }}>
                       <strong style={{ color: 'var(--accent)' }}>DiRA: </strong>
                       Coba sebutkan apakah klaim itu &quot;<strong>valid</strong>&quot; atau &quot;<strong>tidak valid</strong>&quot;. Kemudian, dukung dengan menyebut kata seperti &quot;mayoritas&quot;, &quot;outlier&quot;, atau &quot;histogram&quot;. Kamu pasti bisa! 💪
@@ -300,7 +333,7 @@ export default function FDPath() {
                     )}
                     {analysisAttempts >= 2 && (
                       <p style={{ margin: '6px 0 0', color: 'rgba(0,255,136,0.8)', fontStyle: 'italic' }}>
-                        🔍 Contoh jawaban: &quot;Tidak valid, karena mayoritas (25 siswa / 71%) hanya bermain 1-4 jam. Nilai 11 dan 16 jam adalah outlier yang membuat mean tampak lebih tinggi.&quot;
+                        🔍 Contoh jawaban: &quot;Tidak valid, karena mayoritas (13 siswa / 37.1%) hanya bermain 1-4 jam. Nilai 17 dan 18 jam adalah outlier yang membuat mean tampak lebih tinggi.&quot;
                       </p>
                     )}
                   </motion.div>
@@ -327,6 +360,7 @@ export default function FDPath() {
         )}
 
       </AnimatePresence>
+      </div>{/* /flex-fill wrapper */}
 
       {/* ── STEP 2: Myth Busted Stamp (overlay) ── */}
       <AnimatePresence>

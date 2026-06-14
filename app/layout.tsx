@@ -14,8 +14,8 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "AR-COGNISTATS - Platform Pembelajaran Statistika berbasis Augmented Reality",
-  description: "Platform pembelajaran statistika adaptif untuk SMA, mengintegrasikan gaya kognitif (Field Independent/Field Dependent) dengan visualisasi interaktif Augmented Reality (AR).",
+  title: "Skeptikos — Platform Game Edukasi Statistika",
+  description: "Platform game edukasi statistika adaptif untuk SMA. Jadi detektif data, ungkap klaim viral menggunakan histogram, distribusi frekuensi, dan analisis kritis berbasis gaya kognitif FI/FD.",
 };
 
 export const viewport: Viewport = {

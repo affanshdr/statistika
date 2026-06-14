@@ -39,19 +39,25 @@ const PARTICLES = [
 // Animated stat counter
 function CountUp({ target, suffix = '', duration = 1500 }: { target: number; suffix?: string; duration?: number }) {
   const [val, setVal] = useState(0)
-  const ref = useRef(false)
   useEffect(() => {
-    if (ref.current) return
-    ref.current = true
+    let active = true
+    let frameId: number
     const start = Date.now()
     const tick = () => {
+      if (!active) return
       const t = Math.min((Date.now() - start) / duration, 1)
       const ease = 1 - Math.pow(1 - t, 3)
       setVal(Math.round(ease * target))
-      if (t < 1) requestAnimationFrame(tick)
+      if (t < 1) {
+        frameId = requestAnimationFrame(tick)
+      }
     }
     const timer = setTimeout(tick, 400)
-    return () => clearTimeout(timer)
+    return () => {
+      active = false
+      clearTimeout(timer)
+      cancelAnimationFrame(frameId)
+    }
   }, [target, duration])
   return <>{val}{suffix}</>
 }
@@ -204,10 +210,10 @@ export default function HomePage() {
                 WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
                 whiteSpace: 'nowrap',
               }}>
-                AR-COGNISTATS
+                Skeptikos
               </div>
               <div className="nav-subtitle" style={{ fontSize: '9px', color: 'rgba(255,255,255,0.35)', letterSpacing: '2px', fontWeight: 700, marginTop: '1px' }}>
-                DATA DETECTIVE ACADEMY
+                INVESTIGASI DATA
               </div>
             </div>
           </div>

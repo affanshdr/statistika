@@ -19,8 +19,8 @@ const LEVELS = [
   {
     id: 1,
     icon: '🎬',
-    title: 'Kasus: Postingan Viral Screen Time',
-    desc: 'Selidiki klaim viral di TikTok menggunakan distribusi frekuensi & histogram.',
+    title: 'Level 1 (The Viral Myth)',
+    desc: 'Topik Materi: Statistika Deskriptif (Histogram, Distribusi Data, Outlier, & Ukuran Pemusatan Data)',
     tags: ['Distribusi Frekuensi', 'Histogram', 'Analisis Kritis'],
     locked: false,
     xpMax: 75,
@@ -116,8 +116,8 @@ export default function LobbyPage() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <span style={{ fontSize: '22px' }}>🕵️</span>
           <div>
-            <div style={{ fontSize: '10px', color: 'var(--accent)', fontWeight: 800, letterSpacing: '2px' }}>DIGITAL TRUTH SQUAD</div>
-            <div style={{ fontSize: '14px', fontWeight: 700 }} className="desktop-only">AR-COGNISTATS Game</div>
+            <div style={{ fontSize: '10px', color: 'var(--accent)', fontWeight: 800, letterSpacing: '2px' }}>SKEPTIKOS</div>
+            <div style={{ fontSize: '14px', fontWeight: 700 }} className="desktop-only">Skeptikos</div>
           </div>
         </div>
         <button

@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { STATS, CORRECT_TABLE, screenTimeData } from '../_data/level1'
 
 interface DetektivBookletProps {
   mode: 'FI' | 'FD'
@@ -19,11 +20,11 @@ const CHAPTERS = [
     contentFD: `Bayangkan nilai ulangan teman-temanmu: kebanyakan dapat nilai 70-80 (banyak yang di sini), tapi ada 1-2 orang yang dapat nilai 95-100. Nah, distribusinya jadi "ekor"-nya ke kanan!`,
     visual: 'skewness',
     keyPoints: [
-      { icon: '📊', text: 'Data menumpuk di sebelah KIRI grafik (nilai rendah-sedang)' },
+      { icon: '📊', text: 'Data menumpuk di nilai rendah-sedang (kelas 1-4 dan 5-8)' },
       { icon: '🐍', text: 'Ada "ekor" memanjang ke arah KANAN (nilai tinggi/ekstrem)' },
-      { icon: '💡', text: 'Pada data screen time kita: 71.4% siswa hanya 1-4 jam, tapi ada yang 11 dan 16 jam' },
+      { icon: '💡', text: 'Pada data screen time kita: 71.4% siswa bermain <= 8 jam, tapi ada yang bermain hingga 17 dan 18 jam' },
     ],
-    diraTip: 'Ingat histogram yang baru kamu buat? Batang paling tinggi ada di kelas 1-4 jam, terus batangnya makin pendek ke kanan. Itulah ciri khas distribusi menceng kanan! 📈',
+    diraTip: 'Ingat histogram yang baru kamu buat? Batang paling tinggi ada di kelas 1-4 jam (13 siswa) dan kelas 5-8 jam (12 siswa), terus batangnya makin pendek ke kanan. Itulah ciri khas distribusi menceng kanan! 📈',
   },
   {
     id: 'outlier',
@@ -32,14 +33,14 @@ const CHAPTERS = [
     subtitle: 'MATERI 2 / 3',
     color: '#EF4444',
     content: `Outlier adalah nilai data yang letaknya sangat jauh dari pusat data lainnya. Outlier bisa terjadi karena kondisi ekstrem yang tidak mewakili mayoritas populasi.`,
-    contentFD: `Misalnya dari 35 teman, 33 main HP 1-8 jam. Tapi 2 teman main 11 dan 16 jam. Kedua angka itulah yang kita sebut OUTLIER — si pengecualian yang bikin rata-rata jadi meleset!`,
+    contentFD: `Misalnya dari 35 teman, 25 main HP 1-8 jam. Tapi ada yang main sampai 17 dan 18 jam. Kedua angka ekstrem itulah yang kita sebut OUTLIER — si pengecualian yang bikin rata-rata jadi meleset!`,
     visual: 'outlier',
     keyPoints: [
-      { icon: '🎯', text: 'Outlier dalam data kita: siswa dengan screen time 11 jam dan 16 jam' },
+      { icon: '🎯', text: 'Outlier dalam data kita: siswa dengan screen time ekstrem seperti 17 jam dan 18 jam' },
       { icon: '⚠️', text: 'Outlier bisa merusak gambaran "rata-rata" yang sebenarnya' },
       { icon: '🔍', text: 'Detektif data harus selalu mewaspadai outlier sebelum membuat kesimpulan!' },
     ],
-    diraTip: 'Dalam data kita, ada 2 outlier: siswa yang main HP 11 jam dan 16 jam sehari. Itu angka yang sangat tidak biasa dibanding 33 siswa lainnya yang cuma 1-8 jam!',
+    diraTip: 'Dalam data kita, ada outlier berupa nilai ekstrem: siswa yang main HP 17 jam dan 18 jam sehari. Itu angka yang sangat tidak biasa dibanding mayoritas siswa lainnya!',
   },
   {
     id: 'mean-median',
@@ -48,37 +49,33 @@ const CHAPTERS = [
     subtitle: 'MATERI 3 / 3',
     color: '#F59E0B',
     content: `Mean (rata-rata) sangat sensitif terhadap outlier. Satu nilai ekstrem saja bisa menarik mean ke atas/bawah secara signifikan. Dalam kasus data menceng, Median (nilai tengah) lebih jujur menggambarkan situasi kelompok.`,
-    contentFD: `Mean itu kayak teman yang gampang dipengaruhi — 1 orang main HP 16 jam sehari bisa bikin rata-rata semua orang kelihatan tinggi! Sedangkan Median lebih "jujur" — dia lihat nilai yang ada di posisi tengah, tidak peduli outlier.`,
+    contentFD: `Mean itu kayak teman yang gampang dipengaruhi — 1 orang main HP 18 jam sehari bisa bikin rata-rata semua orang kelihatan tinggi! Sedangkan Median lebih "jujur" — dia lihat nilai yang ada di posisi tengah, tidak peduli outlier.`,
     visual: 'mean-median',
     keyPoints: [
-      { icon: '🔢', text: 'Mean data kita: ≈4.23 jam/hari (dipengaruhi outlier 11 & 16 jam)' },
-      { icon: '📍', text: 'Median data kita: 4 jam/hari (lebih mencerminkan siswa "biasa")' },
-      { icon: '🚨', text: 'Klaim ">8 jam rata-rata" TIDAK didukung data — mean sebenarnya hanya 4.23 jam!' },
+      { icon: '🔢', text: `Mean data kita: ${STATS.mean} jam/hari (tertarik ke atas oleh nilai ekstrem)` },
+      { icon: '📍', text: `Median data kita: ${STATS.median} jam/hari (lebih mencerminkan siswa "biasa")` },
+      { icon: '🚨', text: `Klaim ">8 jam rata-rata" TIDAK didukung data — mean sebenarnya hanya ${STATS.mean} jam!` },
     ],
-    diraTip: 'Coba hitung: kalau ada 35 siswa dan 33 diantaranya main 1-8 jam, tapi 2 orang main 11 dan 16 jam — apakah adil bilang "rata-rata >8 jam"? Tentu tidak! Median = 4 jam jauh lebih representatif.',
+    diraTip: `Coba hitung: kalau ada 35 siswa dan 25 diantaranya main 1-8 jam, tapi ada yang main 17 dan 18 jam — apakah adil bilang "rata-rata >8 jam"? Tentu tidak! Median = ${STATS.median} jam jauh lebih representatif.`,
   },
 ]
 
 function VisualSkewness() {
-  const bars = [
-    { h: 80, label: '1-4', color: '#3B82F6', f: 25 },
-    { h: 26, label: '5-8', color: '#6366F1', f: 8 },
-    { h: 3, label: '9-12', color: '#8B5CF6', f: 1 },
-    { h: 3, label: '13-16', color: '#A78BFA', f: 1 },
-  ]
+  const maxF = Math.max(...CORRECT_TABLE.map(b => b.f))
+  const colors = ['#3B82F6', '#6366F1', '#8B5CF6', '#A78BFA', '#EC4899']
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
       <div style={{ display: 'flex', alignItems: 'flex-end', gap: '6px', height: '100px', borderBottom: '2px solid rgba(255,255,255,0.2)', paddingBottom: '4px' }}>
-        {bars.map((b, i) => (
+        {CORRECT_TABLE.map((b, i) => (
           <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px' }}>
-            <span style={{ fontSize: '10px', color: b.color, fontWeight: 700 }}>f={b.f}</span>
+            <span style={{ fontSize: '10px', color: colors[i] ?? '#fff', fontWeight: 700 }}>f={b.f}</span>
             <motion.div
               initial={{ height: 0 }}
-              animate={{ height: b.h }}
+              animate={{ height: (b.f / maxF) * 80 }}
               transition={{ delay: i * 0.15, duration: 0.6, ease: 'easeOut' }}
-              style={{ width: '44px', borderRadius: '4px 4px 0 0', background: `${b.color}cc`, border: `1px solid ${b.color}`, boxShadow: `0 0 8px ${b.color}44` }}
+              style={{ width: '36px', borderRadius: '4px 4px 0 0', background: `${colors[i] ?? '#fff'}cc`, border: `1px solid ${colors[i] ?? '#fff'}`, boxShadow: `0 0 8px ${colors[i] ?? '#fff'}44` }}
             />
-            <span style={{ fontSize: '9px', color: 'rgba(255,255,255,0.5)', whiteSpace: 'nowrap' }}>{b.label}</span>
+            <span style={{ fontSize: '9px', color: 'rgba(255,255,255,0.5)', whiteSpace: 'nowrap' }}>{b.kelas}</span>
           </div>
         ))}
         {/* Arrow showing skew direction */}
@@ -94,12 +91,12 @@ function VisualSkewness() {
 }
 
 function VisualOutlier() {
-  const points = [1, 2, 2, 3, 3, 3, 4, 4, 4, 4, 5, 6, 7, 8, 11, 16]
+  const points = [...screenTimeData].sort((a, b) => a - b)
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', justifyContent: 'center', maxWidth: '320px' }}>
         {points.map((v, i) => {
-          const isOutlier = v >= 11
+          const isOutlier = v >= 17
           return (
             <motion.div
               key={i}
@@ -131,14 +128,14 @@ function VisualOutlier() {
 }
 
 function VisualMeanMedian() {
-  const mean = 4.23
-  const median = 4
+  const mean = STATS.mean
+  const median = STATS.median
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', width: '100%' }}>
       {[
         { label: 'MEDIAN', value: median, unit: 'jam/hari', color: '#00FF88', desc: 'Nilai tengah — tidak dipengaruhi outlier', icon: '📍' },
-        { label: 'MEAN', value: mean, unit: 'jam/hari', color: '#F59E0B', desc: 'Rata-rata — TERPENGARUH outlier 11 & 16 jam', icon: '⚠️' },
+        { label: 'MEAN', value: mean, unit: 'jam/hari', color: '#F59E0B', desc: 'Rata-rata — TERPENGARUH outlier', icon: '⚠️' },
         { label: 'KLAIM VIRAL', value: '>8', unit: 'jam/hari', color: '#EF4444', desc: 'Klaim tidak didukung data nyata!', icon: '🚨' },
       ].map((item, i) => (
         <motion.div
@@ -311,7 +308,7 @@ export default function DetektivBooklet({ mode, onComplete }: DetektivBookletPro
               padding: '12px 14px', borderRadius: '12px',
               background: 'rgba(0,255,136,0.04)', border: '1px solid rgba(0,255,136,0.2)',
             }}>
-              <span style={{ fontSize: '24px', flexShrink: 0 }}>🤖</span>
+              <img src="/dira-avatar.png" alt="Dira" style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
               <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.8)', lineHeight: 1.6 }}>
                 <strong style={{ color: 'var(--accent)' }}>DiRA: </strong>
                 {chapter.diraTip}
