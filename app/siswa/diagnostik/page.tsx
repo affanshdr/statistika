@@ -162,6 +162,7 @@ export default function DiagnostikPage() {
   const [currentQ, setCurrentQ] = useState(0)
   const [answers, setAnswers] = useState<(number | null)[]>(Array(15).fill(null))
   const [selected, setSelected] = useState<number | null>(null)
+  const [submitted, setSubmitted] = useState(false)
   const [phase, setPhase] = useState<'intro' | 'test' | 'result'>('intro')
   const [saving, setSaving] = useState(false)
   const [showPopup, setShowPopup] = useState(false)
@@ -178,7 +179,7 @@ export default function DiagnostikPage() {
   }, [router])
 
   const handleAnswer = (optIdx: number) => {
-    if (selected !== null) return
+    if (submitted) return
     setSelected(optIdx)
   }
 
@@ -187,6 +188,7 @@ export default function DiagnostikPage() {
     newAnswers[currentQ] = selected
     setAnswers(newAnswers)
     setSelected(null)
+    setSubmitted(false)
 
     if (currentQ < QUESTIONS.length - 1) {
       setCurrentQ(prev => prev + 1)
@@ -237,7 +239,18 @@ export default function DiagnostikPage() {
         justifyContent: 'space-between',
         alignItems: 'center'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <div
+          onClick={() => {
+            if (phase === 'test') {
+              if (confirm("Apakah Anda yakin ingin keluar dari tes? Jawaban Anda saat ini tidak akan disimpan.")) {
+                router.push('/')
+              }
+            } else {
+              router.push('/')
+            }
+          }}
+          style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
+        >
           <motion.div
             animate={{ filter: ['drop-shadow(0 0 6px #00FF88)', 'drop-shadow(0 0 14px #00FF88)', 'drop-shadow(0 0 6px #00FF88)'] }}
             transition={{ duration: 2.5, repeat: Infinity }}
@@ -403,47 +416,106 @@ export default function DiagnostikPage() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   {q.options.map((opt, i) => {
                     const isSelected = selected === i
-                    const isCorrect = selected !== null && i === q.correct
-                    const isWrong = selected === i && i !== q.correct
-
+                    
                     let bg = 'rgba(255,255,255,0.03)'
                     let border = '1px solid rgba(255,255,255,0.08)'
                     let color = 'rgba(255,255,255,0.8)'
+                    let boxShadow = 'none'
+                    let showIcon: 'correct' | 'wrong' | 'check' | null = null
 
-                    if (isSelected && isCorrect) { bg = 'rgba(0,255,136,0.1)'; border = '1px solid rgba(0,255,136,0.5)'; color = '#00FF88' }
-                    else if (isWrong) { bg = 'rgba(239,68,68,0.1)'; border = '1px solid rgba(239,68,68,0.35)'; color = '#f87171' }
-                    else if (isSelected) { bg = 'rgba(0,255,136,0.06)'; border = '1px solid rgba(0,255,136,0.3)'; color = 'rgba(255,255,255,0.9)' }
-                    else if (selected !== null && isCorrect) { bg = 'rgba(0,255,136,0.08)'; border = '1px solid rgba(0,255,136,0.3)'; color = '#6ee7b7' }
+                    if (!submitted) {
+                      if (isSelected) {
+                        bg = 'rgba(0, 255, 136, 0.12)'
+                        border = '2px solid #00FF88'
+                        color = '#ffffff'
+                        boxShadow = '0 0 16px rgba(0, 255, 136, 0.35)'
+                      }
+                    } else {
+                      const isCorrectAnswer = i === q.correct
+                      if (isSelected) {
+                        if (isCorrectAnswer) {
+                          bg = 'rgba(0, 255, 136, 0.18)'
+                          border = '2px solid #00FF88'
+                          color = '#00FF88'
+                          showIcon = 'correct'
+                          boxShadow = '0 0 16px rgba(0, 255, 136, 0.25)'
+                        } else {
+                          bg = 'rgba(255, 51, 102, 0.18)'
+                          border = '2px solid #FF3366'
+                          color = '#ff8f8f'
+                          showIcon = 'wrong'
+                          boxShadow = '0 0 16px rgba(255, 51, 102, 0.25)'
+                        }
+                      } else if (isCorrectAnswer) {
+                        bg = 'rgba(0, 255, 136, 0.08)'
+                        border = '1px dashed #00FF88'
+                        color = '#6ee7b7'
+                        showIcon = 'check'
+                      } else {
+                        bg = 'rgba(255, 255, 255, 0.01)'
+                        border = '1px solid rgba(255, 255, 255, 0.04)'
+                        color = 'rgba(255, 255, 255, 0.3)'
+                      }
+                    }
 
                     return (
                       <motion.button
                         key={i}
-                        whileHover={selected === null ? { scale: 1.01, x: 4 } : {}}
-                        whileTap={selected === null ? { scale: 0.99 } : {}}
+                        whileHover={!submitted ? { scale: 1.01, x: 4 } : {}}
+                        whileTap={!submitted ? { scale: 0.99 } : {}}
                         onClick={() => handleAnswer(i)}
-                        disabled={selected !== null}
+                        disabled={submitted}
                         style={{
                           width: '100%', padding: '12px 16px', borderRadius: '14px',
-                          border, background: bg, color,
+                          border, background: bg, color, boxShadow,
                           fontSize: '14px', fontWeight: 600, textAlign: 'left',
-                          cursor: selected === null ? 'pointer' : 'default',
+                          cursor: !submitted ? 'pointer' : 'default',
                           transition: 'all 0.2s', display: 'flex', gap: '12px', alignItems: 'center',
                           minHeight: '52px', touchAction: 'manipulation',
                         }}
                       >
-                        <span style={{ minWidth: '26px', height: '26px', borderRadius: '50%', background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 800, flexShrink: 0 }}>
+                        <span style={{
+                          minWidth: '26px', height: '26px', borderRadius: '50%',
+                          background: isSelected && !submitted
+                            ? '#00FF88'
+                            : submitted && isSelected && i === q.correct
+                              ? '#00FF88'
+                              : submitted && isSelected && i !== q.correct
+                                ? '#FF3366'
+                                : 'rgba(255,255,255,0.06)',
+                          color: (isSelected && !submitted) || (submitted && isSelected)
+                            ? '#000'
+                            : 'inherit',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          fontSize: '12px', fontWeight: 800, flexShrink: 0,
+                          transition: 'all 0.2s'
+                        }}>
                           {['A', 'B', 'C', 'D'][i]}
                         </span>
                         <span style={{ lineHeight: 1.5 }}>{opt}</span>
-                        {isSelected && isCorrect && <span style={{ marginLeft: 'auto', fontSize: '18px' }}>✅</span>}
-                        {isWrong && <span style={{ marginLeft: 'auto', fontSize: '18px' }}>❌</span>}
-                        {selected !== null && !isSelected && isCorrect && <span style={{ marginLeft: 'auto', fontSize: '14px' }}>✓</span>}
+                        {showIcon === 'correct' && <span style={{ marginLeft: 'auto', fontSize: '18px' }}>✅</span>}
+                        {showIcon === 'wrong' && <span style={{ marginLeft: 'auto', fontSize: '18px' }}>❌</span>}
+                        {showIcon === 'check' && <span style={{ marginLeft: 'auto', fontSize: '14px' }}>✓</span>}
                       </motion.button>
                     )
                   })}
                 </div>
 
-                {selected !== null && (
+                {!submitted ? (
+                  <button
+                    disabled={selected === null}
+                    onClick={() => setSubmitted(true)}
+                    style={{
+                      width: '100%', marginTop: '20px', padding: '14px', borderRadius: '14px',
+                      border: 'none', background: selected === null ? 'rgba(255,255,255,0.05)' : 'linear-gradient(90deg, #00FF88, #06b6d4)',
+                      color: selected === null ? 'rgba(255,255,255,0.3)' : '#000',
+                      fontSize: '14px', fontWeight: 800, cursor: selected === null ? 'not-allowed' : 'pointer',
+                      transition: 'all 0.2s', boxShadow: selected === null ? 'none' : '0 4px 20px rgba(0,255,136,0.3)',
+                    }}
+                  >
+                    Submit Jawaban
+                  </button>
+                ) : (
                   <motion.button
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}

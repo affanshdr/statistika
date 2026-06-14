@@ -110,9 +110,13 @@ export default function SiswaPage() {
     // sessionStorage resets when the tab is closed, so a new login always shows it again.
     if (s.diagnosticLevel && s.geftResult?.cognitiveStyle) {
       const alreadyShown = sessionStorage.getItem('greeting_shown')
+      const justFinishedGeft = sessionStorage.getItem('show_cognitive_style_first_time')
       if (!alreadyShown) {
         setShowGreeting(true)
         sessionStorage.setItem('greeting_shown', '1')
+      } else if (justFinishedGeft) {
+        setShowCognitiveModal(true)
+        sessionStorage.removeItem('show_cognitive_style_first_time')
       }
     }
   }, [router, setCognitiveStyle])
@@ -161,6 +165,15 @@ export default function SiswaPage() {
     // Use hard navigation to guarantee a fresh level page mount,
     // bypassing the Next.js App Router client-side cache.
     window.location.href = `/siswa/game/level/${levelId}`
+  }
+
+  const handleCloseGreeting = () => {
+    setShowGreeting(false)
+    const justFinishedGeft = sessionStorage.getItem('show_cognitive_style_first_time')
+    if (justFinishedGeft) {
+      setShowCognitiveModal(true)
+      sessionStorage.removeItem('show_cognitive_style_first_time')
+    }
   }
 
   const isFI = (student?.geftResult?.cognitiveStyle || cognitiveStyle) === 'FI'
@@ -822,7 +835,7 @@ export default function SiswaPage() {
                 </h3>
               </div>
               <button
-                onClick={() => setShowGreeting(false)}
+                onClick={handleCloseGreeting}
                 style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', fontSize: '20px', cursor: 'pointer', padding: '4px', lineHeight: 1 }}
                 onMouseEnter={e => e.currentTarget.style.color = '#ff6b6b'}
                 onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.4)'}
@@ -848,7 +861,7 @@ export default function SiswaPage() {
             </div>
 
             <button
-              onClick={() => setShowGreeting(false)}
+              onClick={handleCloseGreeting}
               style={{
                 width: '100%', padding: '12px', borderRadius: '12px', border: 'none',
                 background: isFI ? '#2563eb' : '#10b981',

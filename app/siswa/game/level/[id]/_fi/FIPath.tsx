@@ -108,7 +108,12 @@ export default function FIPath() {
   const displayStep = step >= 2 ? 2 : step // steps 2 & 3 both map to visual step 2 (materi)
 
   return (
-    <div className={step === 0 ? 'tahap-a-fullscreen' : undefined} style={step !== 0 ? { maxWidth: '820px', margin: '0 auto', padding: '24px 16px', paddingBottom: '40px' } : undefined}>
+    <div
+      className={step === 0 ? 'tahap-a-fullscreen' : undefined}
+      style={step === 0 
+        ? { height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden', paddingBottom: '16px' }
+        : { maxWidth: '820px', margin: '0 auto', padding: '24px 16px', paddingBottom: '40px' }}
+    >
 
       {/* Step indicator */}
       <div className="step-indicator" style={{ marginBottom: step === 0 ? '8px' : '24px', flexShrink: 0 }}>
@@ -122,42 +127,18 @@ export default function FIPath() {
         ))}
       </div>
 
-      <div style={{ width: '100%' }}>
+      <div style={{ width: '100%', flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
       <AnimatePresence mode="wait">
 
         {/* ── STEP 0: Histogram Builder ── */}
         {step === 0 && (
-          <motion.div key="step0" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }} style={{ width: '100%' }}>
-            <div className="game-card">
-              <div className="tahap-a-grid">
-                {/* Left Column: Description & Metadata */}
-                <div className="tahap-a-left-col">
-                  <div>
-                    <div style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 800, letterSpacing: '1px', marginBottom: '6px' }}>
-                      TAHAP A — HISTOGRAM BUILDER
-                    </div>
-                    <h2 style={{ margin: 0, fontSize: '20px' }}>Kelompokkan 35 Data Screen Time</h2>
-                    <p style={{ color: 'var(--text-secondary)', fontSize: '14px', marginTop: '8px', lineHeight: 1.6 }}>
-                      Drag atau klik data dari kolam kiri ke kelas interval yang tepat pada histogram kanan. Data dikelompokkan dalam interval lebar 4 jam.
-                    </p>
-                  </div>
-
-                  {/* Context: viral claim */}
-                  <div style={{ padding: '12px 14px', borderRadius: '12px', background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.2)', fontSize: '13px', color: 'rgba(255,255,255,0.75)', lineHeight: 1.5 }}>
-                    🚨 <strong style={{ color: '#f87171' }}>Klaim Viral:</strong> &quot;Remaja Indonesia rata-rata &gt;8 jam/hari di medsos!&quot; — Buktikan dengan data!
-                  </div>
-
-                  {/* FI tip about histogram */}
-                  <div style={{ padding: '12px 14px', borderRadius: '12px', background: 'rgba(59,130,246,0.06)', border: '1px solid rgba(59,130,246,0.2)', fontSize: '13px', color: 'rgba(255,255,255,0.75)', lineHeight: 1.5 }}>
-                    📊 <strong style={{ color: '#60a5fa' }}>Ingat:</strong> Histogram berbeda dari diagram batang! Balok-balok histogram harus{' '}
-                    <strong>saling berdempetan</strong> (tanpa celah) karena datanya kontinu (menyambung).
-                  </div>
+          <motion.div key="step0" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }} style={{ width: '100%', flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+            <div className="game-card" style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, padding: '16px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', flex: 1, minHeight: 0 }}>
+                <div>
+                  <h2 style={{ margin: 0, fontSize: '24px', fontWeight: 800 }}>Lengkapi histogram</h2>
                 </div>
-
-                {/* Right Column: Challenge */}
-                <div className="tahap-a-right-col">
-                  <DraggableHistogram mode="FI" onSubmit={handleHistogramSubmit} />
-                </div>
+                <DraggableHistogram mode="FI" onSubmit={handleHistogramSubmit} />
               </div>
             </div>
           </motion.div>

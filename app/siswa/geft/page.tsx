@@ -400,6 +400,7 @@ export default function GeftPage() {
         geftStatus: 'completed',
         geftResult: { cognitiveStyle: data.cognitiveStyle, score: data.score }
       }))
+      sessionStorage.setItem('show_cognitive_style_first_time', '1')
       setTimeout(() => router.push('/siswa'), 2000)
     } catch {
       alert('Gagal menyimpan hasil.')
@@ -419,7 +420,18 @@ export default function GeftPage() {
         padding: '12px 20px', display: 'flex',
         justifyContent: 'space-between', alignItems: 'center'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <div
+          onClick={() => {
+            if (phase === 'test') {
+              if (confirm("Apakah Anda yakin ingin keluar dari tes? Kemajuan Anda saat ini tidak akan disimpan.")) {
+                router.push('/')
+              }
+            } else {
+              router.push('/')
+            }
+          }}
+          style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
+        >
           <motion.div
             animate={{ filter: ['drop-shadow(0 0 6px #00FF88)', 'drop-shadow(0 0 14px #00FF88)', 'drop-shadow(0 0 6px #00FF88)'] }}
             transition={{ duration: 2.5, repeat: Infinity }}

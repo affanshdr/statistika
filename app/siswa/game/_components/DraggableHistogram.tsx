@@ -238,13 +238,15 @@ export default function DraggableHistogram({
 
   // ── INTERACTIVE: drag-and-drop histogram ──
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1, minHeight: 0 }}>
 
       {/* Main interactive row: Data Pool ← | → Histogram Canvas */}
       <div style={{
         display: 'flex',
         flexDirection: stackLayout ? 'column' : 'row',
         gap: '12px',
+        flex: 1,
+        minHeight: 0,
       }}>
 
         {/* ── LEFT: Data Pool ── */}
@@ -252,7 +254,7 @@ export default function DraggableHistogram({
           className="game-card"
           style={{
             flex: stackLayout ? 'none' : '0 0 42%',
-            height: stackLayout ? '200px' : '440px',
+            height: stackLayout ? '160px' : '100%',
             display: 'flex', flexDirection: 'column',
             padding: '12px 14px',
             background: 'rgba(255,255,255,0.015)',
@@ -348,7 +350,7 @@ export default function DraggableHistogram({
           className="histogram-canvas"
           style={{
             flex: 1,
-            height: stackLayout ? '320px' : '440px',
+            height: stackLayout ? '280px' : '100%',
             display: 'flex', flexDirection: 'column',
             padding: '12px 12px 6px 32px',
             position: 'relative',

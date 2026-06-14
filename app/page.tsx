@@ -96,6 +96,24 @@ export default function HomePage() {
   }, [])
 
   useEffect(() => {
+    const data = localStorage.getItem('student')
+    if (data) {
+      try {
+        const student = JSON.parse(data)
+        if (student.diagnosticScore === null || student.diagnosticScore === undefined) {
+          router.push('/siswa/diagnostik')
+        } else if (student.geftStatus !== 'completed') {
+          router.push('/siswa/geft')
+        } else {
+          router.push('/siswa')
+        }
+      } catch (e) {
+        console.error('Error parsing student data:', e)
+      }
+    }
+  }, [router])
+
+  useEffect(() => {
     fetch('/api/classrooms')
       .then(r => r.json())
       .then(data => {
@@ -195,7 +213,10 @@ export default function HomePage() {
         `}</style>
         <div className="nav-inner">
           {/* Logo */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div
+            onClick={() => router.push('/')}
+            style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
+          >
             <motion.div
               animate={{ filter: ['drop-shadow(0 0 6px #00FF88)', 'drop-shadow(0 0 14px #00FF88)', 'drop-shadow(0 0 6px #00FF88)'] }}
               transition={{ duration: 2.5, repeat: Infinity }}

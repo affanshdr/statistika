@@ -119,7 +119,12 @@ export default function FDPath() {
   const displayStep = step >= 2 ? 2 : step
 
   return (
-    <div className={step === 0 ? 'tahap-a-fullscreen' : undefined} style={step !== 0 ? { maxWidth: '820px', margin: '0 auto', padding: '24px 16px', paddingBottom: '120px' } : undefined}>
+    <div
+      className={step === 0 ? 'tahap-a-fullscreen' : undefined}
+      style={step === 0 
+        ? { height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden', paddingBottom: '16px' }
+        : { maxWidth: '820px', margin: '0 auto', padding: '24px 16px', paddingBottom: '120px' }}
+    >
 
       {/* Step indicator */}
       <div className="step-indicator" style={{ marginBottom: step === 0 ? '8px' : '24px', flexShrink: 0 }}>
@@ -144,65 +149,18 @@ export default function FDPath() {
         )}
       </AnimatePresence>
 
-      <div style={{ width: '100%' }}>
+      <div style={{ width: '100%', flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
       <AnimatePresence mode="wait">
 
         {/* ── STEP 0: Histogram Terbimbing ── */}
         {step === 0 && (
-          <motion.div key="step0" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }} style={{ width: '100%' }}>
-            <div className="game-card">
-              <div className="tahap-a-grid">
-                {/* Left Column: Description & Agent Dialogue */}
-                <div className="tahap-a-left-col">
-                  <div>
-                    <div style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 800, letterSpacing: '1px', marginBottom: '6px' }}>
-                      TAHAP A — HISTOGRAM TERBIMBING
-                    </div>
-                    <h2 style={{ margin: 0, fontSize: '20px' }}>Lengkapi Histogram</h2>
-                  </div>
-
-                  {/* DiRA Agent Speech Bubble Card */}
-                  <div style={{ 
-                    display: 'flex', gap: '14px', alignItems: 'flex-start', 
-                    padding: '16px', borderRadius: '16px', 
-                    background: 'rgba(0,255,136,0.04)', border: '1px solid rgba(0,255,136,0.2)',
-                    boxShadow: '0 4px 20px rgba(0,255,136,0.02)'
-                  }}>
-                    {/* DiRA Avatar */}
-                    <div style={{ 
-                      width: '48px', height: '48px', borderRadius: '50%', 
-                      border: '2px solid var(--accent)', boxShadow: 'var(--accent-glow)',
-                      overflow: 'hidden', background: 'var(--game-card)',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      flexShrink: 0
-                    }}>
-                      <img
-                        src="/dira-avatar.png"
-                        alt="Dira"
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                      />
-                    </div>
-                    <div>
-                      <div style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 800, marginBottom: '6px', letterSpacing: '0.5px' }}>
-                        ASISTEN DIRA:
-                      </div>
-                      <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.85)', lineHeight: 1.7 }}>
-                        &quot;Halo Detektif! Ada <strong>35 data screen time</strong> remaja yang harus kita kelompokkan. Sebagai bantuan awal, data kelas 1–4 jam (<strong>13 siswa</strong>) sudah aku masukkan otomatis ya. 
-                      Sekarang, silakan drag atau klik <strong>22 data tersisa</strong> ke kelas interval yang tepat pada histogram!&quot;
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Klaim viral reminder */}
-                  <div style={{ padding: '12px 14px', borderRadius: '12px', background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.2)', fontSize: '13px', color: 'rgba(255,255,255,0.75)', lineHeight: 1.5 }}>
-                    🚨 <strong style={{ color: '#f87171' }}>Klaim Viral:</strong> &quot;Remaja Indonesia rata-rata &gt;8 jam/hari di medsos!&quot; — Buktikan dengan data!
-                  </div>
+          <motion.div key="step0" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }} style={{ width: '100%', flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+            <div className="game-card" style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, padding: '16px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', flex: 1, minHeight: 0 }}>
+                <div>
+                  <h2 style={{ margin: 0, fontSize: '24px', fontWeight: 800 }}>Lengkapi histogram</h2>
                 </div>
-
-                {/* Right Column: Challenge */}
-                <div className="tahap-a-right-col">
-                  <DraggableHistogram mode="FD" onSubmit={handleHistogramSubmit} />
-                </div>
+                <DraggableHistogram mode="FD" onSubmit={handleHistogramSubmit} />
               </div>
             </div>
           </motion.div>

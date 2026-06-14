@@ -590,7 +590,7 @@ export default function Cutscene({ onComplete, onPhaseChange }: CutsceneProps) {
                     initial={{ opacity: 0, y: 50 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ type: 'spring', stiffness: 100, damping: 15 }}
-                    src="/agent.png"
+                    src="https://tmdbqikqflbeqaqllxge.supabase.co/storage/v1/object/public/Asset/Agent.png"
                     onError={(e) => {
                       e.currentTarget.src = "/dira-avatar.png"
                     }}
