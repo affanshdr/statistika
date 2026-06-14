@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 
 interface CutsceneProps {
   onComplete: () => void
+  onPhaseChange?: (phase: 'comments' | 'mentor') => void
 }
 
 const NARASI = [
@@ -54,13 +55,18 @@ function TypewriterText({ text, onDone }: { text: string; onDone: () => void }) 
   )
 }
 
-export default function Cutscene({ onComplete }: CutsceneProps) {
+export default function Cutscene({ onComplete, onPhaseChange }: CutsceneProps) {
   const [phase, setPhase] = useState<'comments' | 'mentor'>('comments')
   const [visibleComments, setVisibleComments] = useState(1)
   const [currentAudioIndex, setCurrentAudioIndex] = useState(1)
   const [isMuted, setIsMuted] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const [mentorTypingDone, setMentorTypingDone] = useState(false)
+
+  // Notify parent of phase changes
+  useEffect(() => {
+    onPhaseChange?.(phase)
+  }, [phase, onPhaseChange])
   
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const commentsEndRef = useRef<HTMLDivElement | null>(null)
@@ -89,7 +95,7 @@ export default function Cutscene({ onComplete }: CutsceneProps) {
           clearInterval(interval)
           return prev
         })
-      }, 2500)
+      }, 3000)
       return () => clearInterval(interval)
     }
   }, [phase])
@@ -141,6 +147,8 @@ export default function Cutscene({ onComplete }: CutsceneProps) {
       audioRef.current.muted = isMuted
     }
   }, [isMuted])
+
+
 
   return (
     <motion.div
@@ -208,13 +216,14 @@ export default function Cutscene({ onComplete }: CutsceneProps) {
             width: '100%',
             maxWidth: '320px',
             height: isMobile ? 'auto' : '100%',
+            maxHeight: isMobile ? '360px' : '440px',
             background: '#000',
             border: '1px solid rgba(255, 255, 255, 0.12)',
             borderRadius: '16px',
             boxShadow: '0 20px 40px rgba(0, 0, 0, 0.6)',
             color: '#fff',
             fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
-            overflow: 'hidden',
+            overflowY: 'auto',
             display: 'flex',
             flexDirection: 'column',
           }}>
@@ -267,10 +276,11 @@ export default function Cutscene({ onComplete }: CutsceneProps) {
             <div style={{
               background: '#fff',
               position: 'relative',
-              height: isMobile ? '240px' : '220px',
+              height: isMobile ? '260px' : '280px',
               overflow: 'hidden',
               display: 'flex',
               color: '#000',
+              flexShrink: 0,
             }}>
               {/* Left Text */}
               <div style={{
@@ -510,71 +520,176 @@ export default function Cutscene({ onComplete }: CutsceneProps) {
             zIndex: 150,
             padding: '20px',
           }}>
+            {/* Bottom Dialogue Box Panel */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
               style={{
-                maxWidth: '600px',
-                width: '100%',
-                background: 'rgba(10, 25, 20, 0.95)',
-                border: '2px solid rgba(0, 255, 136, 0.4)',
-                borderRadius: '24px',
-                padding: isMobile ? '24px' : '32px',
-                boxShadow: '0 20px 50px rgba(0, 255, 136, 0.15), inset 0 0 20px rgba(0, 255, 136, 0.05)',
+                position: 'absolute',
+                bottom: isMobile ? '12px' : '24px',
+                left: isMobile ? '12px' : '24px',
+                right: isMobile ? '12px' : '24px',
+                zIndex: 10,
                 display: 'flex',
-                flexDirection: isMobile ? 'column' : 'row',
-                gap: '24px',
-                alignItems: isMobile ? 'center' : 'flex-start',
-                textAlign: isMobile ? 'center' : 'left',
+                flexDirection: 'column',
+                maxWidth: '800px',
+                width: 'calc(100% - 48px)',
+                margin: '0 auto',
               }}
             >
-              <div style={{ flexShrink: 0 }}>
-                <img
-                  src="/dira-avatar.png"
-                  alt="Dira"
-                  style={{
-                    width: '64px',
-                    height: '64px',
-                    borderRadius: '50%',
-                    border: '2px solid var(--accent)',
-                    boxShadow: 'var(--accent-glow)',
-                    objectFit: 'cover',
-                    animation: 'float 2.5s ease-in-out infinite',
-                  }}
-                />
+              {/* Tag Name */}
+              <div style={{
+                alignSelf: 'flex-start',
+                background: 'rgba(10, 20, 15, 0.95)',
+                borderTop: '2px solid rgba(0, 255, 136, 0.3)',
+                borderLeft: '2px solid rgba(0, 255, 136, 0.3)',
+                borderRight: '2px solid rgba(0, 255, 136, 0.3)',
+                borderBottom: 'none',
+                borderRadius: '6px 14px 0 0',
+                padding: '4px 16px',
+                color: 'var(--accent)',
+                fontSize: isMobile ? '11px' : '13px',
+                fontWeight: 800,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                boxShadow: '0 -4px 10px rgba(0,0,0,0.15)',
+              }}>
+                <span style={{ fontSize: '13px' }}>👤</span>
+                <span>ASISTEN DIRA</span>
               </div>
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '12px', width: '100%' }}>
-                <div style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 800, letterSpacing: '2px' }}>
-                  ASISTEN DIRA:
+
+              {/* Dialog Text Box */}
+              <div style={{
+                background: 'rgba(10, 20, 18, 0.95)',
+                border: '2px solid rgba(0, 255, 136, 0.4)',
+                borderRadius: '0px 14px 14px 14px',
+                padding: isMobile ? '14px 18px' : '20px 24px',
+                boxShadow: '0 10px 25px rgba(0, 255, 136, 0.1), inset 0 0 20px rgba(0, 255, 136, 0.03)',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                minHeight: isMobile ? '95px' : '115px',
+                boxSizing: 'border-box',
+                position: 'relative',
+              }}>
+                {/* Agent Sprite Character */}
+                <div style={{
+                  position: 'absolute',
+                  bottom: 'calc(100% - 2px)',
+                  right: isMobile ? '8px' : '24px',
+                  height: isMobile ? '120px' : '190px',
+                  zIndex: 5,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  pointerEvents: 'none',
+                }}>
+                  <motion.img
+                    initial={{ opacity: 0, y: 50 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ type: 'spring', stiffness: 100, damping: 15 }}
+                    src="/agent.png"
+                    onError={(e) => {
+                      e.currentTarget.src = "/dira-avatar.png"
+                    }}
+                    alt="Agent"
+                    style={{
+                      height: '100%',
+                      objectFit: 'contain',
+                    }}
+                  />
+                  
+                  {/* Go! Action Speech Bubble */}
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: 0.5, type: 'spring' }}
+                    style={{
+                      position: 'absolute',
+                      top: '5%',
+                      right: isMobile ? '-25px' : '-35px',
+                      background: 'rgba(10, 20, 15, 0.95)',
+                      border: '2px solid var(--accent)',
+                      borderRadius: '50%',
+                      padding: isMobile ? '4px 8px' : '6px 12px',
+                      fontWeight: 900,
+                      fontSize: isMobile ? '12px' : '15px',
+                      color: 'var(--accent)',
+                      transform: 'rotate(12deg)',
+                      boxShadow: '3px 3px 0px rgba(0, 255, 136, 0.3)',
+                      fontFamily: '"Impact", "Arial Black", sans-serif',
+                      letterSpacing: '0.5px',
+                      zIndex: 6,
+                      animation: 'pulse-go 1s infinite alternate',
+                    }}
+                  >
+                    Go!
+                  </motion.div>
                 </div>
-                <p style={{ margin: 0, fontSize: '15px', color: 'rgba(255,255,255,0.9)', lineHeight: 1.7 }}>
-                  &quot;
+                <p style={{
+                  margin: 0,
+                  fontSize: isMobile ? '13px' : '15px',
+                  color: 'rgba(255,255,255,0.9)',
+                  fontWeight: 600,
+                  lineHeight: 1.6,
+                  fontFamily: 'var(--font-ui)',
+                }}>
                   <TypewriterText 
                     text="Tunggu dulu... Benar nggak sih klaim ini? Jangan langsung kemakan emosi netizen. Kita punya data screen time dari sampel 35 siswa acak. Yuk, kita uji validitasnya!" 
                     onDone={() => setMentorTypingDone(true)} 
                   />
-                  &quot;
                 </p>
-                
-                {mentorTypingDone && (
-                  <motion.button
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="game-btn game-btn-primary"
+
+                {/* Footer Control Buttons */}
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginTop: '12px',
+                  borderTop: '1px solid rgba(255,255,255,0.08)',
+                  paddingTop: '8px',
+                }}>
+                  <button
+                    className="game-btn game-btn-secondary"
                     style={{
-                      marginTop: '16px',
-                      fontSize: '15px',
-                      padding: '12px 36px',
-                      alignSelf: isMobile ? 'center' : 'flex-end',
-                      boxShadow: '0 0 15px rgba(0, 255, 136, 0.3)',
+                      fontSize: isMobile ? '10px' : '11px',
+                      padding: '6px 12px',
+                      borderRadius: '6px',
+                      fontWeight: 800,
+                      cursor: 'pointer',
+                      minHeight: 'auto',
+                    }}
+                    onClick={() => {
+                      setMentorTypingDone(false)
+                      setPhase('comments')
+                    }}
+                  >
+                    KEMBALI
+                  </button>
+
+                  <button
+                    className="game-btn game-btn-primary"
+                    disabled={!mentorTypingDone}
+                    style={{
+                      fontSize: isMobile ? '11px' : '12px',
+                      padding: isMobile ? '6px 16px' : '8px 24px',
+                      borderRadius: '6px',
+                      fontWeight: 800,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      cursor: mentorTypingDone ? 'pointer' : 'not-allowed',
+                      minHeight: 'auto',
+                      opacity: mentorTypingDone ? 1 : 0.5,
+                      boxShadow: mentorTypingDone ? 'var(--accent-glow)' : 'none',
                     }}
                     onClick={onComplete}
                   >
-                    Mulai Investigasi (Tahap A) →
-                  </motion.button>
-                )}
+                    MULAI INVESTIGASI
+                  </button>
+                </div>
               </div>
             </motion.div>
           </div>
@@ -593,6 +708,10 @@ export default function Cutscene({ onComplete }: CutsceneProps) {
         @keyframes pulse-live {
           0%, 100% { opacity: 1; transform: scale(1); }
           50% { opacity: 0.6; transform: scale(0.95); }
+        }
+        @keyframes pulse-go {
+          0%, 100% { transform: rotate(12deg) scale(1); }
+          50% { transform: rotate(12deg) scale(1.12); }
         }
       `}</style>
     </motion.div>

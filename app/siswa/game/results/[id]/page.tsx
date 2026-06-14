@@ -141,11 +141,10 @@ export default function ResultsPage({
         </motion.div>
 
         {/* ── Stats grid ── */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: '14px', marginBottom: '24px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '14px', marginBottom: '24px' }}>
           {[
             { label: 'XP Diperoleh', val: `${store.xp} XP`, icon: '⚡', color: 'var(--accent)' },
             { label: 'Akurasi', val: `${accuracy}%`, icon: '🎯', color: accuracy >= 80 ? 'var(--accent)' : 'var(--warning)' },
-            { label: 'Nyawa Tersisa', val: `${store.lives} / ${store.cognitiveStyle === 'FD' ? 4 : 3}`, icon: '❤️', color: '#FF6B35' },
             { label: 'Waktu', val: `${elapsedMin}:${elapsedSecs.toString().padStart(2,'0')} / ${limitMin}:00`, icon: '⏱', color: 'var(--info)' },
           ].map(({ label, val, icon, color }, i) => (
             <motion.div

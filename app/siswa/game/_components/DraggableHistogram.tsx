@@ -384,7 +384,6 @@ export default function DraggableHistogram({
                   animate={isError ? { x: [-5, 5, -5, 5, 0] } : {}}
                   transition={{ duration: 0.35 }}
                   onDragOver={e => e.preventDefault()}
-                  onDrop={() => onDropSlot(i)}
                   onClick={() => onTapSlot(i)}
                   style={{
                     flex: 1, display: 'flex', flexDirection: 'column',

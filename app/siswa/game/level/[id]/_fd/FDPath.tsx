@@ -28,10 +28,9 @@ function checkAnalysisFD(text: string): { pass: boolean; missingPositive: boolea
 
 export default function FDPath() {
   const router = useRouter()
-  const { addXP, lives, isCompleted, completeLevel, unlockBadge, incrementMistake, mistakeCount, sessionStartTime } = useGameStore()
+  const { addXP, isCompleted, completeLevel, unlockBadge, incrementMistake, mistakeCount, sessionStartTime } = useGameStore()
 
   const [step, setStep] = useState<GameStep>(0)
-  const [gameOver, setGameOver] = useState(false)
   const [pendingBadges, setPendingBadges] = useState<PendingBadge[]>([])
   // Track if isCompleted came from this active session (not stale persist)
   const sessionActiveRef = useRef(false)
@@ -50,10 +49,6 @@ export default function FDPath() {
   const [analysisAttempts, setAnalysisAttempts] = useState(0)
   // DiRA hint for step 1
   const [showAnalysisDira, setShowAnalysisDira] = useState(false)
-
-  useEffect(() => {
-    if (lives <= 0) setGameOver(true)
-  }, [lives])
 
   const awardBadge = useCallback((badge: typeof BADGES[keyof typeof BADGES]) => {
     unlockBadge(badge.id)
@@ -374,27 +369,7 @@ export default function FDPath() {
         <DiRA message={diraMsg} onDismiss={() => setShowDira(false)} />
       )}
 
-      {/* Game Over */}
-      {gameOver && (
-        <div className="game-over-screen">
-          <div style={{ fontSize: '64px' }}>💀</div>
-          <h2 style={{ fontSize: '28px', margin: 0 }}>Game Over</h2>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '15px' }}>
-            DiRA: &quot;Jangan menyerah! Kamu pasti bisa 💪&quot;
-          </p>
-          <div style={{ display: 'flex', gap: '12px' }}>
-            <button
-              className="game-btn game-btn-primary"
-              onClick={() => { useGameStore.setState({ lives: 4 }); setGameOver(false) }}
-            >
-              Coba Lagi
-            </button>
-            <button className="game-btn game-btn-secondary" onClick={() => router.push('/siswa/game/lobby')}>
-              Lobby
-            </button>
-          </div>
-        </div>
-      )}
+
 
       {/* Badge queue */}
       {pendingBadges.length > 0 && (

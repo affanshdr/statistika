@@ -20,6 +20,7 @@ export default function LevelPage({
   const router = useRouter()
   const { cognitiveStyle, resetLevel } = useGameStore()
   const [phase, setPhase] = useState<'cutscene' | 'game'>('cutscene')
+  const [cutscenePhase, setCutscenePhase] = useState<'comments' | 'mentor'>('comments')
   const [timerRunning, setTimerRunning] = useState(false)
   // Track whether we've finished waiting for Zustand hydration
   const [hydrated, setHydrated] = useState(false)
@@ -90,13 +91,17 @@ export default function LevelPage({
   return (
     <OrientationGuard lockScreen={true}>
       <div className="game-root">
-        <GameHeader timerRunning={timerRunning && phase === 'game'} />
+        <GameHeader
+          timerRunning={timerRunning && phase === 'game'}
+          isBlurred={phase === 'cutscene' && cutscenePhase === 'mentor'}
+        />
 
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative' }}>
           {/* Phase 1: Cutscene */}
           <AnimatePresence>
             {phase === 'cutscene' && (
               <Cutscene
+                onPhaseChange={setCutscenePhase}
                 onComplete={() => {
                   setPhase('game')
                   setTimerRunning(true)

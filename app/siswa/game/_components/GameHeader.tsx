@@ -5,9 +5,10 @@ import { useGameStore } from '@/lib/store/gameStore'
 
 interface GameHeaderProps {
   timerRunning?: boolean
+  isBlurred?: boolean
 }
 
-export default function GameHeader({ timerRunning = true }: GameHeaderProps) {
+export default function GameHeader({ timerRunning = true, isBlurred = false }: GameHeaderProps) {
   const { xp, lives, cognitiveStyle, currentLevel, timeRemaining, setTimeRemaining, resetLevel } = useGameStore()
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const [isMobile, setIsMobile] = useState(false)
@@ -37,7 +38,14 @@ export default function GameHeader({ timerRunning = true }: GameHeaderProps) {
   const maxLives = cognitiveStyle === 'FD' ? 4 : 3
 
   return (
-    <header className="game-header">
+    <header
+      className="game-header"
+      style={{
+        filter: isBlurred ? 'blur(10px)' : 'none',
+        pointerEvents: isBlurred ? 'none' : 'auto',
+        transition: 'filter 0.5s ease',
+      }}
+    >
       {/* Left: back button + logo + level */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
         <button
@@ -90,23 +98,12 @@ export default function GameHeader({ timerRunning = true }: GameHeaderProps) {
         </div>
       </div>
 
-      {/* Center: XP + Lives */}
+      {/* Center: XP */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
         {/* XP */}
         <div className="game-header-xp">
           <span style={{ fontSize: '13px' }}>⚡</span>
           <span className="game-header-xp-value">{xp} XP</span>
-        </div>
-
-        {/* Lives */}
-        <div className="game-header-lives">
-          {Array.from({ length: maxLives }).map((_, i) => (
-            <span key={i} style={{ 
-              opacity: i < lives ? 1 : 0.2,
-              filter: i < lives ? 'drop-shadow(0 0 6px rgba(255,100,100,0.8))' : 'none',
-              transition: 'all 0.3s'
-            }}>❤️</span>
-          ))}
         </div>
       </div>
 

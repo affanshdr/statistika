@@ -26,10 +26,9 @@ function checkAnalysisAnswer(text: string): { pass: boolean; missingPositive: bo
 
 export default function FIPath() {
   const router = useRouter()
-  const { addXP, loseLife, lives, isCompleted, completeLevel, unlockBadge, incrementMistake, mistakeCount, sessionStartTime, xp } = useGameStore()
+  const { addXP, isCompleted, completeLevel, unlockBadge, incrementMistake, mistakeCount, sessionStartTime, xp } = useGameStore()
 
   const [step, setStep] = useState<GameStep>(0)
-  const [gameOver, setGameOver] = useState(false)
   const [pendingBadges, setPendingBadges] = useState<PendingBadge[]>([])
   // Track if isCompleted came from this active session (not stale persist)
   const sessionActiveRef = useRef(false)
@@ -39,10 +38,6 @@ export default function FIPath() {
   const [analysisText, setAnalysisText] = useState('')
   const [analysisResult, setAnalysisResult] = useState<null | { pass: boolean; missingPositive: boolean; missingEvidence: boolean }>(null)
   const [analysisAttempts, setAnalysisAttempts] = useState(0)
-
-  useEffect(() => {
-    if (lives <= 0) setGameOver(true)
-  }, [lives])
 
   const awardBadge = useCallback((badge: typeof BADGES[keyof typeof BADGES]) => {
     unlockBadge(badge.id)
@@ -57,7 +52,6 @@ export default function FIPath() {
       addXP(30, 'Menyusun histogram dengan benar', 0)
       setStep(1)
     } else {
-      loseLife()
       incrementMistake()
     }
   }
@@ -302,25 +296,7 @@ export default function FIPath() {
         )}
       </AnimatePresence>
 
-      {/* Game Over */}
-      {gameOver && (
-        <div className="game-over-screen">
-          <div style={{ fontSize: '64px' }}>💀</div>
-          <h2 style={{ fontSize: '28px', margin: 0 }}>Game Over</h2>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '15px' }}>Nyawa habis. Coba lagi?</p>
-          <div style={{ display: 'flex', gap: '12px' }}>
-            <button
-              className="game-btn game-btn-primary"
-              onClick={() => { useGameStore.setState({ lives: 3 }); setGameOver(false) }}
-            >
-              Coba Lagi
-            </button>
-            <button className="game-btn game-btn-secondary" onClick={() => router.push('/siswa/game/lobby')}>
-              Kembali ke Lobby
-            </button>
-          </div>
-        </div>
-      )}
+
 
       {/* Badge unlock queue */}
       {pendingBadges.length > 0 && (
