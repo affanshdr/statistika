@@ -63,60 +63,19 @@ export default function DraggableHistogram({
   const stackLayout = isMobile || forceStack
 
   const [dataPoints, setDataPoints] = useState<DataPoint[]>(() => initDataPoints(mode, readOnly))
-  const [draggingPoint, setDraggingPoint] = useState<DataPoint | null>(null)
   const [selectedPoint, setSelectedPoint] = useState<DataPoint | null>(null)
   const [flashError, setFlashError] = useState<number | null>(null)
   const [flashHint, setFlashHint] = useState<string | null>(null)
   const [submitted, setSubmitted] = useState(false)
 
-  // Touch Drag-and-Drop Fallback for Mobile Devices
-  const [touchOffset, setTouchOffset] = useState<{ id: string; x: number; y: number } | null>(null)
-  const touchStartRef = useRef<{ x: number; y: number } | null>(null)
-
-  const handleTouchStart = (e: React.TouchEvent, dp: DataPoint) => {
-    const touch = e.touches[0]
-    touchStartRef.current = { x: touch.clientX, y: touch.clientY }
-    setTouchOffset({ id: dp.id, x: 0, y: 0 })
-  }
-
-  const handleTouchMove = (e: React.TouchEvent, dp: DataPoint) => {
-    if (!touchStartRef.current) return
-    const touch = e.touches[0]
-    const dx = touch.clientX - touchStartRef.current.x
-    const dy = touch.clientY - touchStartRef.current.y
-    setTouchOffset({ id: dp.id, x: dx, y: dy })
-  }
-
-  const handleTouchEnd = (e: React.TouchEvent, dp: DataPoint) => {
-    touchStartRef.current = null
-    setTouchOffset(null)
-
-    const touch = e.changedTouches[0]
-    
-    // Temporarily set pointer-events: none on the active target element
-    // so document.elementFromPoint can see through it to retrieve the slot underneath
-    const target = e.currentTarget as HTMLElement
-    const originalPointerEvents = target.style.pointerEvents
-    target.style.pointerEvents = 'none'
-    
-    const elem = document.elementFromPoint(touch.clientX, touch.clientY)
-    target.style.pointerEvents = originalPointerEvents
-
-    if (!elem) return
-
-    const slotEl = elem.closest('[data-slot-idx]')
-    if (slotEl) {
-      const slotIdx = parseInt(slotEl.getAttribute('data-slot-idx') ?? '-1')
-      if (slotIdx !== -1) {
-        if (dp.classIdx === slotIdx) {
-          setDataPoints(prev => prev.map(item => item.id === dp.id ? { ...item, placed: true } : item))
-        } else {
-          const correctLabel = CLASS_LABELS[dp.classIdx]
-          triggerError(slotIdx, `💡 Angka ${dp.val} seharusnya masuk ke kelas ${correctLabel}!`)
-        }
-      }
-    }
-  }
+  // Unified Drag and Drop State (Mouse and Touch)
+  const [dragState, setDragState] = useState<{
+    point: DataPoint
+    startX: number
+    startY: number
+    offsetX: number
+    offsetY: number
+  } | null>(null)
 
   const triggerError = (slotIdx: number, hint: string) => {
     setFlashError(slotIdx)
@@ -124,21 +83,96 @@ export default function DraggableHistogram({
     setTimeout(() => { setFlashError(null); setFlashHint(null) }, 2500)
   }
 
-  const onDragStart = (dp: DataPoint) => setDraggingPoint(dp)
-  const onDragEnd   = () => setDraggingPoint(null)
+  const startDrag = (e: React.MouseEvent | React.TouchEvent, dp: DataPoint) => {
+    // Clear selected point to avoid conflicting states
+    setSelectedPoint(null)
 
-  const onDropSlot = useCallback((slotIdx: number) => {
-    if (!draggingPoint) return
-    if (draggingPoint.classIdx === slotIdx) {
-      setDataPoints(prev => prev.map(dp => dp.id === draggingPoint.id ? { ...dp, placed: true } : dp))
-    } else {
-      const correctLabel = CLASS_LABELS[draggingPoint.classIdx]
-      triggerError(slotIdx, `💡 Angka ${draggingPoint.val} seharusnya masuk ke kelas ${correctLabel}!`)
+    const isTouch = 'touches' in e
+    const clientX = isTouch ? e.touches[0].clientX : e.clientX
+    const clientY = isTouch ? e.touches[0].clientY : e.clientY
+
+    setDragState({
+      point: dp,
+      startX: clientX,
+      startY: clientY,
+      offsetX: 0,
+      offsetY: 0
+    })
+  };
+
+  useEffect(() => {
+    if (!dragState) return
+
+    const handlePointerMove = (e: MouseEvent | TouchEvent) => {
+      // Prevent scrolling on touch devices while dragging a point
+      if ('touches' in e && e.cancelable) {
+        e.preventDefault()
+      }
+      
+      const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX
+      const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY
+      
+      const dx = clientX - dragState.startX
+      const dy = clientY - dragState.startY
+      
+      setDragState(prev => prev ? { ...prev, offsetX: dx, offsetY: dy } : null)
     }
-    setDraggingPoint(null)
-  }, [draggingPoint])
 
-  const onTapPoint = (dp: DataPoint) => setSelectedPoint(prev => prev?.id === dp.id ? null : dp)
+    const handlePointerUp = (e: MouseEvent | TouchEvent) => {
+      const isTouch = 'changedTouches' in e
+      const clientX = isTouch ? e.changedTouches[0].clientX : (e as MouseEvent).clientX
+      const clientY = isTouch ? isTouch ? e.changedTouches[0].clientY : (e as MouseEvent).clientY : (e as MouseEvent).clientY
+
+      // Find drop element under the cursor position
+      const activeEl = document.getElementById(dragState.point.id)
+      let originalPointerEvents = ''
+      if (activeEl) {
+        originalPointerEvents = activeEl.style.pointerEvents
+        activeEl.style.pointerEvents = 'none'
+      }
+
+      const elem = document.elementFromPoint(clientX, clientY)
+
+      if (activeEl) {
+        activeEl.style.pointerEvents = originalPointerEvents
+      }
+
+      if (elem) {
+        const slotEl = elem.closest('[data-slot-idx]')
+        if (slotEl) {
+          const slotIdx = parseInt(slotEl.getAttribute('data-slot-idx') ?? '-1')
+          if (slotIdx !== -1) {
+            if (dragState.point.classIdx === slotIdx) {
+              setDataPoints(prev => prev.map(item => item.id === dragState.point.id ? { ...item, placed: true } : item))
+            } else {
+              const correctLabel = CLASS_LABELS[dragState.point.classIdx]
+              triggerError(slotIdx, `💡 Angka ${dragState.point.val} seharusnya masuk ke kelas ${correctLabel}!`)
+            }
+          }
+        }
+      }
+
+      setDragState(null)
+    }
+
+    // Add window level event listeners for mouse and touch movements
+    window.addEventListener('mousemove', handlePointerMove, { passive: false })
+    window.addEventListener('mouseup', handlePointerUp)
+    window.addEventListener('touchmove', handlePointerMove, { passive: false })
+    window.addEventListener('touchend', handlePointerUp)
+
+    return () => {
+      window.removeEventListener('mousemove', handlePointerMove)
+      window.removeEventListener('mouseup', handlePointerUp)
+      window.removeEventListener('touchmove', handlePointerMove)
+      window.removeEventListener('touchend', handlePointerUp)
+    }
+  }, [dragState])
+
+  const onTapPoint = (dp: DataPoint) => {
+    // Only select point if it was not dragged
+    setSelectedPoint(prev => prev?.id === dp.id ? null : dp)
+  }
 
   const onTapSlot = useCallback((slotIdx: number) => {
     if (!selectedPoint) return
@@ -270,23 +304,20 @@ export default function DraggableHistogram({
                   return (
                     <motion.div
                       key={dp.id}
+                      id={dp.id}
                       layout
                       initial={{ opacity: 0, scale: 0.4 }}
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.4 }}
                       whileHover={{ scale: 1.15 }}
                       whileTap={{ scale: 0.9 }}
-                      draggable
-                      onDragStart={() => onDragStart(dp)}
-                      onDragEnd={onDragEnd}
+                      onMouseDown={(e) => startDrag(e, dp)}
+                      onTouchStart={(e) => startDrag(e, dp)}
                       onClick={() => onTapPoint(dp)}
-                      onTouchStart={(e) => handleTouchStart(e, dp)}
-                      onTouchMove={(e) => handleTouchMove(e, dp)}
-                      onTouchEnd={(e) => handleTouchEnd(e, dp)}
                       style={{
                         position: 'absolute', top: pos.top, left: pos.left,
-                        transform: touchOffset && touchOffset.id === dp.id 
-                          ? `translate3d(${touchOffset.x}px, ${touchOffset.y}px, 0) translate(-50%, -50%)`
+                        transform: dragState && dragState.point.id === dp.id 
+                          ? `translate3d(${dragState.offsetX}px, ${dragState.offsetY}px, 0) translate(-50%, -50%)`
                           : 'translate(-50%, -50%)',
                         padding: '5px 11px', borderRadius: '50px',
                         background: isSelected
@@ -299,7 +330,7 @@ export default function DraggableHistogram({
                         display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
                         boxShadow: isSelected ? `0 0 12px ${col}` : `0 2px 6px rgba(0,0,0,0.5)`,
                         fontFamily: 'var(--font-data)', touchAction: 'none',
-                        zIndex: isSelected ? 10 : 1,
+                        zIndex: (dragState && dragState.point.id === dp.id) || isSelected ? 100 : 1,
                         transition: 'box-shadow 0.15s',
                       }}
                     >

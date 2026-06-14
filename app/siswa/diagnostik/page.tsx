@@ -164,6 +164,8 @@ export default function DiagnostikPage() {
   const [selected, setSelected] = useState<number | null>(null)
   const [phase, setPhase] = useState<'intro' | 'test' | 'result'>('intro')
   const [saving, setSaving] = useState(false)
+  const [showPopup, setShowPopup] = useState(false)
+  const [scoreStats, setScoreStats] = useState({ correct: 0, wrong: 0 })
 
   useEffect(() => {
     const data = localStorage.getItem('student')
@@ -193,7 +195,10 @@ export default function DiagnostikPage() {
       const totalScore = newAnswers.reduce<number>((acc, ans, i) => {
         return acc + (ans === QUESTIONS[i].correct ? 1 : 0)
       }, 0)
+      const wrongCount = QUESTIONS.length - totalScore
 
+      setScoreStats({ correct: totalScore, wrong: wrongCount })
+      setShowPopup(true)
       setPhase('result')
 
       // Simpan ke API
@@ -531,6 +536,101 @@ export default function DiagnostikPage() {
           )}
         </AnimatePresence>
       </div>
+      {/* Result Popup Modal */}
+      <AnimatePresence>
+        {showPopup && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            style={{
+              position: 'fixed',
+              inset: 0,
+              background: 'rgba(5, 5, 8, 0.85)',
+              backdropFilter: 'blur(12px)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 1000,
+              padding: '20px',
+            }}
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20, opacity: 0 }}
+              animate={{ scale: 1, y: 0, opacity: 1 }}
+              exit={{ scale: 0.9, y: 20, opacity: 0 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 350 }}
+              style={{
+                width: '100%',
+                maxWidth: '400px',
+                background: 'rgba(15, 15, 25, 0.95)',
+                border: '1px solid rgba(0, 255, 136, 0.2)',
+                boxShadow: '0 0 30px rgba(0, 255, 136, 0.1)',
+                borderRadius: '24px',
+                padding: '32px 24px',
+                textAlign: 'center',
+                color: '#fff',
+              }}
+            >
+              <div style={{ fontSize: '48px', marginBottom: '16px' }}>📊</div>
+              <h3 style={{ margin: '0 0 8px', fontSize: '20px', fontWeight: 800 }}>Hasil Tes Diagnostik</h3>
+              <p style={{ margin: '0 0 24px', fontSize: '13px', color: 'rgba(255, 255, 255, 0.6)' }}>
+                Berikut adalah rangkuman hasil pengerjaan tes diagnostik awal Anda:
+              </p>
+
+              {/* Stats Box */}
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr',
+                gap: '12px',
+                marginBottom: '28px'
+              }}>
+                <div style={{
+                  background: 'rgba(0, 255, 136, 0.05)',
+                  border: '1px solid rgba(0, 255, 136, 0.15)',
+                  borderRadius: '16px',
+                  padding: '16px',
+                }}>
+                  <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)', fontWeight: 700, marginBottom: '4px' }}>BENAR</div>
+                  <div style={{ fontSize: '28px', fontWeight: 900, color: '#00FF88', fontFamily: 'var(--font-data)' }}>
+                    {scoreStats.correct}
+                  </div>
+                </div>
+                <div style={{
+                  background: 'rgba(255, 51, 102, 0.05)',
+                  border: '1px solid rgba(255, 51, 102, 0.15)',
+                  borderRadius: '16px',
+                  padding: '16px',
+                }}>
+                  <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)', fontWeight: 700, marginBottom: '4px' }}>SALAH</div>
+                  <div style={{ fontSize: '28px', fontWeight: 900, color: '#FF3366', fontFamily: 'var(--font-data)' }}>
+                    {scoreStats.wrong}
+                  </div>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setShowPopup(false)}
+                style={{
+                  width: '100%',
+                  padding: '14px',
+                  borderRadius: '12px',
+                  border: 'none',
+                  background: 'linear-gradient(90deg, #00FF88, #06b6d4)',
+                  color: '#000',
+                  fontSize: '14px',
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 15px rgba(0,255,136,0.3)',
+                  transition: 'all 0.2s',
+                }}
+              >
+                Lanjutkan
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </main>
   )
 }
