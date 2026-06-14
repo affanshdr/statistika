@@ -157,106 +157,9 @@ export default function Cutscene({ onComplete }: CutsceneProps) {
         zIndex: 10
       }}>
 
-        {/* Left Column: Narration Card & Mentor Card & Action button */}
-        <div style={{
-          flex: 1.2,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'stretch',
-          width: '100%',
-        }}>
-          {/* Narration box */}
-          <div style={{
-            background: 'rgba(0,255,136,0.04)',
-            border: '1px solid var(--game-border-accent)',
-            borderRadius: '20px',
-            padding: '30px',
-            width: '100%',
-            minHeight: '220px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '16px'
-          }}>
-            {NARASI.slice(0, paraIndex + 1).map((text, i) => (
-              <motion.p
-                key={i}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="cutscene-text"
-                style={{ margin: 0, color: '#fff', textAlign: 'left' }}
-              >
-                {i < paraIndex ? text : (
-                  <TypewriterText text={text} onDone={() => setTypingDone(true)} />
-                )}
-              </motion.p>
-            ))}
-          </div>
-
-          {/* Mentor appears on last slide */}
-          <AnimatePresence>
-            {isMentorSlide && (
-              <motion.div
-                key="mentor-slide"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 }}
-                style={{
-                  marginTop: '20px', width: '100%',
-                  display: 'flex', gap: '16px', alignItems: 'flex-start',
-                  padding: '16px 20px', borderRadius: '16px',
-                  background: 'rgba(0,255,136,0.06)',
-                  border: '1px solid rgba(0,255,136,0.3)',
-                }}
-              >
-                <div style={{
-                  fontSize: '36px', flexShrink: 0,
-                  animation: 'float 2.5s ease-in-out infinite',
-                }}>🕵️</div>
-                <div>
-                  <div style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 800, letterSpacing: '1.5px', marginBottom: '6px' }}>
-                    MENTOR:
-                  </div>
-                  <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.85)', lineHeight: 1.7 }}>
-                    &quot;Tunggu dulu... Benar nggak sih klaim ini? Jangan langsung kemakan emosi netizen. Kita punya data screen time dari sampel 35 siswa acak.{' '}
-                    <strong style={{ color: '#00FF88' }}>Yuk, kita uji validitasnya!</strong>&quot;
-                  </p>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* Continue button when done */}
-          <AnimatePresence>
-            {done && (
-              <motion.button
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="game-btn game-btn-primary"
-                style={{ marginTop: '24px', fontSize: '16px', padding: '16px 40px', zIndex: 20, alignSelf: 'center' }}
-                onClick={onComplete}
-              >
-                Mulai Investigasi →
-              </motion.button>
-            )}
-          </AnimatePresence>
-
-          {/* Progress dots */}
-          <div style={{ display: 'flex', gap: '8px', marginTop: '20px', zIndex: 20, alignSelf: 'center' }}>
-            {NARASI.map((_, i) => (
-              <div key={i} style={{
-                width: i === paraIndex ? '20px' : '6px',
-                height: '6px',
-                borderRadius: '3px',
-                background: i <= paraIndex ? 'var(--accent)' : 'rgba(255,255,255,0.15)',
-                transition: 'all 0.3s',
-              }} />
-            ))}
-          </div>
-        </div>
-
-        {/* Right Column: Instagram/Social Media Mockup Card */}
+        {/* Left Column: Instagram/Social Media Mockup Card */}
         <motion.div
-          initial={{ opacity: 0, x: 50 }}
+          initial={{ opacity: 0, x: -50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
           style={{
@@ -499,6 +402,129 @@ export default function Cutscene({ onComplete }: CutsceneProps) {
             )}
           </div>
         </motion.div>
+
+        {/* Right Column: Narration Card & Mentor Card & Action button */}
+        <div style={{
+          flex: 1.2,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'stretch',
+          width: '100%',
+        }}>
+          {/* Narration box (hidden when Dira dialog is active) */}
+          {!isMentorSlide && (
+            <div style={{
+              background: 'rgba(0,255,136,0.04)',
+              border: '1px solid var(--game-border-accent)',
+              borderRadius: '20px',
+              padding: '30px',
+              width: '100%',
+              minHeight: '220px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '16px'
+            }}>
+              {NARASI.slice(0, paraIndex + 1).map((text, i) => (
+                <motion.p
+                  key={i}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="cutscene-text"
+                  style={{ margin: 0, color: '#fff', textAlign: 'left' }}
+                >
+                  {i < paraIndex ? text : (
+                    <TypewriterText text={text} onDone={() => setTypingDone(true)} />
+                  )}
+                </motion.p>
+              ))}
+            </div>
+          )}
+
+          {/* Dira Appears on last slide */}
+          <AnimatePresence>
+            {isMentorSlide && (
+              <motion.div
+                key="mentor-slide"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+                style={{
+                  marginTop: '0px', width: '100%',
+                  display: 'flex', gap: '16px', alignItems: 'flex-start',
+                  padding: '24px 28px', borderRadius: '20px',
+                  background: 'rgba(0,255,136,0.06)',
+                  border: '1px solid rgba(0,255,136,0.3)',
+                  boxShadow: '0 4px 20px rgba(0, 255, 136, 0.05)',
+                  minHeight: '220px',
+                }}
+              >
+                <div style={{ flexShrink: 0 }}>
+                  <img
+                    src="/dira-avatar.png"
+                    alt="Dira"
+                    style={{
+                      width: '54px',
+                      height: '54px',
+                      borderRadius: '50%',
+                      border: '2px solid var(--accent)',
+                      boxShadow: 'var(--accent-glow)',
+                      objectFit: 'cover',
+                      animation: 'float 2.5s ease-in-out infinite',
+                    }}
+                  />
+                </div>
+                <div>
+                  <div style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 800, letterSpacing: '1.5px', marginBottom: '8px' }}>
+                    ASISTEN DIRA:
+                  </div>
+                  <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.85)', lineHeight: 1.7 }}>
+                    &quot;
+                    {typingDone ? (
+                      <span>
+                        Tunggu dulu... Benar nggak sih klaim ini? Jangan langsung kemakan emosi netizen. Kita punya data screen time dari sampel 35 siswa acak.{' '}
+                        <strong style={{ color: '#00FF88' }}>Yuk, kita uji validitasnya!</strong>
+                      </span>
+                    ) : (
+                      <TypewriterText 
+                        text="Tunggu dulu... Benar nggak sih klaim ini? Jangan langsung kemakan emosi netizen. Kita punya data screen time dari sampel 35 siswa acak. Yuk, kita uji validitasnya!" 
+                        onDone={() => setTypingDone(true)} 
+                      />
+                    )}
+                    &quot;
+                  </p>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Continue button when done */}
+          <AnimatePresence>
+            {done && (
+              <motion.button
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="game-btn game-btn-primary"
+                style={{ marginTop: '24px', fontSize: '16px', padding: '16px 40px', zIndex: 20, alignSelf: 'center' }}
+                onClick={onComplete}
+              >
+                Mulai Investigasi →
+              </motion.button>
+            )}
+          </AnimatePresence>
+
+          {/* Progress dots */}
+          <div style={{ display: 'flex', gap: '8px', marginTop: '20px', zIndex: 20, alignSelf: 'center' }}>
+            {NARASI.map((_, i) => (
+              <div key={i} style={{
+                width: i === paraIndex ? '20px' : '6px',
+                height: '6px',
+                borderRadius: '3px',
+                background: i <= paraIndex ? 'var(--accent)' : 'rgba(255,255,255,0.15)',
+                transition: 'all 0.3s',
+              }} />
+            ))}
+          </div>
+        </div>
       </div>
 
 
