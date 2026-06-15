@@ -40,11 +40,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'studentId and score required' }, { status: 400 })
     }
 
-    // Tentukan level berdasarkan skor
+    // Tentukan level berdasarkan skor (dari total 5 soal)
     let diagnosticLevel: string
-    if (score >= 11) {
+    if (score >= 4) {
       diagnosticLevel = 'tinggi'
-    } else if (score >= 6) {
+    } else if (score >= 2) {
       diagnosticLevel = 'sedang'
     } else {
       diagnosticLevel = 'rendah'

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, memo } from 'react'
+import { useEffect, useState, memo, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 
@@ -131,6 +131,13 @@ export default function GeftPage() {
   const [submitting, setSubmitting] = useState(false)
   const [phase, setPhase] = useState<'intro' | 'test' | 'done'>('intro')
   const [showSkipModal, setShowSkipModal] = useState(false)
+  const confirmingRef = useRef(false)
+  const processingNextRef = useRef(false)
+
+  useEffect(() => {
+    processingNextRef.current = false
+    confirmingRef.current = false
+  }, [qIndex])
 
   // State untuk tutorial
   const [tutorialStep, setTutorialStep] = useState(0)
@@ -335,10 +342,12 @@ export default function GeftPage() {
   }
 
   function handleConfirm() {
+    if (confirmingRef.current) return
     if (selected.size === 0) {
       setFeedback({ msg: 'Pilih setidaknya satu garis dulu.', type: 'wrong' })
       return
     }
+    confirmingRef.current = true
     const correct = checkAnswer()
     setFeedback({
       msg: correct ? 'Benar! Bentuk ditemukan dengan tepat.' : 'Belum tepat, tapi jawaban disimpan.',
@@ -353,6 +362,10 @@ export default function GeftPage() {
   }
 
   function handleNext(timeout = false, latestAnswers?: Record<number, boolean>) {
+    if (processingNextRef.current) return
+    processingNextRef.current = true
+    confirmingRef.current = false
+
     // Gunakan latestAnswers jika disediakan, agar jawaban soal terakhir selalu terhitung
     const answersSnapshot = latestAnswers ?? answers
 
@@ -1731,23 +1744,34 @@ export default function GeftPage() {
 
             {/* Tombol Aksi */}
             <div className="geft-buttons-row" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              <button className="geft-btn-primary" onClick={handleConfirm}>
+              <button
+                className="geft-btn-primary"
+                onClick={handleConfirm}
+                disabled={confirmingRef.current}
+              >
                 Submit Jawaban
               </button>
               <div style={{ display: 'flex', gap: 10, width: '100%' }}>
-                <button className="geft-btn-secondary" style={{ flex: 1 }} onClick={handleClearSelection}>
+                <button
+                  className="geft-btn-secondary"
+                  style={{ flex: 1 }}
+                  onClick={handleClearSelection}
+                  disabled={confirmingRef.current}
+                >
                   Reset Jawaban
                 </button>
                 <button
                   className="geft-btn-text"
                   style={{ flex: 1 }}
                   onClick={() => {
+                    if (confirmingRef.current) return
                     if (q.section === 1) {
                       handleNext() // Sesi latihan langsung lewati
                     } else {
                       setShowSkipModal(true) // Sesi dinilai tampilkan konfirmasi
                     }
                   }}
+                  disabled={confirmingRef.current}
                 >
                   Lewati Soal
                 </button>

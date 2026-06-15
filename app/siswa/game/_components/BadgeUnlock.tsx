@@ -17,13 +17,13 @@ export default function BadgeUnlock({ icon, name, desc, onDone }: BadgeUnlockPro
   }, [onDone])
 
   return (
-    <div className="badge-unlock-overlay" onClick={onDone}>
+    <div className="badge-unlock-overlay" onClick={onDone} style={{ cursor: 'pointer' }}>
       <motion.div
         className="badge-unlock-card"
         initial={{ scale: 0.3, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-        onClick={e => e.stopPropagation()}
+        onClick={onDone}
       >
         {/* Glow ring */}
         <motion.div

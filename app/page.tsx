@@ -100,9 +100,7 @@ export default function HomePage() {
     if (data) {
       try {
         const student = JSON.parse(data)
-        if (student.diagnosticScore === null || student.diagnosticScore === undefined) {
-          router.push('/siswa/diagnostik')
-        } else if (student.geftStatus !== 'completed') {
+        if (student.geftStatus !== 'completed') {
           router.push('/siswa/geft')
         } else {
           router.push('/siswa')
@@ -137,8 +135,8 @@ export default function HomePage() {
       const data = await res.json()
       if (!res.ok) return setError(data.error || 'Terjadi kesalahan.')
       localStorage.setItem('student', JSON.stringify(data))
-      if (data.diagnosticScore === null || data.diagnosticScore === undefined) {
-        router.push('/siswa/diagnostik')
+      if (data.geftStatus !== 'completed') {
+        router.push('/siswa/geft')
       } else {
         router.push('/siswa')
       }

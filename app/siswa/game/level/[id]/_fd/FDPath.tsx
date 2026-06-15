@@ -8,7 +8,7 @@ import DiRA from '../../../_components/DiRA'
 import BadgeUnlock from '../../../_components/BadgeUnlock'
 import MythBustedStamp from '../../../_components/MythBustedStamp'
 import DetektivBooklet from '../../../_components/DetektivBooklet'
-import { BADGES, CRITICAL_KEYWORDS_POSITIVE, FD_CRITICAL_KEYWORDS_EVIDENCE, STATS } from '../../../_data/level1'
+import { BADGES, STATS } from '../../../_data/level1'
 import { useRouter } from 'next/navigation'
 
 const DraggableHistogram = dynamic(() => import('../../../_components/DraggableHistogram'), { ssr: false })
@@ -17,14 +17,6 @@ const DraggableHistogram = dynamic(() => import('../../../_components/DraggableH
 type GameStep = 0 | 1 | 2 | 3
 
 interface PendingBadge { icon: string; name: string; desc: string; id: string }
-
-function checkAnalysisFD(text: string): { pass: boolean; missingPositive: boolean; missingEvidence: boolean } {
-  const lower = text.toLowerCase()
-  const hasPositive = CRITICAL_KEYWORDS_POSITIVE.some(kw => lower.includes(kw))
-  // FD: threshold lebih rendah — cukup 1 kata bukti dari daftar yang lebih luas
-  const hasEvidence = FD_CRITICAL_KEYWORDS_EVIDENCE.some(kw => lower.includes(kw))
-  return { pass: hasPositive && hasEvidence, missingPositive: !hasPositive, missingEvidence: !hasEvidence }
-}
 
 export default function FDPath() {
   const router = useRouter()
@@ -36,19 +28,15 @@ export default function FDPath() {
   const sessionActiveRef = useRef(false)
   useEffect(() => { sessionActiveRef.current = true }, [])
 
-  // DiRA state (step 0)
-  const [diraMsg, setDiraMsg] = useState<string | null>('Yuk pindahkan data screen time 35 siswa ke histogram! Data kelas 1–4 (13 siswa) sudah aku masukkan otomatis sebagai bantuan. Tinggal drag 22 data tersisa ya! 😉')
+  // DiRA state
+  const [diraMsg, setDiraMsg] = useState<string | null>('Yuk pindahkan data screen time 35 siswa ke histogram! Aku sudah bantu masukkan beberapa data dari tiap kelas sebagai contoh. Tinggal drag 26 data tersisa ke kelas yang sesuai ya! 😉')
   const [showDira, setShowDira] = useState(false)
 
   // Flash wrong overlay (FD only — no life lost)
   const [flashWrong, setFlashWrong] = useState(false)
 
-  // Text analysis state (step 1)
-  const [analysisText, setAnalysisText] = useState('')
-  const [analysisResult, setAnalysisResult] = useState<null | { pass: boolean; missingPositive: boolean; missingEvidence: boolean }>(null)
-  const [analysisAttempts, setAnalysisAttempts] = useState(0)
-  // DiRA hint for step 1
-  const [showAnalysisDira, setShowAnalysisDira] = useState(false)
+  // Tahap B state
+  const [submitting, setSubmitting] = useState(false)
 
   const awardBadge = useCallback((badge: typeof BADGES[keyof typeof BADGES]) => {
     unlockBadge(badge.id)
@@ -61,7 +49,8 @@ export default function FDPath() {
   const handleHistogramSubmit = (isCorrect: boolean) => {
     if (isCorrect) {
       addXP(25, 'Menyusun histogram terbimbing dengan benar', 0)
-      setShowDira(false)
+      setDiraMsg('Luar biasa! Kamu berhasil menyusun histogram dengan benar. 📊 Sekarang, yuk kita amati statistik dasar dari data tersebut di Tahap B ini! Rata-rata waktu bermain siswa ternyata hanya 7.06 jam, yang membuktikan klaim rata-rata > 8 jam adalah tidak benar! 😉')
+      setShowDira(true)
       setStep(1)
     } else {
       // FD: hanya red flash, tanpa life lost — eksplorasi mandiri
@@ -72,31 +61,26 @@ export default function FDPath() {
     }
   }
 
-  // ── STEP 1: Text Analysis ──
-  const handleAnalysisSubmit = () => {
-    if (analysisText.trim().length < 15) return
-    const result = checkAnalysisFD(analysisText)
-    setAnalysisResult(result)
-    const attempts = analysisAttempts + 1
-    setAnalysisAttempts(attempts)
+  // ── STEP 1: Proceed to Myth Busted ──
+  const handleProceedToMythBusted = () => {
+    if (submitting) return
+    setSubmitting(true)
+    addXP(25, 'Analisis distribusi FD tepat', 1)
+    awardBadge(BADGES.DETECTIVE)
+    if (mistakeCount === 0) awardBadge(BADGES.PERFECT)
 
-    if (result.pass) {
-      addXP(25, 'Analisis distribusi FD tepat', 1)
-      awardBadge(BADGES.DETECTIVE)
-      if (mistakeCount === 0) awardBadge(BADGES.PERFECT)
+    // Speed bonus
+    const initialTime = 900
+    const elapsed = sessionStartTime ? Math.floor((Date.now() - sessionStartTime) / 1000) : initialTime
+    if (elapsed < initialTime * 0.5) awardBadge(BADGES.SPEED)
 
-      // Speed bonus
-      const initialTime = 900
-      const elapsed = sessionStartTime ? Math.floor((Date.now() - sessionStartTime) / 1000) : initialTime
-      if (elapsed < initialTime * 0.5) awardBadge(BADGES.SPEED)
+    awardBadge(BADGES.MYTHBUST)
+    setShowDira(false)
 
-      awardBadge(BADGES.MYTHBUST)
-      setTimeout(() => setStep(2), 500)
-    } else {
-      // FD: setelah gagal pertama, DiRA langsung aktif memberi hint
-      if (attempts >= 1) setShowAnalysisDira(true)
-      incrementMistake()
-    }
+    setTimeout(() => {
+      setStep(2)
+      setSubmitting(false)
+    }, 500)
   }
 
   // ── STEP 2: MythBusted complete → Booklet ──
@@ -120,9 +104,9 @@ export default function FDPath() {
 
   return (
     <div
-      className={step === 0 ? 'tahap-a-fullscreen' : undefined}
+      className={step === 0 ? 'tahap-a-fullscreen tahap-a-container' : undefined}
       style={step === 0 
-        ? { height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden', paddingBottom: '16px' }
+        ? undefined
         : { maxWidth: '820px', margin: '0 auto', padding: '24px 16px', paddingBottom: '120px' }}
     >
 
@@ -174,7 +158,7 @@ export default function FDPath() {
                 <div style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 800, letterSpacing: '1px', marginBottom: '6px' }}>
                   TAHAP B — ANALISIS DISTRIBUSI &amp; VERDICT
                 </div>
-                <h2 style={{ margin: 0, fontSize: '20px' }}>The Verdict: Apakah Klaim Ini Valid?</h2>
+                <h2 style={{ margin: 0, fontSize: '20px' }}>Hasil Analisis &amp; Statistik Dasar</h2>
               </div>
 
               {/* Mentor dialog */}
@@ -183,11 +167,10 @@ export default function FDPath() {
                 <div>
                   <div style={{ fontSize: '12px', color: 'var(--accent)', fontWeight: 800, marginBottom: '6px' }}>DIALOG MENTOR:</div>
                   <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.85)', lineHeight: 1.7 }}>
-                    &quot;Detektif, perhatikan baik-baik histogram yang sudah kamu bangun dari data 35 siswa nyata ini. Sekarang, bandingkan dengan postingan viral yang mengklaim bahwa &apos;Remaja Indonesia rata-rata menghabiskan{' '}
-                    <strong style={{ color: '#f87171' }}>lebih dari 8 jam sehari</strong> di medsos&apos;.&quot;
+                    &quot;Luar biasa, Detektif! Berdasarkan histogram hasil rekonstruksimu dan data statistik dasar di bawah, kita dapat melihat bahwa rata-rata (Mean) penggunaan media sosial siswa adalah <strong style={{ color: 'var(--accent)' }}>{STATS.mean} jam</strong>, bukan lebih dari 8 jam seperti klaim viral tersebut.&quot;
                   </p>
-                  <p style={{ margin: '10px 0 0', fontSize: '14px', fontWeight: 700, color: '#fff' }}>
-                    ❓ Apakah klaim postingan viral tersebut <strong style={{ color: '#f87171' }}>valid</strong> dan didukung oleh data? Berikan alasan analisis statistikamu secara singkat!
+                  <p style={{ margin: '10px 0 0', fontSize: '13px', color: 'rgba(255,255,255,0.85)', lineHeight: 1.7 }}>
+                    💡 Terlihat bahwa mayoritas siswa (<strong style={{ color: '#3b82f6' }}>25 dari 35 siswa atau 71.4%</strong>) menggunakannya selama <strong>8 jam atau kurang</strong> sehari. Nilai ekstrim seperti 17 &amp; 18 jam (outlier) lah yang menarik nilai rata-rata menjadi naik.
                   </p>
                 </div>
               </div>
@@ -202,104 +185,32 @@ export default function FDPath() {
 
                 {/* Right: Pre-computed stats */}
                 <div style={{ background: 'rgba(0,255,136,0.04)', border: '1px solid var(--game-border-accent)', borderRadius: '14px', padding: '14px 18px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                  <div style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 700, marginBottom: '10px', letterSpacing: '1px' }}>📈 STATISTIK DASAR (SUDAH DIHITUNG)</div>
+                  <div style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 700, marginBottom: '10px', letterSpacing: '1px' }}>📈 STATISTIK DASAR DISTRIBUSI</div>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px' }}>
                     {[
-                      { label: 'Mean', val: `${STATS.mean} jam` },
+                      { label: 'Mean (Rata-rata)', val: `${STATS.mean} jam` },
                       { label: 'Median', val: `${STATS.median} jam` },
                       { label: 'Min', val: `${STATS.min} jam` },
                       { label: 'Max', val: `${STATS.max} jam` },
-                      { label: 'Range', val: `${STATS.range} jam` },
-                      { label: 'n', val: '35 siswa' },
+                      { label: 'Range (Jangkauan)', val: `${STATS.range} jam` },
+                      { label: 'n (Sampel)', val: `${STATS.n} siswa` },
                     ].map(({ label, val }) => (
-                      <div key={label} style={{ textAlign: 'center', padding: '8px', background: 'rgba(255,255,255,0.03)', borderRadius: '10px' }}>
+                      <div key={label} style={{ textAlign: 'center', padding: '8px', background: 'rgba(255,255,255,0.03)', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.05)' }}>
                         <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 700 }}>{label}</div>
-                        <div style={{ fontSize: '15px', fontWeight: 800, color: 'var(--accent)', fontFamily: 'var(--font-data)' }}>{val}</div>
+                        <div style={{ fontSize: '14px', fontWeight: 800, color: 'var(--accent)', fontFamily: 'var(--font-data)', marginTop: '4px' }}>{val}</div>
                       </div>
                     ))}
                   </div>
                 </div>
               </div>
 
-              {/* Text input */}
-              <div>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '8px', letterSpacing: '0.5px' }}>
-                  ANALISIS JAWABANMU:
-                </label>
-                <textarea
-                  value={analysisText}
-                  onChange={e => { setAnalysisText(e.target.value); setAnalysisResult(null) }}
-                  placeholder={`Contoh: "Tidak valid, karena mayoritas siswa (25 orang) hanya bermain 1-4 jam sehari. Angka 8 jam ke atas hanya beberapa orang saja (outlier/pencilan), jadi tidak bisa mewakili rata-rata seluruh remaja..."`}
-                  style={{
-                    width: '100%', boxSizing: 'border-box',
-                    minHeight: '110px', padding: '14px 16px', borderRadius: '12px',
-                    background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)',
-                    color: '#fff', fontSize: '14px', lineHeight: 1.6, resize: 'vertical',
-                    outline: 'none', transition: 'border-color 0.2s',
-                    fontFamily: 'var(--font-sans, sans-serif)',
-                  }}
-                  onFocus={e => e.target.style.borderColor = 'var(--accent)'}
-                  onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'}
-                />
-                <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '6px' }}>
-                  {analysisText.length} karakter — minimal ~15 karakter
-                </div>
-              </div>
-
-              {/* DiRA hint (FD — proaktif setelah gagal pertama) */}
-              <AnimatePresence>
-                {showAnalysisDira && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    style={{ display: 'flex', gap: '12px', alignItems: 'flex-start', padding: '12px 14px', borderRadius: '12px', background: 'rgba(0,255,136,0.05)', border: '1px solid rgba(0,255,136,0.2)' }}
-                  >
-                    <img src="/dira-avatar.png" alt="Dira" style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
-                    <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.85)', lineHeight: 1.6 }}>
-                      <strong style={{ color: 'var(--accent)' }}>DiRA: </strong>
-                      Coba sebutkan apakah klaim itu &quot;<strong>valid</strong>&quot; atau &quot;<strong>tidak valid</strong>&quot;. Kemudian, dukung dengan menyebut kata seperti &quot;mayoritas&quot;, &quot;outlier&quot;, atau &quot;histogram&quot;. Kamu pasti bisa! 💪
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              {/* Feedback on wrong answer */}
-              <AnimatePresence>
-                {analysisResult && !analysisResult.pass && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    style={{ padding: '14px 16px', borderRadius: '12px', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', fontSize: '13px', lineHeight: 1.6 }}
-                  >
-                    <div style={{ fontWeight: 800, color: '#f87171', marginBottom: '8px' }}>
-                      ⚠️ Jawabanmu belum lengkap — coba lagi!
-                    </div>
-                    {analysisResult.missingPositive && (
-                      <p style={{ margin: '0 0 6px', color: 'rgba(255,255,255,0.7)' }}>
-                        💡 <strong>Petunjuk 1:</strong> Sebutkan apakah klaim tersebut &quot;tidak valid&quot;, &quot;salah&quot;, atau &quot;menyesatkan&quot;.
-                      </p>
-                    )}
-                    {analysisResult.missingEvidence && (
-                      <p style={{ margin: '0 0 6px', color: 'rgba(255,255,255,0.7)' }}>
-                        💡 <strong>Petunjuk 2:</strong> Gunakan kata bukti seperti &quot;mayoritas&quot;, &quot;outlier&quot;, &quot;histogram&quot;, atau &quot;kebanyakan&quot;.
-                      </p>
-                    )}
-                    {analysisAttempts >= 2 && (
-                      <p style={{ margin: '6px 0 0', color: 'rgba(0,255,136,0.8)', fontStyle: 'italic' }}>
-                        🔍 Contoh jawaban: &quot;Tidak valid, karena mayoritas (13 siswa / 37.1%) hanya bermain 1-4 jam. Nilai 17 dan 18 jam adalah outlier yang membuat mean tampak lebih tinggi.&quot;
-                      </p>
-                    )}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
               <button
                 className="game-btn game-btn-primary"
-                onClick={handleAnalysisSubmit}
-                disabled={analysisText.trim().length < 15}
-                style={{ opacity: analysisText.trim().length >= 15 ? 1 : 0.5 }}
+                onClick={handleProceedToMythBusted}
+                disabled={submitting}
+                style={{ width: '100%', marginTop: '8px' }}
               >
-                Submit Analisis →
+                Lanjut: Bongkar Kebenaran! →
               </button>
             </div>
           </motion.div>
@@ -322,8 +233,8 @@ export default function FDPath() {
         )}
       </AnimatePresence>
 
-      {/* DiRA guide for step 0 */}
-      {step === 0 && showDira && diraMsg && (
+      {/* DiRA guide for step 0 & 1 */}
+      {(step === 0 || step === 1) && showDira && diraMsg && (
         <DiRA message={diraMsg} onDismiss={() => setShowDira(false)} />
       )}
 

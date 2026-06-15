@@ -1052,3 +1052,49 @@
   }
 }
 
+/* ── Responsive Viewport Scaling ── */
+.game-level-root {
+  height: 100vh;
+  overflow: hidden;
+}
+
+.game-level-content-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+.tahap-a-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding-bottom: 16px;
+}
+
+/*
+  Allow scrolling on:
+  (a) Portrait phones: max-width 768px
+  (b) Landscape phones: width > 768px but height is only ~350-420px
+      (OrientationGuard locks the game to landscape, so height is the
+       constraining dimension on phones)
+*/
+@media (max-width: 768px), (max-height: 520px) {
+  .game-level-root {
+    height: auto;
+    min-height: 100svh; /* svh = small viewport height, excludes mobile browser UI */
+    overflow-y: auto;
+  }
+  
+  .game-level-content-wrapper {
+    overflow: visible;
+  }
+  
+  .tahap-a-container {
+    height: auto;
+    overflow: visible;
+  }
+}
+

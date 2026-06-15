@@ -905,7 +905,7 @@ function FDMaterialView({
           <div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
             <button 
               disabled={step === 1}
-              onClick={() => setStep(prev => prev - 1)}
+              onClick={() => setStep(prev => Math.max(prev - 1, 1))}
               style={{ flex: 1, padding: '12px 18px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.12)', background: 'transparent', color: step === 1 ? 'rgba(255,255,255,0.2)' : '#fff', fontWeight: 700, fontSize: '13px', cursor: step === 1 ? 'not-allowed' : 'pointer' }}
             >
               Kembali
@@ -913,7 +913,7 @@ function FDMaterialView({
             
             {step < 4 ? (
               <button 
-                onClick={() => setStep(prev => prev + 1)}
+                onClick={() => setStep(prev => Math.min(prev + 1, 4))}
                 style={{ flex: 1, padding: '12px 18px', borderRadius: '10px', border: 'none', background: 'linear-gradient(90deg, #3b82f6, #06b6d4)', color: '#fff', fontWeight: 700, fontSize: '13px', cursor: 'pointer', boxShadow: '0 4px 15px rgba(33, 150, 243, 0.25)' }}
               >
                 Langkah Selanjutnya →

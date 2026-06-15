@@ -1,8 +1,9 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useGameStore } from '@/lib/store/gameStore'
 
 const QUESTIONS = [
   {
@@ -55,128 +56,52 @@ const QUESTIONS = [
     ],
     correct: 0,
   },
-  {
-    id: 6,
-    text: 'Jika sebuah kelompok nilai ditulis sebagai "71 - 80", berapakah banyaknya kemungkinan nilai bulat yang masuk ke dalam kelompok tersebut?',
-    options: ['9', '10', '11', '8'],
-    correct: 1,
-  },
-  {
-    id: 7,
-    text: 'Di bawah ini, manakah yang merupakan contoh pengumpulan data yang menghasilkan data berupa angka kontinu (bisa berbentuk desimal/diukur), bukan sekadar dihitung?',
-    options: [
-      'Menghitung jumlah sepeda motor di tempat parkir sekolah.',
-      'Mendata jenis olahraga yang disukai siswa kelas IX.',
-      'Mengukur waktu yang ditempuh siswa untuk berlari 100 meter.',
-      'Mencatat jumlah anak dalam suatu keluarga.',
-    ],
-    correct: 2,
-  },
-  {
-    id: 8,
-    text: 'Saat melihat sebuah diagram batang di majalah dinding sekolah, apa hal pertama yang harus kita lihat untuk mengetahui apa yang sedang dibahas oleh diagram tersebut?',
-    options: [
-      'Warna pensil warna yang digunakan untuk menggambar.',
-      'Judul diagram serta keterangan pada sumbu mendatar dan sumbu tegak.',
-      'Nama siswa yang menggambar diagram tersebut.',
-      'Ukuran kertas yang digunakan untuk membuat grafik.',
-    ],
-    correct: 1,
-  },
-  {
-    id: 9,
-    text: 'Jika kita membulatkan angka desimal 6,3 dan 6,8 ke bilangan bulat terdekat, hasil pembulatan yang benar berturut-turut adalah...',
-    options: ['6 dan 7', '6 dan 6', '7 dan 7', '6 dan 8'],
-    correct: 0,
-  },
-  {
-    id: 10,
-    text: 'Ketika membaca informasi dalam bentuk grafik di internet, sikap awal yang paling bijak dan kritis sebagai pengguna media digital adalah...',
-    options: [
-      'Langsung mempercayai dan menyebarkannya ke grup WhatsApp karena gambarnya bagus.',
-      'Memeriksa kembali apakah skala angkanya benar, sumber datanya jelas, dan masuk akal.',
-      'Mengabaikannya sama sekali karena matematika di internet pasti membosankan.',
-      'Menghapus postingan tersebut karena menganggap semua grafik di internet adalah palsu.',
-    ],
-    correct: 1,
-  },
-  {
-    id: 11,
-    text: 'Mengapa sebuah grafik atau histogram di media sosial yang tidak mencantumkan "Sumber Data" yang jelas harus kita waspadai?',
-    options: [
-      'Karena tanpa sumber data, warna-warni pada grafik tersebut menjadi tidak sah.',
-      'Karena bisa jadi data tersebut hanyalah karangan atau hoaks yang dibuat untuk menggiring opini publik.',
-      'Karena grafik tanpa sumber data biasanya memiliki ukuran file gambar yang terlalu besar.',
-      'Karena platform media sosial akan otomatis menghapus grafik yang tidak memiliki sumber.',
-    ],
-    correct: 1,
-  },
-  {
-    id: 12,
-    text: 'Seseorang menyebarkan histogram tentang peningkatan kasus penyakit di suatu daerah, tetapi ia sengaja memotong sumbu vertikal (frekuensi) dari angka 50 langsung ke 500 tanpa skala yang konsisten agar grafiknya terlihat melonjak tajam. Tindakan digital ini disebut sebagai...',
-    options: [
-      'Keamanan siber (Cyber security)',
-      'Desain grafis estetis',
-      'Manipulasi visual data (Disinformasi berbasis data)',
-      'Penghematan ruang digital',
-    ],
-    correct: 2,
-  },
-  {
-    id: 13,
-    text: 'Di bawah ini, manakah contoh etika yang benar ketika kita ingin menggunakan data atau grafik hasil penelitian orang lain untuk konten edukasi di media sosial kita?',
-    options: [
-      'Mengambil screenshot grafik tersebut, menghapus nama penelitinya, lalu mengakuinya sebagai hasil survei sendiri.',
-      'Mengubah angka-angka pada grafik agar sesuai dengan keinginan netizen di kolom komentar.',
-      'Menampilkan grafik secara utuh tanpa mengubah maknanya dan menuliskan nama pemilik data/sumber aslinya secara jelas.',
-      'Menyebarkan grafik tersebut hanya di grup chat rahasia agar tidak ketahuan oleh pembuat aslinya.',
-    ],
-    correct: 2,
-  },
-  {
-    id: 14,
-    text: 'Mengapa menyajikan data kelompok dalam bentuk histogram yang jujur dan akurat termasuk dalam bentuk kontribusi positif (etika baik) di ruang digital?',
-    options: [
-      'Karena data yang jujur membantu masyarakat digital (netizen) mengambil keputusan atau kesimpulan yang benar berdasarkan fakta.',
-      'Karena netizen hanya menyukai postingan yang menggunakan istilah-istilah matematika yang rumit.',
-      'Karena akun media sosial kita akan langsung mendapatkan centang biru (verified) dari platform.',
-      'Karena hal itu membuat orang lain tidak berani mendebat atau memberikan komentar di postingan kita.',
-    ],
-    correct: 0,
-  },
-  {
-    id: 15,
-    text: 'Ketika kamu melihat sebuah infografis atau histogram di Instagram yang membandingkan dua data kelompok, tetapi kelompok yang satu memiliki rentang interval yang jauh lebih sempit dibanding kelompok lainnya sehingga visualisasinya terlihat tidak seimbang, kemampuan berpikir kritis apa yang sedang kamu gunakan?',
-    options: [
-      'Literasi finansial',
-      'Literasi data dan media (Digital data literacy)',
-      'Kemampuan algoritma pemrograman',
-      'Etika netiket dasar',
-    ],
-    correct: 1,
-  },
 ]
 
 export default function DiagnostikPage() {
   const router = useRouter()
+  const { startLevel, resetLevel } = useGameStore()
+  const [targetLevel, setTargetLevel] = useState<string>('1')
   const [currentQ, setCurrentQ] = useState(0)
-  const [answers, setAnswers] = useState<(number | null)[]>(Array(15).fill(null))
+  const [answers, setAnswers] = useState<(number | null)[]>(Array(QUESTIONS.length).fill(null))
   const [selected, setSelected] = useState<number | null>(null)
   const [submitted, setSubmitted] = useState(false)
   const [phase, setPhase] = useState<'intro' | 'test' | 'result'>('intro')
   const [saving, setSaving] = useState(false)
   const [showPopup, setShowPopup] = useState(false)
   const [scoreStats, setScoreStats] = useState({ correct: 0, wrong: 0 })
+  const processingRef = useRef(false)
+
+  useEffect(() => {
+    processingRef.current = false
+  }, [currentQ])
 
   useEffect(() => {
     const data = localStorage.getItem('student')
     if (!data) { router.push('/'); return }
-    const student = JSON.parse(data)
-    // Cek sudah pernah ambil tes
-    if (student.diagnosticScore !== null && student.diagnosticScore !== undefined) {
-      router.push('/siswa/geft')
+    const s = JSON.parse(data)
+
+    // Redirect if already completed diagnostic
+    if (s.diagnosticLevel) {
+      const activeStyle = s.geftResult?.cognitiveStyle || 'FI'
+      if (typeof window !== 'undefined') {
+        const params = new URLSearchParams(window.location.search)
+        const lvl = params.get('level') || '1'
+        resetLevel()
+        startLevel(parseInt(lvl), activeStyle)
+        router.push(`/siswa/game/level/${lvl}`)
+        return
+      }
     }
-  }, [router])
+
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      const lvl = params.get('level')
+      if (lvl) {
+        setTargetLevel(lvl)
+      }
+    }
+  }, [router, resetLevel, startLevel])
 
   const handleAnswer = (optIdx: number) => {
     if (submitted) return
@@ -184,6 +109,9 @@ export default function DiagnostikPage() {
   }
 
   const handleNext = useCallback(() => {
+    if (processingRef.current) return
+    processingRef.current = true
+
     const newAnswers = [...answers]
     newAnswers[currentQ] = selected
     setAnswers(newAnswers)
@@ -191,7 +119,7 @@ export default function DiagnostikPage() {
     setSubmitted(false)
 
     if (currentQ < QUESTIONS.length - 1) {
-      setCurrentQ(prev => prev + 1)
+      setCurrentQ(prev => Math.min(prev + 1, QUESTIONS.length - 1))
     } else {
       // Hitung skor
       const totalScore = newAnswers.reduce<number>((acc, ans, i) => {
@@ -243,10 +171,10 @@ export default function DiagnostikPage() {
           onClick={() => {
             if (phase === 'test') {
               if (confirm("Apakah Anda yakin ingin keluar dari tes? Jawaban Anda saat ini tidak akan disimpan.")) {
-                router.push('/')
+                router.push('/siswa')
               }
             } else {
-              router.push('/')
+              router.push('/siswa')
             }
           }}
           style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
@@ -333,19 +261,19 @@ export default function DiagnostikPage() {
                 🕵️
               </motion.div>
               <div style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '2px', color: '#00FF88', marginBottom: '12px' }}>
-                TES DIAGNOSTIK AWAL
+                TES DIAGNOSTIK LEVEL {targetLevel}
               </div>
               <h1 style={{ fontSize: '26px', fontWeight: 800, margin: '0 0 16px', lineHeight: 1.2 }}>
                 Ukur Kemampuan Statistika Awalmu!
               </h1>
               <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.6)', lineHeight: 1.7, margin: '0 0 28px' }}>
-                Sebelum memulai petualangan sebagai Detektif Data, kami perlu mengetahui kemampuan awal statistika kamu. Jawab <strong style={{ color: '#00FF88' }}>15 pertanyaan</strong> singkat dengan jujur — tidak ada yang benar atau salah!
+                Sebelum memulai petualangan sebagai Detektif Data di Level {targetLevel}, kami perlu mengetahui kemampuan awal statistika kamu. Jawab <strong style={{ color: '#00FF88' }}>{QUESTIONS.length} pertanyaan</strong> singkat dengan jujur — tidak ada yang benar atau salah!
               </p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '28px', textAlign: 'left' }}>
                 {[
-                  { icon: '⏱', text: '15 soal pilihan ganda — tidak ada batas waktu' },
-                  { icon: '📊', text: 'Hasil menentukan jalur belajar terbaikmu' },
-                  { icon: '🔒', text: 'Tes ini hanya dilakukan sekali' },
+                  { icon: '⏱', text: `${QUESTIONS.length} soal pilihan ganda — tidak ada batas waktu` },
+                  { icon: '📊', text: 'Hasil menentukan tingkat pemahaman awalmu' },
+                  { icon: '🔒', text: 'Tes ini wajib dikerjakan sebelum memulai level' },
                 ].map((item, i) => (
                   <div key={i} style={{ display: 'flex', gap: '12px', alignItems: 'center', padding: '10px 14px', background: 'rgba(0,255,136,0.04)', borderRadius: '12px', border: '1px solid rgba(0,255,136,0.12)' }}>
                     <span style={{ fontSize: '20px' }}>{item.icon}</span>
@@ -587,11 +515,25 @@ export default function DiagnostikPage() {
               </motion.div>
 
               <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.5)', margin: '0 0 24px', lineHeight: 1.6 }}>
-                Selanjutnya, ikuti <strong style={{ color: '#fff' }}>Tes GEFT</strong> untuk menentukan gaya kognitifmu (Field Independent / Field Dependent). Ini akan menentukan cara game memandumu!
+                Persiapan selesai! Klik tombol di bawah ini untuk memulai misi penyelidikan detektif data.
               </p>
 
               <button
-                onClick={() => router.push('/siswa/geft')}
+                onClick={() => {
+                  const studentData = localStorage.getItem('student')
+                  let activeStyle: 'FI' | 'FD' = 'FI'
+                  if (studentData) {
+                    try {
+                      const s = JSON.parse(studentData)
+                      activeStyle = s.geftResult?.cognitiveStyle || 'FI'
+                    } catch (e) {
+                      console.error(e)
+                    }
+                  }
+                  resetLevel()
+                  startLevel(parseInt(targetLevel), activeStyle)
+                  window.location.href = `/siswa/game/level/${targetLevel}`
+                }}
                 disabled={saving}
                 style={{
                   width: '100%', padding: '16px', borderRadius: '14px', border: 'none',
@@ -602,7 +544,7 @@ export default function DiagnostikPage() {
                   transition: 'all 0.2s',
                 }}
               >
-                {saving ? 'Menyimpan...' : 'Lanjut ke Tes GEFT →'}
+                {saving ? 'Menyimpan...' : 'Mulai Penyelidikan Misi →'}
               </button>
             </motion.div>
           )}

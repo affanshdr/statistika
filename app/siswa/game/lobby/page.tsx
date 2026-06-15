@@ -66,29 +66,7 @@ export default function LobbyPage() {
   }, [router, cognitiveStyle, setCognitiveStyle])
 
   const handlePlayLevel = (levelId: number) => {
-    let activeStyle = student?.geftResult?.cognitiveStyle || cognitiveStyle
-    
-    // Direct localStorage fallback to prevent state/hydration lag from blocking clicks
-    if (!activeStyle && typeof window !== 'undefined') {
-      try {
-        const raw = localStorage.getItem('student')
-        if (raw) {
-          const s = JSON.parse(raw)
-          activeStyle = s?.geftResult?.cognitiveStyle || null
-        }
-      } catch (e) {
-        console.error('Error reading cognitiveStyle fallback in lobby:', e)
-      }
-    }
-
-    // Default safe fallback if everything else is null
-    if (!activeStyle) {
-      activeStyle = 'FI'
-    }
-
-    resetLevel()
-    startLevel(levelId, activeStyle)
-    router.push(`/siswa/game/level/${levelId}`)
+    router.push(`/siswa/diagnostik?level=${levelId}`)
   }
 
   const isFI = (student?.geftResult?.cognitiveStyle || cognitiveStyle) === 'FI'
