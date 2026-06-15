@@ -197,6 +197,7 @@ export default function GeftPage() {
   useEffect(() => {
     if (phase !== 'test') return
     const t = setInterval(() => {
+      if (confirmingRef.current) return
       setTimeLeft(prev => {
         if (prev <= 1) { clearInterval(t); handleNext(true); return 0 }
         return prev - 1
@@ -405,7 +406,12 @@ export default function GeftPage() {
         body: JSON.stringify({ studentId, score, totalQuestions: scoredQuestions.length }),
       })
       const data = await res.json()
-      if (!res.ok) { alert(data.error); return }
+      if (!res.ok) {
+        alert(data.error)
+        setPhase('test')
+        processingNextRef.current = false
+        return
+      }
 
       const stored = JSON.parse(localStorage.getItem('student')!)
       localStorage.setItem('student', JSON.stringify({
@@ -417,6 +423,8 @@ export default function GeftPage() {
       setTimeout(() => router.push('/siswa'), 2000)
     } catch {
       alert('Gagal menyimpan hasil.')
+      setPhase('test')
+      processingNextRef.current = false
     } finally {
       setSubmitting(false)
     }

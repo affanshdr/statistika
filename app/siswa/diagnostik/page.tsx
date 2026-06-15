@@ -76,13 +76,18 @@ export default function DiagnostikPage() {
     processingRef.current = false
   }, [currentQ])
 
+  const hasRedirectedRef = useRef(false)
+
   useEffect(() => {
+    if (hasRedirectedRef.current) return
+
     const data = localStorage.getItem('student')
     if (!data) { router.push('/'); return }
     const s = JSON.parse(data)
 
     // Redirect if already completed diagnostic
     if (s.diagnosticLevel) {
+      hasRedirectedRef.current = true
       const activeStyle = s.geftResult?.cognitiveStyle || 'FI'
       if (typeof window !== 'undefined') {
         const params = new URLSearchParams(window.location.search)
@@ -97,11 +102,11 @@ export default function DiagnostikPage() {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search)
       const lvl = params.get('level')
-      if (lvl) {
+      if (lvl && lvl !== targetLevel) {
         setTargetLevel(lvl)
       }
     }
-  }, [router, resetLevel, startLevel])
+  }, [router, resetLevel, startLevel, targetLevel])
 
   const handleAnswer = (optIdx: number) => {
     if (submitted) return
