@@ -124,7 +124,7 @@ export default function LevelPage({
                 color: '#fff',
                 padding: '16px 20px',
                 height: '100%',
-                overflow: 'hidden',
+                overflow: 'auto',
               }}
             >
 

@@ -7,7 +7,6 @@ import { useGameStore } from '@/lib/store/gameStore'
 import { BADGES, CORRECT_VERDICT, VERDICT_EXPLANATION, LEVEL1_CONFIG } from '../../_data/level1'
 import '../../game.css'
 
-// Dynamic confetti
 import dynamic from 'next/dynamic'
 const ReactConfetti = dynamic(() => import('react-confetti'), { ssr: false })
 
@@ -24,14 +23,14 @@ export default function ResultsPage({
   const savedRef = useRef(false)
   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 })
   const [confetti, setConfetti] = useState(false)
-  const [showBadges, setShowBadges] = useState(false)
+  const [showContent, setShowContent] = useState(false)
 
   const isCorrect = store.verdictAnswer === CORRECT_VERDICT
 
   useEffect(() => {
     setWindowSize({ width: window.innerWidth, height: window.innerHeight })
     if (isCorrect) setConfetti(true)
-    setTimeout(() => { setConfetti(false); setShowBadges(true) }, 4000)
+    setTimeout(() => { setConfetti(false); setShowContent(true) }, 2500)
   }, [isCorrect])
 
   // Save session to DB + update leaderboard once
@@ -46,7 +45,6 @@ export default function ResultsPage({
       ? Math.floor((Date.now() - store.sessionStartTime) / 1000)
       : 0
 
-    // Save game session
     fetch('/api/game/sessions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -62,7 +60,6 @@ export default function ResultsPage({
       }),
     }).catch(console.error)
 
-    // Update leaderboard
     fetch('/api/game/leaderboard', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -75,25 +72,29 @@ export default function ResultsPage({
     }).catch(console.error)
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Compute metrics
-  const timeTotalSec = store.cognitiveStyle === 'FD' ? 900 : 600
-  const elapsedSec = store.sessionStartTime
-    ? Math.floor((Date.now() - store.sessionStartTime) / 1000)
-    : 0
-  const elapsedMin = Math.floor(elapsedSec / 60)
-  const elapsedSecs = elapsedSec % 60
-  const limitMin = Math.floor(timeTotalSec / 60)
-
-  // Calculate accuracy (steps where xpBreakdown has entries = correct steps)
-  const totalSteps = 6
-  const correctSteps = store.xpBreakdown.filter(e => e.xp === 10).length
-  const accuracy = Math.round((correctSteps / totalSteps) * 100)
-
   const newBadges = store.badges.map(id => BADGE_DEFS.find(b => b.id === id)).filter(Boolean)
+
+  const handleDownloadBukuSaku = async () => {
+    try {
+      const url = 'https://tmdbqikqflbeqaqllxge.supabase.co/storage/v1/object/public/Asset/Buku%20Saku.jpeg'
+      const response = await fetch(url)
+      const blob = await response.blob()
+      const blobUrl = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = blobUrl
+      a.download = 'Buku Saku Level 1.jpeg'
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(blobUrl)
+    } catch {
+      // Fallback: open in new tab
+      window.open('https://tmdbqikqflbeqaqllxge.supabase.co/storage/v1/object/public/Asset/Buku%20Saku.jpeg', '_blank')
+    }
+  }
 
   return (
     <div className="game-root" style={{ minHeight: '100vh' }}>
-      {/* Confetti */}
       {confetti && (
         <ReactConfetti
           width={windowSize.width}
@@ -108,176 +109,234 @@ export default function ResultsPage({
       <header style={{
         padding: '16px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         borderBottom: '1px solid var(--game-border)', background: 'rgba(10,10,15,0.8)', backdropFilter: 'blur(20px)',
-        position: 'sticky', top: 0, zIndex: 100
+        position: 'sticky', top: 0, zIndex: 100,
       }}>
-        <div style={{ fontWeight: 800, fontSize: '16px' }}>🕵️ Mission Report</div>
-        <button className="game-btn game-btn-secondary" style={{ fontSize: '13px', padding: '8px 16px' }} onClick={() => router.push('/siswa/game/lobby')}>
-          Lobby
+        <div style={{ fontWeight: 800, fontSize: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <motion.img
+            src="https://tmdbqikqflbeqaqllxge.supabase.co/storage/v1/object/public/Asset/Agent.png"
+            onError={(e) => { e.currentTarget.src = '/dira-avatar.png' }}
+            alt="DiRA"
+            style={{ height: '32px', objectFit: 'contain' }}
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+          />
+          Mission Report
+        </div>
+        <button
+          className="game-btn game-btn-secondary"
+          style={{ fontSize: '13px', padding: '8px 16px' }}
+          onClick={() => router.push('/siswa')}
+        >
+          ← Dashboard
         </button>
       </header>
 
-      <div style={{ maxWidth: '760px', margin: '0 auto', padding: '32px 20px', position: 'relative', zIndex: 1 }}>
+      <div style={{ maxWidth: '680px', margin: '0 auto', padding: '32px 20px 48px', position: 'relative', zIndex: 1 }}>
 
         {/* ── Hero ── */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          style={{ textAlign: 'center', marginBottom: '32px' }}
+          style={{ textAlign: 'center', marginBottom: '36px' }}
         >
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
-            transition={{ type: 'spring', stiffness: 300, damping: 20, delay: 0.2 }}
-            style={{ fontSize: '72px', marginBottom: '16px' }}
+            transition={{ type: 'spring', stiffness: 260, damping: 20, delay: 0.2 }}
+            style={{ fontSize: '72px', marginBottom: '12px', lineHeight: 1 }}
           >
             {isCorrect ? '🏆' : '📋'}
           </motion.div>
-          <h1 style={{ fontSize: '28px', fontWeight: 800, margin: '0 0 8px' }}>
+          <h1 style={{ fontSize: '26px', fontWeight: 800, margin: '0 0 6px' }}>
             {isCorrect ? 'Investigasi Selesai!' : 'Level Selesai'}
           </h1>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '15px', margin: 0 }}>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '14px', margin: '0 0 4px' }}>
             {LEVEL1_CONFIG.title}
           </p>
         </motion.div>
 
-        {/* ── Stats grid ── */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '14px', marginBottom: '24px' }}>
-          {[
-            { label: 'XP Diperoleh', val: `${store.xp} XP`, icon: '⚡', color: 'var(--accent)' },
-            { label: 'Akurasi', val: `${accuracy}%`, icon: '🎯', color: accuracy >= 80 ? 'var(--accent)' : 'var(--warning)' },
-            { label: 'Waktu', val: `${elapsedMin}:${elapsedSecs.toString().padStart(2,'0')} / ${limitMin}:00`, icon: '⏱', color: 'var(--info)' },
-          ].map(({ label, val, icon, color }, i) => (
-            <motion.div
-              key={label}
-              className="game-card"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 + i * 0.1 }}
-              style={{ textAlign: 'center', padding: '20px' }}
-            >
-              <div style={{ fontSize: '28px', marginBottom: '8px' }}>{icon}</div>
-              <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '1px', marginBottom: '6px' }}>{label}</div>
-              <div style={{ fontSize: '22px', fontWeight: 800, color, fontFamily: 'var(--font-data)' }}>{val}</div>
-            </motion.div>
-          ))}
-        </div>
-
-        {/* ── XP Breakdown ── */}
-        {store.xpBreakdown.length > 0 && (
-          <motion.div
-            className="game-card"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            style={{ marginBottom: '24px' }}
-          >
-            <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '1px', marginBottom: '16px' }}>
-              ⚡ RINCIAN XP
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {store.xpBreakdown.map((item, i) => (
-                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', background: 'rgba(255,255,255,0.03)', borderRadius: '8px' }}>
-                  <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Step {item.step}: {item.label}</span>
-                  <span style={{ fontFamily: 'var(--font-data)', color: 'var(--accent)', fontWeight: 700, fontSize: '13px' }}>+{item.xp} XP</span>
-                </div>
-              ))}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 12px', background: 'rgba(0,255,136,0.08)', borderRadius: '8px', borderTop: '1px solid var(--game-border-accent)', marginTop: '4px' }}>
-                <span style={{ fontWeight: 800 }}>TOTAL</span>
-                <span style={{ fontFamily: 'var(--font-data)', color: 'var(--accent)', fontWeight: 800, fontSize: '16px' }}>{store.xp} XP</span>
-              </div>
-            </div>
-          </motion.div>
-        )}
-
-        {/* ── Badges ── */}
         <AnimatePresence>
-          {showBadges && newBadges.length > 0 && (
+          {showContent && (
             <motion.div
-              className="game-card"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              style={{ marginBottom: '24px' }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.4 }}
+              style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}
             >
-              <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '1px', marginBottom: '16px' }}>
-                🏅 BADGE YANG DIPEROLEH
-              </div>
-              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-                {newBadges.map((badge, i) => badge && (
-                  <motion.div
-                    key={badge.id}
-                    initial={{ scale: 0, rotate: -10 }}
-                    animate={{ scale: 1, rotate: 0 }}
-                    transition={{ delay: i * 0.15, type: 'spring', stiffness: 300 }}
-                    style={{ textAlign: 'center', padding: '16px', background: 'var(--accent-dim)', border: '1px solid var(--game-border-accent)', borderRadius: '16px', minWidth: '100px' }}
+
+              {/* ── Badge yang diperoleh ── */}
+              {newBadges.length > 0 && (
+                <motion.div
+                  className="game-card"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                >
+                  <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 800, letterSpacing: '1.5px', marginBottom: '16px' }}>
+                    🏅 BADGE YANG DIPEROLEH
+                  </div>
+                  <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                    {newBadges.map((badge, i) => badge && (
+                      <motion.div
+                        key={badge.id}
+                        initial={{ scale: 0, rotate: -15 }}
+                        animate={{ scale: 1, rotate: 0 }}
+                        transition={{ delay: 0.15 + i * 0.1, type: 'spring', stiffness: 300 }}
+                        style={{
+                          textAlign: 'center', padding: '16px 20px',
+                          background: 'var(--accent-dim)',
+                          border: '1px solid var(--game-border-accent)',
+                          borderRadius: '16px', minWidth: '110px',
+                          flex: '1 1 110px', maxWidth: '160px',
+                        }}
+                      >
+                        <div style={{ fontSize: '34px', marginBottom: '6px' }}>{badge.icon}</div>
+                        <div style={{ fontSize: '11px', fontWeight: 800, color: 'var(--accent)' }}>{badge.name}</div>
+                        <div style={{ fontSize: '10px', color: 'var(--text-muted)', marginTop: '3px', lineHeight: 1.4 }}>{badge.desc}</div>
+                      </motion.div>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+
+              {/* ── Analisis Verdict ── */}
+              <motion.div
+                className="game-card"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+              >
+                <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 800, letterSpacing: '1.5px', marginBottom: '4px' }}>
+                  🔍 ANALISIS VERDICT
+                </div>
+                {/* Apa itu verdict */}
+                <p style={{ margin: '0 0 16px', fontSize: '12px', color: 'rgba(255,255,255,0.4)', lineHeight: 1.5 }}>
+                  <strong style={{ color: 'rgba(255,255,255,0.6)' }}>Verdict</strong> adalah kesimpulan akhir dari analisis data — apakah klaim berita bisa dipercaya, menyesatkan, atau hoaks berdasarkan bukti statistik yang kamu temukan.
+                </p>
+
+                <div style={{ display: 'flex', gap: '10px', marginBottom: '14px', flexWrap: 'wrap' }}>
+                  {/* Verdictmu */}
+                  <div style={{
+                    flex: 1, padding: '12px 16px',
+                    background: isCorrect ? 'rgba(0,255,136,0.06)' : 'rgba(239,68,68,0.06)',
+                    border: `1px solid ${isCorrect ? 'rgba(0,255,136,0.25)' : 'rgba(239,68,68,0.25)'}`,
+                    borderRadius: '12px', minWidth: '130px',
+                  }}>
+                    <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 800, marginBottom: '6px', letterSpacing: '1px' }}>VERDICTMU</div>
+                    <div style={{ fontWeight: 800, fontSize: '15px', color: isCorrect ? 'var(--accent)' : 'var(--danger)' }}>
+                      {store.verdictAnswer ?? '—'} {isCorrect ? '✅' : '❌'}
+                    </div>
+                  </div>
+                  {/* Verdict benar */}
+                  <div style={{
+                    flex: 1, padding: '12px 16px',
+                    background: 'rgba(0,255,136,0.06)',
+                    border: '1px solid rgba(0,255,136,0.25)',
+                    borderRadius: '12px', minWidth: '130px',
+                  }}>
+                    <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 800, marginBottom: '6px', letterSpacing: '1px' }}>VERDICT BENAR</div>
+                    <div style={{ fontWeight: 800, fontSize: '15px', color: 'var(--accent)' }}>MISLEADING ⚠️</div>
+                  </div>
+                </div>
+
+                <div style={{
+                  padding: '14px', background: 'rgba(0,255,136,0.04)',
+                  border: '1px solid var(--game-border-accent)', borderRadius: '10px',
+                  fontSize: '13px', lineHeight: 1.7, color: 'rgba(255,255,255,0.8)',
+                }}
+                  dangerouslySetInnerHTML={{ __html: `<strong>Penjelasan:</strong> ${VERDICT_EXPLANATION}` }}
+                />
+              </motion.div>
+
+              {/* ── Ringkasan Investigasi ── */}
+              <motion.div
+                className="game-card"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+              >
+                <div style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 800, letterSpacing: '1.5px', marginBottom: '12px' }}>
+                  📌 RINGKASAN INVESTIGASI
+                </div>
+                <p style={{ margin: '0 0 10px', fontSize: '13px', lineHeight: 1.75, color: 'rgba(255,255,255,0.82)' }}>
+                  Dalam investigasi ini, kamu menganalisis data <em>screen time</em> dari <strong>35 siswa</strong> untuk memverifikasi klaim viral:{' '}
+                  <em>&quot;Remaja Indonesia rata-rata habiskan &gt;8 jam/hari di medsos.&quot;</em>
+                </p>
+                <p style={{ margin: '0 0 10px', fontSize: '13px', lineHeight: 1.75, color: 'rgba(255,255,255,0.82)' }}>
+                  Setelah menyusun <strong>histogram distribusi frekuensi</strong> dan menghitung statistik dasar, ditemukan bahwa nilai mean sebenarnya jauh di bawah 8 jam. Klaim tersebut terbukti{' '}
+                  <strong style={{ color: 'var(--warning)' }}>MISLEADING</strong> — angka yang digunakan dalam berita distorsi oleh data ekstrem (outlier).
+                </p>
+                <p style={{ margin: 0, fontSize: '13px', lineHeight: 1.75, color: 'rgba(255,255,255,0.82)' }}>
+                  Ini adalah contoh nyata <strong>sampling bias</strong> dan manipulasi statistik dalam berita viral. Kemampuan membaca data seperti ini adalah senjata utama seorang detektif literasi digital!
+                </p>
+              </motion.div>
+
+              {/* ── Download Buku Saku ── */}
+              <motion.div
+                className="game-card"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+                style={{
+                  background: 'linear-gradient(135deg, rgba(0,255,136,0.06) 0%, rgba(0,180,200,0.06) 100%)',
+                  border: '1px solid rgba(0,255,136,0.2)',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+                  <div style={{ flex: 1, minWidth: '200px' }}>
+                    <div style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 800, letterSpacing: '1.5px', marginBottom: '6px' }}>
+                      📖 BUKU SAKU DETEKTIF
+                    </div>
+                    <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.7)', lineHeight: 1.5 }}>
+                      Simpan rangkuman konsep statistika, rumus kunci, dan tips membaca data sebagai referensimu!
+                    </p>
+                  </div>
+                  <motion.button
+                    whileHover={{ scale: 1.04 }}
+                    whileTap={{ scale: 0.96 }}
+                    onClick={handleDownloadBukuSaku}
+                    style={{
+                      flexShrink: 0,
+                      padding: '12px 22px',
+                      borderRadius: '12px',
+                      border: 'none',
+                      background: 'linear-gradient(90deg, #00FF88, #06B6D4)',
+                      color: '#000',
+                      fontSize: '13px',
+                      fontWeight: 800,
+                      cursor: 'pointer',
+                      boxShadow: '0 4px 20px rgba(0,255,136,0.35)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                    }}
                   >
-                    <div style={{ fontSize: '32px', marginBottom: '6px' }}>{badge.icon}</div>
-                    <div style={{ fontSize: '12px', fontWeight: 800, color: 'var(--accent)' }}>{badge.name}</div>
-                    <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px' }}>{badge.desc}</div>
-                  </motion.div>
-                ))}
-              </div>
+                    ⬇ Download PNG
+                  </motion.button>
+                </div>
+              </motion.div>
+
+              {/* ── Action — Kembali ke Lobby ── */}
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+                style={{ display: 'flex', justifyContent: 'center', paddingTop: '8px' }}
+              >
+                <motion.button
+                  className="game-btn game-btn-primary"
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => router.push('/siswa')}
+                  style={{ padding: '14px 40px', fontSize: '15px', fontWeight: 800, borderRadius: '14px' }}
+                >
+                  ← Kembali ke Dashboard
+                </motion.button>
+              </motion.div>
+
             </motion.div>
           )}
         </AnimatePresence>
-
-        {/* ── Verdict analysis ── */}
-        <motion.div
-          className="game-card"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
-          style={{ marginBottom: '24px' }}
-        >
-          <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '1px', marginBottom: '16px' }}>
-            🔍 ANALISIS VERDICT
-          </div>
-
-          <div style={{ display: 'flex', gap: '12px', marginBottom: '16px', flexWrap: 'wrap' }}>
-            <div style={{ flex: 1, padding: '14px', background: 'rgba(255,255,255,0.03)', borderRadius: '12px', minWidth: '140px' }}>
-              <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 700, marginBottom: '6px' }}>VERDICTMU</div>
-              <div style={{ fontWeight: 800, fontSize: '16px', color: isCorrect ? 'var(--accent)' : 'var(--danger)' }}>
-                {store.verdictAnswer ?? '—'} {isCorrect ? '✅' : '❌'}
-              </div>
-            </div>
-            <div style={{ flex: 1, padding: '14px', background: 'rgba(0,255,136,0.06)', borderRadius: '12px', border: '1px solid var(--game-border-accent)', minWidth: '140px' }}>
-              <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 700, marginBottom: '6px' }}>VERDICT BENAR</div>
-              <div style={{ fontWeight: 800, fontSize: '16px', color: 'var(--accent)' }}>MISLEADING ⚠️</div>
-            </div>
-          </div>
-
-          <div style={{ padding: '16px', background: 'rgba(0,255,136,0.04)', border: '1px solid var(--game-border-accent)', borderRadius: '12px', fontSize: '14px', lineHeight: 1.7, color: 'rgba(255,255,255,0.8)' }}
-            dangerouslySetInnerHTML={{ __html: `<strong>Penjelasan:</strong> ${VERDICT_EXPLANATION}` }}
-          />
-        </motion.div>
-
-        {/* ── Summary text ── */}
-        <motion.div
-          className="game-card"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.7 }}
-          style={{ marginBottom: '32px' }}
-        >
-          <div style={{ fontSize: '12px', color: 'var(--accent)', fontWeight: 700, letterSpacing: '1px', marginBottom: '12px' }}>
-            📌 RINGKASAN INVESTIGASI
-          </div>
-          <p style={{ margin: 0, fontSize: '14px', lineHeight: 1.8, color: 'rgba(255,255,255,0.8)' }}>
-            Kamu berhasil mengungkap bahwa klaim &quot;95% siswa SMA setuju sekolah diliburkan&quot; adalah <strong style={{ color: 'var(--warning)' }}>MISLEADING</strong> karena data yang dianalisis adalah jumlah <em>share per jam</em>, bukan hasil survei opini siswa. Ini adalah contoh nyata <strong>sampling bias</strong> dalam klaim statistik yang viral di media sosial.
-          </p>
-        </motion.div>
-
-        {/* ── Actions ── */}
-        <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
-          <button className="game-btn game-btn-primary" onClick={() => router.push('/siswa/game/lobby')}>
-            ← Kembali ke Lobby
-          </button>
-          <button className="game-btn game-btn-secondary" onClick={() => { store.resetLevel(); router.push('/siswa/game/level/1') }}>
-            🔄 Main Lagi
-          </button>
-          <button className="game-btn game-btn-secondary" onClick={() => router.push('/siswa')}>
-            Dashboard
-          </button>
-        </div>
 
       </div>
     </div>

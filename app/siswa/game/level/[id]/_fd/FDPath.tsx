@@ -114,8 +114,8 @@ export default function FDPath() {
     <div
       className={step === 0 ? 'tahap-a-fullscreen tahap-a-container' : undefined}
       style={step === 0 
-        ? undefined
-        : { maxWidth: '820px', margin: '0 auto', padding: '24px 16px', paddingBottom: '120px' }}
+        ? { position: 'relative' }
+        : { maxWidth: '820px', margin: '0 auto', padding: '24px 16px', paddingBottom: '120px', position: 'relative' }}
     >
 
       {/* Step indicator */}

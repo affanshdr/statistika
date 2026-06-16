@@ -93,14 +93,6 @@ export default function GameHeader({ timerRunning = true, isBlurred = false }: G
           </div>
         </div>
 
-        {/* Center: XP */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          {/* XP */}
-          <div className="game-header-xp">
-            <span style={{ fontSize: '13px' }}>⚡</span>
-            <span className="game-header-xp-value">{xp} XP</span>
-          </div>
-        </div>
 
         {/* Right: Timer */}
         <div className={`game-header-timer ${isUrgent ? 'urgent' : ''}`}>

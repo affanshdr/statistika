@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 
 interface DiRAProps {
@@ -42,9 +43,19 @@ function TypewriterText({ text, onDone }: { text: string; onDone: () => void }) 
 }
 
 export default function DiRA({ message, onDismiss, showAvatar = true }: DiRAProps) {
+  const [mounted, setMounted] = useState(false)
   const [visible, setVisible] = useState(false)
   const [typewriterDone, setTypewriterDone] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
+  // Portal target: prefer .game-root (fills full viewport without position:fixed issues)
+  // Falls back to document.body if game-root not found.
+  const [portalTarget, setPortalTarget] = useState<Element | null>(null)
+
+  useEffect(() => {
+    const target = document.querySelector('.game-root') ?? document.body
+    setPortalTarget(target)
+    setMounted(true)
+  }, [])
 
   // Track viewport size for mobile scaling
   useEffect(() => {
@@ -65,11 +76,13 @@ export default function DiRA({ message, onDismiss, showAvatar = true }: DiRAProp
     setTimeout(() => onDismiss?.(), 350)
   }, [onDismiss])
 
-  return (
+  if (!mounted || !portalTarget) return null
+
+  const overlay = (
     <AnimatePresence>
       {visible && (
         <>
-          {/* Backdrop scrim - absolute relative to parent */}
+          {/* Full-game backdrop — position:absolute fills .game-root which spans full viewport */}
           <motion.div
             key="dira-scrim"
             initial={{ opacity: 0 }}
@@ -78,32 +91,30 @@ export default function DiRA({ message, onDismiss, showAvatar = true }: DiRAProp
             transition={{ duration: 0.2 }}
             onClick={dismiss}
             style={{
-              position: 'absolute',
+              position: 'fixed',
               inset: 0,
               zIndex: 500,
-              background: 'rgba(0,0,0,0.65)',
-              backdropFilter: 'blur(3px)',
-              WebkitBackdropFilter: 'blur(3px)',
-              borderRadius: '14px',
+              background: 'rgba(0, 0, 0, 0.65)',
+              backdropFilter: 'blur(4px)',
+              WebkitBackdropFilter: 'blur(4px)',
             }}
           />
 
-          {/* Dialogue Panel Overlay - absolute bottom relative to parent card */}
+          {/* Dialogue panel — anchored to bottom of game-root */}
           <motion.div
             key="dira-panel"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
-            transition={{ duration: 0.4 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
             style={{
-              position: 'absolute',
-              bottom: 0,
-              left: 0,
-              right: 0,
+              position: 'fixed',
+              bottom: isMobile ? '12px' : '24px',
+              left: isMobile ? '12px' : '24px',
+              right: isMobile ? '12px' : '24px',
               zIndex: 501,
               display: 'flex',
               flexDirection: 'column',
-              boxSizing: 'border-box',
             }}
           >
             {/* Name tag tab */}
@@ -117,7 +128,7 @@ export default function DiRA({ message, onDismiss, showAvatar = true }: DiRAProp
               borderRadius: '6px 14px 0 0',
               padding: '4px 16px',
               color: 'var(--accent)',
-              fontSize: 'clamp(11px, 1.8vh, 13px)',
+              fontSize: isMobile ? '11px' : '13px',
               fontWeight: 800,
               letterSpacing: '1px',
               display: 'flex',
@@ -128,7 +139,7 @@ export default function DiRA({ message, onDismiss, showAvatar = true }: DiRAProp
               position: 'relative',
               zIndex: 2,
             }}>
-              <span>👤</span>
+              <span style={{ fontSize: '13px' }}>👤</span>
               <span>ASISTEN DIRA</span>
             </div>
 
@@ -137,21 +148,21 @@ export default function DiRA({ message, onDismiss, showAvatar = true }: DiRAProp
               background: 'rgba(10, 20, 18, 0.95)',
               border: '2px solid rgba(0, 255, 136, 0.4)',
               borderRadius: '0px 14px 14px 14px',
-              padding: 'clamp(14px, 2.5vh, 20px) clamp(16px, 3vw, 24px) clamp(12px, 2vh, 18px)',
+              padding: isMobile ? '14px 18px' : '20px 24px',
               boxShadow: '0 10px 25px rgba(0, 255, 136, 0.1), inset 0 0 20px rgba(0, 255, 136, 0.03)',
               display: 'flex',
               flexDirection: 'column',
-              gap: '12px',
+              justifyContent: 'space-between',
+              minHeight: isMobile ? '95px' : '115px',
               boxSizing: 'border-box',
               position: 'relative',
-              minHeight: 'clamp(95px, 18vh, 130px)',
             }}>
-              {/* Agent Sprite Character */}
+              {/* Agent Sprite Character — floats above the text box */}
               <div style={{
                 position: 'absolute',
                 bottom: 'calc(100% - 2px)',
-                right: 'clamp(12px, 3vw, 28px)',
-                height: 'clamp(110px, 22vh, 190px)',
+                right: isMobile ? '8px' : '24px',
+                height: isMobile ? '120px' : '190px',
                 zIndex: 5,
                 display: 'flex',
                 flexDirection: 'column',
@@ -161,7 +172,7 @@ export default function DiRA({ message, onDismiss, showAvatar = true }: DiRAProp
                 <motion.img
                   initial={{ opacity: 0, y: 50 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ type: 'spring', stiffness: 100, damping: 15, delay: 0.1 }}
+                  transition={{ type: 'spring', stiffness: 100, damping: 15 }}
                   src="https://tmdbqikqflbeqaqllxge.supabase.co/storage/v1/object/public/Asset/Agent.png"
                   onError={(e) => { e.currentTarget.src = '/dira-avatar.png' }}
                   alt="Agent DIRA"
@@ -172,24 +183,24 @@ export default function DiRA({ message, onDismiss, showAvatar = true }: DiRAProp
                 <motion.div
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
-                  transition={{ delay: 0.6, type: 'spring' }}
+                  transition={{ delay: 0.5, type: 'spring' }}
                   style={{
                     position: 'absolute',
                     top: '8%',
-                    right: 'clamp(-28px, -4vw, -38px)',
+                    right: isMobile ? '-22px' : '-32px',
                     background: 'rgba(10, 20, 15, 0.95)',
                     border: '2px solid var(--accent)',
                     borderRadius: '50%',
-                    padding: 'clamp(4px, 0.8vh, 6px) clamp(8px, 1.5vw, 12px)',
+                    padding: isMobile ? '3px 8px' : '5px 11px',
                     fontWeight: 900,
-                    fontSize: 'clamp(11px, 1.8vh, 15px)',
+                    fontSize: isMobile ? '11px' : '14px',
                     color: 'var(--accent)',
                     transform: 'rotate(12deg)',
                     boxShadow: '3px 3px 0px rgba(0, 255, 136, 0.3)',
                     fontFamily: '"Impact", "Arial Black", sans-serif',
                     letterSpacing: '0.5px',
                     zIndex: 6,
-                    animation: 'pulse-go-pregame 1s infinite alternate',
+                    animation: 'dira-pulse-go 1s infinite alternate',
                   }}
                 >
                   Go!
@@ -199,11 +210,11 @@ export default function DiRA({ message, onDismiss, showAvatar = true }: DiRAProp
               {/* Dialog text */}
               <p style={{
                 margin: 0,
-                fontSize: 'clamp(12px, 2vh, 15px)',
+                fontSize: isMobile ? '13px' : '15px',
                 color: 'rgba(255,255,255,0.9)',
                 fontWeight: 600,
                 lineHeight: 1.65,
-                paddingRight: 'clamp(95px, 18vw, 165px)',
+                paddingRight: isMobile ? '110px' : '160px',
               }}>
                 <TypewriterText text={message} onDone={() => setTypewriterDone(true)} />
               </p>
@@ -213,10 +224,11 @@ export default function DiRA({ message, onDismiss, showAvatar = true }: DiRAProp
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
+                marginTop: '12px',
                 borderTop: '1px solid rgba(255,255,255,0.08)',
                 paddingTop: '10px',
               }}>
-                <span style={{ fontSize: 'clamp(10px, 1.6vh, 12px)', color: 'rgba(255,255,255,0.3)', fontWeight: 600 }}>
+                <span style={{ fontSize: isMobile ? '10px' : '12px', color: 'rgba(255,255,255,0.3)', fontWeight: 600 }}>
                   Level 1 — Analisis Berita
                 </span>
                 <motion.button
@@ -226,8 +238,8 @@ export default function DiRA({ message, onDismiss, showAvatar = true }: DiRAProp
                   transition={{ delay: 0.1 }}
                   onClick={() => typewriterDone && dismiss()}
                   style={{
-                    fontSize: 'clamp(11px, 1.8vh, 13px)',
-                    padding: 'clamp(6px, 1vh, 8px) clamp(16px, 2.5vw, 22px)',
+                    fontSize: isMobile ? '12px' : '13px',
+                    padding: isMobile ? '6px 16px' : '8px 22px',
                     borderRadius: '7px',
                     fontWeight: 800,
                     display: 'flex',
@@ -248,7 +260,7 @@ export default function DiRA({ message, onDismiss, showAvatar = true }: DiRAProp
           </motion.div>
 
           <style>{`
-            @keyframes pulse-go-pregame {
+            @keyframes dira-pulse-go {
               0%, 100% { transform: rotate(12deg) scale(1); }
               50% { transform: rotate(12deg) scale(1.12); }
             }
@@ -261,4 +273,8 @@ export default function DiRA({ message, onDismiss, showAvatar = true }: DiRAProp
       )}
     </AnimatePresence>
   )
+
+  // Portal ke .game-root agar position:absolute mengisi seluruh game viewport
+  // (termasuk GameHeader), tanpa perlu position:fixed yang bermasalah di Android fullscreen.
+  return createPortal(overlay, portalTarget)
 }

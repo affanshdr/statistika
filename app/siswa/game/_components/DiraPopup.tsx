@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState, useCallback, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 
 // ── Types ──────────────────────────────────────────────────────────────────────
@@ -148,20 +149,44 @@ function DiraTypewriter({ text, onDone }: { text: string; onDone: () => void }) 
 }
 
 // ── Main component ─────────────────────────────────────────────────────────────
+// Renders via portal to .game-root — covers full game viewport (incl. GameHeader)
+// without needing position:fixed (which breaks in Android fullscreen mode).
 export default function DiraPopup({ step, autoDismissMs = 7000, onDismiss }: DiraPopupProps) {
+  const [mounted, setMounted] = useState(false)
   const [visible, setVisible] = useState(false)
-  const [progress, setProgress] = useState(0) // 0–100 for auto-dismiss bar
+  const [progress, setProgress] = useState(0)
   const [typewriterDone, setTypewriterDone] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+  // Portal to .game-root so position:absolute fills the full game viewport
+  const [portalTarget, setPortalTarget] = useState<Element | null>(null)
 
   const msg = DIRA_MESSAGES[step]
 
+  useEffect(() => {
+    const target = document.querySelector('.game-root') ?? document.body
+    setPortalTarget(target)
+    setMounted(true)
+  }, [])
+
+  // Responsive check
+  useEffect(() => {
+    if (!mounted || !portalTarget) return
+    const check = () => setIsMobile(window.innerWidth < 768)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [mounted, portalTarget])
+
   const dismiss = useCallback(() => {
     setVisible(false)
-    setTimeout(() => onDismiss?.(), 350) // wait for exit animation
+    setTimeout(() => onDismiss?.(), 350)
   }, [onDismiss])
 
-  // Mount with short delay so it feels like a notification "arriving"
+  // Mount with short delay
   useEffect(() => {
+    setVisible(false)
+    setProgress(0)
+    setTypewriterDone(false)
     const t = setTimeout(() => setVisible(true), 300)
     return () => clearTimeout(t)
   }, [step])
@@ -170,7 +195,7 @@ export default function DiraPopup({ step, autoDismissMs = 7000, onDismiss }: Dir
   useEffect(() => {
     if (!visible || autoDismissMs === 0 || !typewriterDone) return
 
-    const interval = 50 // tick every 50ms
+    const interval = 50
     const totalTicks = autoDismissMs / interval
     let tick = 0
 
@@ -186,30 +211,31 @@ export default function DiraPopup({ step, autoDismissMs = 7000, onDismiss }: Dir
     return () => clearInterval(id)
   }, [visible, autoDismissMs, dismiss, typewriterDone])
 
-  return (
+  if (!mounted || !portalTarget) return null
+
+  return createPortal(
     <AnimatePresence>
       {visible && (
         <>
-          {/* ── Backdrop scrim ── */}
+          {/* Backdrop — position:absolute fills .game-root = full game viewport */}
           <motion.div
-            key="dira-scrim"
+            key="dira-popup-scrim"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             onClick={dismiss}
             style={{
-              position: 'absolute',
+              position: 'fixed',
               inset: 0,
               zIndex: 500,
               background: 'rgba(0,0,0,0.65)',
-              backdropFilter: 'blur(3px)',
-              WebkitBackdropFilter: 'blur(3px)',
-              borderRadius: '14px',
+              backdropFilter: 'blur(4px)',
+              WebkitBackdropFilter: 'blur(4px)',
             }}
           />
 
-          {/* ── Dialogue panel (Cutscene style) ── */}
+          {/* ── Dialogue panel — anchored to bottom of game-root ── */}
           <motion.div
             key={`dira-popup-${step}`}
             initial={{ opacity: 0, y: 30 }}
@@ -217,14 +243,13 @@ export default function DiraPopup({ step, autoDismissMs = 7000, onDismiss }: Dir
             exit={{ opacity: 0, y: 20 }}
             transition={{ duration: 0.4 }}
             style={{
-              position: 'absolute',
-              bottom: 0,
-              left: 0,
-              right: 0,
+              position: 'fixed',
+              bottom: isMobile ? '12px' : '24px',
+              left: isMobile ? '12px' : '24px',
+              right: isMobile ? '12px' : '24px',
               zIndex: 501,
               display: 'flex',
               flexDirection: 'column',
-              boxSizing: 'border-box',
             }}
           >
             {/* Name tag tab */}
@@ -238,13 +263,16 @@ export default function DiraPopup({ step, autoDismissMs = 7000, onDismiss }: Dir
               borderRadius: '6px 14px 0 0',
               padding: '4px 16px',
               color: 'var(--accent)',
-              fontSize: 'clamp(11px, 1.8vh, 13px)',
+              fontSize: isMobile ? '11px' : '13px',
               fontWeight: 800,
               letterSpacing: '1px',
               display: 'flex',
               alignItems: 'center',
               gap: '6px',
               boxShadow: '0 -4px 10px rgba(0,0,0,0.15)',
+              marginBottom: '-2px',
+              position: 'relative',
+              zIndex: 2,
             }}>
               <span>👤</span>
               <span>ASISTEN DIRA</span>
@@ -302,12 +330,12 @@ export default function DiraPopup({ step, autoDismissMs = 7000, onDismiss }: Dir
                 </div>
               )}
 
-              {/* ── Agent Image (Cutscene style) ── */}
+              {/* ── Agent Image ── */}
               <div style={{
                 position: 'absolute',
                 bottom: 'calc(100% - 2px)',
-                right: 'clamp(12px, 3vw, 28px)',
-                height: 'clamp(110px, 22vh, 190px)',
+                right: isMobile ? '8px' : '24px',
+                height: isMobile ? '120px' : '190px',
                 zIndex: 5,
                 display: 'flex',
                 flexDirection: 'column',
@@ -331,13 +359,13 @@ export default function DiraPopup({ step, autoDismissMs = 7000, onDismiss }: Dir
                   style={{
                     position: 'absolute',
                     top: '8%',
-                    right: 'clamp(-28px, -4vw, -38px)',
+                    right: isMobile ? '-22px' : '-32px',
                     background: 'rgba(10, 20, 15, 0.95)',
                     border: '2px solid var(--accent)',
                     borderRadius: '50%',
-                    padding: 'clamp(4px, 0.8vh, 6px) clamp(8px, 1.5vw, 12px)',
+                    padding: isMobile ? '3px 8px' : '5px 11px',
                     fontWeight: 900,
-                    fontSize: 'clamp(11px, 1.8vh, 15px)',
+                    fontSize: isMobile ? '11px' : '14px',
                     color: 'var(--accent)',
                     transform: 'rotate(12deg)',
                     boxShadow: '3px 3px 0px rgba(0, 255, 136, 0.3)',
@@ -354,11 +382,11 @@ export default function DiraPopup({ step, autoDismissMs = 7000, onDismiss }: Dir
               {/* Dialog text */}
               <p style={{
                 margin: 0,
-                fontSize: 'clamp(12px, 2vh, 15px)',
+                fontSize: isMobile ? '13px' : '15px',
                 color: 'rgba(255,255,255,0.9)',
                 fontWeight: 600,
                 lineHeight: 1.65,
-                paddingRight: 'clamp(95px, 18vw, 165px)',
+                paddingRight: isMobile ? '110px' : '160px',
               }}>
                 <span style={{ marginRight: '6px' }}>{msg.emoji}</span>
                 <DiraTypewriter text={msg.body} onDone={() => setTypewriterDone(true)} />
@@ -371,8 +399,9 @@ export default function DiraPopup({ step, autoDismissMs = 7000, onDismiss }: Dir
                 alignItems: 'center',
                 borderTop: '1px solid rgba(255,255,255,0.08)',
                 paddingTop: '10px',
+                marginTop: '12px',
               }}>
-                <span style={{ fontSize: 'clamp(10px, 1.6vh, 12px)', color: 'rgba(255,255,255,0.3)', fontWeight: 600 }}>
+                <span style={{ fontSize: isMobile ? '10px' : '12px', color: 'rgba(255,255,255,0.3)', fontWeight: 600 }}>
                   Persiapan Statistik — {msg.title}
                 </span>
                 <motion.button
@@ -382,8 +411,8 @@ export default function DiraPopup({ step, autoDismissMs = 7000, onDismiss }: Dir
                   transition={{ delay: 0.1 }}
                   onClick={() => typewriterDone && dismiss()}
                   style={{
-                    fontSize: 'clamp(11px, 1.8vh, 13px)',
-                    padding: 'clamp(6px, 1vh, 8px) clamp(16px, 2.5vw, 22px)',
+                    fontSize: isMobile ? '12px' : '13px',
+                    padding: isMobile ? '6px 16px' : '8px 22px',
                     borderRadius: '7px',
                     fontWeight: 800,
                     display: 'flex',
@@ -415,6 +444,7 @@ export default function DiraPopup({ step, autoDismissMs = 7000, onDismiss }: Dir
           `}</style>
         </>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    portalTarget
   )
 }

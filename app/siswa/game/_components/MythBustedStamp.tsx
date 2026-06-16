@@ -24,14 +24,23 @@ export default function MythBustedStamp({ onComplete }: MythBustedStampProps) {
       exit={{ opacity: 0 }}
       style={{
         position: 'fixed', inset: 0, zIndex: 999,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        flexDirection: 'column', gap: '24px',
+        display: 'flex', alignItems: 'flex-start', justifyContent: 'center',
+        flexDirection: 'column',
         background: 'rgba(3,7,18,0.92)',
         backdropFilter: 'blur(8px)',
         overflowY: 'auto',
-        padding: '40px 20px',
+        padding: '0',
       }}
     >
+      <div style={{
+        width: '100%',
+        minHeight: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '24px 20px',
+        boxSizing: 'border-box',
+      }}>
       <AnimatePresence mode="wait">
         {/* ── Phase 1: MYTH BUSTED Stamp ── */}
         {phase === 'stamp' && (
@@ -154,7 +163,7 @@ export default function MythBustedStamp({ onComplete }: MythBustedStampProps) {
               transition={{ delay: 2.2 }}
               style={{ fontSize: '12px', color: 'rgba(255,255,255,0.3)', margin: 0 }}
             >
-              Memuat pesan mentor...
+              DiRA sedang menyiapkan pesannya...
             </motion.p>
           </motion.div>
         )}
@@ -168,20 +177,29 @@ export default function MythBustedStamp({ onComplete }: MythBustedStampProps) {
             transition={{ duration: 0.5 }}
             style={{
               maxWidth: '560px', width: '100%',
-              display: 'flex', flexDirection: 'column', gap: '24px',
+              display: 'flex', flexDirection: 'column', gap: '16px',
               alignItems: 'center',
             }}
           >
-            {/* Mentor avatar + header */}
+            {/* DiRA avatar + header */}
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ type: 'spring', stiffness: 300, delay: 0.1 }}
-              style={{ textAlign: 'center' }}
+              style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}
             >
-              <div style={{ fontSize: '64px', marginBottom: '8px', lineHeight: 1 }}>🕵️</div>
+              {/* Agent DIRA image */}
+              <motion.img
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ type: 'spring', stiffness: 120, damping: 14, delay: 0.15 }}
+                src="https://tmdbqikqflbeqaqllxge.supabase.co/storage/v1/object/public/Asset/Agent.png"
+                onError={(e) => { e.currentTarget.src = '/dira-avatar.png' }}
+                alt="Agent DiRA"
+                style={{ height: '80px', objectFit: 'contain', filter: 'drop-shadow(0 0 16px rgba(0,255,136,0.4))' }}
+              />
               <div style={{ fontSize: '11px', color: '#00FF88', fontWeight: 800, letterSpacing: '2px' }}>
-                PESAN DARI MENTOR
+                PESAN DARI DIRA
               </div>
             </motion.div>
 
@@ -194,21 +212,21 @@ export default function MythBustedStamp({ onComplete }: MythBustedStampProps) {
                 background: 'rgba(0,255,136,0.04)',
                 border: '1px solid rgba(0,255,136,0.25)',
                 borderRadius: '20px',
-                padding: '24px 28px',
+                padding: '16px 20px',
                 width: '100%',
               }}
             >
-              <p style={{ margin: '0 0 12px', fontSize: '15px', fontWeight: 800, color: '#00FF88' }}>
+              <p style={{ margin: '0 0 8px', fontSize: '14px', fontWeight: 800, color: '#00FF88' }}>
                 🎉 &quot;Luar biasa, Detektif!
               </p>
-              <p style={{ margin: '0 0 14px', fontSize: '14px', color: 'rgba(255,255,255,0.85)', lineHeight: 1.7 }}>
+              <p style={{ margin: '0 0 8px', fontSize: '13px', color: 'rgba(255,255,255,0.85)', lineHeight: 1.6 }}>
                 Kamu baru saja menyelamatkan linimasa dari hoaks! Analisismu membuktikan bahwa mata kita sering ditipu oleh angka rata-rata yang dimanipulasi oleh data ekstrem (outlier).
               </p>
-              <p style={{ margin: '0 0 14px', fontSize: '14px', color: 'rgba(255,255,255,0.85)', lineHeight: 1.7 }}>
+              <p style={{ margin: '0 0 8px', fontSize: '13px', color: 'rgba(255,255,255,0.85)', lineHeight: 1.6 }}>
                 Tapi, tahukah kamu apa <strong style={{ color: '#fff' }}>nama ilmiah</strong> dari bentuk grafik yang kamu buat tadi? Dan bagaimana outlier bisa{' '}
                 <strong style={{ color: '#fff' }}>merusak nilai rata-rata (mean)</strong> secara matematis?
               </p>
-              <p style={{ margin: 0, fontSize: '14px', color: 'rgba(255,255,255,0.85)', lineHeight: 1.7 }}>
+              <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.85)', lineHeight: 1.6 }}>
                 Sebelum kita lanjut ke Kasus Level 2, kamu wajib membuka{' '}
                 <strong style={{ color: '#00FF88' }}>&apos;Buku Saku Detektif&apos;</strong> di bawah ini untuk memperkuat senjata analisismu!&quot;
               </p>
@@ -240,6 +258,7 @@ export default function MythBustedStamp({ onComplete }: MythBustedStampProps) {
           </motion.div>
         )}
       </AnimatePresence>
+      </div>
     </motion.div>
   )
 }

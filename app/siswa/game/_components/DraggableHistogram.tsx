@@ -84,6 +84,9 @@ export default function DraggableHistogram({
   // isCompact → small bars + chip pool: any small screen (portrait OR landscape phone)
   const isCompact = isNarrow || isShortViewport || forceStack
 
+  // isUltraCompact → landscape phone specifically (short & wide)
+  const isUltraCompact = !isNarrow && isShortViewport && !forceStack
+
   const [dataPoints, setDataPoints] = useState<DataPoint[]>(() => initDataPoints(mode, readOnly))
   const [selectedPoint, setSelectedPoint] = useState<DataPoint | null>(null)
   const [flashError, setFlashError] = useState<number | null>(null)
@@ -273,10 +276,10 @@ export default function DraggableHistogram({
           - Desktop (!stackLayout, !isCompact): 40% (scatter needs breathing room)
         */}
         <div style={{
-          flex: stackLayout ? 'none' : isCompact ? '0 0 36%' : '0 0 40%',
+        flex: stackLayout ? 'none' : isUltraCompact ? '0 0 28%' : isCompact ? '0 0 36%' : '0 0 40%',
           height: stackLayout ? '160px' : '100%',
           display: 'flex', flexDirection: 'column',
-          padding: isCompact ? '6px 8px 6px' : '10px 12px 8px',
+          padding: isUltraCompact ? '4px 6px 4px' : isCompact ? '6px 8px 6px' : '10px 12px 8px',
           position: 'relative',
           borderRight: stackLayout ? 'none' : '1px solid rgba(255,255,255,0.06)',
           borderBottom: stackLayout ? '1px solid rgba(255,255,255,0.06)' : 'none',
@@ -306,7 +309,7 @@ export default function DraggableHistogram({
             // In chip mode we switch to flex layout
             display: isCompact ? 'flex' : 'block',
             flexWrap: isCompact ? 'wrap' : undefined,
-            gap: isCompact ? '4px' : undefined,
+            gap: isUltraCompact ? '3px' : isCompact ? '4px' : undefined,
             alignContent: isCompact ? 'flex-start' : undefined,
             padding: isCompact ? '2px 0' : undefined,
           }}>
@@ -366,14 +369,14 @@ export default function DraggableHistogram({
                       style={{
                         // flex-item sizing
                         flexShrink: 0,
-                        padding: '4px 10px',
+                        padding: isUltraCompact ? '3px 7px' : '4px 10px',
                         borderRadius: '50px',
                         background: isSelected
                           ? `linear-gradient(135deg, ${col} 0%, #fff 130%)`
                           : `linear-gradient(135deg, ${col}dd 0%, ${col}88 100%)`,
                         border: isSelected ? '2px solid #fff' : `1.5px solid ${col}66`,
                         color: isSelected ? '#000' : '#fff',
-                        fontSize: '11px',
+                        fontSize: isUltraCompact ? '10px' : '11px',
                         fontWeight: 800,
                         cursor: 'grab',
                         userSelect: 'none',
@@ -389,7 +392,7 @@ export default function DraggableHistogram({
                         fontFamily: 'var(--font-data)',
                         whiteSpace: 'nowrap',
                         transition: 'box-shadow 0.15s, background 0.15s, border 0.15s',
-                        minWidth: '28px',
+                        minWidth: isUltraCompact ? '24px' : '28px',
                         textAlign: 'center',
                       }}
                     >
@@ -487,19 +490,21 @@ export default function DraggableHistogram({
           flex: 1,
           height: stackLayout ? '330px' : '100%',
           display: 'flex', flexDirection: 'column',
-          padding: isCompact ? '6px 6px 3px 24px' : '10px 10px 4px 30px',
+          padding: isUltraCompact ? '4px 4px 2px 8px' : isCompact ? '6px 6px 3px 24px' : '10px 10px 4px 30px',
           position: 'relative',
         }}>
 
-          {/* Y-axis label */}
-          <div style={{
-            position: 'absolute', left: 2, top: '50%',
-            transform: 'translateY(-50%) rotate(-90deg)',
-            fontSize: '7px', color: 'rgba(255,255,255,0.25)',
-            fontWeight: 800, letterSpacing: '1.5px', whiteSpace: 'nowrap',
-          }}>
-            FREKUENSI
-          </div>
+          {/* Y-axis label — hidden on ultraCompact (landscape phone) to save space */}
+          {!isUltraCompact && (
+            <div style={{
+              position: 'absolute', left: 2, top: '50%',
+              transform: 'translateY(-50%) rotate(-90deg)',
+              fontSize: '7px', color: 'rgba(255,255,255,0.25)',
+              fontWeight: 800, letterSpacing: '1.5px', whiteSpace: 'nowrap',
+            }}>
+              FREKUENSI
+            </div>
+          )}
 
           {/* Bar columns */}
           <div style={{
@@ -611,13 +616,13 @@ export default function DraggableHistogram({
                           transition={{ type: 'spring', stiffness: 320, damping: 22 }}
                           style={{
                             width: '100%',
-                            height: isCompact ? 'calc((100% - 22px) / 13)' : 'calc((100% - 38px) / 13)',
+                            height: isUltraCompact ? 'calc((100% - 16px) / 13)' : isCompact ? 'calc((100% - 22px) / 13)' : 'calc((100% - 38px) / 13)',
                             flexShrink: 0,
                             background: `linear-gradient(180deg, ${col}cc 0%, ${col}88 100%)`,
                             border: `1px solid ${col}44`,
                             borderRadius: '0px',
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            fontSize: isCompact ? '7.5px' : '8px',
+                            fontSize: isUltraCompact ? '6.5px' : isCompact ? '7.5px' : '8px',
                             fontWeight: 800,
                             color: '#fff',
                           }}
