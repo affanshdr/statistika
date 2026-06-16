@@ -170,6 +170,15 @@ exports.Prisma.LeaderboardScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.ChatbotKnowledgeScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  content: 'content',
+  category: 'category',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -199,7 +208,8 @@ exports.Prisma.ModelName = {
   Student: 'Student',
   GeftResult: 'GeftResult',
   GameSession: 'GameSession',
-  Leaderboard: 'Leaderboard'
+  Leaderboard: 'Leaderboard',
+  ChatbotKnowledge: 'ChatbotKnowledge'
 };
 
 /**

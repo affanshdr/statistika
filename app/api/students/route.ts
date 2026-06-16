@@ -13,6 +13,23 @@ async function generateUniqueNisn(): Promise<string> {
   return nisn
 }
 
+export async function GET(req: NextRequest) {
+  try {
+    const students = await prisma.student.findMany({
+      include: {
+        classroom: true,
+        geftResult: true,
+        leaderboard: true
+      },
+      orderBy: { createdAt: 'desc' }
+    })
+    return NextResponse.json(students)
+  } catch (error) {
+    console.error(error)
+    return NextResponse.json({ error: 'Gagal memproses data siswa' }, { status: 500 })
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
     const { name, classroomId } = await req.json()

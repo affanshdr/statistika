@@ -469,7 +469,29 @@ export default function HomePage() {
                     </div>
 
                     {/* Kelas */}
-                    {classrooms.length > 1 ? (
+                    {loadingClass ? (
+                      <div>
+                        <label style={{ display: 'block', fontSize: '10px', fontWeight: 800, color: 'rgba(255,255,255,0.4)', letterSpacing: '2px', marginBottom: '8px' }}>
+                          UNIT / KELAS
+                        </label>
+                        <div style={{
+                          padding: '14px 16px 14px 44px', borderRadius: '12px',
+                          background: 'rgba(255,255,255,0.03)',
+                          border: '1px solid rgba(255,255,255,0.08)',
+                          display: 'flex', alignItems: 'center', gap: '10px',
+                          position: 'relative',
+                        }}>
+                          <span style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', fontSize: '18px' }}>🏛️</span>
+                          <motion.span
+                            animate={{ opacity: [0.4, 1, 0.4] }}
+                            transition={{ duration: 1.2, repeat: Infinity }}
+                            style={{ fontSize: '13px', color: 'rgba(255,255,255,0.35)' }}
+                          >
+                            Memuat daftar kelas...
+                          </motion.span>
+                        </div>
+                      </div>
+                    ) : classrooms.length > 1 ? (
                       <div>
                         <label style={{ display: 'block', fontSize: '10px', fontWeight: 800, color: 'rgba(255,255,255,0.4)', letterSpacing: '2px', marginBottom: '8px' }}>
                           UNIT / KELAS
@@ -479,7 +501,6 @@ export default function HomePage() {
                             id="classroom-select"
                             value={classroomId}
                             onChange={e => setClassroomId(e.target.value)}
-                            disabled={loadingClass}
                             style={{
                               width: '100%', boxSizing: 'border-box',
                               padding: '14px 16px 14px 44px', borderRadius: '12px',
@@ -526,7 +547,17 @@ export default function HomePage() {
                         </div>
                         <span style={{ fontSize: '11px', color: '#00FF88', fontWeight: 800 }}>AUTO-SELECT</span>
                       </div>
-                    ) : null}
+                    ) : (
+                      <div style={{
+                        padding: '12px 16px', borderRadius: '12px',
+                        background: 'rgba(239,68,68,0.05)',
+                        border: '1px solid rgba(239,68,68,0.2)',
+                        fontSize: '13px', color: '#f87171',
+                        display: 'flex', alignItems: 'center', gap: '8px',
+                      }}>
+                        ⚠️ Tidak ada kelas tersedia. Hubungi guru.
+                      </div>
+                    )}
 
                     {/* Error */}
                     <AnimatePresence>
@@ -549,19 +580,19 @@ export default function HomePage() {
                     {/* Submit */}
                     <motion.button
                       onClick={handleMulaiBelajar}
-                      disabled={loading}
-                      whileHover={!loading ? { scale: 1.02, boxShadow: '0 0 30px rgba(0,255,136,0.5)' } : {}}
-                      whileTap={!loading ? { scale: 0.98 } : {}}
+                      disabled={loading || loadingClass}
+                      whileHover={!loading && !loadingClass ? { scale: 1.02, boxShadow: '0 0 30px rgba(0,255,136,0.5)' } : {}}
+                      whileTap={!loading && !loadingClass ? { scale: 0.98 } : {}}
                       style={{
                         width: '100%', padding: '16px',
                         borderRadius: '14px', border: 'none',
-                        background: loading
+                        background: loading || loadingClass
                           ? 'rgba(0,255,136,0.3)'
                           : 'linear-gradient(90deg, #00FF88 0%, #06b6d4 100%)',
                         color: '#000', fontSize: '15px', fontWeight: 900,
-                        cursor: loading ? 'not-allowed' : 'pointer',
+                        cursor: loading || loadingClass ? 'not-allowed' : 'pointer',
                         letterSpacing: '0.5px',
-                        boxShadow: loading ? 'none' : '0 4px 20px rgba(0,255,136,0.35)',
+                        boxShadow: loading || loadingClass ? 'none' : '0 4px 20px rgba(0,255,136,0.35)',
                         transition: 'background 0.2s',
                         marginTop: '4px',
                         display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',

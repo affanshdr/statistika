@@ -38,6 +38,11 @@ export type GameSession = $Result.DefaultSelection<Prisma.$GameSessionPayload>
  * 
  */
 export type Leaderboard = $Result.DefaultSelection<Prisma.$LeaderboardPayload>
+/**
+ * Model ChatbotKnowledge
+ * 
+ */
+export type ChatbotKnowledge = $Result.DefaultSelection<Prisma.$ChatbotKnowledgePayload>
 
 /**
  * Enums
@@ -240,6 +245,16 @@ export class PrismaClient<
     * ```
     */
   get leaderboard(): Prisma.LeaderboardDelegate<ExtArgs>;
+
+  /**
+   * `prisma.chatbotKnowledge`: Exposes CRUD operations for the **ChatbotKnowledge** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ChatbotKnowledges
+    * const chatbotKnowledges = await prisma.chatbotKnowledge.findMany()
+    * ```
+    */
+  get chatbotKnowledge(): Prisma.ChatbotKnowledgeDelegate<ExtArgs>;
 }
 
 export namespace Prisma {
@@ -685,7 +700,8 @@ export namespace Prisma {
     Student: 'Student',
     GeftResult: 'GeftResult',
     GameSession: 'GameSession',
-    Leaderboard: 'Leaderboard'
+    Leaderboard: 'Leaderboard',
+    ChatbotKnowledge: 'ChatbotKnowledge'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -701,7 +717,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "classroom" | "student" | "geftResult" | "gameSession" | "leaderboard"
+      modelProps: "classroom" | "student" | "geftResult" | "gameSession" | "leaderboard" | "chatbotKnowledge"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1052,6 +1068,76 @@ export namespace Prisma {
           count: {
             args: Prisma.LeaderboardCountArgs<ExtArgs>
             result: $Utils.Optional<LeaderboardCountAggregateOutputType> | number
+          }
+        }
+      }
+      ChatbotKnowledge: {
+        payload: Prisma.$ChatbotKnowledgePayload<ExtArgs>
+        fields: Prisma.ChatbotKnowledgeFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ChatbotKnowledgeFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ChatbotKnowledgePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ChatbotKnowledgeFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ChatbotKnowledgePayload>
+          }
+          findFirst: {
+            args: Prisma.ChatbotKnowledgeFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ChatbotKnowledgePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ChatbotKnowledgeFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ChatbotKnowledgePayload>
+          }
+          findMany: {
+            args: Prisma.ChatbotKnowledgeFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ChatbotKnowledgePayload>[]
+          }
+          create: {
+            args: Prisma.ChatbotKnowledgeCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ChatbotKnowledgePayload>
+          }
+          createMany: {
+            args: Prisma.ChatbotKnowledgeCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ChatbotKnowledgeCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ChatbotKnowledgePayload>[]
+          }
+          delete: {
+            args: Prisma.ChatbotKnowledgeDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ChatbotKnowledgePayload>
+          }
+          update: {
+            args: Prisma.ChatbotKnowledgeUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ChatbotKnowledgePayload>
+          }
+          deleteMany: {
+            args: Prisma.ChatbotKnowledgeDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ChatbotKnowledgeUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.ChatbotKnowledgeUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ChatbotKnowledgePayload>
+          }
+          aggregate: {
+            args: Prisma.ChatbotKnowledgeAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateChatbotKnowledge>
+          }
+          groupBy: {
+            args: Prisma.ChatbotKnowledgeGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ChatbotKnowledgeGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ChatbotKnowledgeCountArgs<ExtArgs>
+            result: $Utils.Optional<ChatbotKnowledgeCountAggregateOutputType> | number
           }
         }
       }
@@ -6262,6 +6348,896 @@ export namespace Prisma {
 
 
   /**
+   * Model ChatbotKnowledge
+   */
+
+  export type AggregateChatbotKnowledge = {
+    _count: ChatbotKnowledgeCountAggregateOutputType | null
+    _min: ChatbotKnowledgeMinAggregateOutputType | null
+    _max: ChatbotKnowledgeMaxAggregateOutputType | null
+  }
+
+  export type ChatbotKnowledgeMinAggregateOutputType = {
+    id: string | null
+    title: string | null
+    content: string | null
+    category: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ChatbotKnowledgeMaxAggregateOutputType = {
+    id: string | null
+    title: string | null
+    content: string | null
+    category: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ChatbotKnowledgeCountAggregateOutputType = {
+    id: number
+    title: number
+    content: number
+    category: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type ChatbotKnowledgeMinAggregateInputType = {
+    id?: true
+    title?: true
+    content?: true
+    category?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ChatbotKnowledgeMaxAggregateInputType = {
+    id?: true
+    title?: true
+    content?: true
+    category?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ChatbotKnowledgeCountAggregateInputType = {
+    id?: true
+    title?: true
+    content?: true
+    category?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type ChatbotKnowledgeAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ChatbotKnowledge to aggregate.
+     */
+    where?: ChatbotKnowledgeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ChatbotKnowledges to fetch.
+     */
+    orderBy?: ChatbotKnowledgeOrderByWithRelationInput | ChatbotKnowledgeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ChatbotKnowledgeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ChatbotKnowledges from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ChatbotKnowledges.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ChatbotKnowledges
+    **/
+    _count?: true | ChatbotKnowledgeCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ChatbotKnowledgeMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ChatbotKnowledgeMaxAggregateInputType
+  }
+
+  export type GetChatbotKnowledgeAggregateType<T extends ChatbotKnowledgeAggregateArgs> = {
+        [P in keyof T & keyof AggregateChatbotKnowledge]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateChatbotKnowledge[P]>
+      : GetScalarType<T[P], AggregateChatbotKnowledge[P]>
+  }
+
+
+
+
+  export type ChatbotKnowledgeGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ChatbotKnowledgeWhereInput
+    orderBy?: ChatbotKnowledgeOrderByWithAggregationInput | ChatbotKnowledgeOrderByWithAggregationInput[]
+    by: ChatbotKnowledgeScalarFieldEnum[] | ChatbotKnowledgeScalarFieldEnum
+    having?: ChatbotKnowledgeScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ChatbotKnowledgeCountAggregateInputType | true
+    _min?: ChatbotKnowledgeMinAggregateInputType
+    _max?: ChatbotKnowledgeMaxAggregateInputType
+  }
+
+  export type ChatbotKnowledgeGroupByOutputType = {
+    id: string
+    title: string
+    content: string
+    category: string
+    createdAt: Date
+    updatedAt: Date
+    _count: ChatbotKnowledgeCountAggregateOutputType | null
+    _min: ChatbotKnowledgeMinAggregateOutputType | null
+    _max: ChatbotKnowledgeMaxAggregateOutputType | null
+  }
+
+  type GetChatbotKnowledgeGroupByPayload<T extends ChatbotKnowledgeGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ChatbotKnowledgeGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ChatbotKnowledgeGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ChatbotKnowledgeGroupByOutputType[P]>
+            : GetScalarType<T[P], ChatbotKnowledgeGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ChatbotKnowledgeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    title?: boolean
+    content?: boolean
+    category?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["chatbotKnowledge"]>
+
+  export type ChatbotKnowledgeSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    title?: boolean
+    content?: boolean
+    category?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["chatbotKnowledge"]>
+
+  export type ChatbotKnowledgeSelectScalar = {
+    id?: boolean
+    title?: boolean
+    content?: boolean
+    category?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+
+  export type $ChatbotKnowledgePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ChatbotKnowledge"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      title: string
+      content: string
+      category: string
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["chatbotKnowledge"]>
+    composites: {}
+  }
+
+  type ChatbotKnowledgeGetPayload<S extends boolean | null | undefined | ChatbotKnowledgeDefaultArgs> = $Result.GetResult<Prisma.$ChatbotKnowledgePayload, S>
+
+  type ChatbotKnowledgeCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<ChatbotKnowledgeFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: ChatbotKnowledgeCountAggregateInputType | true
+    }
+
+  export interface ChatbotKnowledgeDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ChatbotKnowledge'], meta: { name: 'ChatbotKnowledge' } }
+    /**
+     * Find zero or one ChatbotKnowledge that matches the filter.
+     * @param {ChatbotKnowledgeFindUniqueArgs} args - Arguments to find a ChatbotKnowledge
+     * @example
+     * // Get one ChatbotKnowledge
+     * const chatbotKnowledge = await prisma.chatbotKnowledge.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ChatbotKnowledgeFindUniqueArgs>(args: SelectSubset<T, ChatbotKnowledgeFindUniqueArgs<ExtArgs>>): Prisma__ChatbotKnowledgeClient<$Result.GetResult<Prisma.$ChatbotKnowledgePayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one ChatbotKnowledge that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {ChatbotKnowledgeFindUniqueOrThrowArgs} args - Arguments to find a ChatbotKnowledge
+     * @example
+     * // Get one ChatbotKnowledge
+     * const chatbotKnowledge = await prisma.chatbotKnowledge.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ChatbotKnowledgeFindUniqueOrThrowArgs>(args: SelectSubset<T, ChatbotKnowledgeFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ChatbotKnowledgeClient<$Result.GetResult<Prisma.$ChatbotKnowledgePayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first ChatbotKnowledge that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ChatbotKnowledgeFindFirstArgs} args - Arguments to find a ChatbotKnowledge
+     * @example
+     * // Get one ChatbotKnowledge
+     * const chatbotKnowledge = await prisma.chatbotKnowledge.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ChatbotKnowledgeFindFirstArgs>(args?: SelectSubset<T, ChatbotKnowledgeFindFirstArgs<ExtArgs>>): Prisma__ChatbotKnowledgeClient<$Result.GetResult<Prisma.$ChatbotKnowledgePayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first ChatbotKnowledge that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ChatbotKnowledgeFindFirstOrThrowArgs} args - Arguments to find a ChatbotKnowledge
+     * @example
+     * // Get one ChatbotKnowledge
+     * const chatbotKnowledge = await prisma.chatbotKnowledge.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ChatbotKnowledgeFindFirstOrThrowArgs>(args?: SelectSubset<T, ChatbotKnowledgeFindFirstOrThrowArgs<ExtArgs>>): Prisma__ChatbotKnowledgeClient<$Result.GetResult<Prisma.$ChatbotKnowledgePayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more ChatbotKnowledges that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ChatbotKnowledgeFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ChatbotKnowledges
+     * const chatbotKnowledges = await prisma.chatbotKnowledge.findMany()
+     * 
+     * // Get first 10 ChatbotKnowledges
+     * const chatbotKnowledges = await prisma.chatbotKnowledge.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const chatbotKnowledgeWithIdOnly = await prisma.chatbotKnowledge.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ChatbotKnowledgeFindManyArgs>(args?: SelectSubset<T, ChatbotKnowledgeFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ChatbotKnowledgePayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a ChatbotKnowledge.
+     * @param {ChatbotKnowledgeCreateArgs} args - Arguments to create a ChatbotKnowledge.
+     * @example
+     * // Create one ChatbotKnowledge
+     * const ChatbotKnowledge = await prisma.chatbotKnowledge.create({
+     *   data: {
+     *     // ... data to create a ChatbotKnowledge
+     *   }
+     * })
+     * 
+     */
+    create<T extends ChatbotKnowledgeCreateArgs>(args: SelectSubset<T, ChatbotKnowledgeCreateArgs<ExtArgs>>): Prisma__ChatbotKnowledgeClient<$Result.GetResult<Prisma.$ChatbotKnowledgePayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many ChatbotKnowledges.
+     * @param {ChatbotKnowledgeCreateManyArgs} args - Arguments to create many ChatbotKnowledges.
+     * @example
+     * // Create many ChatbotKnowledges
+     * const chatbotKnowledge = await prisma.chatbotKnowledge.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ChatbotKnowledgeCreateManyArgs>(args?: SelectSubset<T, ChatbotKnowledgeCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ChatbotKnowledges and returns the data saved in the database.
+     * @param {ChatbotKnowledgeCreateManyAndReturnArgs} args - Arguments to create many ChatbotKnowledges.
+     * @example
+     * // Create many ChatbotKnowledges
+     * const chatbotKnowledge = await prisma.chatbotKnowledge.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ChatbotKnowledges and only return the `id`
+     * const chatbotKnowledgeWithIdOnly = await prisma.chatbotKnowledge.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ChatbotKnowledgeCreateManyAndReturnArgs>(args?: SelectSubset<T, ChatbotKnowledgeCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ChatbotKnowledgePayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a ChatbotKnowledge.
+     * @param {ChatbotKnowledgeDeleteArgs} args - Arguments to delete one ChatbotKnowledge.
+     * @example
+     * // Delete one ChatbotKnowledge
+     * const ChatbotKnowledge = await prisma.chatbotKnowledge.delete({
+     *   where: {
+     *     // ... filter to delete one ChatbotKnowledge
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ChatbotKnowledgeDeleteArgs>(args: SelectSubset<T, ChatbotKnowledgeDeleteArgs<ExtArgs>>): Prisma__ChatbotKnowledgeClient<$Result.GetResult<Prisma.$ChatbotKnowledgePayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one ChatbotKnowledge.
+     * @param {ChatbotKnowledgeUpdateArgs} args - Arguments to update one ChatbotKnowledge.
+     * @example
+     * // Update one ChatbotKnowledge
+     * const chatbotKnowledge = await prisma.chatbotKnowledge.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ChatbotKnowledgeUpdateArgs>(args: SelectSubset<T, ChatbotKnowledgeUpdateArgs<ExtArgs>>): Prisma__ChatbotKnowledgeClient<$Result.GetResult<Prisma.$ChatbotKnowledgePayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more ChatbotKnowledges.
+     * @param {ChatbotKnowledgeDeleteManyArgs} args - Arguments to filter ChatbotKnowledges to delete.
+     * @example
+     * // Delete a few ChatbotKnowledges
+     * const { count } = await prisma.chatbotKnowledge.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ChatbotKnowledgeDeleteManyArgs>(args?: SelectSubset<T, ChatbotKnowledgeDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ChatbotKnowledges.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ChatbotKnowledgeUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ChatbotKnowledges
+     * const chatbotKnowledge = await prisma.chatbotKnowledge.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ChatbotKnowledgeUpdateManyArgs>(args: SelectSubset<T, ChatbotKnowledgeUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one ChatbotKnowledge.
+     * @param {ChatbotKnowledgeUpsertArgs} args - Arguments to update or create a ChatbotKnowledge.
+     * @example
+     * // Update or create a ChatbotKnowledge
+     * const chatbotKnowledge = await prisma.chatbotKnowledge.upsert({
+     *   create: {
+     *     // ... data to create a ChatbotKnowledge
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ChatbotKnowledge we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ChatbotKnowledgeUpsertArgs>(args: SelectSubset<T, ChatbotKnowledgeUpsertArgs<ExtArgs>>): Prisma__ChatbotKnowledgeClient<$Result.GetResult<Prisma.$ChatbotKnowledgePayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of ChatbotKnowledges.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ChatbotKnowledgeCountArgs} args - Arguments to filter ChatbotKnowledges to count.
+     * @example
+     * // Count the number of ChatbotKnowledges
+     * const count = await prisma.chatbotKnowledge.count({
+     *   where: {
+     *     // ... the filter for the ChatbotKnowledges we want to count
+     *   }
+     * })
+    **/
+    count<T extends ChatbotKnowledgeCountArgs>(
+      args?: Subset<T, ChatbotKnowledgeCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ChatbotKnowledgeCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ChatbotKnowledge.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ChatbotKnowledgeAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ChatbotKnowledgeAggregateArgs>(args: Subset<T, ChatbotKnowledgeAggregateArgs>): Prisma.PrismaPromise<GetChatbotKnowledgeAggregateType<T>>
+
+    /**
+     * Group by ChatbotKnowledge.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ChatbotKnowledgeGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ChatbotKnowledgeGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ChatbotKnowledgeGroupByArgs['orderBy'] }
+        : { orderBy?: ChatbotKnowledgeGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ChatbotKnowledgeGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetChatbotKnowledgeGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ChatbotKnowledge model
+   */
+  readonly fields: ChatbotKnowledgeFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ChatbotKnowledge.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ChatbotKnowledgeClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ChatbotKnowledge model
+   */ 
+  interface ChatbotKnowledgeFieldRefs {
+    readonly id: FieldRef<"ChatbotKnowledge", 'String'>
+    readonly title: FieldRef<"ChatbotKnowledge", 'String'>
+    readonly content: FieldRef<"ChatbotKnowledge", 'String'>
+    readonly category: FieldRef<"ChatbotKnowledge", 'String'>
+    readonly createdAt: FieldRef<"ChatbotKnowledge", 'DateTime'>
+    readonly updatedAt: FieldRef<"ChatbotKnowledge", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ChatbotKnowledge findUnique
+   */
+  export type ChatbotKnowledgeFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ChatbotKnowledge
+     */
+    select?: ChatbotKnowledgeSelect<ExtArgs> | null
+    /**
+     * Filter, which ChatbotKnowledge to fetch.
+     */
+    where: ChatbotKnowledgeWhereUniqueInput
+  }
+
+  /**
+   * ChatbotKnowledge findUniqueOrThrow
+   */
+  export type ChatbotKnowledgeFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ChatbotKnowledge
+     */
+    select?: ChatbotKnowledgeSelect<ExtArgs> | null
+    /**
+     * Filter, which ChatbotKnowledge to fetch.
+     */
+    where: ChatbotKnowledgeWhereUniqueInput
+  }
+
+  /**
+   * ChatbotKnowledge findFirst
+   */
+  export type ChatbotKnowledgeFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ChatbotKnowledge
+     */
+    select?: ChatbotKnowledgeSelect<ExtArgs> | null
+    /**
+     * Filter, which ChatbotKnowledge to fetch.
+     */
+    where?: ChatbotKnowledgeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ChatbotKnowledges to fetch.
+     */
+    orderBy?: ChatbotKnowledgeOrderByWithRelationInput | ChatbotKnowledgeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ChatbotKnowledges.
+     */
+    cursor?: ChatbotKnowledgeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ChatbotKnowledges from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ChatbotKnowledges.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ChatbotKnowledges.
+     */
+    distinct?: ChatbotKnowledgeScalarFieldEnum | ChatbotKnowledgeScalarFieldEnum[]
+  }
+
+  /**
+   * ChatbotKnowledge findFirstOrThrow
+   */
+  export type ChatbotKnowledgeFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ChatbotKnowledge
+     */
+    select?: ChatbotKnowledgeSelect<ExtArgs> | null
+    /**
+     * Filter, which ChatbotKnowledge to fetch.
+     */
+    where?: ChatbotKnowledgeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ChatbotKnowledges to fetch.
+     */
+    orderBy?: ChatbotKnowledgeOrderByWithRelationInput | ChatbotKnowledgeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ChatbotKnowledges.
+     */
+    cursor?: ChatbotKnowledgeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ChatbotKnowledges from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ChatbotKnowledges.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ChatbotKnowledges.
+     */
+    distinct?: ChatbotKnowledgeScalarFieldEnum | ChatbotKnowledgeScalarFieldEnum[]
+  }
+
+  /**
+   * ChatbotKnowledge findMany
+   */
+  export type ChatbotKnowledgeFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ChatbotKnowledge
+     */
+    select?: ChatbotKnowledgeSelect<ExtArgs> | null
+    /**
+     * Filter, which ChatbotKnowledges to fetch.
+     */
+    where?: ChatbotKnowledgeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ChatbotKnowledges to fetch.
+     */
+    orderBy?: ChatbotKnowledgeOrderByWithRelationInput | ChatbotKnowledgeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ChatbotKnowledges.
+     */
+    cursor?: ChatbotKnowledgeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ChatbotKnowledges from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ChatbotKnowledges.
+     */
+    skip?: number
+    distinct?: ChatbotKnowledgeScalarFieldEnum | ChatbotKnowledgeScalarFieldEnum[]
+  }
+
+  /**
+   * ChatbotKnowledge create
+   */
+  export type ChatbotKnowledgeCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ChatbotKnowledge
+     */
+    select?: ChatbotKnowledgeSelect<ExtArgs> | null
+    /**
+     * The data needed to create a ChatbotKnowledge.
+     */
+    data: XOR<ChatbotKnowledgeCreateInput, ChatbotKnowledgeUncheckedCreateInput>
+  }
+
+  /**
+   * ChatbotKnowledge createMany
+   */
+  export type ChatbotKnowledgeCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ChatbotKnowledges.
+     */
+    data: ChatbotKnowledgeCreateManyInput | ChatbotKnowledgeCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ChatbotKnowledge createManyAndReturn
+   */
+  export type ChatbotKnowledgeCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ChatbotKnowledge
+     */
+    select?: ChatbotKnowledgeSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many ChatbotKnowledges.
+     */
+    data: ChatbotKnowledgeCreateManyInput | ChatbotKnowledgeCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ChatbotKnowledge update
+   */
+  export type ChatbotKnowledgeUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ChatbotKnowledge
+     */
+    select?: ChatbotKnowledgeSelect<ExtArgs> | null
+    /**
+     * The data needed to update a ChatbotKnowledge.
+     */
+    data: XOR<ChatbotKnowledgeUpdateInput, ChatbotKnowledgeUncheckedUpdateInput>
+    /**
+     * Choose, which ChatbotKnowledge to update.
+     */
+    where: ChatbotKnowledgeWhereUniqueInput
+  }
+
+  /**
+   * ChatbotKnowledge updateMany
+   */
+  export type ChatbotKnowledgeUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ChatbotKnowledges.
+     */
+    data: XOR<ChatbotKnowledgeUpdateManyMutationInput, ChatbotKnowledgeUncheckedUpdateManyInput>
+    /**
+     * Filter which ChatbotKnowledges to update
+     */
+    where?: ChatbotKnowledgeWhereInput
+  }
+
+  /**
+   * ChatbotKnowledge upsert
+   */
+  export type ChatbotKnowledgeUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ChatbotKnowledge
+     */
+    select?: ChatbotKnowledgeSelect<ExtArgs> | null
+    /**
+     * The filter to search for the ChatbotKnowledge to update in case it exists.
+     */
+    where: ChatbotKnowledgeWhereUniqueInput
+    /**
+     * In case the ChatbotKnowledge found by the `where` argument doesn't exist, create a new ChatbotKnowledge with this data.
+     */
+    create: XOR<ChatbotKnowledgeCreateInput, ChatbotKnowledgeUncheckedCreateInput>
+    /**
+     * In case the ChatbotKnowledge was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ChatbotKnowledgeUpdateInput, ChatbotKnowledgeUncheckedUpdateInput>
+  }
+
+  /**
+   * ChatbotKnowledge delete
+   */
+  export type ChatbotKnowledgeDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ChatbotKnowledge
+     */
+    select?: ChatbotKnowledgeSelect<ExtArgs> | null
+    /**
+     * Filter which ChatbotKnowledge to delete.
+     */
+    where: ChatbotKnowledgeWhereUniqueInput
+  }
+
+  /**
+   * ChatbotKnowledge deleteMany
+   */
+  export type ChatbotKnowledgeDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ChatbotKnowledges to delete
+     */
+    where?: ChatbotKnowledgeWhereInput
+  }
+
+  /**
+   * ChatbotKnowledge without action
+   */
+  export type ChatbotKnowledgeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ChatbotKnowledge
+     */
+    select?: ChatbotKnowledgeSelect<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -6336,6 +7312,18 @@ export namespace Prisma {
   };
 
   export type LeaderboardScalarFieldEnum = (typeof LeaderboardScalarFieldEnum)[keyof typeof LeaderboardScalarFieldEnum]
+
+
+  export const ChatbotKnowledgeScalarFieldEnum: {
+    id: 'id',
+    title: 'title',
+    content: 'content',
+    category: 'category',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type ChatbotKnowledgeScalarFieldEnum = (typeof ChatbotKnowledgeScalarFieldEnum)[keyof typeof ChatbotKnowledgeScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -6793,6 +7781,63 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"Leaderboard"> | Date | string
   }
 
+  export type ChatbotKnowledgeWhereInput = {
+    AND?: ChatbotKnowledgeWhereInput | ChatbotKnowledgeWhereInput[]
+    OR?: ChatbotKnowledgeWhereInput[]
+    NOT?: ChatbotKnowledgeWhereInput | ChatbotKnowledgeWhereInput[]
+    id?: StringFilter<"ChatbotKnowledge"> | string
+    title?: StringFilter<"ChatbotKnowledge"> | string
+    content?: StringFilter<"ChatbotKnowledge"> | string
+    category?: StringFilter<"ChatbotKnowledge"> | string
+    createdAt?: DateTimeFilter<"ChatbotKnowledge"> | Date | string
+    updatedAt?: DateTimeFilter<"ChatbotKnowledge"> | Date | string
+  }
+
+  export type ChatbotKnowledgeOrderByWithRelationInput = {
+    id?: SortOrder
+    title?: SortOrder
+    content?: SortOrder
+    category?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ChatbotKnowledgeWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: ChatbotKnowledgeWhereInput | ChatbotKnowledgeWhereInput[]
+    OR?: ChatbotKnowledgeWhereInput[]
+    NOT?: ChatbotKnowledgeWhereInput | ChatbotKnowledgeWhereInput[]
+    title?: StringFilter<"ChatbotKnowledge"> | string
+    content?: StringFilter<"ChatbotKnowledge"> | string
+    category?: StringFilter<"ChatbotKnowledge"> | string
+    createdAt?: DateTimeFilter<"ChatbotKnowledge"> | Date | string
+    updatedAt?: DateTimeFilter<"ChatbotKnowledge"> | Date | string
+  }, "id">
+
+  export type ChatbotKnowledgeOrderByWithAggregationInput = {
+    id?: SortOrder
+    title?: SortOrder
+    content?: SortOrder
+    category?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: ChatbotKnowledgeCountOrderByAggregateInput
+    _max?: ChatbotKnowledgeMaxOrderByAggregateInput
+    _min?: ChatbotKnowledgeMinOrderByAggregateInput
+  }
+
+  export type ChatbotKnowledgeScalarWhereWithAggregatesInput = {
+    AND?: ChatbotKnowledgeScalarWhereWithAggregatesInput | ChatbotKnowledgeScalarWhereWithAggregatesInput[]
+    OR?: ChatbotKnowledgeScalarWhereWithAggregatesInput[]
+    NOT?: ChatbotKnowledgeScalarWhereWithAggregatesInput | ChatbotKnowledgeScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ChatbotKnowledge"> | string
+    title?: StringWithAggregatesFilter<"ChatbotKnowledge"> | string
+    content?: StringWithAggregatesFilter<"ChatbotKnowledge"> | string
+    category?: StringWithAggregatesFilter<"ChatbotKnowledge"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"ChatbotKnowledge"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"ChatbotKnowledge"> | Date | string
+  }
+
   export type ClassroomCreateInput = {
     id?: string
     name: string
@@ -7138,6 +8183,69 @@ export namespace Prisma {
     username?: StringFieldUpdateOperationsInput | string
     totalXp?: IntFieldUpdateOperationsInput | number
     badges?: LeaderboardUpdatebadgesInput | string[]
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ChatbotKnowledgeCreateInput = {
+    id?: string
+    title: string
+    content: string
+    category?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ChatbotKnowledgeUncheckedCreateInput = {
+    id?: string
+    title: string
+    content: string
+    category?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ChatbotKnowledgeUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ChatbotKnowledgeUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ChatbotKnowledgeCreateManyInput = {
+    id?: string
+    title: string
+    content: string
+    category?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ChatbotKnowledgeUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ChatbotKnowledgeUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -7564,6 +8672,33 @@ export namespace Prisma {
 
   export type LeaderboardSumOrderByAggregateInput = {
     totalXp?: SortOrder
+  }
+
+  export type ChatbotKnowledgeCountOrderByAggregateInput = {
+    id?: SortOrder
+    title?: SortOrder
+    content?: SortOrder
+    category?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ChatbotKnowledgeMaxOrderByAggregateInput = {
+    id?: SortOrder
+    title?: SortOrder
+    content?: SortOrder
+    category?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ChatbotKnowledgeMinOrderByAggregateInput = {
+    id?: SortOrder
+    title?: SortOrder
+    content?: SortOrder
+    category?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type StudentCreateNestedManyWithoutClassroomInput = {
@@ -8628,6 +9763,10 @@ export namespace Prisma {
      * @deprecated Use LeaderboardDefaultArgs instead
      */
     export type LeaderboardArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = LeaderboardDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use ChatbotKnowledgeDefaultArgs instead
+     */
+    export type ChatbotKnowledgeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ChatbotKnowledgeDefaultArgs<ExtArgs>
 
   /**
    * Batch Payload for updateMany & deleteMany & createMany
