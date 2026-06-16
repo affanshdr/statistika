@@ -6,7 +6,6 @@ import dynamic from 'next/dynamic'
 import { useGameStore } from '@/lib/store/gameStore'
 import BadgeUnlock from '../../../_components/BadgeUnlock'
 import MythBustedStamp from '../../../_components/MythBustedStamp'
-import DetektivBooklet from '../../../_components/DetektivBooklet'
 import VerdictScreen from '../../../_components/VerdictScreen'
 import { BADGES, STATS } from '../../../_data/level1'
 import { useRouter } from 'next/navigation'
@@ -83,14 +82,9 @@ export default function FIPath() {
     incrementMistake()
   }
 
-  // ── STEP 2: Myth Busted complete → go to materi ──
+  // ── STEP 2: Myth Busted complete → finish level ──
   const handleMythBustedComplete = () => {
-    setStep(3)
-  }
-
-  // ── STEP 3: Booklet complete → finish level ──
-  const handleBookletComplete = () => {
-    addXP(15, 'Menyelesaikan Buku Saku Detektif', 3)
+    addXP(15, 'Menyelesaikan Level 1', 2)
     completeLevel(1)
   }
 
@@ -226,12 +220,6 @@ export default function FIPath() {
           </motion.div>
         )}
 
-        {/* ── STEP 3: Booklet ── */}
-        {step === 3 && (
-          <motion.div key="step3" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }}>
-            <DetektivBooklet mode="FI" onComplete={handleBookletComplete} />
-          </motion.div>
-        )}
 
       </AnimatePresence>
       </div>{/* /flex-fill wrapper */}
