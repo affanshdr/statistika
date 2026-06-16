@@ -87,26 +87,40 @@ function DiraTypewriter({ text, onDone }: { text: string; onDone: () => void }) 
   const parts: React.ReactNode[] = []
   let remaining = displayed
   let key = 0
+
+  const isWordChar = (char: string | undefined) => !!char && /[a-zA-Z0-9_]/.test(char);
+
+  const findValidIndex = (str: string, word: string) => {
+    let startPos = 0;
+    const isFormula = word.includes('=') || word.includes('+') || word.includes('÷') || word.includes('−');
+    const isMultiWord = word.includes(' ');
+
+    while (true) {
+      const idx = str.indexOf(word, startPos);
+      if (idx === -1) return -1;
+
+      const charBefore = idx > 0 ? str[idx - 1] : undefined;
+      const charAfter = idx + word.length < str.length ? str[idx + word.length] : undefined;
+
+      const isValidStart = !isWordChar(charBefore);
+      const isValidEnd = !isWordChar(charAfter);
+
+      if (isFormula || isMultiWord || (isValidStart && isValidEnd)) {
+        return idx;
+      }
+      startPos = idx + 1;
+    }
+  };
+
   while (remaining.length > 0) {
     let foundAt = -1
     let foundWord = ''
     for (const word of Object.keys(HIGHLIGHTS)) {
-      const idx = remaining.indexOf(word)
+      const idx = findValidIndex(remaining, word)
       if (idx !== -1) {
-        const charBefore = idx > 0 ? remaining[idx - 1] : ''
-        const charAfter = idx + word.length < remaining.length ? remaining[idx + word.length] : ''
-        const isWordChar = (char: string) => /[a-zA-Z0-9_]/.test(char)
-
-        const isFormula = word.includes('=') || word.includes('+') || word.includes('÷') || word.includes('−')
-        const isMultiWord = word.includes(' ')
-        const isValidStart = !isWordChar(charBefore)
-        const isValidEnd = !isWordChar(charAfter)
-
-        if (isFormula || isMultiWord || (isValidStart && isValidEnd)) {
-          if (foundAt === -1 || idx < foundAt || (idx === foundAt && word.length > foundWord.length)) {
-            foundAt = idx
-            foundWord = word
-          }
+        if (foundAt === -1 || idx < foundAt || (idx === foundAt && word.length > foundWord.length)) {
+          foundAt = idx
+          foundWord = word
         }
       }
     }
