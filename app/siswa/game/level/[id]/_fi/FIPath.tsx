@@ -146,19 +146,6 @@ export default function FIPath() {
                 <h2 style={{ margin: 0, fontSize: '20px' }}>Hasil Analisis &amp; Statistik Dasar</h2>
               </div>
 
-              {/* Mentor dialog */}
-              <div style={{ display: 'flex', gap: '14px', alignItems: 'flex-start', padding: '16px', borderRadius: '14px', background: 'rgba(0,255,136,0.04)', border: '1px solid rgba(0,255,136,0.2)' }}>
-                <div style={{ fontSize: '36px', flexShrink: 0 }}>🕵️</div>
-                <div>
-                  <div style={{ fontSize: '12px', color: 'var(--accent)', fontWeight: 800, marginBottom: '6px' }}>DIALOG MENTOR:</div>
-                  <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.85)', lineHeight: 1.7 }}>
-                    &quot;Luar biasa, Detektif! Berdasarkan histogram hasil rekonstruksimu dan data statistik dasar di bawah, kita dapat melihat bahwa rata-rata (Mean) penggunaan media sosial siswa adalah <strong style={{ color: 'var(--accent)' }}>{STATS.mean} jam</strong>, bukan lebih dari 8 jam seperti klaim viral tersebut.&quot;
-                  </p>
-                  <p style={{ margin: '10px 0 0', fontSize: '13px', color: 'rgba(255,255,255,0.85)', lineHeight: 1.7 }}>
-                    💡 Terlihat bahwa mayoritas siswa (<strong style={{ color: '#3b82f6' }}>25 dari 35 siswa atau 71.4%</strong>) menggunakannya selama <strong>8 jam atau kurang</strong> sehari. Nilai ekstrim seperti 17 &amp; 18 jam (outlier) lah yang menarik nilai rata-rata menjadi naik.
-                  </p>
-                </div>
-              </div>
 
               {/* Histogram & Stats Grid */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: '16px', alignItems: 'stretch' }} className="tahap-b-reference-grid">
