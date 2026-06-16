@@ -31,6 +31,82 @@ type SlotKey   = 'terbesar' | 'terkecil'
 interface Chip  { id: string; val: number; placed: SlotKey | null }
 interface Props { onComplete: () => void }
 
+// ─── Agent Sidebar (left panel for step 2 & 3) ──────────────────────────────
+function AgentSidebar({ message }: { message: string }) {
+  return (
+    <div
+      style={{
+        width: 'clamp(110px, 32%, 180px)',
+        flexShrink: 0,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'flex-end',
+        gap: '10px',
+        padding: '6px',
+        boxSizing: 'border-box',
+      }}
+    >
+      {/* Speech bubble */}
+      <motion.div
+        initial={{ opacity: 0, y: 15, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+        style={{
+          background: 'var(--game-card)',
+          border: '1px solid var(--game-border-accent)',
+          borderRadius: '18px 18px 4px 18px',
+          padding: 'clamp(10px, 1.8vh, 14px) clamp(12px, 2vw, 16px)',
+          fontSize: 'clamp(11px, 1.85vh, 13px)',
+          lineHeight: 1.55,
+          color: 'var(--text-primary)',
+          boxShadow: '0 8px 30px rgba(0,0,0,0.4)',
+          width: '100%',
+          boxSizing: 'border-box',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '4px',
+        }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <span style={{ fontSize: '10px', color: 'var(--accent)', fontWeight: 800, letterSpacing: '1px' }}>
+            DIRA
+          </span>
+        </div>
+        <p style={{ margin: 0, color: 'var(--text-primary)', fontWeight: 600 }}>
+          {message}
+        </p>
+      </motion.div>
+
+      {/* Avatar */}
+      <motion.div
+        initial={{ scale: 0, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ delay: 0.25, type: 'spring', stiffness: 400, damping: 20 }}
+        style={{
+          width: 'clamp(44px, 8vh, 60px)',
+          height: 'clamp(44px, 8vh, 60px)',
+          borderRadius: '50%',
+          border: '2px solid var(--accent)',
+          boxShadow: 'var(--accent-glow)',
+          overflow: 'hidden',
+          background: 'var(--game-card)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          marginRight: '8px',
+        }}
+      >
+        <img
+          src="https://tmdbqikqflbeqaqllxge.supabase.co/storage/v1/object/public/Asset/Agent.png"
+          onError={(e) => { e.currentTarget.src = '/dira-avatar.png' }}
+          alt="Dira"
+          style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
+        />
+      </motion.div>
+    </div>
+  )
+}
+
 // ─── Progress dots ───────────────────────────────────────────────────────────
 function ProgressDots({ step }: { step: 1 | 2 | 3 }) {
   return (
@@ -814,84 +890,99 @@ export default function PregameFormula({ onComplete }: Props) {
             <>
               <StepHeader step={2} title="Banyak Kelas (K)" subtitle="Langkah 2 dari 3" />
 
+              {/* Two-column layout: agent left, formula right */}
               <div style={{
-                flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column',
-                alignItems: 'center', justifyContent: 'center', gap: '14px', padding: '8px',
+                flex: 1, minHeight: 0, display: 'flex', flexDirection: 'row', gap: '10px',
+                borderRadius: '12px',
+                background: 'rgba(255,255,255,0.012)',
+                border: '1px solid rgba(255,255,255,0.07)',
+                padding: '10px',
+                overflow: 'hidden',
               }}>
-                {/* Formula card */}
+                {/* Left: Agent Sidebar */}
+                <AgentSidebar message={`Data screen time kita semuanya berjumlah ${CORRECT_N} siswa. Jadi nilai n = ${CORRECT_N} ya! 🔢`} />
+
+                {/* Right: Formula area (wider now) */}
                 <div style={{
-                  background: `${ACC}0c`, border: `1px solid ${ACC}2a`, borderRadius: '14px',
-                  padding: '16px 20px', width: '100%', maxWidth: '380px',
-                  display: 'flex', flexDirection: 'column', gap: '12px',
+                  flex: 1, display: 'flex', flexDirection: 'column',
+                  alignItems: 'center', justifyContent: 'center', gap: '14px',
+                  minWidth: 0,
                 }}>
-                  <div style={{ fontSize: 'clamp(10px, 1.8vh, 14px)', fontWeight: 700, color: '#a5b4fc', textAlign: 'center' }}>
-                    K = 1 + 3,3 × log n
+                  {/* Formula card */}
+                  <div style={{
+                    background: `${ACC}0c`, border: `1px solid ${ACC}2a`, borderRadius: '14px',
+                    padding: '16px 20px', width: '100%',
+                    display: 'flex', flexDirection: 'column', gap: '12px',
+                  }}>
+                    <div style={{ fontSize: 'clamp(10px, 1.8vh, 14px)', fontWeight: 700, color: '#a5b4fc', textAlign: 'center' }}>
+                      K = 1 + 3,3 × log n
+                    </div>
+
+                    {/* Input row */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                      <span style={{ fontSize: 'clamp(12px, 2.2vh, 17px)', fontWeight: 900, color: '#a5b4fc', fontFamily: 'var(--font-data)' }}>K = 1 + 3,3 × log</span>
+
+                      <motion.div
+                        key={nShake}
+                        animate={!isFD && nShake > 0 ? {
+                          x: [-6, 6, -5, 5, -3, 3, 0],
+                          transition: { duration: 0.4 },
+                        } : {}}
+                      >
+                        <input
+                          type="number"
+                          value={nVal}
+                          onChange={e => setNVal(e.target.value)}
+                          onKeyDown={e => e.key === 'Enter' && !nDone && checkBK()}
+                          disabled={nDone}
+                          placeholder="n"
+                          style={{
+                            width: 'clamp(70px, 10vw, 110px)', padding: 'clamp(7px, 1.2vh, 11px) 10px', borderRadius: '8px', textAlign: 'center',
+                            background: nErr ? 'rgba(239,68,68,0.12)' : nDone ? `${GREEN}12` : 'rgba(255,255,255,0.06)',
+                            border: nErr ? `2px solid ${RED}` : nDone ? `2px solid ${GREEN}55` : `2px solid rgba(255,255,255,0.22)`,
+                            color: nDone ? GREEN : '#fff', fontFamily: 'var(--font-data)', fontSize: 'clamp(16px, 3vh, 22px)', fontWeight: 800,
+                            outline: 'none', transition: 'border 0.2s, background 0.2s',
+                          }}
+                        />
+                      </motion.div>
+                    </div>
+
+                    {/* Computed breakdown (shown after correct) */}
+                    {nDone && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+                        style={{ display: 'flex', flexDirection: 'column', gap: '3px', textAlign: 'center' }}
+                      >
+                        {[
+                          `= 1 + 3,3 × log ${CORRECT_N}`,
+                          `= 1 + 3,3 × 1,544`,
+                          `= 1 + 5,095`,
+                          `= 6,095`,
+                        ].map((line, i) => (
+                          <motion.div
+                            key={i}
+                            initial={{ opacity: 0, x: -6 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: i * 0.1 }}
+                            style={{ fontSize: 'clamp(11px, 2vh, 15px)', color: i < 3 ? 'rgba(255,255,255,0.55)' : 'rgba(255,255,255,0.7)', fontFamily: 'var(--font-data)', fontWeight: 700 }}
+                          >
+                            {line}
+                          </motion.div>
+                        ))}
+                      </motion.div>
+                    )}
                   </div>
 
-                  {/* Input row */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
-                    <span style={{ fontSize: 'clamp(13px, 2.4vh, 18px)', fontWeight: 900, color: '#a5b4fc', fontFamily: 'var(--font-data)' }}>K = 1 + 3,3 × log</span>
-
-                    <motion.div
-                      key={nShake}
-                      animate={!isFD && nShake > 0 ? {
-                        x: [-6, 6, -5, 5, -3, 3, 0],
-                        transition: { duration: 0.4 },
-                      } : {}}
-                    >
-                      <input
-                        type="number"
-                        value={nVal}
-                        onChange={e => setNVal(e.target.value)}
-                        onKeyDown={e => e.key === 'Enter' && !nDone && checkBK()}
-                        disabled={nDone}
-                        placeholder="n"
-                        style={{
-                          width: 'clamp(60px, 8vw, 90px)', padding: 'clamp(6px, 1vh, 9px) 8px', borderRadius: '8px', textAlign: 'center',
-                          background: nErr ? 'rgba(239,68,68,0.12)' : nDone ? `${GREEN}12` : 'rgba(255,255,255,0.06)',
-                          border: nErr ? `1.5px solid ${RED}` : nDone ? `1.5px solid ${GREEN}55` : `1.5px solid rgba(255,255,255,0.18)`,
-                          color: nDone ? GREEN : '#fff', fontFamily: 'var(--font-data)', fontSize: 'clamp(14px, 2.5vh, 19px)', fontWeight: 800,
-                          outline: 'none', transition: 'border 0.2s, background 0.2s',
-                        }}
-                      />
-                    </motion.div>
-                  </div>
-
-                  {/* Computed breakdown (shown after correct) */}
+                  {/* Result */}
                   {nDone && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
-                      style={{ display: 'flex', flexDirection: 'column', gap: '3px', textAlign: 'center' }}
-                    >
-                      {[
-                        `= 1 + 3,3 × log ${CORRECT_N}`,
-                        `= 1 + 3,3 × 1,544`,
-                        `= 1 + 5,095`,
-                        `= 6,095`,
-                      ].map((line, i) => (
-                        <motion.div
-                          key={i}
-                          initial={{ opacity: 0, x: -6 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: i * 0.1 }}
-                          style={{ fontSize: 'clamp(11px, 2vh, 15px)', color: i < 3 ? 'rgba(255,255,255,0.55)' : 'rgba(255,255,255,0.7)', fontFamily: 'var(--font-data)', fontWeight: 700 }}
-                        >
-                          {line}
-                        </motion.div>
-                      ))}
-                    </motion.div>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                      <ResultBadge value={`K = ${CORRECT_K}`} suffix="kelas" />
+                      <div style={{ fontSize: 'clamp(10px, 1.8vh, 14px)', color: `${GREEN}88` }}>
+                        6,095 → dibulatkan menjadi <strong style={{ color: GREEN }}>6 kelas</strong>
+                      </div>
+                    </div>
                   )}
                 </div>
-
-                {/* Result */}
-                {nDone && (
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
-                    <ResultBadge value={`K = ${CORRECT_K}`} suffix="kelas" />
-                    <div style={{ fontSize: 'clamp(10px, 1.8vh, 14px)', color: `${GREEN}88` }}>
-                      6,095 → dibulatkan menjadi <strong style={{ color: GREEN }}>6 kelas</strong>
-                    </div>
-                  </div>
-                )}
               </div>
 
               <HintToast hint={nHint} />
@@ -926,10 +1017,24 @@ export default function PregameFormula({ onComplete }: Props) {
             <>
               <StepHeader step={3} title="Panjang Kelas (P)" subtitle="Langkah 3 dari 3" />
 
+              {/* Two-column layout: agent left, formula right */}
               <div style={{
-                flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column',
-                alignItems: 'center', justifyContent: 'center', gap: '14px', padding: '8px',
+                flex: 1, minHeight: 0, display: 'flex', flexDirection: 'row', gap: '10px',
+                borderRadius: '12px',
+                background: 'rgba(255,255,255,0.012)',
+                border: '1px solid rgba(255,255,255,0.07)',
+                padding: '10px',
+                overflow: 'hidden',
               }}>
+                {/* Left: Agent Sidebar */}
+                <AgentSidebar message={`Keren! Tadi kita sudah dapat Rentang R = ${CORRECT_R} dan Banyak Kelas K = ${CORRECT_K}. Sekarang tinggal bagi keduanya untuk dapat Panjang Kelas P! 📐`} />
+
+                {/* Right: Formula area */}
+                <div style={{
+                  flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column',
+                  alignItems: 'center', justifyContent: 'center', gap: '14px',
+                  minWidth: 0,
+                }}>
                 {/* Formula card */}
                 <div style={{
                   background: `${ACC}0c`, border: `1px solid ${ACC}2a`, borderRadius: '14px',
@@ -1050,6 +1155,7 @@ export default function PregameFormula({ onComplete }: Props) {
                     ))}
                   </motion.div>
                 )}
+                </div>
               </div>
 
               <HintToast hint={pkHint} />

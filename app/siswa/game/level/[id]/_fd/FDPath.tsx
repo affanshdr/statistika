@@ -7,7 +7,6 @@ import { useGameStore } from '@/lib/store/gameStore'
 import DiRA from '../../../_components/DiRA'
 import BadgeUnlock from '../../../_components/BadgeUnlock'
 import MythBustedStamp from '../../../_components/MythBustedStamp'
-import DetektivBooklet from '../../../_components/DetektivBooklet'
 import VerdictScreen from '../../../_components/VerdictScreen'
 import { BADGES, STATS } from '../../../_data/level1'
 import { useRouter } from 'next/navigation'
@@ -50,7 +49,7 @@ export default function FDPath() {
   const handleHistogramSubmit = (isCorrect: boolean) => {
     if (isCorrect) {
       addXP(25, 'Menyusun histogram terbimbing dengan benar', 0)
-      setDiraMsg('Luar biasa! Kamu berhasil menyusun histogram dengan benar. 📊 Sekarang, yuk kita amati statistik dasar dari data tersebut di Tahap B ini! Rata-rata waktu bermain siswa ternyata hanya 7.06 jam, yang membuktikan klaim rata-rata > 8 jam adalah tidak benar! 😉')
+      setDiraMsg('Luar biasa! Kamu berhasil menyusun histogram dengan benar. 📊\nSekarang, yuk kita amati statistik dasar dari data tersebut di Tahap B ini!')
       setShowDira(true)
       setStep(1)
     } else {
@@ -95,12 +94,9 @@ export default function FDPath() {
     setShowDira(true)
   }
 
-  // ── STEP 2: MythBusted complete → Booklet ──
-  const handleMythBustedComplete = () => setStep(3)
-
-  // ── STEP 3: Booklet complete → finish level ──
-  const handleBookletComplete = () => {
-    addXP(15, 'Menyelesaikan Buku Saku Detektif', 3)
+  // ── STEP 2: MythBusted complete → finish level ──
+  const handleMythBustedComplete = () => {
+    addXP(15, 'Menyelesaikan Level 1', 2)
     completeLevel(1)
   }
 
@@ -247,12 +243,6 @@ export default function FDPath() {
           </motion.div>
         )}
 
-        {/* ── STEP 3: Booklet ── */}
-        {step === 3 && (
-          <motion.div key="step3" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }}>
-            <DetektivBooklet mode="FD" onComplete={handleBookletComplete} />
-          </motion.div>
-        )}
 
       </AnimatePresence>
       </div>{/* /flex-fill wrapper */}

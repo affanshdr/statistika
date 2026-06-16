@@ -127,15 +127,7 @@ export default function LevelPage({
                 overflow: 'hidden',
               }}
             >
-              {/* Header */}
-              <div style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', marginBottom: '12px', flexShrink: 0 }}>
-                <div>
-                  <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 800, lineHeight: 1.2 }}>🧮 Persiapan Statistik</h2>
-                  <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', marginTop: '3px' }}>
-                    Hitung <strong style={{ color: 'rgba(255,255,255,0.7)' }}>Rentang</strong>, <strong style={{ color: 'rgba(255,255,255,0.7)' }}>Banyak Kelas</strong>, dan <strong style={{ color: 'rgba(255,255,255,0.7)' }}>Panjang Kelas</strong> sebelum membuat tabel
-                  </div>
-                </div>
-              </div>
+
 
               {/* Formula Component — langsung ke game setelah selesai */}
               <PregameFormula onComplete={() => {
