@@ -92,9 +92,22 @@ function DiraTypewriter({ text, onDone }: { text: string; onDone: () => void }) 
     let foundWord = ''
     for (const word of Object.keys(HIGHLIGHTS)) {
       const idx = remaining.indexOf(word)
-      if (idx !== -1 && (foundAt === -1 || idx < foundAt)) {
-        foundAt = idx
-        foundWord = word
+      if (idx !== -1) {
+        const charBefore = idx > 0 ? remaining[idx - 1] : ''
+        const charAfter = idx + word.length < remaining.length ? remaining[idx + word.length] : ''
+        const isWordChar = (char: string) => /[a-zA-Z0-9_]/.test(char)
+
+        const isFormula = word.includes('=') || word.includes('+') || word.includes('÷') || word.includes('−')
+        const isMultiWord = word.includes(' ')
+        const isValidStart = !isWordChar(charBefore)
+        const isValidEnd = !isWordChar(charAfter)
+
+        if (isFormula || isMultiWord || (isValidStart && isValidEnd)) {
+          if (foundAt === -1 || idx < foundAt || (idx === foundAt && word.length > foundWord.length)) {
+            foundAt = idx
+            foundWord = word
+          }
+        }
       }
     }
     if (foundAt === -1) {
