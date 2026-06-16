@@ -8,13 +8,14 @@ import DiRA from '../../../_components/DiRA'
 import BadgeUnlock from '../../../_components/BadgeUnlock'
 import MythBustedStamp from '../../../_components/MythBustedStamp'
 import DetektivBooklet from '../../../_components/DetektivBooklet'
+import VerdictScreen from '../../../_components/VerdictScreen'
 import { BADGES, STATS } from '../../../_data/level1'
 import { useRouter } from 'next/navigation'
 
 const DraggableHistogram = dynamic(() => import('../../../_components/DraggableHistogram'), { ssr: false })
 
-// Steps: 0 = Histogram (guided), 1 = Text Analysis, 2 = MythBusted, 3 = Materi Booklet
-type GameStep = 0 | 1 | 2 | 3
+// Steps: 0=Histogram(guided), 1=Hasil Analisis, 1.5=Verifikasi Berita, 2=MythBusted, 3=Materi
+type GameStep = 0 | 1 | 1.5 | 2 | 3
 
 interface PendingBadge { icon: string; name: string; desc: string; id: string }
 
@@ -61,26 +62,37 @@ export default function FDPath() {
     }
   }
 
-  // ── STEP 1: Proceed to Myth Busted ──
-  const handleProceedToMythBusted = () => {
+  // ── STEP 1: Analisis selesai → ke Verifikasi Berita ──
+  const handleProceedToVerification = () => {
     if (submitting) return
     setSubmitting(true)
-    addXP(25, 'Analisis distribusi FD tepat', 1)
+    addXP(20, 'Analisis distribusi FD tepat', 1)
+    setShowDira(false)
+    setTimeout(() => {
+      setStep(1.5)
+      setSubmitting(false)
+    }, 300)
+  }
+
+  // ── STEP 1.5: Verifikasi benar → ke MythBusted ──
+  const handleVerificationCorrect = () => {
+    addXP(15, 'Verifikasi berita benar', 1)
     awardBadge(BADGES.DETECTIVE)
     if (mistakeCount === 0) awardBadge(BADGES.PERFECT)
 
-    // Speed bonus
     const initialTime = 900
     const elapsed = sessionStartTime ? Math.floor((Date.now() - sessionStartTime) / 1000) : initialTime
     if (elapsed < initialTime * 0.5) awardBadge(BADGES.SPEED)
 
     awardBadge(BADGES.MYTHBUST)
-    setShowDira(false)
+    setTimeout(() => setStep(2), 400)
+  }
 
-    setTimeout(() => {
-      setStep(2)
-      setSubmitting(false)
-    }, 500)
+  // ── STEP 1.5: Verifikasi salah → hint dari DiRA ──
+  const handleVerificationWrong = () => {
+    incrementMistake()
+    setDiraMsg(`Hmm, perhatikan mean = ${STATS.mean} jam. Apakah itu lebih dari 8 jam? 🤔`)
+    setShowDira(true)
   }
 
   // ── STEP 2: MythBusted complete → Booklet ──
@@ -99,8 +111,8 @@ export default function FDPath() {
     }
   }, [isCompleted, router])
 
-  const STEP_LABELS = ['Histogram', 'Analisis', 'Buku Saku']
-  const displayStep = step >= 2 ? 2 : step
+  const STEP_LABELS = ['Histogram', 'Analisis', 'Verifikasi', 'Selesai']
+  const displayStep = step === 0 ? 0 : step === 1 ? 1 : step === 1.5 ? 2 : 3
 
   return (
     <div
@@ -206,12 +218,31 @@ export default function FDPath() {
 
               <button
                 className="game-btn game-btn-primary"
-                onClick={handleProceedToMythBusted}
+                onClick={handleProceedToVerification}
                 disabled={submitting}
                 style={{ width: '100%', marginTop: '8px' }}
               >
-                Lanjut: Bongkar Kebenaran! →
+                Lanjut: Verifikasi Berita →
               </button>
+            </div>
+          </motion.div>
+        )}
+
+        {/* ── STEP 1.5: Verifikasi Berita (FD — guided) ── */}
+        {step === 1.5 && (
+          <motion.div key="step15" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }}>
+            <div className="game-card" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              <div>
+                <div style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 800, letterSpacing: '1px', marginBottom: '6px' }}>
+                  TAHAP C — VERIFIKASI BERITA
+                </div>
+                <h2 style={{ margin: 0, fontSize: '20px' }}>Berdasarkan Datamu — Benar atau Hoaks?</h2>
+              </div>
+              <VerdictScreen
+                onCorrect={handleVerificationCorrect}
+                onWrong={handleVerificationWrong}
+                guidedMode={true}
+              />
             </div>
           </motion.div>
         )}

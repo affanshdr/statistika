@@ -9,7 +9,7 @@ import Cutscene from '../../_components/Cutscene'
 import FIPath from './_fi/FIPath'
 import FDPath from './_fd/FDPath'
 import OrientationGuard from '../../_components/OrientationGuard'
-import PregameMinMaxDrop from '../../_components/PregameMinMaxDrop'
+import PregameFormula from '../../_components/PregameFormula'
 import '../../game.css'
 
 export default function LevelPage({
@@ -20,7 +20,7 @@ export default function LevelPage({
   const { id } = use(params)
   const router = useRouter()
   const { cognitiveStyle, resetLevel } = useGameStore()
-  const [phase, setPhase] = useState<'cutscene' | 'pregame' | 'game'>('cutscene')
+  const [phase, setPhase] = useState<'cutscene' | 'formula' | 'game'>('cutscene')
   const [cutscenePhase, setCutscenePhase] = useState<'comments' | 'mentor'>('comments')
   const [timerRunning, setTimerRunning] = useState(false)
   // Track whether we've finished waiting for Zustand hydration
@@ -104,14 +104,14 @@ export default function LevelPage({
               <Cutscene
                 onPhaseChange={setCutscenePhase}
                 onComplete={() => {
-                  setPhase('pregame')
+                  setPhase('formula')
                 }}
               />
             )}
           </AnimatePresence>
 
-          {/* Phase 1.5: Pregame — Min/Max Drag & Drop */}
-          {phase === 'pregame' && (
+          {/* Phase 1.5: Pregame Formula — Rentang / Banyak Kelas / Panjang Kelas */}
+          {phase === 'formula' && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -128,37 +128,20 @@ export default function LevelPage({
               }}
             >
               {/* Header */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', flexShrink: 0 }}>
+              <div style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', marginBottom: '12px', flexShrink: 0 }}>
                 <div>
-                  <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 800, lineHeight: 1.2 }}>🔍 Tahap Pra-Game</h2>
+                  <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 800, lineHeight: 1.2 }}>🧮 Persiapan Statistik</h2>
                   <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', marginTop: '3px' }}>
-                    Seret nilai <strong style={{ color: 'rgba(255,255,255,0.7)' }}>tertinggi</strong> dan <strong style={{ color: 'rgba(255,255,255,0.7)' }}>terendah</strong> ke kotak yang sesuai
+                    Hitung <strong style={{ color: 'rgba(255,255,255,0.7)' }}>Rentang</strong>, <strong style={{ color: 'rgba(255,255,255,0.7)' }}>Banyak Kelas</strong>, dan <strong style={{ color: 'rgba(255,255,255,0.7)' }}>Panjang Kelas</strong> sebelum membuat tabel
                   </div>
                 </div>
-                <button
-                  className="game-btn game-btn-primary"
-                  onClick={() => {
-                    setPhase('game')
-                    setTimerRunning(true)
-                  }}
-                  style={{ padding: '8px 16px', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '6px', opacity: 0.6 }}
-                >
-                  Lewati →
-                </button>
               </div>
 
-              {/* Drag & Drop Component */}
-              <PregameMinMaxDrop
-                onComplete={(correct) => {
-                  // Auto-advance after a short pause on correct answer
-                  if (correct) {
-                    setTimeout(() => {
-                      setPhase('game')
-                      setTimerRunning(true)
-                    }, 1800)
-                  }
-                }}
-              />
+              {/* Formula Component — langsung ke game setelah selesai */}
+              <PregameFormula onComplete={() => {
+                setPhase('game')
+                setTimerRunning(true)
+              }} />
             </motion.div>
           )}
 
