@@ -217,6 +217,9 @@ export default function SiswaPage() {
   const resolvedStyle = student?.geftResult?.cognitiveStyle || cognitiveStyle || 'FI'
   const isFI = resolvedStyle === 'FI'
 
+  // Compute which levels are currently unlocked for the booklet
+  const unlockedLevelIds = LEVELS.filter(l => !l.locked).map(l => l.id)
+
   return (
     <main style={{
       width: '100%',
@@ -1162,7 +1165,7 @@ export default function SiswaPage() {
                 ✕
               </button>
             )}
-            <DetektivBooklet mode={resolvedStyle} onComplete={handleBookletComplete} />
+            <DetektivBooklet mode={resolvedStyle} onComplete={handleBookletComplete} unlockedLevelIds={unlockedLevelIds} />
           </motion.div>
         </div>
       )}
@@ -1226,7 +1229,7 @@ export default function SiswaPage() {
             <div style={{ width: '100%', position: 'relative', paddingBottom: '56.25%', height: 0 }}>
               <iframe
                 style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.08)' }}
-                src="https://www.youtube.com/embed/kYJv-n9f5Wc"
+                src="https://www.youtube.com/embed/UqWLcTirNjU"
                 title="Video Pembelajaran Statistika"
                 frameBorder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"

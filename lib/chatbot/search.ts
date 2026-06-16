@@ -1,4 +1,4 @@
-import { prisma } from '@/lib/prisma'
+import KNOWLEDGE_ITEMS from './knowledge/knowledge.json'
 
 // Common Indonesian stop words to filter out of the query to focus on keywords
 const STOP_WORDS = new Set([
@@ -28,7 +28,7 @@ function tokenize(text: string): string[] {
 }
 
 /**
- * Perform a keyword-based RAG search over knowledge items in the database
+ * Perform a keyword-based RAG search over knowledge items in the developer-managed static folder
  */
 export async function searchKnowledge(query: string, limit: number = 3): Promise<SearchResult[]> {
   const queryTokens = tokenize(query)
@@ -36,8 +36,13 @@ export async function searchKnowledge(query: string, limit: number = 3): Promise
     return []
   }
 
-  // Fetch all chatbot knowledge items from the database
-  const items = await prisma.chatbotKnowledge.findMany()
+  // Load from local static JSON database
+  const items = KNOWLEDGE_ITEMS.map((item, idx) => ({
+    id: `local-${idx}`,
+    title: item.title,
+    content: item.content,
+    category: item.category
+  }))
 
   const scoredItems = items.map(item => {
     const titleTokens = tokenize(item.title)
