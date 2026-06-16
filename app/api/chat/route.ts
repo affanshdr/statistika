@@ -1,63 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
 import { searchKnowledge } from '@/lib/chatbot/search'
 
-// Initial database seed data for RAG knowledge
-const SEED_DATA = [
-  {
-    title: 'Mean (Rata-rata) Data Kelompok',
-    category: 'statistika',
-    content: 'Mean atau rata-rata data kelompok dihitung dengan rumus: x̄ = (Σ (f_i × x_i)) / Σ f_i. Di mana f_i adalah frekuensi dari kelas interval ke-i, dan x_i adalah nilai tengah (midpoint) kelas interval ke-i. Nilai tengah (x_i) dihitung dengan rumus: (batas bawah + batas atas) / 2.'
-  },
-  {
-    title: 'Median (Nilai Tengah) Data Kelompok',
-    category: 'statistika',
-    content: 'Median data kelompok dihitung dengan rumus: Me = L + (((N/2 - F_k) / f_m) × c). Di mana L adalah tepi bawah kelas median (batas bawah - 0.5), N adalah total frekuensi (jumlah seluruh data), F_k adalah frekuensi kumulatif sebelum kelas median, f_m adalah frekuensi kelas median, dan c adalah lebar interval kelas.'
-  },
-  {
-    title: 'Modus Data Kelompok',
-    category: 'statistika',
-    content: 'Modus data kelompok dihitung dengan rumus: Mo = L + ((d1 / (d1 + d2)) × c). Di mana L adalah tepi bawah kelas modus (batas bawah - 0.5), d1 adalah selisih frekuensi kelas modus dengan frekuensi kelas sebelumnya (f_modus - f_sebelumnya), d2 adalah selisih frekuensi kelas modus dengan frekuensi kelas setelahnya (f_modus - f_setelahnya), dan c adalah lebar interval kelas.'
-  },
-  {
-    title: 'Histogram dan Distribusi Sebaran Data',
-    category: 'statistika',
-    content: 'Histogram adalah diagram batang yang menunjukkan distribusi frekuensi data. Bentuk sebaran data di antaranya: (1) Simetris (Mean ≈ Median ≈ Modus), (2) Menceng Kanan/Positif (ekor grafik memanjang ke kanan, nilai Mean > Median > Modus), (3) Menceng Kiri/Negatif (ekor memanjang ke kiri, nilai Mean < Median < Modus). Di Level 1 game Skeptikos, data sebaran screen time siswa SMA Harapan memiliki bentuk menceng kanan (ekor panjang ke kanan) karena adanya pencilan/outlier tinggi.'
-  },
-  {
-    title: 'Outlier (Pencilan Data) & Dampaknya',
-    category: 'statistika',
-    content: 'Outlier atau pencilan adalah nilai ekstrim yang nilainya sangat jauh dari kelompok data lainnya. Outlier sangat mempengaruhi nilai Mean (Rata-rata) sehingga menjadi kurang representatif, tetapi hampir tidak mempengaruhi Median. Oleh karena itu, jika suatu data memiliki pencilan ekstrim (misalnya siswa dengan screen time 17 dan 18 jam di game), Median lebih disarankan digunakan sebagai nilai representatif daripada Mean.'
-  },
-  {
-    title: 'Gameplay & Misi Utama Skeptikos',
-    category: 'gameplay',
-    content: 'Skeptikos adalah game investigasi data statistika. Misi pertamamu di Level 1 (Sekolah Harapan) adalah memverifikasi klaim viral yang menyatakan "Rata-rata waktu bermain HP (screen time) siswa SMA Harapan lebih dari 8 jam sehari". Tugasmu: (1) Menata 35 data mentah siswa ke dalam histogram yang benar, (2) Menganalisis statistik dasar (Mean = 7.06 jam, Median = 6.67 jam, Modus = 6.38 jam) untuk menemukan bahwa klaim rata-rata >8 jam adalah SALAH, (3) Memberikan vonis (verdict) yang tepat berdasarkan fakta tersebut.'
-  },
-  {
-    title: 'Profil Gaya Kognitif Field Independent (FI)',
-    category: 'gameplay',
-    content: 'Siswa dengan gaya kognitif Field Independent (FI) cenderung berpikir analitis, mandiri, dan menyukai tantangan terbuka. Di game Skeptikos, siswa mode FI diberikan kebebasan penuh dalam menganalisis data dan menyelesaikan level tanpa banyak arahan langsung, sehingga melatih kemampuan eksplorasi kritis mandiri.'
-  },
-  {
-    title: 'Profil Gaya Kognitif Field Dependent (FD)',
-    category: 'gameplay',
-    content: 'Siswa dengan gaya kognitif Field Dependent (FD) belajar dengan baik secara kontekstual dan holistik dengan bantuan bimbingan (scaffolding). Di game Skeptikos, mode FD dilengkapi dengan asisten AI DiRA yang memberikan arahan langkah demi langkah, visualisasi bertahap, serta penjelasan konsep interaktif untuk menjaga fokus belajar.'
-  }
-]
 
-/**
- * Auto-seed database if empty
- */
-async function ensureKnowledgeSeeded() {
-  const count = await prisma.chatbotKnowledge.count()
-  if (count === 0) {
-    console.log('Seeding initial chatbot knowledge base...')
-    await prisma.chatbotKnowledge.createMany({
-      data: SEED_DATA
-    })
-  }
-}
 
 /**
  * Local Rule-based Generator for Demo Mode
@@ -173,8 +117,6 @@ function generateDemoResponse(query: string, context: any[], profile: any): stri
 
 export async function POST(req: NextRequest) {
   try {
-    await ensureKnowledgeSeeded()
-
     const { messages, studentProfile } = await req.json()
 
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
