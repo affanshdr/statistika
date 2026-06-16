@@ -291,11 +291,7 @@ export default function DraggableHistogram({
             }}>
               {allPlaced ? '✅ Semua terkelompokkan' : `📍 Data — ${activePool.length} tersisa`}
             </div>
-            {mode === 'FD' && !allPlaced && (
-              <div style={{ fontSize: '8px', color: 'rgba(255,255,255,0.2)' }}>
-                {CLASS_LABELS.map((l, i) => remainByClass[i] > 0 ? `${l}:${remainByClass[i]}` : null).filter(Boolean).join(' · ')}
-              </div>
-            )}
+
           </div>
 
           {/* Pool zone — two layouts:

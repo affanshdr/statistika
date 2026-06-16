@@ -23,6 +23,34 @@ const CUTSCENE_COMMENTS = [
   { user: '@Fitri_Zzz', text: 'Wkwk pantesan kalau diajak ngomong langsung gak nyambung, fokusnya cuma bertahan 5 detik gara-gara keseringan nonton short video.' },
 ]
 
+const playCommentPopSound = (muted: boolean) => {
+  if (muted) return
+  try {
+    const AudioContext = window.AudioContext || (window as any).webkitAudioContext
+    if (!AudioContext) return
+    const ctx = new AudioContext()
+    const osc = ctx.createOscillator()
+    const gain = ctx.createGain()
+
+    osc.type = 'sine'
+    // A quick ascending frequency sweep that sounds like a notification pop
+    osc.frequency.setValueAtTime(320, ctx.currentTime)
+    osc.frequency.exponentialRampToValueAtTime(700, ctx.currentTime + 0.12)
+
+    gain.gain.setValueAtTime(0.15, ctx.currentTime)
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.14)
+
+    osc.connect(gain)
+    gain.connect(ctx.destination)
+
+    osc.start(ctx.currentTime)
+    osc.stop(ctx.currentTime + 0.14)
+  } catch (err) {
+    console.error('Failed to play comment pop sound:', err)
+  }
+}
+
+
 function TypewriterText({ text, onDone }: { text: string; onDone: () => void }) {
   const [displayed, setDisplayed] = useState('')
   const indexRef = useRef(0)
@@ -58,7 +86,6 @@ function TypewriterText({ text, onDone }: { text: string; onDone: () => void }) 
 export default function Cutscene({ onComplete, onPhaseChange }: CutsceneProps) {
   const [phase, setPhase] = useState<'comments' | 'mentor'>('comments')
   const [visibleComments, setVisibleComments] = useState(1)
-  const [currentAudioIndex, setCurrentAudioIndex] = useState(1)
   const [isMuted, setIsMuted] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const [mentorTypingDone, setMentorTypingDone] = useState(false)
@@ -67,8 +94,7 @@ export default function Cutscene({ onComplete, onPhaseChange }: CutsceneProps) {
   useEffect(() => {
     onPhaseChange?.(phase)
   }, [phase, onPhaseChange])
-  
-  const audioRef = useRef<HTMLAudioElement | null>(null)
+
   const commentsEndRef = useRef<HTMLDivElement | null>(null)
 
   // Track window size for responsiveness
@@ -79,10 +105,13 @@ export default function Cutscene({ onComplete, onPhaseChange }: CutsceneProps) {
     return () => window.removeEventListener('resize', check)
   }, [])
 
-  // Auto scroll to bottom when a new comment appears
+  // Auto scroll to bottom when a new comment appears and play sound
   useEffect(() => {
     commentsEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [visibleComments])
+    if (visibleComments > 1) {
+      playCommentPopSound(isMuted)
+    }
+  }, [visibleComments, isMuted])
 
   // Display comments one-by-one
   useEffect(() => {
@@ -99,54 +128,6 @@ export default function Cutscene({ onComplete, onPhaseChange }: CutsceneProps) {
       return () => clearInterval(interval)
     }
   }, [phase])
-
-  // Play audio files in order
-  useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.pause()
-    }
-
-    let audioUrl = ''
-    if (phase === 'comments') {
-      audioUrl = `/audio/cutscene_${currentAudioIndex}.mp3`
-    } else {
-      audioUrl = '/audio/cutscene_3.mp3'
-    }
-
-    const audio = new Audio(audioUrl)
-    audio.muted = isMuted
-    audioRef.current = audio
-
-    const handleEnded = () => {
-      if (phase === 'comments' && currentAudioIndex === 1) {
-        setCurrentAudioIndex(2)
-      }
-    }
-
-    audio.addEventListener('ended', handleEnded)
-    audio.addEventListener('error', () => {
-      // If error occurs, trigger standard transition or next audio
-      if (phase === 'comments' && currentAudioIndex === 1) {
-        setCurrentAudioIndex(2)
-      }
-    })
-
-    audio.play().catch((err) => {
-      console.log('Audio autoplay blocked or failed:', err)
-    })
-
-    return () => {
-      audio.removeEventListener('ended', handleEnded)
-      audio.pause()
-    }
-  }, [phase, currentAudioIndex])
-
-  // Sync mute state
-  useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.muted = isMuted
-    }
-  }, [isMuted])
 
 
 
@@ -600,7 +581,7 @@ export default function Cutscene({ onComplete, onPhaseChange }: CutsceneProps) {
                       objectFit: 'contain',
                     }}
                   />
-                  
+
                   {/* Go! Action Speech Bubble */}
                   <motion.div
                     initial={{ scale: 0 }}
@@ -636,9 +617,9 @@ export default function Cutscene({ onComplete, onPhaseChange }: CutsceneProps) {
                   lineHeight: 1.6,
                   fontFamily: 'var(--font-ui)',
                 }}>
-                  <TypewriterText 
-                    text="Tunggu dulu... Benar nggak sih klaim ini? Jangan langsung kemakan emosi netizen. Kita punya data screen time dari sampel 35 siswa acak. Yuk, kita uji validitasnya!" 
-                    onDone={() => setMentorTypingDone(true)} 
+                  <TypewriterText
+                    text="Tunggu dulu... Benar nggak sih klaim ini? Jangan langsung kemakan emosi netizen. Kita punya data screen time dari sampel 35 siswa acak. Yuk, kita uji validitasnya!"
+                    onDone={() => setMentorTypingDone(true)}
                   />
                 </p>
 
