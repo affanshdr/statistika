@@ -98,6 +98,7 @@ export default function SiswaPage() {
   const [showVideoModal, setShowVideoModal] = useState(false)
   const [showGatingModal, setShowGatingModal] = useState(false)
   const [gatingLevelId, setGatingLevelId] = useState<number | null>(null)
+  const [gatingStep, setGatingStep] = useState<1 | 2>(1)
   
   // Game store variables
   const { cognitiveStyle, setCognitiveStyle, startLevel, resetLevel } = useGameStore()
@@ -162,6 +163,7 @@ export default function SiswaPage() {
         const hasRead = localStorage.getItem('has_read_booklet') === 'true'
         if (!hasRead) {
           setGatingLevelId(levelId)
+          setGatingStep(1) // Start at step 1
           setShowGatingModal(true)
           return
         }
@@ -169,6 +171,7 @@ export default function SiswaPage() {
         const hasWatched = localStorage.getItem('has_watched_video') === 'true'
         if (!hasWatched) {
           setGatingLevelId(levelId)
+          setGatingStep(1) // Start at step 1
           setShowGatingModal(true)
           return
         }
@@ -183,7 +186,7 @@ export default function SiswaPage() {
   const handleBookletComplete = () => {
     localStorage.setItem('has_read_booklet', 'true')
     setShowBookletModal(false)
-    if (showGatingModal && gatingLevelId) {
+    if (gatingLevelId) {
       setShowGatingModal(false)
       const activeStyle = student?.geftResult?.cognitiveStyle || cognitiveStyle || 'FI'
       proceedToGame(gatingLevelId, activeStyle)
@@ -194,17 +197,8 @@ export default function SiswaPage() {
   const handleVideoComplete = () => {
     localStorage.setItem('has_watched_video', 'true')
     setShowVideoModal(false)
-    if (showGatingModal && gatingLevelId) {
-      setShowGatingModal(false)
-      const activeStyle = student?.geftResult?.cognitiveStyle || cognitiveStyle || 'FI'
-      proceedToGame(gatingLevelId, activeStyle)
-      setGatingLevelId(null)
-    }
-  }
-
-  const handleSkipGating = () => {
-    setShowGatingModal(false)
     if (gatingLevelId) {
+      setShowGatingModal(false)
       const activeStyle = student?.geftResult?.cognitiveStyle || cognitiveStyle || 'FI'
       proceedToGame(gatingLevelId, activeStyle)
       setGatingLevelId(null)
@@ -1148,24 +1142,26 @@ export default function SiswaPage() {
               boxShadow: '0 20px 60px rgba(0,0,0,0.7), 0 0 40px rgba(0, 255, 136, 0.08)',
             }}
           >
-            <button
-              onClick={() => setShowBookletModal(false)}
-              style={{
-                position: 'absolute',
-                top: '20px',
-                right: '20px',
-                background: 'none',
-                border: 'none',
-                color: 'rgba(255, 255, 255, 0.4)',
-                fontSize: '20px',
-                cursor: 'pointer',
-                zIndex: 10,
-              }}
-              onMouseEnter={e => e.currentTarget.style.color = '#ff6b6b'}
-              onMouseLeave={e => e.currentTarget.style.color = 'rgba(255, 255, 255, 0.4)'}
-            >
-              ✕
-            </button>
+            {!gatingLevelId && (
+              <button
+                onClick={() => setShowBookletModal(false)}
+                style={{
+                  position: 'absolute',
+                  top: '20px',
+                  right: '20px',
+                  background: 'none',
+                  border: 'none',
+                  color: 'rgba(255, 255, 255, 0.4)',
+                  fontSize: '20px',
+                  cursor: 'pointer',
+                  zIndex: 10,
+                }}
+                onMouseEnter={e => e.currentTarget.style.color = '#ff6b6b'}
+                onMouseLeave={e => e.currentTarget.style.color = 'rgba(255, 255, 255, 0.4)'}
+              >
+                ✕
+              </button>
+            )}
             <DetektivBooklet mode={resolvedStyle} onComplete={handleBookletComplete} />
           </motion.div>
         </div>
@@ -1209,20 +1205,22 @@ export default function SiswaPage() {
                   <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 800 }}>Mean, Median, & Modus Data Kelompok</h3>
                 </div>
               </div>
-              <button
-                onClick={() => setShowVideoModal(false)}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: 'rgba(255, 255, 255, 0.4)',
-                  fontSize: '20px',
-                  cursor: 'pointer',
-                }}
-                onMouseEnter={e => e.currentTarget.style.color = '#ff6b6b'}
-                onMouseLeave={e => e.currentTarget.style.color = 'rgba(255, 255, 255, 0.4)'}
-              >
-                ✕
-              </button>
+              {!gatingLevelId && (
+                <button
+                  onClick={() => setShowVideoModal(false)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: 'rgba(255, 255, 255, 0.4)',
+                    fontSize: '20px',
+                    cursor: 'pointer',
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.color = '#ff6b6b'}
+                  onMouseLeave={e => e.currentTarget.style.color = 'rgba(255, 255, 255, 0.4)'}
+                >
+                  ✕
+                </button>
+              )}
             </div>
 
             <div style={{ width: '100%', position: 'relative', paddingBottom: '56.25%', height: 0 }}>
@@ -1281,135 +1279,176 @@ export default function SiswaPage() {
             animate={{ scale: 1, opacity: 1 }}
             style={{
               background: 'rgba(10, 15, 30, 0.95)',
-              border: `1px solid ${resolvedStyle === 'FI' ? 'rgba(59, 130, 246, 0.3)' : 'rgba(6, 182, 212, 0.3)'}`,
+              border: `1.5px solid ${resolvedStyle === 'FI' ? '#3b82f6' : '#00FF88'}`,
               borderRadius: '24px',
-              padding: '28px',
-              width: '420px',
+              padding: '32px',
+              width: '100%',
+              maxWidth: '460px',
               position: 'relative',
-              boxShadow: '0 20px 60px rgba(0,0,0,0.7)',
+              boxShadow: `0 20px 60px rgba(0,0,0,0.7), 0 0 30px ${resolvedStyle === 'FI' ? 'rgba(59,130,246,0.15)' : 'rgba(0,255,136,0.12)'}`,
               display: 'flex',
               flexDirection: 'column',
-              gap: '20px',
+              gap: '24px',
               color: '#fff',
             }}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            {/* Gating Header */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '16px' }}>
+              <div style={{ position: 'relative', width: '40px', height: '40px', flexShrink: 0 }}>
+                <img
+                  src="/dira-avatar.png"
+                  alt="DiRA"
+                  style={{ width: '40px', height: '40px', borderRadius: '50%', border: `1.5px solid ${resolvedStyle === 'FI' ? '#3b82f6' : '#00FF88'}` }}
+                />
+              </div>
               <div>
                 <span style={{
-                  fontSize: '10px',
-                  color: resolvedStyle === 'FI' ? '#60a5fa' : '#22d3ee',
+                  fontSize: '9px',
+                  color: resolvedStyle === 'FI' ? '#60a5fa' : '#00FF88',
                   fontWeight: 800,
                   letterSpacing: '1.5px',
                   textTransform: 'uppercase',
                 }}>
-                  REKOMENDASI BELAJAR ({resolvedStyle})
+                  ARAHAN TUTOR DiRA • LANGKAH {gatingStep} DARI 2
                 </span>
-                <h3 style={{ margin: '4px 0 0 0', fontSize: '18px', fontWeight: 800 }}>
-                  🕵️‍♂️ Persiapan Detektif
+                <h3 style={{ margin: '2px 0 0 0', fontSize: '18px', fontWeight: 900, color: '#fff' }}>
+                  🕵️‍♂️ Persiapan Misi
                 </h3>
               </div>
-              <button
-                onClick={() => setShowGatingModal(false)}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: 'rgba(255, 255, 255, 0.4)',
-                  fontSize: '20px',
-                  cursor: 'pointer',
-                }}
-                onMouseEnter={e => e.currentTarget.style.color = '#ff6b6b'}
-                onMouseLeave={e => e.currentTarget.style.color = 'rgba(255, 255, 255, 0.4)'}
-              >
-                ✕
-              </button>
             </div>
 
-            <p style={{ margin: 0, fontSize: '13.5px', color: 'rgba(255,255,255,0.7)', lineHeight: 1.6 }}>
-              {resolvedStyle === 'FI' ? (
-                <>
-                  Sebelum memulai penyelidikan, detektif dengan gaya kognitif <strong>Field Independent (FI)</strong> diarahkan untuk mempelajari <strong>Buku Saku Detektif</strong> terlebih dahulu guna memperkuat kemampuan analisis mandiri Anda.
-                </>
-              ) : (
-                <>
-                  Sebelum memulai penyelidikan, detektif dengan gaya kognitif <strong>Field Dependent (FD)</strong> diarahkan untuk menonton <strong>Video Pembelajaran</strong> terlebih dahulu untuk mendapatkan gambaran besar secara visual.
-                </>
-              )}
-            </p>
+            {/* Step 1: Penjelasan Gaya Kognitif */}
+            {gatingStep === 1 && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <div style={{
+                  background: 'rgba(255,255,255,0.02)',
+                  border: '1px solid rgba(255,255,255,0.05)',
+                  borderRadius: '16px',
+                  padding: '20px',
+                  fontSize: '14px',
+                  lineHeight: 1.6,
+                  color: '#e5e7eb',
+                }}>
+                  <p style={{ margin: '0 0 12px 0' }}>
+                    Halo, <strong>{student?.name.split(' ')[0]}</strong>! Sebelum terjun ke lokasi investigasi, kita perlu mempersiapkan bekal analisismu.
+                  </p>
+                  <p style={{ margin: 0 }}>
+                    Berdasarkan hasil tes GEFT kamu, gaya kognitifmu teridentifikasi sebagai <strong style={{ color: resolvedStyle === 'FI' ? '#60a5fa' : '#34d399', fontSize: '15px' }}>{resolvedStyle === 'FI' ? '🧠 Field Independent (FI)' : '👥 Field Dependent (FD)'}</strong>.
+                  </p>
+                </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {resolvedStyle === 'FI' ? (
                 <button
-                  onClick={() => {
-                    setShowGatingModal(false)
-                    setShowBookletModal(true)
-                  }}
+                  onClick={() => setGatingStep(2)}
+                  className={resolvedStyle === 'FI' ? 'pulsing-btn-blue' : 'pulsing-btn-green'}
                   style={{
                     padding: '14px',
                     borderRadius: '12px',
-                    background: 'linear-gradient(90deg, #2563eb, #1d4ed8)',
+                    background: resolvedStyle === 'FI' ? 'linear-gradient(90deg, #2563eb, #1d4ed8)' : 'linear-gradient(90deg, #10b981, #059669)',
                     border: 'none',
                     color: '#fff',
-                    fontSize: '13px',
+                    fontSize: '14px',
                     fontWeight: 800,
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: '8px',
+                    transition: 'all 0.2s',
                   }}
+                  onMouseEnter={e => e.currentTarget.style.filter = 'brightness(1.15)'}
+                  onMouseLeave={e => e.currentTarget.style.filter = 'none'}
                 >
-                  <span>📖 Buka Buku Saku Detektif</span>
+                  Lanjut ke Arahan Misi →
                 </button>
-              ) : (
-                <button
-                  onClick={() => {
-                    setShowGatingModal(false)
-                    setShowVideoModal(true)
-                  }}
-                  style={{
-                    padding: '14px',
-                    borderRadius: '12px',
-                    background: 'linear-gradient(90deg, #06b6d4, #0891b2)',
-                    border: 'none',
-                    color: '#fff',
-                    fontSize: '13px',
-                    fontWeight: 800,
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '8px',
-                  }}
-                >
-                  <span>🎥 Tonton Video Pembelajaran</span>
-                </button>
-              )}
+              </div>
+            )}
 
-              <button
-                onClick={handleSkipGating}
-                style={{
-                  padding: '12px',
-                  borderRadius: '12px',
-                  background: 'rgba(255,255,255,0.03)',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  color: 'rgba(255,255,255,0.6)',
-                  fontSize: '12px',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  transition: 'all 0.2s',
-                }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.background = 'rgba(255,255,255,0.06)'
-                  e.currentTarget.style.color = '#fff'
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.background = 'rgba(255,255,255,0.03)'
-                  e.currentTarget.style.color = 'rgba(255,255,255,0.6)'
-                }}
-              >
-                🎮 Lewati & Mulai Game
-              </button>
-            </div>
+            {/* Step 2: Insting & Perintah Belajar */}
+            {gatingStep === 2 && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <div style={{
+                  background: 'rgba(255,255,255,0.02)',
+                  border: '1px solid rgba(255,255,255,0.05)',
+                  borderRadius: '16px',
+                  padding: '20px',
+                  fontSize: '14px',
+                  lineHeight: 1.6,
+                  color: '#e5e7eb',
+                }}>
+                  {resolvedStyle === 'FI' ? (
+                    <>
+                      Sebagai detektif bertipe <strong>Field Independent (FI)</strong>, kamu cenderung sangat hebat dalam menganalisis detail secara mandiri.
+                      <p style={{ margin: '12px 0 0 0', fontWeight: 600, color: '#60a5fa' }}>
+                        👉 Kamu diinstruksikan untuk mempelajari BUKU SAKU DETEKTIF terlebih dahulu untuk memperkuat dasar teorimu!
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      Sebagai detektif bertipe <strong>Field Dependent (FD)</strong>, kamu belajar paling baik melalui interaksi visual dan penjelasan kontekstual.
+                      <p style={{ margin: '12px 0 0 0', fontWeight: 600, color: '#34d399' }}>
+                        👉 Kamu diinstruksikan untuk menonton VIDEO PEMBELAJARAN terlebih dahulu untuk memahami visualisasi konsep statistika!
+                      </p>
+                    </>
+                  )}
+                </div>
+
+                {resolvedStyle === 'FI' ? (
+                  <button
+                    onClick={() => {
+                      setShowGatingModal(false)
+                      setShowBookletModal(true)
+                    }}
+                    className="pulsing-btn-blue"
+                    style={{
+                      padding: '14px',
+                      borderRadius: '12px',
+                      background: 'linear-gradient(90deg, #2563eb, #1d4ed8)',
+                      border: 'none',
+                      color: '#fff',
+                      fontSize: '14px',
+                      fontWeight: 800,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px',
+                      transition: 'all 0.2s',
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.filter = 'brightness(1.15)'}
+                    onMouseLeave={e => e.currentTarget.style.filter = 'none'}
+                  >
+                    <span>📖 Buka Buku Saku Detektif</span>
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => {
+                      setShowGatingModal(false)
+                      setShowVideoModal(true)
+                    }}
+                    className="pulsing-btn-green"
+                    style={{
+                      padding: '14px',
+                      borderRadius: '12px',
+                      background: 'linear-gradient(90deg, #10b981, #059669)',
+                      border: 'none',
+                      color: '#fff',
+                      fontSize: '14px',
+                      fontWeight: 800,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px',
+                      transition: 'all 0.2s',
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.filter = 'brightness(1.15)'}
+                    onMouseLeave={e => e.currentTarget.style.filter = 'none'}
+                  >
+                    <span>🎥 Tonton Video Pembelajaran</span>
+                  </button>
+                )}
+              </div>
+            )}
           </motion.div>
         </div>
       )}
@@ -1432,6 +1471,38 @@ export default function SiswaPage() {
             opacity: 0;
             box-shadow: 0 0 0 0 rgba(0, 255, 136, 0);
           }
+        }
+
+        @keyframes buttonPulse {
+          0% {
+            box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.4);
+          }
+          70% {
+            box-shadow: 0 0 0 12px rgba(0, 255, 136, 0);
+          }
+          100% {
+            box-shadow: 0 0 0 0 rgba(0, 255, 136, 0);
+          }
+        }
+
+        @keyframes buttonPulseBlue {
+          0% {
+            box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4);
+          }
+          70% {
+            box-shadow: 0 0 0 12px rgba(37, 99, 235, 0);
+          }
+          100% {
+            box-shadow: 0 0 0 0 rgba(37, 99, 235, 0);
+          }
+        }
+
+        .pulsing-btn-green {
+          animation: buttonPulse 1.8s infinite;
+        }
+
+        .pulsing-btn-blue {
+          animation: buttonPulseBlue 1.8s infinite;
         }
 
         .cards-scroll-container::-webkit-scrollbar {
