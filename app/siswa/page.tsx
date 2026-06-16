@@ -101,7 +101,7 @@ export default function SiswaPage() {
   const [gatingStep, setGatingStep] = useState<1 | 2>(1)
   
   // Game store variables
-  const { cognitiveStyle, setCognitiveStyle, startLevel, resetLevel } = useGameStore()
+  const { cognitiveStyle, setCognitiveStyle, startLevel, resetLevel, completedLevels } = useGameStore()
 
   useEffect(() => {
     const data = localStorage.getItem('student')
@@ -217,8 +217,12 @@ export default function SiswaPage() {
   const resolvedStyle = student?.geftResult?.cognitiveStyle || cognitiveStyle || 'FI'
   const isFI = resolvedStyle === 'FI'
 
-  // Compute which levels are currently unlocked for the booklet
-  const unlockedLevelIds = LEVELS.filter(l => !l.locked).map(l => l.id)
+  // Booklet unlock logic:
+  // - Level 1 is always available
+  // - Level N (N >= 2) unlocks when Level N-1 has been completed
+  const unlockedLevelIds = LEVELS
+    .filter(l => l.id === 1 || completedLevels.includes(l.id - 1))
+    .map(l => l.id)
 
   return (
     <main style={{
