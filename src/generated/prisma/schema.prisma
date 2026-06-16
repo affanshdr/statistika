@@ -90,3 +90,14 @@ model Leaderboard {
 
   @@map("leaderboard")
 }
+
+model ChatbotKnowledge {
+  id        String   @id @default(uuid())
+  title     String
+  content   String
+  category  String   @default("umum") // "statistika" | "gameplay" | "umum"
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("chatbot_knowledge")
+}
