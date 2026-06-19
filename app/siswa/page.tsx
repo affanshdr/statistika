@@ -14,6 +14,7 @@ type Student = {
   classroom: { name: string }
   diagnosticScore?: number | null
   diagnosticLevel?: string | null
+  postTestScore?: number | null
   geftResult?: {
     score: number
     cognitiveStyle: 'FI' | 'FD'

@@ -16,6 +16,7 @@ interface Student {
   } | null
   diagnosticScore?: number | null
   diagnosticLevel?: string | null
+  postTestScore?: number | null
   leaderboard?: {
     totalXp: number
   } | null
@@ -464,6 +465,7 @@ export default function GuruPage() {
                       <th style={{ padding: '16px 20px', textAlign: 'center' }}>Gaya Kognitif</th>
                       <th style={{ padding: '16px 20px', textAlign: 'center' }}>Skor GEFT</th>
                       <th style={{ padding: '16px 20px', textAlign: 'center' }}>Diagnostik</th>
+                      <th style={{ padding: '16px 20px', textAlign: 'center' }}>Post Test</th>
                       <th style={{ padding: '16px 20px', textAlign: 'right' }}>Total XP</th>
                     </tr>
                   </thead>
@@ -519,6 +521,20 @@ export default function GuruPage() {
                                 textTransform: 'capitalize'
                               }}>
                                 {student.diagnosticLevel} ({student.diagnosticScore || 0})
+                              </span>
+                            ) : (
+                              <span style={{ color: 'rgba(255,255,255,0.25)' }}>Belum Tes</span>
+                            )}
+                          </td>
+                          <td style={{ padding: '16px 20px', textAlign: 'center' }}>
+                            {student.postTestScore !== undefined && student.postTestScore !== null ? (
+                              <span style={{
+                                display: 'inline-flex', padding: '4px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 800,
+                                background: student.postTestScore >= 4 ? 'rgba(16,185,129,0.08)' : student.postTestScore >= 2 ? 'rgba(245,158,11,0.08)' : 'rgba(239,68,68,0.08)',
+                                border: `1px solid ${student.postTestScore >= 4 ? 'rgba(16,185,129,0.2)' : student.postTestScore >= 2 ? 'rgba(245,158,11,0.2)' : 'rgba(239,68,68,0.2)'}`,
+                                color: student.postTestScore >= 4 ? '#34d399' : student.postTestScore >= 2 ? '#fbbf24' : '#f87171',
+                              }}>
+                                Selesai ({student.postTestScore} / 5)
                               </span>
                             ) : (
                               <span style={{ color: 'rgba(255,255,255,0.25)' }}>Belum Tes</span>

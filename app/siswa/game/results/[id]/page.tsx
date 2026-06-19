@@ -24,6 +24,7 @@ export default function ResultsPage({
   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 })
   const [confetti, setConfetti] = useState(false)
   const [showContent, setShowContent] = useState(false)
+  const [hasPostTest, setHasPostTest] = useState(false)
 
   const isCorrect = store.verdictAnswer === CORRECT_VERDICT
 
@@ -31,6 +32,15 @@ export default function ResultsPage({
     setWindowSize({ width: window.innerWidth, height: window.innerHeight })
     if (isCorrect) setConfetti(true)
     setTimeout(() => { setConfetti(false); setShowContent(true) }, 2500)
+
+    try {
+      const student = JSON.parse(localStorage.getItem('student') ?? '{}')
+      if (student.postTestScore !== undefined && student.postTestScore !== null) {
+        setHasPostTest(true)
+      }
+    } catch (e) {
+      console.error(e)
+    }
   }, [isCorrect])
 
   // Save session to DB + update leaderboard once
@@ -327,10 +337,16 @@ export default function ResultsPage({
                   className="game-btn game-btn-primary"
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.97 }}
-                  onClick={() => router.push('/siswa')}
+                  onClick={() => {
+                    if (!hasPostTest) {
+                      router.push('/siswa/post-test')
+                    } else {
+                      router.push('/siswa')
+                    }
+                  }}
                   style={{ padding: '14px 40px', fontSize: '15px', fontWeight: 800, borderRadius: '14px' }}
                 >
-                  ← Kembali ke Dashboard
+                  {!hasPostTest ? 'Mulai Post Test 🚀' : '← Kembali ke Dashboard'}
                 </motion.button>
               </motion.div>
 

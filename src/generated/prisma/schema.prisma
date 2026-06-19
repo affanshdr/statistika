@@ -33,6 +33,7 @@ model Student {
   geftStatus      GeftStatus @default(not_taken) @map("geft_status")
   diagnosticScore Int?       @map("diagnostic_score")
   diagnosticLevel String?    @map("diagnostic_level") // "tinggi" | "sedang" | "rendah"
+  postTestScore   Int?       @map("post_test_score")
   createdAt       DateTime   @default(now()) @map("created_at")
 
   geftResult   GeftResult?

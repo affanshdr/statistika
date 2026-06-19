@@ -137,6 +137,7 @@ exports.Prisma.StudentScalarFieldEnum = {
   geftStatus: 'geftStatus',
   diagnosticScore: 'diagnosticScore',
   diagnosticLevel: 'diagnosticLevel',
+  postTestScore: 'postTestScore',
   createdAt: 'createdAt'
 };
 
