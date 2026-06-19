@@ -15,6 +15,7 @@ export interface GameStore {
 
   // Persistent game state
   currentLevel: number
+  completedLevels: number[]   // levels fully completed by the student
   xp: number
   lives: number
   badges: string[]
@@ -50,6 +51,7 @@ export const useGameStore = create<GameStore>()(
       // Initial state
       cognitiveStyle: null,
       currentLevel: 0,
+      completedLevels: [],
       xp: 0,
       lives: 3,
       badges: [],
@@ -87,7 +89,13 @@ export const useGameStore = create<GameStore>()(
       setTimeRemaining: (seconds) => set({ timeRemaining: seconds }),
 
       completeLevel: (levelId) =>
-        set({ isCompleted: true, currentLevel: levelId }),
+        set((state) => ({
+          isCompleted: true,
+          currentLevel: levelId,
+          completedLevels: state.completedLevels.includes(levelId)
+            ? state.completedLevels
+            : [...state.completedLevels, levelId],
+        })),
 
       unlockBadge: (badgeId) =>
         set((state) => ({
@@ -138,6 +146,7 @@ export const useGameStore = create<GameStore>()(
         xp: state.xp,
         badges: state.badges,
         currentLevel: state.currentLevel,
+        completedLevels: state.completedLevels,
         // level state (backup on refresh)
         currentStep: state.currentStep,
         answers: state.answers,
