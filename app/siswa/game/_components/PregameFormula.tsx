@@ -402,10 +402,23 @@ export default function PregameFormula({ onComplete }: Props) {
   nearNodeRef.current = nearNode
   const assignPopupRef = useRef<number | null>(null)
   assignPopupRef.current = assignPopup
+  const showFDIntroPopupRef = useRef(showFDIntroPopup)
+  showFDIntroPopupRef.current = showFDIntroPopup
   const [rentangDone, setRentangDone] = useState(false)
   const dirRef  = useRef({ x: 0, y: 0 })
   const animRef = useRef<number | null>(null)
   const mapRef  = useRef<HTMLDivElement>(null)
+
+  const [popupSelection, setPopupSelection] = useState<'terbesar' | 'terkecil'>('terbesar')
+  const popupSelectionRef = useRef<'terbesar' | 'terkecil'>('terbesar')
+  popupSelectionRef.current = popupSelection
+
+  useEffect(() => {
+    if (assignPopup !== null) {
+      dirRef.current = { x: 0, y: 0 }
+      setPopupSelection('terbesar')
+    }
+  }, [assignPopup])
 
   // RAF movement loop
   useEffect(() => {
@@ -442,6 +455,31 @@ export default function PregameFormula({ onComplete }: Props) {
       dirRef.current = len > 0 ? { x: nx / len, y: ny / len } : { x: 0, y: 0 }
     }
     const down = (e: KeyboardEvent) => {
+      if (showFDIntroPopupRef.current) {
+        if (e.key === 'Enter') {
+          e.preventDefault()
+          setShowFDIntroPopup(false)
+        }
+        return
+      }
+
+      if (assignPopupRef.current !== null) {
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+          e.preventDefault()
+          setPopupSelection('terbesar')
+        } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+          e.preventDefault()
+          setPopupSelection('terkecil')
+        } else if (e.key === 'Enter') {
+          e.preventDefault()
+          handleAssignRef.current(popupSelectionRef.current)
+        } else if (e.key === 'Escape') {
+          e.preventDefault()
+          setAssignPopup(null)
+        }
+        return
+      }
+
       if (KEYS[e.key]) {
         e.preventDefault()
         held.add(e.key)
@@ -498,6 +536,9 @@ export default function PregameFormula({ onComplete }: Props) {
       else setMazeMin(val)
     }
   }, [assignPopup])
+
+  const handleAssignRef = useRef(handleAssign)
+  handleAssignRef.current = handleAssign
 
   const handleConfirmRentang = useCallback(() => {
     if (mazeMax !== null && mazeMin !== null) setRentangDone(true)
@@ -789,7 +830,7 @@ export default function PregameFormula({ onComplete }: Props) {
                   boxShadow: 'var(--accent-glow)',
                 }}
               >
-                Mengerti
+                Mengerti {!isMobile && '(Enter)'}
               </button>
             </motion.div>
           </div>
@@ -1013,15 +1054,40 @@ export default function PregameFormula({ onComplete }: Props) {
                       </div>
                       <div style={{ display: 'flex', gap: '10px' }}>
                         <button
-                          className="game-btn game-btn-primary"
                           onClick={() => handleAssign('terbesar')}
-                          style={{ flex: 1, padding: '10px 6px', fontSize: '12px', fontWeight: 800, borderRadius: '12px', minHeight: 'auto' }}
+                          style={{
+                            flex: 1,
+                            padding: '10px 6px',
+                            fontSize: '12px',
+                            fontWeight: 800,
+                            borderRadius: '12px',
+                            minHeight: 'auto',
+                            transition: 'all 0.2s',
+                            cursor: 'pointer',
+                            background: popupSelection === 'terbesar' ? ACC : `${ACC}1a`,
+                            border: popupSelection === 'terbesar' ? `2.5px solid #fff` : `1.5px solid ${ACC}44`,
+                            color: popupSelection === 'terbesar' ? '#000' : '#a5b4fc',
+                            boxShadow: popupSelection === 'terbesar' ? `0 0 15px ${ACC}` : 'none',
+                          }}
                         >
                           📈 Nilai Terbesar
                         </button>
                         <button
                           onClick={() => handleAssign('terkecil')}
-                          style={{ flex: 1, padding: '10px 6px', fontSize: '12px', fontWeight: 800, borderRadius: '12px', minHeight: 'auto', background: `${GREEN}22`, border: `1.5px solid ${GREEN}55`, color: GREEN, cursor: 'pointer' }}
+                          style={{
+                            flex: 1,
+                            padding: '10px 6px',
+                            fontSize: '12px',
+                            fontWeight: 800,
+                            borderRadius: '12px',
+                            minHeight: 'auto',
+                            transition: 'all 0.2s',
+                            cursor: 'pointer',
+                            background: popupSelection === 'terkecil' ? GREEN : `${GREEN}1a`,
+                            border: popupSelection === 'terkecil' ? `2.5px solid #fff` : `1.5px solid ${GREEN}44`,
+                            color: popupSelection === 'terkecil' ? '#000' : GREEN,
+                            boxShadow: popupSelection === 'terkecil' ? `0 0 15px ${GREEN}` : 'none',
+                          }}
                         >
                           📉 Nilai Terkecil
                         </button>
@@ -1030,7 +1096,7 @@ export default function PregameFormula({ onComplete }: Props) {
                         onClick={() => setAssignPopup(null)}
                         style={{ fontSize: '12px', color: 'rgba(255,255,255,0.38)', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}
                       >
-                        ← Lanjut eksplorasi dulu
+                        ← Lanjut eksplorasi dulu {!isMobile && '(Esc)'}
                       </button>
                     </motion.div>
                   </div>
@@ -1225,34 +1291,35 @@ export default function PregameFormula({ onComplete }: Props) {
                       )}
                     </AnimatePresence>
                   </div>
+
+                  {/* Action Button moved here */}
+                  {rentangDone ? (
+                    <button
+                      className="game-btn game-btn-primary"
+                      onClick={() => navigateTo('banyak-kelas')}
+                      style={{ width: '100%', padding: '8px', fontSize: '11px', boxShadow: 'var(--accent-glow)', marginTop: '4px' }}
+                    >
+                      Lanjut →
+                    </button>
+                  ) : (
+                    <button
+                      className="game-btn game-btn-primary"
+                      onClick={handleConfirmRentang}
+                      disabled={mazeMax === null || mazeMin === null}
+                      style={{
+                        width: '100%', padding: '8px', fontSize: '11px',
+                        opacity: mazeMax !== null && mazeMin !== null ? 1 : 0.45,
+                        cursor: mazeMax !== null && mazeMin !== null ? 'pointer' : 'not-allowed',
+                        marginTop: '4px'
+                      }}
+                    >
+                      {mazeMax !== null && mazeMin !== null
+                        ? 'Konfirmasi →'
+                        : 'Eksplorasi Labirin...'}
+                    </button>
+                  )}
                 </div>
               </div>
-
-              {/* Action */}
-              {rentangDone ? (
-                <button
-                  className="game-btn game-btn-primary"
-                  onClick={() => navigateTo('banyak-kelas')}
-                  style={{ flexShrink: 0, width: '100%', padding: '8px', fontSize: '12px', boxShadow: 'var(--accent-glow)' }}
-                >
-                  Lanjut: Banyak Kelas (K) →
-                </button>
-              ) : (
-                <button
-                  className="game-btn game-btn-primary"
-                  onClick={handleConfirmRentang}
-                  disabled={mazeMax === null || mazeMin === null}
-                  style={{
-                    flexShrink: 0, width: '100%', padding: '8px', fontSize: '12px',
-                    opacity: mazeMax !== null && mazeMin !== null ? 1 : 0.4,
-                    cursor: mazeMax !== null && mazeMin !== null ? 'pointer' : 'not-allowed',
-                  }}
-                >
-                  {mazeMax !== null && mazeMin !== null
-                    ? 'Konfirmasi Rentang →'
-                    : 'Eksplorasi labirin — temukan nilai terbesar & terkecil!'}
-                </button>
-              )}
             </>
           )}
 
