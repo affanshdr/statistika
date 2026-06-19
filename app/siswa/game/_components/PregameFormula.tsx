@@ -322,6 +322,7 @@ export default function PregameFormula({ onComplete }: Props) {
 
   // ── DiRA Popup state ─────────────────────────────────────────────────────
   const [diraPopupStep, setDiraPopupStep] = useState<DiraPopupStep | null>(null)
+  const [showFDIntroPopup, setShowFDIntroPopup] = useState(false)
   // Track which steps have already shown popup (show only once each)
   // 'intro' excluded — the new Agent dialog handles intro messaging
   const shownSteps = useRef<Set<SubScreen>>(new Set(['intro']))
@@ -331,9 +332,13 @@ export default function PregameFormula({ onComplete }: Props) {
     if (!shownSteps.current.has(next)) {
       shownSteps.current.add(next)
       // Small delay so the screen transition plays first
-      setTimeout(() => setDiraPopupStep(next as DiraPopupStep), 350)
+      if (next === 'rentang' && isFD) {
+        setShowFDIntroPopup(true)
+      } else {
+        setTimeout(() => setDiraPopupStep(next as DiraPopupStep), 350)
+      }
     }
-  }, [])
+  }, [isFD])
 
   // ── Flash overlay (FI error) ─────────────────────────────────────────────
   const [flashScreen, setFlashScreen] = useState(false)
@@ -503,6 +508,266 @@ export default function PregameFormula({ onComplete }: Props) {
           onDismiss={() => setDiraPopupStep(null)}
         />
       )}
+
+      {/* Centered Dira Tutorial Popup for FD Mode (Langkah 1: Rentang) */}
+      <AnimatePresence>
+        {isFD && showFDIntroPopup && (
+          <div style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(3, 7, 18, 0.85)',
+            backdropFilter: 'blur(8px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 500,
+            padding: '20px',
+          }}>
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 350 }}
+              style={{
+                maxWidth: '780px',
+                width: '100%',
+                background: 'rgba(12, 12, 20, 0.98)',
+                border: '2px solid var(--accent)',
+                borderRadius: '24px',
+                padding: '24px 28px',
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 0 30px rgba(0, 255, 136, 0.15)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '20px',
+                position: 'relative',
+              }}
+            >
+              <style>{`
+                @media (max-width: 768px) {
+                  .fd-popup-body {
+                    flex-direction: column !important;
+                  }
+                  .fd-popup-left, .fd-popup-right {
+                    width: 100% !important;
+                    flex: none !important;
+                  }
+                }
+              `}</style>
+
+              {/* Title & Formula Header */}
+              <div style={{ textAlign: 'center', width: '100%', borderBottom: '1px solid rgba(255, 255, 255, 0.1)', paddingBottom: '16px' }}>
+                <div style={{
+                  fontSize: '11px',
+                  fontWeight: 800,
+                  letterSpacing: '2px',
+                  color: 'var(--accent)',
+                  textTransform: 'uppercase',
+                  marginBottom: '6px',
+                }}>
+                  Petunjuk Asisten Dira
+                </div>
+                <h3 style={{ margin: '0 0 8px 0', fontSize: '22px', fontWeight: 900, color: '#fff' }}>
+                  Mencari Nilai Rentang (R) 📏
+                </h3>
+                <p style={{ margin: 0, fontSize: '14.5px', color: 'rgba(255,255,255,0.75)', lineHeight: 1.6 }}>
+                  Untuk mencari <strong>Rentang</strong>, rumusnya adalah:{' '}
+                  <span style={{ color: 'var(--accent)', fontWeight: 800, fontSize: '15px', marginLeft: '6px' }}>
+                    R = data terbesar − data terkecil
+                  </span>
+                </p>
+              </div>
+
+              {/* Main columns */}
+              <div className="fd-popup-body" style={{
+                display: 'flex',
+                gap: '24px',
+                width: '100%',
+                alignItems: 'stretch',
+              }}>
+                {/* Left Column: Content (Ratio 3) */}
+                <div className="fd-popup-left" style={{
+                  flex: 3,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '16px',
+                }}>
+                  {/* Row 1: Largest Value Example */}
+                  <div style={{
+                    background: 'rgba(255, 255, 255, 0.02)',
+                    border: '1px solid rgba(255, 255, 255, 0.06)',
+                    borderRadius: '16px',
+                    padding: '16px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '12px',
+                    textAlign: 'left',
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: '13px', fontWeight: 700, color: '#fff', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span style={{ color: 'var(--accent)' }}>📈</span> Contoh 1: Mencari Nilai Terbesar
+                      </span>
+                      <span style={{ fontSize: '12px', color: 'rgba(255, 255, 255, 0.5)' }}>
+                        (Dari 10 Angka)
+                      </span>
+                    </div>
+                    
+                    {/* Number sequence */}
+                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                      {[12, 8, 15, 6, 21, 14, 9, 17, 11, 13].map((num, idx) => {
+                        const isTarget = num === 21;
+                        return (
+                          <div
+                            key={idx}
+                            style={{
+                              width: '34px',
+                              height: '34px',
+                              borderRadius: '50%',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              fontSize: '13px',
+                              fontWeight: isTarget ? 800 : 500,
+                              background: isTarget ? 'var(--accent)' : 'rgba(255,255,255,0.05)',
+                              color: isTarget ? '#000' : 'rgba(255,255,255,0.7)',
+                              border: isTarget ? '2px solid #fff' : '1px solid rgba(255,255,255,0.1)',
+                              boxShadow: isTarget ? '0 0 10px var(--accent)' : 'none',
+                              transition: 'all 0.2s',
+                            }}
+                          >
+                            {num}
+                          </div>
+                        );
+                      })}
+                    </div>
+                    
+                    <div style={{ fontSize: '12.5px', color: 'rgba(255, 255, 255, 0.7)' }}>
+                      Angka <span style={{ color: 'var(--accent)', fontWeight: 800 }}>21</span> ditebalkan karena merupakan angka <strong style={{ color: 'var(--accent)' }}>terbesar</strong> dari kumpulan data tersebut.
+                    </div>
+                  </div>
+
+                  {/* Row 2: Smallest Value Example */}
+                  <div style={{
+                    background: 'rgba(255, 255, 255, 0.02)',
+                    border: '1px solid rgba(255, 255, 255, 0.06)',
+                    borderRadius: '16px',
+                    padding: '16px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '12px',
+                    textAlign: 'left',
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: '13px', fontWeight: 700, color: '#fff', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span style={{ color: '#4ade80' }}>📉</span> Contoh 2: Mencari Nilai Terkecil
+                      </span>
+                      <span style={{ fontSize: '12px', color: 'rgba(255, 255, 255, 0.5)' }}>
+                        (Dari 10 Angka)
+                      </span>
+                    </div>
+                    
+                    {/* Number sequence */}
+                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                      {[18, 25, 11, 30, 14, 22, 9, 16, 27, 13].map((num, idx) => {
+                        const isTarget = num === 9;
+                        return (
+                          <div
+                            key={idx}
+                            style={{
+                              width: '34px',
+                              height: '34px',
+                              borderRadius: '50%',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              fontSize: '13px',
+                              fontWeight: isTarget ? 800 : 500,
+                              background: isTarget ? '#4ade80' : 'rgba(255,255,255,0.05)',
+                              color: isTarget ? '#000' : 'rgba(255,255,255,0.7)',
+                              border: isTarget ? '2px solid #fff' : '1px solid rgba(255,255,255,0.1)',
+                              boxShadow: isTarget ? '0 0 10px #4ade80' : 'none',
+                              transition: 'all 0.2s',
+                            }}
+                          >
+                            {num}
+                          </div>
+                        );
+                      })}
+                    </div>
+                    
+                    <div style={{ fontSize: '12.5px', color: 'rgba(255, 255, 255, 0.7)' }}>
+                      Angka <span style={{ color: '#4ade80', fontWeight: 800 }}>9</span> ditebalkan karena merupakan angka <strong style={{ color: '#4ade80' }}>terkecil</strong> dari kumpulan data tersebut.
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right Column: Agent Dira (Ratio 1) */}
+                <div className="fd-popup-right" style={{
+                  flex: 1.1,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '16px',
+                  background: 'rgba(99, 102, 241, 0.05)',
+                  border: '1px solid rgba(99, 102, 241, 0.15)',
+                  borderRadius: '16px',
+                  padding: '16px',
+                  boxSizing: 'border-box',
+                }}>
+                  <div style={{
+                    width: '76px',
+                    height: '76px',
+                    borderRadius: '50%',
+                    border: '2px solid var(--accent)',
+                    boxShadow: 'var(--accent-glow)',
+                    background: 'var(--game-card)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    overflow: 'hidden',
+                  }}>
+                    <img
+                      src="https://tmdbqikqflbeqaqllxge.supabase.co/storage/v1/object/public/Asset/Agent.png"
+                      onError={(e) => { e.currentTarget.src = '/dira-avatar.png' }}
+                      alt="Dira"
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                  </div>
+                  
+                  <div style={{
+                    textAlign: 'center',
+                    fontSize: '12.5px',
+                    lineHeight: 1.6,
+                    color: '#e2e8f0',
+                    fontWeight: 600,
+                  }}>
+                    <p style={{ margin: '0 0 8px 0', color: 'var(--accent)', fontWeight: 800, fontSize: '11px', letterSpacing: '0.5px' }}>
+                      TIPS DARI DIRA
+                    </p>
+                    "Urutkan atau scan data dari kiri ke kanan untuk menemukan nilai tertinggi dan terendah secara cepat!"
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Button */}
+              <button
+                className="game-btn game-btn-primary"
+                onClick={() => setShowFDIntroPopup(false)}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  fontSize: '14px',
+                  fontWeight: 800,
+                  boxShadow: 'var(--accent-glow)',
+                  marginTop: '8px',
+                }}
+              >
+                Mengerti
+              </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* FI Flash overlay */}
       <AnimatePresence>

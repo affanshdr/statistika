@@ -113,6 +113,8 @@ export default function DiagnostikPage() {
     setSelected(optIdx)
   }
 
+
+
   const handleNext = useCallback(() => {
     if (processingRef.current) return
     processingRef.current = true
@@ -138,11 +140,31 @@ export default function DiagnostikPage() {
 
       // Simpan ke API
       setSaving(true)
-      const student = JSON.parse(localStorage.getItem('student') ?? '{}')
+      let student: any = {}
+      let activeStudentId = ''
+      try {
+        const stored = localStorage.getItem('student')
+        if (stored) {
+          student = JSON.parse(stored) || {}
+          activeStudentId = student.id || ''
+        }
+      } catch (e) {
+        console.error('Failed to parse student from localStorage', e)
+      }
+
+      if (!activeStudentId) {
+        alert('Sesi siswa tidak ditemukan. Silakan login kembali.')
+        localStorage.removeItem('student')
+        router.push('/')
+        processingRef.current = false
+        setSaving(false)
+        return
+      }
+
       fetch('/api/diagnostic', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ studentId: student.id, score: totalScore }),
+        body: JSON.stringify({ studentId: activeStudentId, score: totalScore }),
       }).then(async res => {
         if (res.status === 404) {
           alert('Data siswa Anda tidak ditemukan di server. Silakan masuk kembali.')
@@ -153,6 +175,7 @@ export default function DiagnostikPage() {
         const data = await res.json()
         if (!res.ok) {
           alert(data.error || 'Gagal menyimpan hasil diagnostik')
+          processingRef.current = false
           return
         }
         // Update localStorage
@@ -161,6 +184,7 @@ export default function DiagnostikPage() {
       }).catch(err => {
         console.error(err)
         alert('Gagal terhubung ke server untuk menyimpan hasil.')
+        processingRef.current = false
       }).finally(() => setSaving(false))
     }
   }, [selected, currentQ, answers, router])

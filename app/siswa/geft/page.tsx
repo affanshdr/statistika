@@ -459,6 +459,66 @@ export default function GeftPage() {
     }
   }
 
+  async function bypassGeft(targetScore: number) {
+    setSubmitting(true)
+    setPhase('done')
+
+    let activeStudentId = studentId
+    if (!activeStudentId) {
+      try {
+        const stored = localStorage.getItem('student')
+        if (stored) {
+          const parsed = JSON.parse(stored)
+          activeStudentId = parsed.id
+        }
+      } catch (e) {
+        console.error('Failed to parse fallback student ID', e)
+      }
+    }
+
+    if (!activeStudentId) {
+      alert('Sesi siswa tidak ditemukan. Silakan login kembali.')
+      router.push('/')
+      return
+    }
+
+    try {
+      const res = await fetch('/api/geft', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ studentId: activeStudentId, score: targetScore, totalQuestions: 6 }),
+      })
+
+      if (res.status === 404) {
+        alert('Data siswa Anda tidak terdaftar atau telah dihapus di server. Silakan masuk kembali.')
+        localStorage.removeItem('student')
+        router.push('/')
+        return
+      }
+
+      const data = await res.json()
+      if (!res.ok) {
+        alert(data.error)
+        setPhase('intro')
+        return
+      }
+
+      const stored = JSON.parse(localStorage.getItem('student')!)
+      localStorage.setItem('student', JSON.stringify({
+        ...stored,
+        geftStatus: 'completed',
+        geftResult: { cognitiveStyle: data.cognitiveStyle, score: data.score }
+      }))
+      sessionStorage.setItem('show_cognitive_style_first_time', '1')
+      router.push('/siswa')
+    } catch {
+      alert('Gagal menyimpan hasil bypass.')
+      setPhase('intro')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
   const timerStr = `${String(Math.floor(timeLeft / 60)).padStart(2, '0')}:${String(timeLeft % 60).padStart(2, '0')}`
   const timerColor = timeLeft <= 30 ? '#e53935' : '#fff'
 
@@ -504,9 +564,34 @@ export default function GeftPage() {
             </div>
           </div>
         </div>
-        <span style={{ fontSize: '11px', fontWeight: 600, color: 'rgba(255,255,255,0.4)', letterSpacing: '1px' }}>
-          {titleSuffix}
-        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <span style={{ fontSize: '11px', fontWeight: 600, color: 'rgba(255,255,255,0.4)', letterSpacing: '1px' }}>
+            {titleSuffix}
+          </span>
+          <select
+            onChange={(e) => {
+              const val = e.target.value
+              if (val === 'FI') bypassGeft(6)
+              if (val === 'FD') bypassGeft(0)
+            }}
+            defaultValue=""
+            style={{
+              background: 'rgba(255, 255, 255, 0.05)',
+              border: '1px solid rgba(0, 255, 136, 0.3)',
+              borderRadius: '6px',
+              color: '#00FF88',
+              fontSize: '10px',
+              fontWeight: 700,
+              padding: '4px 8px',
+              cursor: 'pointer',
+              outline: 'none',
+            }}
+          >
+            <option value="" disabled style={{ background: '#0c0c14', color: '#fff' }}>⚡ DEV BYPASS</option>
+            <option value="FI" style={{ background: '#0c0c14', color: '#fff' }}>Bypass ke FI (Skor 6)</option>
+            <option value="FD" style={{ background: '#0c0c14', color: '#fff' }}>Bypass ke FD (Skor 0)</option>
+          </select>
+        </div>
       </div>
     </header>
   )
