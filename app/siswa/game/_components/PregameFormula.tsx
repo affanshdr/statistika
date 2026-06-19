@@ -19,7 +19,7 @@ const MAZE_SPEED = 0.32 // % per frame at ~60fps
 
 // 12 maze nodes — strategically placed, includes min=1 and max=18
 const MAZE_NODES = [
-  { val: 1,  x: 7,  y: 60 },
+  { val: 1,  x: 7,  y: 35 },
   { val: 3,  x: 23, y: 55 },
   { val: 4,  x: 39, y: 83 },
   { val: 5,  x: 13, y: 27 },
@@ -357,6 +357,14 @@ export default function PregameFormula({ onComplete }: Props) {
   const [sub, setSub] = useState<SubScreen>('intro')
   const [introDone, setIntroDone] = useState(false)
 
+  const [isMobile, setIsMobile] = useState(false)
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
+
   // ── DiRA Popup state ─────────────────────────────────────────────────────
   const [diraPopupStep, setDiraPopupStep] = useState<DiraPopupStep | null>(null)
   const [showFDIntroPopup, setShowFDIntroPopup] = useState(false)
@@ -390,6 +398,10 @@ export default function PregameFormula({ onComplete }: Props) {
   const [mazeMin, setMazeMin]     = useState<number | null>(null)
   const [nearNode, setNearNode]   = useState<number | null>(null)
   const [assignPopup, setAssignPopup] = useState<number | null>(null)
+  const nearNodeRef = useRef<number | null>(null)
+  nearNodeRef.current = nearNode
+  const assignPopupRef = useRef<number | null>(null)
+  assignPopupRef.current = assignPopup
   const [rentangDone, setRentangDone] = useState(false)
   const dirRef  = useRef({ x: 0, y: 0 })
   const animRef = useRef<number | null>(null)
@@ -429,7 +441,18 @@ export default function PregameFormula({ onComplete }: Props) {
       const len = Math.sqrt(nx * nx + ny * ny)
       dirRef.current = len > 0 ? { x: nx / len, y: ny / len } : { x: 0, y: 0 }
     }
-    const down = (e: KeyboardEvent) => { if (KEYS[e.key]) { e.preventDefault(); held.add(e.key); update() } }
+    const down = (e: KeyboardEvent) => {
+      if (KEYS[e.key]) {
+        e.preventDefault()
+        held.add(e.key)
+        update()
+      } else if (e.key === 'Enter') {
+        if (nearNodeRef.current !== null && assignPopupRef.current === null) {
+          e.preventDefault()
+          setAssignPopup(nearNodeRef.current)
+        }
+      }
+    }
     const up   = (e: KeyboardEvent) => { held.delete(e.key); update() }
     window.addEventListener('keydown', down)
     window.addEventListener('keyup', up)
@@ -510,24 +533,26 @@ export default function PregameFormula({ onComplete }: Props) {
   const [pkHint, setPkHint] = useState('')
   const [pkShake, setPkShake] = useState(0)
   const [pkErr, setPkErr]   = useState(false)
+  const [pkRErr, setPkRErr] = useState(false)   // only R input is wrong
+  const [pkKErr, setPkKErr] = useState(false)   // only K input is wrong
 
   const checkPK = () => {
     const r = parseInt(pkR.trim(), 10)
     const k = parseInt(pkK.trim(), 10)
-    if (r === CORRECT_R && k === CORRECT_K) {
-      setPkDone(true); setPkErr(false); setPkHint('')
+    const rOk = r === CORRECT_R
+    const kOk = k === CORRECT_K
+    if (rOk && kOk) {
+      setPkDone(true); setPkErr(false); setPkRErr(false); setPkKErr(false); setPkHint('')
     } else {
       setPkErr(true); setPkShake(v => v + 1)
-      if (isFD) {
-        const parts: string[] = []
-        if (r !== CORRECT_R) parts.push(`Rentang R = ${CORRECT_R}`)
-        if (k !== CORRECT_K) parts.push(`Banyak Kelas K = ${CORRECT_K}`)
-        setPkHint(`💡 Gunakan nilai yang sudah kamu hitung sebelumnya: ${parts.join(', ')}`)
-        setTimeout(() => { setPkErr(false); setPkHint('') }, 3500)
-      } else {
-        triggerFlash()
-        setTimeout(() => setPkErr(false), 500)
-      }
+      setPkRErr(!rOk); setPkKErr(!kOk)
+      if (!isFD) triggerFlash()
+      // Build specific per-field hint shown for EVERYONE
+      const parts: string[] = []
+      if (!rOk) parts.push(`Rentang R = ${CORRECT_R} (dari Langkah 1)`)
+      if (!kOk) parts.push(`Banyak Kelas K = ${CORRECT_K} (dari Langkah 2)`)
+      setPkHint(`💡 Nilai yang benar: ${parts.join(' | ')}`)
+      setTimeout(() => { setPkErr(false); setPkRErr(false); setPkKErr(false); setPkHint('') }, 4500)
     }
   }
 
@@ -1059,7 +1084,7 @@ export default function PregameFormula({ onComplete }: Props) {
                               onClick={() => setAssignPopup(node.val)}
                               style={{ fontSize: '9px', padding: '3px 7px', borderRadius: '20px', fontWeight: 800, minHeight: 'auto', whiteSpace: 'nowrap', boxShadow: '0 0 10px var(--accent)' }}
                             >
-                              Ambil ✓
+                              Ambil ✓ {!isMobile && '(Enter)'}
                             </motion.button>
                           )}
                         </AnimatePresence>
@@ -1408,8 +1433,8 @@ export default function PregameFormula({ onComplete }: Props) {
                         placeholder="R"
                         style={{
                           width: 'clamp(54px, 7vw, 80px)', padding: 'clamp(6px, 1vh, 9px) 6px', borderRadius: '8px', textAlign: 'center',
-                          background: pkErr ? 'rgba(239,68,68,0.12)' : pkDone ? `${GREEN}12` : 'rgba(255,255,255,0.06)',
-                          border: pkErr ? `1.5px solid ${RED}` : pkDone ? `1.5px solid ${GREEN}55` : `1.5px solid rgba(255,255,255,0.18)`,
+                          background: pkRErr ? 'rgba(239,68,68,0.12)' : pkDone ? `${GREEN}12` : 'rgba(255,255,255,0.06)',
+                          border: pkRErr ? `1.5px solid ${RED}` : pkDone ? `1.5px solid ${GREEN}55` : `1.5px solid rgba(255,255,255,0.18)`,
                           color: pkDone ? GREEN : '#fff', fontFamily: 'var(--font-data)', fontSize: 'clamp(14px, 2.5vh, 19px)', fontWeight: 800,
                           outline: 'none', transition: 'border 0.2s, background 0.2s',
                         }}
@@ -1431,8 +1456,8 @@ export default function PregameFormula({ onComplete }: Props) {
                         placeholder="K"
                         style={{
                           width: 'clamp(54px, 7vw, 80px)', padding: 'clamp(6px, 1vh, 9px) 6px', borderRadius: '8px', textAlign: 'center',
-                          background: pkErr ? 'rgba(239,68,68,0.12)' : pkDone ? `${GREEN}12` : 'rgba(255,255,255,0.06)',
-                          border: pkErr ? `1.5px solid ${RED}` : pkDone ? `1.5px solid ${GREEN}55` : `1.5px solid rgba(255,255,255,0.18)`,
+                          background: pkKErr ? 'rgba(239,68,68,0.12)' : pkDone ? `${GREEN}12` : 'rgba(255,255,255,0.06)',
+                          border: pkKErr ? `1.5px solid ${RED}` : pkDone ? `1.5px solid ${GREEN}55` : `1.5px solid rgba(255,255,255,0.18)`,
                           color: pkDone ? GREEN : '#fff', fontFamily: 'var(--font-data)', fontSize: 'clamp(14px, 2.5vh, 19px)', fontWeight: 800,
                           outline: 'none', transition: 'border 0.2s, background 0.2s',
                         }}

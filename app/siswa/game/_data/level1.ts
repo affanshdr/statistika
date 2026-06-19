@@ -8,15 +8,16 @@ export const LEVEL1_CONFIG = {
 // Raw dataset: screen time (jam/hari) dari 35 siswa — diacak agar menantang
 export const screenTimeData = [1, 2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 7, 7, 7, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
 
-// Interval classes: width = 4 (1-4, 5-8, 9-12, 13-16, 17-20)
-export const CLASS_LABELS = ['1 – 4', '5 – 8', '9 – 12', '13 – 16', '17 – 20']
+// Interval classes: width = 3 (1-3, 4-6, 7-9, 10-12, 13-15, 16-18)
+export const CLASS_LABELS = ['1 – 3', '4 – 6', '7 – 9', '10 – 12', '13 – 15', '16 – 18']
 
 export function getClassIndex(val: number): number {
-  if (val >= 1 && val <= 4) return 0
-  if (val >= 5 && val <= 8) return 1
-  if (val >= 9 && val <= 12) return 2
-  if (val >= 13 && val <= 16) return 3
-  if (val >= 17 && val <= 20) return 4
+  if (val >= 1  && val <= 3)  return 0
+  if (val >= 4  && val <= 6)  return 1
+  if (val >= 7  && val <= 9)  return 2
+  if (val >= 10 && val <= 12) return 3
+  if (val >= 13 && val <= 15) return 4
+  if (val >= 16 && val <= 18) return 5
   return -1
 }
 
@@ -34,17 +35,18 @@ export const STATS = {
   range: 17,
   mean: Number((total / 35).toFixed(2)), // ~7.06
   median,
-  numClasses: 5,
-  classWidth: 4,
+  numClasses: 6,
+  classWidth: 3,
 }
 
 // Correct answer: frequency distribution table
 export const CORRECT_TABLE = [
-  { kelas: '1 – 4',   f: 13, fRel: 37.1, fKum: 13 },
-  { kelas: '5 – 8',   f: 12, fRel: 34.3, fKum: 25 },
-  { kelas: '9 – 12',  f: 4,  fRel: 11.4, fKum: 29 },
-  { kelas: '13 – 16', f: 4,  fRel: 11.4, fKum: 33 },
-  { kelas: '17 – 20', f: 2,  fRel: 5.7,  fKum: 35 },
+  { kelas: '1 – 3',   f: 9,  fRel: 25.7, fKum: 9  },
+  { kelas: '4 – 6',   f: 11, fRel: 31.4, fKum: 20 },
+  { kelas: '7 – 9',   f: 6,  fRel: 17.1, fKum: 26 },
+  { kelas: '10 – 12', f: 3,  fRel:  8.6, fKum: 29 },
+  { kelas: '13 – 15', f: 3,  fRel:  8.6, fKum: 32 },
+  { kelas: '16 – 18', f: 3,  fRel:  8.6, fKum: 35 },
 ]
 
 // Bar heights as percentage of max frequency (13)

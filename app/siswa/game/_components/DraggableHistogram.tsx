@@ -37,19 +37,20 @@ const SCATTERED_POSITIONS = [
   { top: '80%', left: '62%' }, { top: '56%', left: '80%' },
 ]
 
-const CLASS_COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#EC4899']
+const CLASS_COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#EC4899', '#8B5CF6']
 
 
 // Indices of items to pre-place in FD mode as a balanced scaffold
-// ~2 items from each class so the student sees all 5 classes represented.
-// screenTimeData = [1,2,2,2,3,3,3,3,3,4,4,4,4, 5,5,5,5,6,6,6,7,7,7,7,8, 9,10,11,12, 13,14,15,16, 17,18]
-// idx:              0 1 2 3 4 5 6 7 8 9 ...
+// ~2 items from each class so the student sees all 6 classes represented.
+// screenTimeData = [1,2,2,2,3,3,3,3,3, 4,4,4,4,5,5,5,5,6,6,6, 7,7,7,7,8,9, 10,11,12, 13,14,15, 16,17,18]
+// idx:              0 1 2 3 4 5 6 7 8  9 10 11 12 ...
 const FD_PREPLACED_INDICES = new Set([
-  0, 4,        // class 0 (1–4): val=1, val=3
-  13, 17,      // class 1 (5–8): val=5, val=6
-  25, 26,      // class 2 (9–12): val=9, val=10
-  29, 30,      // class 3 (13–16): val=13, val=14
-  33,          // class 4 (17–20): val=17
+  0, 4,        // class 0 (1–3): val=1, val=3
+  9, 17,       // class 1 (4–6): val=4, val=6
+  20, 25,      // class 2 (7–9): val=7, val=9
+  26, 27,      // class 3 (10–12): val=10, val=11
+  29, 30,      // class 4 (13–15): val=13, val=14
+  33,          // class 5 (16–18): val=17
 ])
 
 function initDataPoints(mode: Mode, readOnly: boolean): DataPoint[] {
@@ -224,7 +225,7 @@ export default function DraggableHistogram({
           position: 'relative',
           flexShrink: 0,
         }}>
-          {['0.5', '4.5', '8.5', '12.5', '16.5', '20.5'].map((tick, idx) => (
+          {['0.5', '3.5', '6.5', '9.5', '12.5', '15.5', '18.5'].map((tick, idx) => (
             <span
               key={idx}
               style={{
@@ -235,7 +236,7 @@ export default function DraggableHistogram({
                 transform: 'translateX(-50%)',
                 whiteSpace: 'nowrap',
                 position: 'absolute',
-                left: `calc(2px + ${(idx / 5)} * (100% - 2px))`,
+                left: `calc(2px + ${(idx / 6)} * (100% - 2px))`,
                 textAlign: 'center',
               }}
             >
@@ -673,7 +674,7 @@ export default function DraggableHistogram({
             position: 'relative',
             flexShrink: 0,
           }}>
-            {['0.5', '4.5', '8.5', '12.5', '16.5', '20.5'].map((tick, idx) => (
+            {['0.5', '3.5', '6.5', '9.5', '12.5', '15.5', '18.5'].map((tick, idx) => (
               <span
                 key={idx}
                 style={{
@@ -684,7 +685,7 @@ export default function DraggableHistogram({
                   transform: 'translateX(-50%)',
                   whiteSpace: 'nowrap',
                   position: 'absolute',
-                  left: `calc(2px + ${(idx / 5)} * (100% - 2px))`,
+                  left: `calc(2px + ${(idx / 6)} * (100% - 2px))`,
                   textAlign: 'center',
                 }}
               >
