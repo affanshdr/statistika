@@ -10,6 +10,7 @@ import FIPath from './_fi/FIPath'
 import FDPath from './_fd/FDPath'
 import OrientationGuard from '../../_components/OrientationGuard'
 import PregameFormula from '../../_components/PregameFormula'
+import GameReadyOverlay from '../../_components/GameReadyOverlay'
 import '../../game.css'
 
 export default function LevelPage({
@@ -22,6 +23,7 @@ export default function LevelPage({
   const { cognitiveStyle, resetLevel } = useGameStore()
   const [phase, setPhase] = useState<'cutscene' | 'formula' | 'game'>('cutscene')
   const [cutscenePhase, setCutscenePhase] = useState<'comments' | 'mentor'>('comments')
+  const [showReadyOverlay, setShowReadyOverlay] = useState(false)
   const [timerRunning, setTimerRunning] = useState(false)
   // Track whether we've finished waiting for Zustand hydration
   const [hydrated, setHydrated] = useState(false)
@@ -36,7 +38,7 @@ export default function LevelPage({
       didResetRef.current = true
     }
     setHydrated(true)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // Read cognitive style: prefer persisted Zustand value, fall back to localStorage
@@ -94,7 +96,7 @@ export default function LevelPage({
       <div className="game-root game-level-root">
         <GameHeader
           timerRunning={timerRunning && phase === 'game'}
-          isBlurred={phase === 'cutscene' && cutscenePhase === 'mentor'}
+          isBlurred={(phase === 'cutscene' && cutscenePhase === 'mentor') || showReadyOverlay}
         />
 
         <div className="game-level-content-wrapper" style={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative' }}>
@@ -104,6 +106,19 @@ export default function LevelPage({
               <Cutscene
                 onPhaseChange={setCutscenePhase}
                 onComplete={() => {
+                  setShowReadyOverlay(true)
+                }}
+              />
+            )}
+          </AnimatePresence>
+
+          {/* Game Ready Countdown Overlay */}
+          <AnimatePresence>
+            {showReadyOverlay && (
+              <GameReadyOverlay
+                cognitiveStyle={resolvedStyle}
+                onComplete={() => {
+                  setShowReadyOverlay(false)
                   setPhase('formula')
                 }}
               />
