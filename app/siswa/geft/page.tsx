@@ -399,12 +399,41 @@ export default function GeftPage() {
     const scoredQuestions = QUESTIONS.filter(q => q.section !== 1)
     const score = scoredQuestions.reduce((acc, q) => acc + (answersToScore[q.id] ? 1 : 0), 0)
 
+    // Fallback: jika state studentId bernilai null/stale, ambil langsung dari localStorage secara sinkron
+    let activeStudentId = studentId
+    if (!activeStudentId) {
+      try {
+        const stored = localStorage.getItem('student')
+        if (stored) {
+          const parsed = JSON.parse(stored)
+          activeStudentId = parsed.id
+        }
+      } catch (e) {
+        console.error('Failed to parse fallback student ID', e)
+      }
+    }
+
+    if (!activeStudentId) {
+      alert('Sesi siswa tidak ditemukan atau terputus. Silakan login kembali.')
+      localStorage.removeItem('student')
+      router.push('/')
+      return
+    }
+
     try {
       const res = await fetch('/api/geft', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ studentId, score, totalQuestions: scoredQuestions.length }),
+        body: JSON.stringify({ studentId: activeStudentId, score, totalQuestions: scoredQuestions.length }),
       })
+
+      if (res.status === 404) {
+        alert('Data siswa Anda tidak terdaftar atau telah dihapus di server. Silakan masuk kembali.')
+        localStorage.removeItem('student')
+        router.push('/')
+        return
+      }
+
       const data = await res.json()
       if (!res.ok) {
         alert(data.error)

@@ -40,6 +40,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'studentId and score required' }, { status: 400 })
     }
 
+    // Pastikan siswa ada di database
+    const student = await prisma.student.findUnique({ where: { id: studentId } })
+    if (!student) {
+      return NextResponse.json({ error: 'Siswa tidak ditemukan' }, { status: 404 })
+    }
+
     // Tentukan level berdasarkan skor (dari total 5 soal)
     let diagnosticLevel: string
     if (score >= 4) {

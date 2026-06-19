@@ -143,13 +143,27 @@ export default function DiagnostikPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ studentId: student.id, score: totalScore }),
-      }).then(r => r.json()).then(data => {
+      }).then(async res => {
+        if (res.status === 404) {
+          alert('Data siswa Anda tidak ditemukan di server. Silakan masuk kembali.')
+          localStorage.removeItem('student')
+          router.push('/')
+          return
+        }
+        const data = await res.json()
+        if (!res.ok) {
+          alert(data.error || 'Gagal menyimpan hasil diagnostik')
+          return
+        }
         // Update localStorage
         const updated = { ...student, diagnosticScore: data.diagnosticScore, diagnosticLevel: data.diagnosticLevel }
         localStorage.setItem('student', JSON.stringify(updated))
-      }).catch(console.error).finally(() => setSaving(false))
+      }).catch(err => {
+        console.error(err)
+        alert('Gagal terhubung ke server untuk menyimpan hasil.')
+      }).finally(() => setSaving(false))
     }
-  }, [selected, currentQ, answers])
+  }, [selected, currentQ, answers, router])
 
   const q = QUESTIONS[currentQ]
 

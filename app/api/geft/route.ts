@@ -8,6 +8,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Data tidak lengkap' }, { status: 400 })
     }
 
+    // Pastikan siswa ada di database
+    const student = await prisma.student.findUnique({ where: { id: studentId } })
+    if (!student) {
+      return NextResponse.json({ error: 'Siswa tidak ditemukan' }, { status: 404 })
+    }
+
     // FI jika skor >= 4 dari 6 (karena hanya 6 soal dinilai: 2 sesi × 3 soal)
     const cognitiveStyle = score >= 4 ? 'FI' : 'FD'
 
