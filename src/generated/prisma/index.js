@@ -191,7 +191,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "D:\\Lomba\\lidm2027\\repo\\statistika\\src\\generated\\prisma",
+      "value": "D:\\Karir\\Competition\\LIDM IPDP\\ar-cognistats\\src\\generated\\prisma",
       "fromEnvVar": null
     },
     "config": {
@@ -205,7 +205,7 @@ const config = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "D:\\Lomba\\lidm2027\\repo\\statistika\\prisma\\schema.prisma",
+    "sourceFilePath": "D:\\Karir\\Competition\\LIDM IPDP\\ar-cognistats\\prisma\\schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
@@ -219,7 +219,6 @@ const config = {
     "db"
   ],
   "activeProvider": "postgresql",
-  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {
