@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback, useRef, useEffect } from 'react'
-import { motion, AnimatePresence, PanInfo } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { screenTimeData, STATS } from '../_data/level1'
 import { useGameStore } from '@/lib/store/gameStore'
 import DiraPopup, { DiraPopupStep } from './DiraPopup'
@@ -12,23 +12,29 @@ const CORRECT_MIN = Math.min(...screenTimeData)  // 1
 const CORRECT_R   = CORRECT_MAX - CORRECT_MIN   // 17
 const CORRECT_N   = STATS.n                     // 35
 const CORRECT_K   = 6                           // 1 + 3.3 * log10(35) ≈ 6.09 → 6
-const ACC         = '#6366F1'
-const GREEN       = '#4ade80'
-const RED         = '#EF4444'
+const ACC        = '#6366F1'
+const GREEN      = '#4ade80'
+const RED        = '#EF4444'
+const MAZE_SPEED = 0.32 // % per frame at ~60fps
 
-// Shuffled unique values for chip pool (deterministic shuffle per mount)
-const CHIP_POOL = (() => {
-  const arr = Array.from(new Set(screenTimeData))
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]]
-  }
-  return arr
-})()
+// 12 maze nodes — strategically placed, includes min=1 and max=18
+const MAZE_NODES = [
+  { val: 1,  x: 8,  y: 78 },
+  { val: 3,  x: 23, y: 55 },
+  { val: 4,  x: 39, y: 83 },
+  { val: 5,  x: 13, y: 27 },
+  { val: 7,  x: 51, y: 68 },
+  { val: 9,  x: 27, y: 13 },
+  { val: 11, x: 57, y: 37 },
+  { val: 13, x: 73, y: 73 },
+  { val: 15, x: 62, y: 19 },
+  { val: 17, x: 82, y: 48 },
+  { val: 18, x: 88, y: 14 },
+  { val: 10, x: 44, y: 46 },
+] as const
 
 type SubScreen = 'intro' | 'rentang' | 'banyak-kelas' | 'panjang-kelas'
 type SlotKey   = 'terbesar' | 'terkecil'
-interface Chip  { id: string; val: number; placed: SlotKey | null }
 interface Props { onComplete: () => void }
 
 // ─── Agent Sidebar (left panel for step 2 & 3) ──────────────────────────────
@@ -150,61 +156,8 @@ function StepHeader({
   )
 }
 
-// ─── Formula slot (drop zone) ─────────────────────────────────────────────────
-function FormulaSlot({
-  slotKey, chip, isError, isTargeted, onTap,
-}: {
-  slotKey: SlotKey
-  chip: Chip | undefined
-  isError: boolean
-  isTargeted: boolean
-  onTap: () => void
-}) {
-  return (
-    <motion.div
-      data-formula-slot={slotKey}
-      animate={isError ? { x: [-6, 6, -6, 6, 0] } : {}}
-      transition={{ duration: 0.35 }}
-      onClick={onTap}
-      style={{
-        minWidth: 'clamp(48px, 9vw, 72px)', height: 'clamp(38px, 7vh, 56px)', borderRadius: '8px', cursor: isTargeted ? 'pointer' : 'default',
-        border: isError
-          ? `2px dashed ${RED}`
-          : chip
-            ? `2px solid ${ACC}99`
-            : isTargeted ? `2px dashed ${ACC}88` : '2px dashed rgba(255,255,255,0.18)',
-        background: isError
-          ? 'rgba(239,68,68,0.1)'
-          : chip ? `${ACC}1a` : isTargeted ? `${ACC}08` : 'rgba(255,255,255,0.02)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        transition: 'all 0.2s', padding: '0 8px', position: 'relative',
-      }}
-    >
-      <AnimatePresence mode="wait">
-        {chip ? (
-          <motion.span
-            key={chip.id + '-placed'}
-            initial={{ scale: 0.4, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0, opacity: 0 }}
-            transition={{ type: 'spring', stiffness: 320, damping: 20 }}
-            style={{ fontSize: 'clamp(15px, 2.8vh, 22px)', fontWeight: 900, color: '#fff', fontFamily: 'var(--font-data)' }}
-          >
-            {chip.val}
-          </motion.span>
-        ) : (
-          <motion.span
-            key="empty"
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-            style={{ fontSize: 'clamp(12px, 2vh, 16px)', opacity: 0.2 }}
-          >
-            ?
-          </motion.span>
-        )}
-      </AnimatePresence>
-    </motion.div>
-  )
-}
+
+
 
 // ─── Result badge ─────────────────────────────────────────────────────────────
 function ResultBadge({ value, suffix = '' }: { value: string; suffix?: string }) {
@@ -245,6 +198,90 @@ function HintToast({ hint }: { hint: string }) {
         </motion.div>
       )}
     </AnimatePresence>
+  )
+}
+
+// ─── D-Pad arrow button ──────────────────────────────────────────────────────
+function DPadBtn({ label, onActivate, onRelease }: { label: string; onActivate: () => void; onRelease: () => void }) {
+  return (
+    <div
+      style={{
+        width: '26px', height: '26px', borderRadius: '6px',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        fontSize: '12px', fontWeight: 700,
+        background: 'rgba(255,255,255,0.1)',
+        border: '1px solid rgba(255,255,255,0.22)',
+        cursor: 'pointer', userSelect: 'none', touchAction: 'none',
+        color: 'rgba(255,255,255,0.8)',
+        transition: 'background 0.1s',
+      }}
+      onPointerDown={e => { e.currentTarget.setPointerCapture(e.pointerId); e.currentTarget.style.background = 'rgba(99,102,241,0.4)'; onActivate() }}
+      onPointerUp={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; onRelease() }}
+      onPointerCancel={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; onRelease() }}
+    >
+      {label}
+    </div>
+  )
+}
+
+// ─── Virtual Joystick ────────────────────────────────────────────────────────
+function MazeJoystick({ onDir }: { onDir: (x: number, y: number) => void }) {
+  const outerRef = useRef<HTMLDivElement>(null)
+  const knobRef  = useRef<HTMLDivElement>(null)
+  const active   = useRef(false)
+  const OUTER_R  = 36
+
+  const compute = (clientX: number, clientY: number) => {
+    const outer = outerRef.current
+    if (!outer) return
+    const rect = outer.getBoundingClientRect()
+    const dx = clientX - (rect.left + rect.width / 2)
+    const dy = clientY - (rect.top + rect.height / 2)
+    const dist = Math.sqrt(dx * dx + dy * dy)
+    const nx = Math.max(-1, Math.min(1, dist > 0 ? dx / Math.max(dist, OUTER_R) : 0))
+    const ny = Math.max(-1, Math.min(1, dist > 0 ? dy / Math.max(dist, OUTER_R) : 0))
+    onDir(nx, ny)
+    if (knobRef.current) {
+      const clampX = (dx / Math.max(dist, 1)) * Math.min(dist, OUTER_R)
+      const clampY = (dy / Math.max(dist, 1)) * Math.min(dist, OUTER_R)
+      knobRef.current.style.transform = `translate(calc(-50% + ${clampX}px), calc(-50% + ${clampY}px))`
+    }
+  }
+
+  const reset = () => {
+    active.current = false
+    onDir(0, 0)
+    if (knobRef.current) knobRef.current.style.transform = 'translate(-50%, -50%)'
+  }
+
+  return (
+    <div
+      ref={outerRef}
+      style={{
+        position: 'absolute', bottom: '12px', left: '12px',
+        width: `${OUTER_R * 2}px`, height: `${OUTER_R * 2}px`,
+        borderRadius: '50%',
+        background: 'rgba(255,255,255,0.07)',
+        border: '2px solid rgba(255,255,255,0.18)',
+        touchAction: 'none', zIndex: 20,
+      }}
+      onPointerDown={e => { active.current = true; outerRef.current?.setPointerCapture(e.pointerId); compute(e.clientX, e.clientY) }}
+      onPointerMove={e => { if (active.current) compute(e.clientX, e.clientY) }}
+      onPointerUp={reset}
+      onPointerCancel={reset}
+    >
+      <div
+        ref={knobRef}
+        style={{
+          position: 'absolute', top: '50%', left: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: '26px', height: '26px', borderRadius: '50%',
+          background: 'linear-gradient(135deg, var(--accent) 0%, #6366F1 100%)',
+          boxShadow: '0 0 10px var(--accent)',
+          pointerEvents: 'none',
+        }}
+      />
+    </div>
   )
 }
 
@@ -347,101 +384,102 @@ export default function PregameFormula({ onComplete }: Props) {
     setTimeout(() => setFlashScreen(false), 500)
   }, [])
 
-  // ── Rentang state ────────────────────────────────────────────────────────
-  const [chips, setChips] = useState<Chip[]>(() =>
-    CHIP_POOL.map((v, i) => ({ id: `fchip-${i}`, val: v, placed: null }))
-  )
-  const [selectedChip, setSelectedChip]   = useState<Chip | null>(null)
-  const [draggingId, setDraggingId]       = useState<string | null>(null)
-  const [resetKeys, setResetKeys]         = useState<Record<string, number>>({})
-  const [slotError, setSlotError]         = useState<SlotKey | null>(null)
-  const [rentangHint, setRentangHint]     = useState('')
-  const [rentangDone, setRentangDone]     = useState(false)
-  const [rentangSubmitted, setRentangSubmitted] = useState(false)
+  // ── Maze / Labirin state (Rentang step) ──────────────────────────────────
+  const [charPos, setCharPos]     = useState({ x: 12, y: 50 })
+  const [mazeMax, setMazeMax]     = useState<number | null>(null)
+  const [mazeMin, setMazeMin]     = useState<number | null>(null)
+  const [nearNode, setNearNode]   = useState<number | null>(null)
+  const [assignPopup, setAssignPopup] = useState<number | null>(null)
+  const [wrongPopup, setWrongPopup]   = useState<{ type: 'terbesar' | 'terkecil'; given: number } | null>(null)
+  const [rentangDone, setRentangDone] = useState(false)
+  const dirRef  = useRef({ x: 0, y: 0 })
+  const animRef = useRef<number | null>(null)
+  const mapRef  = useRef<HTMLDivElement>(null)
 
-  const terbesar  = chips.find(c => c.placed === 'terbesar')
-  const terkecil  = chips.find(c => c.placed === 'terkecil')
-  const pool      = chips.filter(c => c.placed === null)
-  const isDraggingAny = !!draggingId
-
-  const triggerSlotError = useCallback((slot: SlotKey, fdHint: string) => {
-    setSlotError(slot)
-    if (isFD) {
-      setRentangHint(fdHint)
-      setTimeout(() => { setSlotError(null); setRentangHint('') }, 2800)
-    } else {
-      triggerFlash()
-      setTimeout(() => setSlotError(null), 350)
+  // RAF movement loop
+  useEffect(() => {
+    if (sub !== 'rentang' || rentangDone) {
+      if (animRef.current !== null) cancelAnimationFrame(animRef.current)
+      return
     }
-  }, [isFD, triggerFlash])
-
-  const placeChip = useCallback((chip: Chip, slot: SlotKey): boolean => {
-    const correct =
-      (slot === 'terbesar' && chip.val === CORRECT_MAX) ||
-      (slot === 'terkecil' && chip.val === CORRECT_MIN)
-
-    if (!correct) {
-      triggerSlotError(
-        slot,
-        slot === 'terbesar'
-          ? `💡 Lihat kembali mana angka yang paling besar dari semua data. Angka ${chip.val} bukan yang terbesar!`
-          : `💡 Lihat kembali mana angka yang paling kecil dari semua data. Angka ${chip.val} bukan yang terkecil!`,
-      )
-      return false
-    }
-
-    setChips(prev => prev.map(c => {
-      if (c.id === chip.id)  return { ...c, placed: slot }
-      if (c.placed === slot) return { ...c, placed: null }
-      return c
-    }))
-    setSelectedChip(null)
-    return true
-  }, [triggerSlotError])
-
-  const handleDragEnd = useCallback((chip: Chip) => (
-    e: MouseEvent | TouchEvent | PointerEvent,
-    _info: PanInfo,
-  ) => {
-    let cx: number, cy: number
-    if ('changedTouches' in e && e.changedTouches.length > 0) {
-      cx = e.changedTouches[0].clientX; cy = e.changedTouches[0].clientY
-    } else {
-      cx = (e as MouseEvent).clientX; cy = (e as MouseEvent).clientY
-    }
-    const el = document.getElementById(chip.id)
-    const savedPE = el?.style.pointerEvents ?? ''
-    if (el) el.style.pointerEvents = 'none'
-    const target = document.elementFromPoint(cx, cy)
-    if (el) el.style.pointerEvents = savedPE
-
-    let placed = false
-    if (target) {
-      const slotEl = target.closest('[data-formula-slot]')
-      if (slotEl) {
-        const slot = slotEl.getAttribute('data-formula-slot') as SlotKey
-        placed = placeChip(chip, slot)
+    const tick = () => {
+      const { x: dx, y: dy } = dirRef.current
+      if (dx !== 0 || dy !== 0) {
+        setCharPos(prev => ({
+          x: Math.max(2, Math.min(98, prev.x + dx * MAZE_SPEED)),
+          y: Math.max(2, Math.min(98, prev.y + dy * MAZE_SPEED)),
+        }))
       }
+      animRef.current = requestAnimationFrame(tick)
     }
-    if (!placed) setResetKeys(p => ({ ...p, [chip.id]: (p[chip.id] ?? 0) + 1 }))
-    setDraggingId(null)
-  }, [placeChip])
+    animRef.current = requestAnimationFrame(tick)
+    return () => { if (animRef.current !== null) cancelAnimationFrame(animRef.current) }
+  }, [sub, rentangDone])
 
-  const onTapChip = (chip: Chip) => {
-    if (draggingId) return
-    setSelectedChip(prev => prev?.id === chip.id ? null : chip)
-  }
+  // Keyboard controls (Arrow keys)
+  useEffect(() => {
+    if (sub !== 'rentang') return
+    const KEYS: Record<string, { x: number; y: number }> = {
+      ArrowUp:    { x: 0, y: -1 }, ArrowDown:  { x: 0, y: 1 },
+      ArrowLeft:  { x: -1, y: 0 }, ArrowRight: { x: 1, y: 0 },
+    }
+    const held = new Set<string>()
+    const update = () => {
+      let nx = 0, ny = 0
+      held.forEach(k => { const d = KEYS[k]; if (d) { nx += d.x; ny += d.y } })
+      const len = Math.sqrt(nx * nx + ny * ny)
+      dirRef.current = len > 0 ? { x: nx / len, y: ny / len } : { x: 0, y: 0 }
+    }
+    const down = (e: KeyboardEvent) => { if (KEYS[e.key]) { e.preventDefault(); held.add(e.key); update() } }
+    const up   = (e: KeyboardEvent) => { held.delete(e.key); update() }
+    window.addEventListener('keydown', down)
+    window.addEventListener('keyup', up)
+    return () => {
+      window.removeEventListener('keydown', down)
+      window.removeEventListener('keyup', up)
+      dirRef.current = { x: 0, y: 0 }
+    }
+  }, [sub])
 
-  const onTapSlot = (slot: SlotKey) => {
-    if (!selectedChip) return
-    placeChip(selectedChip, slot)
-  }
+  // Proximity detection (runs after every position update)
+  useEffect(() => {
+    if (rentangDone || !mapRef.current) return
+    const { width, height } = mapRef.current.getBoundingClientRect()
+    if (!width || !height) return
+    let closest: number | null = null
+    let minDist = Infinity
+    for (const n of MAZE_NODES) {
+      const px = (n.x / 100) * width
+      const py = (n.y / 100) * height
+      const cx = (charPos.x / 100) * width
+      const cy = (charPos.y / 100) * height
+      const d = Math.sqrt((px - cx) ** 2 + (py - cy) ** 2)
+      if (d < 44 && d < minDist) { minDist = d; closest = n.val }
+    }
+    setNearNode(closest)
+  }, [charPos, rentangDone])
 
-  const handleSubmitRentang = () => {
-    if (!terbesar || !terkecil) return
-    setRentangSubmitted(true)
-    setRentangDone(true)
-  }
+  const handleAssign = useCallback((type: 'terbesar' | 'terkecil') => {
+    const val = assignPopup
+    if (val === null) return
+    setAssignPopup(null)
+    const correct =
+      (type === 'terbesar' && val === CORRECT_MAX) ||
+      (type === 'terkecil' && val === CORRECT_MIN)
+    if (!correct) {
+      // Show feedback popup; reset both slots so user must try again
+      setWrongPopup({ type, given: val })
+      setMazeMax(null)
+      setMazeMin(null)
+    } else {
+      if (type === 'terbesar') setMazeMax(val)
+      else setMazeMin(val)
+    }
+  }, [assignPopup])
+
+  const handleConfirmRentang = useCallback(() => {
+    if (mazeMax !== null && mazeMin !== null) setRentangDone(true)
+  }, [mazeMax, mazeMin])
 
   // ── Banyak kelas state ───────────────────────────────────────────────────
   const [nVal, setNVal]       = useState('')
@@ -962,167 +1000,279 @@ export default function PregameFormula({ onComplete }: Props) {
 
 
 
-          {/* ══ RENTANG ════════════════════════════════════════════════════════ */}
+          {/* ══ RENTANG — Maze Exploration ══════════════════════════════════ */}
           {sub === 'rentang' && (
             <>
               <StepHeader step={1} title="Rentang (R)" subtitle="Langkah 1 dari 3" />
 
-              {/* Workspace */}
-              <div style={{
-                flex: 1, minHeight: 0, display: 'flex', gap: '8px',
-                borderRadius: '12px',
-                background: 'rgba(255,255,255,0.012)',
-                border: '1px solid rgba(255,255,255,0.07)',
-                overflow: isDraggingAny ? 'visible' : 'hidden',
-              }}>
-                {/* Left: chip pool */}
-                <div style={{
-                  flex: '0 0 52%', display: 'flex', flexDirection: 'column',
-                  padding: '8px', borderRight: '1px solid rgba(255,255,255,0.06)',
-                  overflow: isDraggingAny ? 'visible' : 'hidden',
-                }}>
-                  <div style={{
-                    fontSize: 'clamp(9px, 1.5vh, 12px)', fontWeight: 800, color: pool.length === 0 ? GREEN : 'rgba(255,255,255,0.3)',
-                    letterSpacing: '1.5px', textTransform: 'uppercase', marginBottom: '5px', flexShrink: 0, transition: 'color 0.3s',
-                  }}>
-                    {pool.length === 0 ? '✅ Semua nilai digunakan!' : '📍 Data Screen Time — ketuk atau seret'}
+              {/* ── Assign popup (terbesar / terkecil) ── */}
+              <AnimatePresence>
+                {assignPopup !== null && (
+                  <div style={{ position: 'fixed', inset: 0, zIndex: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(3,7,18,0.75)', backdropFilter: 'blur(6px)' }}>
+                    <motion.div
+                      initial={{ scale: 0.88, opacity: 0, y: 16 }}
+                      animate={{ scale: 1, opacity: 1, y: 0 }}
+                      exit={{ scale: 0.88, opacity: 0, y: 16 }}
+                      transition={{ type: 'spring', damping: 22, stiffness: 350 }}
+                      style={{ background: 'rgba(10,10,22,0.98)', border: '2px solid var(--accent)', borderRadius: '22px', padding: '28px 24px', maxWidth: '320px', width: '90%', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '18px', boxShadow: '0 25px 50px rgba(0,0,0,0.6), 0 0 30px rgba(99,102,241,0.15)' }}
+                    >
+                      <div style={{ fontSize: '32px' }}>🎯</div>
+                      <div style={{ fontSize: '15px', fontWeight: 700, color: '#fff' }}>
+                        Jadikan nilai{' '}
+                        <span style={{ color: 'var(--accent)', fontSize: '24px', fontWeight: 900, fontFamily: 'var(--font-data)' }}>{assignPopup}</span>{' '}
+                        sebagai...
+                      </div>
+                      <div style={{ display: 'flex', gap: '10px' }}>
+                        <button
+                          className="game-btn game-btn-primary"
+                          onClick={() => handleAssign('terbesar')}
+                          style={{ flex: 1, padding: '10px 6px', fontSize: '12px', fontWeight: 800, borderRadius: '12px', minHeight: 'auto' }}
+                        >
+                          📈 Nilai Terbesar
+                        </button>
+                        <button
+                          onClick={() => handleAssign('terkecil')}
+                          style={{ flex: 1, padding: '10px 6px', fontSize: '12px', fontWeight: 800, borderRadius: '12px', minHeight: 'auto', background: `${GREEN}22`, border: `1.5px solid ${GREEN}55`, color: GREEN, cursor: 'pointer' }}
+                        >
+                          📉 Nilai Terkecil
+                        </button>
+                      </div>
+                      <button
+                        onClick={() => setAssignPopup(null)}
+                        style={{ fontSize: '12px', color: 'rgba(255,255,255,0.38)', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}
+                      >
+                        ← Lanjut eksplorasi dulu
+                      </button>
+                    </motion.div>
                   </div>
-                  <div style={{
-                    display: 'flex', flexWrap: 'wrap', gap: '4px', alignContent: 'flex-start',
-                    flex: 1, minHeight: 0, overflow: isDraggingAny ? 'visible' : 'auto', padding: '1px',
-                  }}>
-                    <AnimatePresence>
-                      {pool.length === 0 ? (
-                        <motion.div key="pool-empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flex: '1 1 100%', color: GREEN, fontSize: 'clamp(12px, 2.2vh, 17px)', fontWeight: 700, gap: '6px' }}>
-                          <span>🎯</span> Siap dikonfirmasi!
-                        </motion.div>
-                      ) : (
-                        pool.map(chip => {
-                          const isSelected   = selectedChip?.id === chip.id
-                          const isThisDrag   = draggingId === chip.id
-                          const chipKey      = `${chip.id}-${resetKeys[chip.id] ?? 0}`
-                          return (
-                            <motion.div
-                              key={chipKey}
-                              id={chip.id}
-                              drag
-                              dragMomentum={false}
-                              dragElastic={0.08}
-                              onDragStart={() => { setSelectedChip(null); setDraggingId(chip.id) }}
-                              onDragEnd={handleDragEnd(chip)}
-                              onClick={() => onTapChip(chip)}
-                              layout
-                              initial={{ opacity: 0, scale: 0.5 }}
-                              animate={{ opacity: 1, scale: 1 }}
-                              exit={{ opacity: 0, scale: 0, transition: { duration: 0.1 } }}
-                              whileDrag={{ scale: 1.3, rotate: 3, zIndex: 9999, boxShadow: `0 12px 30px ${ACC}66` }}
-                              whileHover={!isDraggingAny ? { scale: 1.1, y: -1 } : {}}
-                              style={{
-                                padding: 'clamp(4px, 0.8vh, 7px) clamp(10px, 1.8vw, 16px)', borderRadius: '50px',
-                                cursor: 'grab', userSelect: 'none', touchAction: 'none',
-                                background: isSelected
-                                  ? `linear-gradient(135deg, ${ACC} 0%, #fff 150%)`
-                                  : `linear-gradient(135deg, ${ACC}dd 0%, ${ACC}88 100%)`,
-                                border: isSelected ? '2px solid #fff' : `1.5px solid ${ACC}55`,
-                                color: isSelected ? '#000' : '#fff',
-                                fontSize: 'clamp(11px, 2.1vh, 16px)', fontWeight: 800,
-                                fontFamily: 'var(--font-data)', whiteSpace: 'nowrap',
-                                boxShadow: isSelected ? `0 0 14px ${ACC}` : `0 2px 6px rgba(0,0,0,0.4)`,
-                                zIndex: isThisDrag ? 1000 : isSelected ? 50 : 1,
-                                transition: 'box-shadow 0.15s, background 0.15s, border 0.15s',
-                              }}
+                )}
+              </AnimatePresence>
+
+              {/* ── Wrong answer popup ── */}
+              <AnimatePresence>
+                {wrongPopup && (
+                  <div style={{ position: 'fixed', inset: 0, zIndex: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(3,7,18,0.75)', backdropFilter: 'blur(6px)' }}>
+                    <motion.div
+                      initial={{ scale: 0.88, opacity: 0, y: 16 }}
+                      animate={{ scale: 1, opacity: 1, y: 0 }}
+                      exit={{ scale: 0.88, opacity: 0, y: 16 }}
+                      transition={{ type: 'spring', damping: 22, stiffness: 350 }}
+                      style={{ background: 'rgba(10,10,22,0.98)', border: `2px solid ${RED}55`, borderRadius: '22px', padding: '28px 24px', maxWidth: '340px', width: '90%', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '16px', boxShadow: '0 25px 50px rgba(0,0,0,0.6)' }}
+                    >
+                      <div style={{ fontSize: '28px' }}>❌</div>
+                      <div style={{ fontSize: '15px', fontWeight: 700, color: '#fff' }}>
+                        Angka{' '}
+                        <span style={{ color: RED, fontWeight: 900, fontSize: '20px', fontFamily: 'var(--font-data)' }}>{wrongPopup.given}</span>{' '}
+                        bukan nilai {wrongPopup.type === 'terbesar' ? 'terbesar' : 'terkecil'}!
+                      </div>
+                      <div style={{ padding: '14px', background: `${GREEN}08`, border: `1px solid ${GREEN}22`, borderRadius: '14px', fontSize: '13px', lineHeight: 1.65, color: 'rgba(255,255,255,0.8)', textAlign: 'left' }}>
+                        💡 Dari 12 angka di labirin ini:<br />
+                        • Nilai <strong>terbesar</strong> adalah{' '}
+                        <strong style={{ color: 'var(--accent)', fontSize: '15px', fontFamily: 'var(--font-data)' }}>{CORRECT_MAX}</strong><br />
+                        • Nilai <strong>terkecil</strong> adalah{' '}
+                        <strong style={{ color: GREEN, fontSize: '15px', fontFamily: 'var(--font-data)' }}>{CORRECT_MIN}</strong>
+                      </div>
+                      <button
+                        className="game-btn game-btn-primary"
+                        onClick={() => setWrongPopup(null)}
+                        style={{ padding: '10px', fontWeight: 800, fontSize: '13px', minHeight: 'auto', borderRadius: '12px', boxShadow: 'var(--accent-glow)' }}
+                      >
+                        Coba Lagi 💪
+                      </button>
+                    </motion.div>
+                  </div>
+                )}
+              </AnimatePresence>
+
+              {/* ── Main workspace: 4 : 1 split ── */}
+              <div style={{ flex: 1, minHeight: 0, display: 'flex', gap: '8px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.07)', overflow: 'hidden' }}>
+
+                {/* ─── LEFT: Maze canvas (flex 4) ─── */}
+                <div
+                  ref={mapRef}
+                  style={{ flex: 4, position: 'relative', background: 'linear-gradient(145deg, #08090f 0%, #0d0f1c 100%)', overflow: 'hidden', borderRight: '1px solid rgba(255,255,255,0.06)' }}
+                >
+                  {/* Grid overlay */}
+                  <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(rgba(99,102,241,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(99,102,241,0.04) 1px, transparent 1px)', backgroundSize: '28px 28px', pointerEvents: 'none' }} />
+
+                  {/* Maze wall segments */}
+                  {[
+                    { top: '28%', left: '16%', width: '40%', height: '2px' },
+                    { top: '28%', left: '16%', width: '2px', height: '34%' },
+                    { top: '62%', left: '36%', width: '42%', height: '2px' },
+                    { top: '14%', left: '66%', width: '2px', height: '30%' },
+                    { top: '14%', left: '66%', width: '23%', height: '2px' },
+                  ].map((s, i) => (
+                    <div key={i} style={{ position: 'absolute', ...s, background: 'rgba(99,102,241,0.28)', borderRadius: '1px', pointerEvents: 'none' }} />
+                  ))}
+
+                  {/* Data nodes */}
+                  {MAZE_NODES.map(node => {
+                    const isTakenMax = node.val === mazeMax
+                    const isTakenMin = node.val === mazeMin
+                    const isTaken    = isTakenMax || isTakenMin
+                    const isNear     = nearNode === node.val && !isTaken && assignPopup === null
+
+                    return (
+                      <div
+                        key={node.val}
+                        style={{ position: 'absolute', left: `${node.x}%`, top: `${node.y}%`, transform: 'translate(-50%, -50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px', zIndex: 5 }}
+                      >
+                        {/* Confirm button */}
+                        <AnimatePresence>
+                          {isNear && (
+                            <motion.button
+                              key="pickup"
+                              initial={{ opacity: 0, y: 6, scale: 0.8 }}
+                              animate={{ opacity: 1, y: 0, scale: 1 }}
+                              exit={{ opacity: 0, y: 6, scale: 0.8 }}
+                              className="game-btn game-btn-primary"
+                              onClick={() => setAssignPopup(node.val)}
+                              style={{ fontSize: '9px', padding: '3px 7px', borderRadius: '20px', fontWeight: 800, minHeight: 'auto', whiteSpace: 'nowrap', boxShadow: '0 0 10px var(--accent)' }}
                             >
-                              {chip.val}
-                            </motion.div>
-                          )
-                        })
+                              Ambil ✓
+                            </motion.button>
+                          )}
+                        </AnimatePresence>
+
+                        {/* Node circle */}
+                        <motion.div
+                          animate={isNear
+                            ? { scale: [1, 1.18, 1], boxShadow: ['0 0 6px rgba(99,102,241,0.3)', '0 0 18px rgba(99,102,241,0.85)', '0 0 6px rgba(99,102,241,0.3)'] }
+                            : {}
+                          }
+                          transition={{ repeat: Infinity, duration: 1.1 }}
+                          style={{
+                            width: '36px', height: '36px', borderRadius: '50%',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            fontWeight: 800, fontSize: '13px', fontFamily: 'var(--font-data)',
+                            background: isTakenMax ? `${ACC}1f` : isTakenMin ? `${GREEN}1a` : isNear ? `${ACC}1f` : 'rgba(255,255,255,0.05)',
+                            border: isTakenMax ? `2px solid ${ACC}66` : isTakenMin ? `2px solid ${GREEN}55` : isNear ? `2px solid ${ACC}` : '1.5px solid rgba(255,255,255,0.13)',
+                            color: isTakenMax ? ACC : isTakenMin ? GREEN : isNear ? '#fff' : 'rgba(255,255,255,0.62)',
+                            opacity: isTaken ? 0.55 : 1,
+                            transition: 'all 0.25s',
+                          }}
+                        >
+                          {isTaken ? '✓' : node.val}
+                        </motion.div>
+                      </div>
+                    )
+                  })}
+
+                  {/* Player character */}
+                  <motion.div
+                    style={{
+                      position: 'absolute',
+                      left: `${charPos.x}%`,
+                      top: `${charPos.y}%`,
+                      transform: 'translate(-50%, -50%)',
+                      width: '20px', height: '20px', borderRadius: '50%',
+                      background: 'radial-gradient(circle at 35% 35%, #ffffff 0%, var(--accent) 65%, #4f46e5 100%)',
+                      zIndex: 10, pointerEvents: 'none',
+                    }}
+                    animate={{ boxShadow: [
+                      '0 0 8px var(--accent), 0 0 16px rgba(99,102,241,0.35)',
+                      '0 0 16px var(--accent), 0 0 28px rgba(99,102,241,0.6)',
+                      '0 0 8px var(--accent), 0 0 16px rgba(99,102,241,0.35)',
+                    ] }}
+                    transition={{ repeat: Infinity, duration: 1.5 }}
+                  />
+
+                  {/* Top-right: control hint */}
+                  <div style={{ position: 'absolute', top: '7px', right: '8px', fontSize: '9px', color: 'rgba(255,255,255,0.25)', fontWeight: 600, lineHeight: 1.4, textAlign: 'right' }}>
+                    ⌨ Arrow keys<br />🕹 Joystick
+                  </div>
+
+                  {/* Joystick (bottom-left, touch) */}
+                  <MazeJoystick onDir={(x, y) => { dirRef.current = { x, y } }} />
+
+                  {/* D-Pad (bottom-right, desktop) */}
+                  <div style={{ position: 'absolute', bottom: '10px', right: '10px', display: 'grid', gridTemplateColumns: 'repeat(3, 28px)', gridTemplateRows: 'repeat(2, 28px)', gap: '3px', zIndex: 20 }}>
+                    <div />
+                    <DPadBtn label="↑" onActivate={() => { dirRef.current = { x: 0, y: -1 } }} onRelease={() => { dirRef.current = { x: 0, y: 0 } }} />
+                    <div />
+                    <DPadBtn label="←" onActivate={() => { dirRef.current = { x: -1, y: 0 } }} onRelease={() => { dirRef.current = { x: 0, y: 0 } }} />
+                    <DPadBtn label="↓" onActivate={() => { dirRef.current = { x: 0, y: 1 } }} onRelease={() => { dirRef.current = { x: 0, y: 0 } }} />
+                    <DPadBtn label="→" onActivate={() => { dirRef.current = { x: 1, y: 0 } }} onRelease={() => { dirRef.current = { x: 0, y: 0 } }} />
+                  </div>
+                </div>
+
+                {/* ─── RIGHT: Formula panel (flex 1) ─── */}
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '10px', minWidth: 0 }}>
+                  <div style={{ fontSize: '9px', fontWeight: 800, color: 'rgba(255,255,255,0.22)', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                    📐 Rumus
+                  </div>
+
+                  <div style={{ background: `${ACC}0c`, border: `1px solid ${ACC}2a`, borderRadius: '12px', padding: '10px 8px', width: '100%', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <div style={{ fontSize: '10px', fontWeight: 700, color: '#a5b4fc', textAlign: 'center' }}>
+                      R = terbesar − terkecil
+                    </div>
+
+                    {/* Terbesar slot */}
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px' }}>
+                      <div style={{ fontSize: '8px', fontWeight: 700, color: 'rgba(255,255,255,0.28)', letterSpacing: '0.5px' }}>TERBESAR</div>
+                      <motion.div
+                        animate={mazeMax !== null ? { scale: [1, 1.12, 1] } : {}}
+                        transition={{ duration: 0.35 }}
+                        style={{
+                          width: '100%', height: '38px', borderRadius: '8px',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          background: mazeMax !== null ? `${ACC}1f` : 'rgba(255,255,255,0.04)',
+                          border: mazeMax !== null ? `2px solid ${ACC}66` : '2px dashed rgba(255,255,255,0.14)',
+                          fontSize: 'clamp(16px, 2.8vh, 22px)', fontWeight: 900,
+                          color: mazeMax !== null ? '#fff' : 'rgba(255,255,255,0.18)',
+                          fontFamily: 'var(--font-data)',
+                        }}
+                      >
+                        {mazeMax ?? '?'}
+                      </motion.div>
+                    </div>
+
+                    <div style={{ textAlign: 'center', fontSize: '13px', color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-data)', lineHeight: 1 }}>−</div>
+
+                    {/* Terkecil slot */}
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px' }}>
+                      <div style={{ fontSize: '8px', fontWeight: 700, color: 'rgba(255,255,255,0.28)', letterSpacing: '0.5px' }}>TERKECIL</div>
+                      <motion.div
+                        animate={mazeMin !== null ? { scale: [1, 1.12, 1] } : {}}
+                        transition={{ duration: 0.35 }}
+                        style={{
+                          width: '100%', height: '38px', borderRadius: '8px',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          background: mazeMin !== null ? `${GREEN}18` : 'rgba(255,255,255,0.04)',
+                          border: mazeMin !== null ? `2px solid ${GREEN}55` : '2px dashed rgba(255,255,255,0.14)',
+                          fontSize: 'clamp(16px, 2.8vh, 22px)', fontWeight: 900,
+                          color: mazeMin !== null ? GREEN : 'rgba(255,255,255,0.18)',
+                          fontFamily: 'var(--font-data)',
+                        }}
+                      >
+                        {mazeMin ?? '?'}
+                      </motion.div>
+                    </div>
+
+                    {/* = R (live preview) */}
+                    <AnimatePresence>
+                      {mazeMax !== null && mazeMin !== null && (
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.8 }}
+                          transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                          style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}
+                        >
+                          <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-data)' }}>=</div>
+                          <div style={{ fontSize: 'clamp(20px, 3.5vh, 28px)', fontWeight: 900, color: rentangDone ? GREEN : '#fff', fontFamily: 'var(--font-data)', textShadow: rentangDone ? `0 0 12px ${GREEN}` : 'none', transition: 'color 0.3s' }}>
+                            {mazeMax - mazeMin}
+                          </div>
+                          {rentangDone && (
+                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ fontSize: '10px', color: GREEN, fontWeight: 700 }}>✅ R = {CORRECT_R}</motion.div>
+                          )}
+                        </motion.div>
                       )}
                     </AnimatePresence>
                   </div>
                 </div>
-
-                {/* Right: formula */}
-                <div style={{
-                  flex: 1, display: 'flex', flexDirection: 'column',
-                  alignItems: 'center', justifyContent: 'center',
-                  gap: '10px', padding: '10px',
-                }}>
-                  <div style={{ fontSize: 'clamp(9px, 1.5vh, 12px)', fontWeight: 800, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                    📐 Rumus Rentang
-                  </div>
-
-                  {/* Formula card */}
-                  <div style={{
-                    background: `${ACC}0c`, border: `1px solid ${ACC}2a`, borderRadius: '12px',
-                    padding: '12px 14px', width: '100%', display: 'flex', flexDirection: 'column', gap: '10px',
-                  }}>
-                    <div style={{ fontSize: 'clamp(10px, 1.8vh, 14px)', fontWeight: 700, color: '#a5b4fc', textAlign: 'center' }}>
-                      R = data terbesar − data terkecil
-                    </div>
-
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(6px, 1vh, 10px)', flexWrap: 'wrap', justifyContent: 'center' }}>
-                      <span style={{ fontSize: 'clamp(14px, 2.5vh, 20px)', fontWeight: 900, color: '#a5b4fc', fontFamily: 'var(--font-data)' }}>R =</span>
-
-                      <FormulaSlot
-                        slotKey="terbesar"
-                        chip={terbesar}
-                        isError={slotError === 'terbesar'}
-                        isTargeted={!!selectedChip}
-                        onTap={() => onTapSlot('terbesar')}
-                      />
-
-                      <span style={{ fontSize: '16px', color: 'rgba(255,255,255,0.5)', fontFamily: 'var(--font-data)' }}>−</span>
-
-                      <FormulaSlot
-                        slotKey="terkecil"
-                        chip={terkecil}
-                        isError={slotError === 'terkecil'}
-                        isTargeted={!!selectedChip}
-                        onTap={() => onTapSlot('terkecil')}
-                      />
-
-                      {terbesar && terkecil && !rentangDone && (
-                        <>
-                          <span style={{ fontSize: 'clamp(14px, 2.5vh, 20px)', color: 'rgba(255,255,255,0.4)', fontFamily: 'var(--font-data)' }}>=</span>
-                          <motion.span
-                            initial={{ scale: 0, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            transition={{ type: 'spring', stiffness: 300, delay: 0.1 }}
-                            style={{ fontSize: 'clamp(18px, 3.2vh, 24px)', fontWeight: 900, color: 'rgba(255,255,255,0.6)', fontFamily: 'var(--font-data)' }}
-                          >
-                            {terbesar.val - terkecil.val}
-                          </motion.span>
-                        </>
-                      )}
-                    </div>
-
-                    {/* Slot labels */}
-                    <div style={{ display: 'flex', justifyContent: 'center', gap: '28px', marginTop: '-4px' }}>
-                      {[
-                        { label: 'Terbesar', filled: !!terbesar },
-                        { label: 'Terkecil', filled: !!terkecil },
-                      ].map(({ label, filled }) => (
-                        <div key={label} style={{ fontSize: 'clamp(8px, 1.3vh, 11px)', fontWeight: 700, color: filled ? '#a5b4fc' : 'rgba(255,255,255,0.2)', letterSpacing: '0.5px' }}>
-                          {label}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Result (after submit) */}
-                  {rentangDone && (
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
-                      <ResultBadge value={`R = ${CORRECT_R}`} />
-                      <div style={{ fontSize: 'clamp(10px, 1.8vh, 14px)', color: `${GREEN}99` }}>
-                        = {CORRECT_MAX} − {CORRECT_MIN} = {CORRECT_R}
-                      </div>
-                    </div>
-                  )}
-                </div>
               </div>
-
-              <HintToast hint={rentangHint} />
 
               {/* Action */}
               {rentangDone ? (
@@ -1136,15 +1286,17 @@ export default function PregameFormula({ onComplete }: Props) {
               ) : (
                 <button
                   className="game-btn game-btn-primary"
-                  onClick={handleSubmitRentang}
-                  disabled={!terbesar || !terkecil || rentangSubmitted}
+                  onClick={handleConfirmRentang}
+                  disabled={mazeMax === null || mazeMin === null}
                   style={{
                     flexShrink: 0, width: '100%', padding: '8px', fontSize: '12px',
-                    opacity: terbesar && terkecil && !rentangSubmitted ? 1 : 0.4,
-                    cursor: terbesar && terkecil && !rentangSubmitted ? 'pointer' : 'not-allowed',
+                    opacity: mazeMax !== null && mazeMin !== null ? 1 : 0.4,
+                    cursor: mazeMax !== null && mazeMin !== null ? 'pointer' : 'not-allowed',
                   }}
                 >
-                  {terbesar && terkecil ? 'Konfirmasi Rentang →' : 'Seret / ketuk nilai terbesar & terkecil ke rumus'}
+                  {mazeMax !== null && mazeMin !== null
+                    ? 'Konfirmasi Rentang →'
+                    : 'Eksplorasi labirin — temukan nilai terbesar & terkecil!'}
                 </button>
               )}
             </>
