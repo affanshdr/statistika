@@ -5,36 +5,71 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { screenTimeData, STATS } from '../_data/level1'
 import { useGameStore } from '@/lib/store/gameStore'
 import DiraPopup, { DiraPopupStep } from './DiraPopup'
+import NPath from './NPath'
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 const CORRECT_MAX = Math.max(...screenTimeData)  // 18
 const CORRECT_MIN = Math.min(...screenTimeData)  // 1
-const CORRECT_R   = CORRECT_MAX - CORRECT_MIN   // 17
-const CORRECT_N   = STATS.n                     // 35
-const CORRECT_K   = 6                           // 1 + 3.3 * log10(35) ≈ 6.09 → 6
-const ACC        = '#6366F1'
-const GREEN      = '#4ade80'
-const RED        = '#EF4444'
-const MAZE_SPEED = 0.32 // % per frame at ~60fps
+const CORRECT_R = CORRECT_MAX - CORRECT_MIN   // 17
+const CORRECT_N = STATS.n                     // 35
+const CORRECT_K = 6                           // 1 + 3.3 * log10(35) ≈ 6.09 → 6
+const ACC = '#6366F1'
+const GREEN = '#D97706'
+const RED = '#EF4444'
+const MAZE_SPEED = 0.22 // SVG units per frame
 
-// 12 maze nodes — strategically placed, includes min=1 and max=18
-const MAZE_NODES = [
-  { val: 1,  x: 7,  y: 35 },
-  { val: 3,  x: 23, y: 55 },
-  { val: 4,  x: 39, y: 83 },
-  { val: 5,  x: 13, y: 27 },
-  { val: 7,  x: 51, y: 68 },
-  { val: 9,  x: 27, y: 13 },
-  { val: 11, x: 57, y: 37 },
-  { val: 13, x: 73, y: 73 },
-  { val: 15, x: 62, y: 19 },
-  { val: 17, x: 82, y: 48 },
-  { val: 18, x: 88, y: 14 },
-  { val: 10, x: 44, y: 46 },
+const RENTANG_CELL = 11
+const RENTANG_COLS = 26
+const RENTANG_ROWS = 15
+const RENTANG_VW = RENTANG_COLS * RENTANG_CELL // 286
+const RENTANG_VH = RENTANG_ROWS * RENTANG_CELL // 165
+
+const RENTANG_CX = (c: number) => c * RENTANG_CELL + RENTANG_CELL / 2
+const RENTANG_CY = (r: number) => r * RENTANG_CELL + RENTANG_CELL / 2
+
+// 12 maze nodes — strategically placed, includes min=1 and max=18, using grid coordinates (col, row)
+const RENTANG_MAZE_NODES = [
+  { val: 1, col: 3, row: 3 },
+  { val: 3, col: 13, row: 1 },
+  { val: 4, col: 24, row: 1 },
+  { val: 5, col: 1, row: 9 },
+  { val: 7, col: 9, row: 5 },
+  { val: 9, col: 1, row: 13 },
+  { val: 11, col: 24, row: 5 },
+  { val: 13, col: 24, row: 9 },
+  { val: 15, col: 11, row: 11 },
+  { val: 17, col: 24, row: 13 },
+  { val: 18, col: 21, row: 13 },
+  { val: 10, col: 11, row: 7 },
 ] as const
 
+const RENTANG_MAZE: readonly (readonly number[])[] = [
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], // r0
+  [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1], // r1
+  [1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1], // r2
+  [1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1], // r3
+  [1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 1], // r4
+  [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1], // r5
+  [1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1], // r6
+  [1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1], // r7
+  [1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1], // r8
+  [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1], // r9
+  [1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1], // r10
+  [1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1], // r11
+  [1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1], // r12
+  [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1], // r13
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], // r14
+]
+
+function isRentangWalkable(sx: number, sy: number): boolean {
+  const col = Math.floor(sx / RENTANG_CELL)
+  const row = Math.floor(sy / RENTANG_CELL)
+  if (row < 0 || row >= RENTANG_ROWS || col < 0 || col >= RENTANG_COLS) return false
+  return (RENTANG_MAZE[row]?.[col] ?? 1) === 0
+}
+
 type SubScreen = 'intro' | 'rentang' | 'banyak-kelas' | 'panjang-kelas'
-type SlotKey   = 'terbesar' | 'terkecil'
+type SlotKey = 'terbesar' | 'terkecil'
 interface Props { onComplete: () => void }
 
 // ─── Agent Sidebar (left panel for step 2 & 3) ──────────────────────────────
@@ -42,13 +77,13 @@ function AgentSidebar({ message }: { message: string }) {
   return (
     <div
       style={{
-        width: 'clamp(110px, 32%, 180px)',
+        width: 'clamp(120px, 34%, 200px)',
         flexShrink: 0,
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'flex-end',
-        gap: '10px',
-        padding: '6px',
+        gap: '12px',
+        padding: '8px',
         boxSizing: 'border-box',
       }}
     >
@@ -61,24 +96,24 @@ function AgentSidebar({ message }: { message: string }) {
           background: 'var(--game-card)',
           border: '1px solid var(--game-border-accent)',
           borderRadius: '18px 18px 4px 18px',
-          padding: 'clamp(10px, 1.8vh, 14px) clamp(12px, 2vw, 16px)',
-          fontSize: 'clamp(11px, 1.85vh, 13px)',
-          lineHeight: 1.55,
+          padding: '14px 18px',
+          fontSize: 'clamp(13px, 2.1vh, 16px)',
+          lineHeight: 1.6,
           color: 'var(--text-primary)',
           boxShadow: '0 8px 30px rgba(0,0,0,0.4)',
           width: '100%',
           boxSizing: 'border-box',
           display: 'flex',
           flexDirection: 'column',
-          gap: '4px',
+          gap: '6px',
         }}
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-          <span style={{ fontSize: '10px', color: 'var(--accent)', fontWeight: 800, letterSpacing: '1px' }}>
+          <span style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 800, letterSpacing: '1.2px' }}>
             DIRA
           </span>
         </div>
-        <p style={{ margin: 0, color: 'var(--text-primary)', fontWeight: 600 }}>
+        <p style={{ margin: 0, color: 'var(--text-primary)', fontWeight: 700 }}>
           {message}
         </p>
       </motion.div>
@@ -89,8 +124,8 @@ function AgentSidebar({ message }: { message: string }) {
         animate={{ scale: 1, opacity: 1 }}
         transition={{ delay: 0.25, type: 'spring', stiffness: 400, damping: 20 }}
         style={{
-          width: 'clamp(44px, 8vh, 60px)',
-          height: 'clamp(44px, 8vh, 60px)',
+          width: 'clamp(48px, 9vh, 66px)',
+          height: 'clamp(48px, 9vh, 66px)',
           borderRadius: '50%',
           border: '2px solid var(--accent)',
           boxShadow: 'var(--accent-glow)',
@@ -123,9 +158,9 @@ function ProgressDots({ step }: { step: 1 | 2 | 3 }) {
           animate={{
             width: i === step ? 20 : 8,
             background:
-              i < step  ? GREEN :
-              i === step ? '#a5b4fc' :
-              'rgba(255,255,255,0.15)',
+              i < step ? GREEN :
+                i === step ? '#a5b4fc' :
+                  'rgba(217,119,6,0.15)',
           }}
           transition={{ duration: 0.3 }}
           style={{ height: 'clamp(6px, 1.2vh, 9px)', borderRadius: '3px' }}
@@ -140,16 +175,16 @@ function StepHeader({
   step, title, subtitle,
 }: { step: 1 | 2 | 3; title: string; subtitle: string }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(8px, 1.5vh, 14px)', flexShrink: 0 }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(10px, 1.8vh, 16px)', flexShrink: 0 }}>
       <div style={{
-        width: 'clamp(26px, 5vh, 40px)', height: 'clamp(26px, 5vh, 40px)', borderRadius: '50%', flexShrink: 0,
+        width: 'clamp(32px, 5.5vh, 46px)', height: 'clamp(32px, 5.5vh, 46px)', borderRadius: '50%', flexShrink: 0,
         background: `${ACC}33`, border: `1.5px solid ${ACC}66`,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        fontSize: 'clamp(11px, 2vh, 16px)', fontWeight: 900, color: '#a5b4fc',
+        fontSize: 'clamp(14px, 2.2vh, 18px)', fontWeight: 900, color: '#a5b4fc',
       }}>{step}</div>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 'clamp(13px, 2.6vh, 20px)', fontWeight: 800, color: '#fff' }}>{title}</div>
-        <div style={{ fontSize: 'clamp(9px, 1.5vh, 12px)', color: 'rgba(255,255,255,0.3)', letterSpacing: '1px', textTransform: 'uppercase' }}>{subtitle}</div>
+        <div style={{ fontSize: 'clamp(16px, 2.8vh, 22px)', fontWeight: 800, color: '#1C1917' }}>{title}</div>
+        <div style={{ fontSize: 'clamp(11px, 1.8vh, 14px)', color: '#A8A29E', letterSpacing: '1px', textTransform: 'uppercase', fontWeight: 600 }}>{subtitle}</div>
       </div>
       <ProgressDots step={step} />
     </div>
@@ -209,15 +244,15 @@ function DPadBtn({ label, onActivate, onRelease }: { label: string; onActivate: 
         width: '26px', height: '26px', borderRadius: '6px',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         fontSize: '12px', fontWeight: 700,
-        background: 'rgba(255,255,255,0.1)',
+        background: 'rgba(217,119,6,0.1)',
         border: '1px solid rgba(255,255,255,0.22)',
         cursor: 'pointer', userSelect: 'none', touchAction: 'none',
-        color: 'rgba(255,255,255,0.8)',
+        color: '#44403C',
         transition: 'background 0.1s',
       }}
       onPointerDown={e => { e.currentTarget.setPointerCapture(e.pointerId); e.currentTarget.style.background = 'rgba(99,102,241,0.4)'; onActivate() }}
-      onPointerUp={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; onRelease() }}
-      onPointerCancel={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; onRelease() }}
+      onPointerUp={e => { e.currentTarget.style.background = 'rgba(217,119,6,0.1)'; onRelease() }}
+      onPointerCancel={e => { e.currentTarget.style.background = 'rgba(217,119,6,0.1)'; onRelease() }}
     >
       {label}
     </div>
@@ -227,9 +262,9 @@ function DPadBtn({ label, onActivate, onRelease }: { label: string; onActivate: 
 // ─── Virtual Joystick ────────────────────────────────────────────────────────
 function MazeJoystick({ onDir }: { onDir: (x: number, y: number) => void }) {
   const outerRef = useRef<HTMLDivElement>(null)
-  const knobRef  = useRef<HTMLDivElement>(null)
-  const active   = useRef(false)
-  const OUTER_R  = 36
+  const knobRef = useRef<HTMLDivElement>(null)
+  const active = useRef(false)
+  const OUTER_R = 36
 
   const compute = (clientX: number, clientY: number) => {
     const outer = outerRef.current
@@ -261,7 +296,7 @@ function MazeJoystick({ onDir }: { onDir: (x: number, y: number) => void }) {
         position: 'absolute', bottom: '12px', left: '12px',
         width: `${OUTER_R * 2}px`, height: `${OUTER_R * 2}px`,
         borderRadius: '50%',
-        background: 'rgba(255,255,255,0.07)',
+        background: 'rgba(180,140,80,0.1)',
         border: '2px solid rgba(255,255,255,0.18)',
         touchAction: 'none', zIndex: 20,
       }}
@@ -393,11 +428,13 @@ export default function PregameFormula({ onComplete }: Props) {
   }, [])
 
   // ── Maze / Labirin state (Rentang step) ──────────────────────────────────
-  const [charPos, setCharPos]     = useState({ x: 12, y: 50 })
-  const [mazeMax, setMazeMax]     = useState<number | null>(null)
-  const [mazeMin, setMazeMin]     = useState<number | null>(null)
-  const [nearNode, setNearNode]   = useState<number | null>(null)
+  const [charPos, setCharPos] = useState({ x: RENTANG_CX(1), y: RENTANG_CY(1) })
+  const [mazeMax, setMazeMax] = useState<number | null>(null)
+  const [mazeMin, setMazeMin] = useState<number | null>(null)
+  const [nearNode, setNearNode] = useState<number | null>(null)
   const [assignPopup, setAssignPopup] = useState<number | null>(null)
+  const [wrongSelectedValue, setWrongSelectedValue] = useState<number | null>(null)
+  const [wrongAssignType, setWrongAssignType] = useState<'terbesar' | 'terkecil' | null>(null)
   const nearNodeRef = useRef<number | null>(null)
   nearNodeRef.current = nearNode
   const assignPopupRef = useRef<number | null>(null)
@@ -405,9 +442,9 @@ export default function PregameFormula({ onComplete }: Props) {
   const showFDIntroPopupRef = useRef(showFDIntroPopup)
   showFDIntroPopupRef.current = showFDIntroPopup
   const [rentangDone, setRentangDone] = useState(false)
-  const dirRef  = useRef({ x: 0, y: 0 })
+  const dirRef = useRef({ x: 0, y: 0 })
   const animRef = useRef<number | null>(null)
-  const mapRef  = useRef<HTMLDivElement>(null)
+  const mapRef = useRef<HTMLDivElement>(null)
 
   const [popupSelection, setPopupSelection] = useState<'terbesar' | 'terkecil'>('terbesar')
   const popupSelectionRef = useRef<'terbesar' | 'terkecil'>('terbesar')
@@ -420,7 +457,7 @@ export default function PregameFormula({ onComplete }: Props) {
     }
   }, [assignPopup])
 
-  // RAF movement loop
+  // RAF movement loop dengan collision
   useEffect(() => {
     if (sub !== 'rentang' || rentangDone) {
       if (animRef.current !== null) cancelAnimationFrame(animRef.current)
@@ -429,10 +466,17 @@ export default function PregameFormula({ onComplete }: Props) {
     const tick = () => {
       const { x: dx, y: dy } = dirRef.current
       if (dx !== 0 || dy !== 0) {
-        setCharPos(prev => ({
-          x: Math.max(2, Math.min(98, prev.x + dx * MAZE_SPEED)),
-          y: Math.max(2, Math.min(98, prev.y + dy * MAZE_SPEED)),
-        }))
+        setCharPos(prev => {
+          const nx = Math.max(RENTANG_CELL * 0.5, Math.min(RENTANG_VW - RENTANG_CELL * 0.5, prev.x + dx * MAZE_SPEED))
+          const ny = Math.max(RENTANG_CELL * 0.5, Math.min(RENTANG_VH - RENTANG_CELL * 0.5, prev.y + dy * MAZE_SPEED))
+          // Coba gerak penuh
+          if (isRentangWalkable(nx, ny)) return { x: nx, y: ny }
+          // Coba hanya horizontal
+          if (isRentangWalkable(nx, prev.y)) return { x: nx, y: prev.y }
+          // Coba hanya vertikal
+          if (isRentangWalkable(prev.x, ny)) return { x: prev.x, y: ny }
+          return prev
+        })
       }
       animRef.current = requestAnimationFrame(tick)
     }
@@ -444,8 +488,8 @@ export default function PregameFormula({ onComplete }: Props) {
   useEffect(() => {
     if (sub !== 'rentang') return
     const KEYS: Record<string, { x: number; y: number }> = {
-      ArrowUp:    { x: 0, y: -1 }, ArrowDown:  { x: 0, y: 1 },
-      ArrowLeft:  { x: -1, y: 0 }, ArrowRight: { x: 1, y: 0 },
+      ArrowUp: { x: 0, y: -1 }, ArrowDown: { x: 0, y: 1 },
+      ArrowLeft: { x: -1, y: 0 }, ArrowRight: { x: 1, y: 0 },
     }
     const held = new Set<string>()
     const update = () => {
@@ -459,6 +503,8 @@ export default function PregameFormula({ onComplete }: Props) {
         if (e.key === 'Enter') {
           e.preventDefault()
           setShowFDIntroPopup(false)
+          setWrongSelectedValue(null)
+          setWrongAssignType(null)
         }
         return
       }
@@ -491,7 +537,7 @@ export default function PregameFormula({ onComplete }: Props) {
         }
       }
     }
-    const up   = (e: KeyboardEvent) => { held.delete(e.key); update() }
+    const up = (e: KeyboardEvent) => { held.delete(e.key); update() }
     window.addEventListener('keydown', down)
     window.addEventListener('keyup', up)
     return () => {
@@ -501,20 +547,20 @@ export default function PregameFormula({ onComplete }: Props) {
     }
   }, [sub])
 
-  // Proximity detection (runs after every position update)
+  // Proximity detection (pure SVG units — no getBoundingClientRect)
   useEffect(() => {
-    if (rentangDone || !mapRef.current) return
-    const { width, height } = mapRef.current.getBoundingClientRect()
-    if (!width || !height) return
+    if (rentangDone) return
+    const { x: cx, y: cy } = charPos
     let closest: number | null = null
     let minDist = Infinity
-    for (const n of MAZE_NODES) {
-      const px = (n.x / 100) * width
-      const py = (n.y / 100) * height
-      const cx = (charPos.x / 100) * width
-      const cy = (charPos.y / 100) * height
-      const d = Math.sqrt((px - cx) ** 2 + (py - cy) ** 2)
-      if (d < 44 && d < minDist) { minDist = d; closest = n.val }
+    for (const n of RENTANG_MAZE_NODES) {
+      const px = RENTANG_CX(n.col)
+      const py = RENTANG_CY(n.row)
+      const d = Math.hypot(px - cx, py - cy)
+      if (d < 8 && d < minDist) {
+        minDist = d
+        closest = n.val
+      }
     }
     setNearNode(closest)
   }, [charPos, rentangDone])
@@ -528,6 +574,8 @@ export default function PregameFormula({ onComplete }: Props) {
       (type === 'terkecil' && val === CORRECT_MIN)
     if (!correct) {
       // Re-show the tutorial popup as feedback; reset both slots
+      setWrongSelectedValue(val)
+      setWrongAssignType(type)
       setMazeMax(null)
       setMazeMin(null)
       setShowFDIntroPopup(true)
@@ -545,11 +593,11 @@ export default function PregameFormula({ onComplete }: Props) {
   }, [mazeMax, mazeMin])
 
   // ── Banyak kelas state ───────────────────────────────────────────────────
-  const [nVal, setNVal]       = useState('')
-  const [nDone, setNDone]     = useState(false)
-  const [nHint, setNHint]     = useState('')
-  const [nShake, setNShake]   = useState(0)
-  const [nErr, setNErr]       = useState(false)
+  const [nVal, setNVal] = useState('')
+  const [nDone, setNDone] = useState(false)
+  const [nHint, setNHint] = useState('')
+  const [nShake, setNShake] = useState(0)
+  const [nErr, setNErr] = useState(false)
 
   const checkBK = () => {
     const n = parseInt(nVal.trim(), 10)
@@ -568,12 +616,12 @@ export default function PregameFormula({ onComplete }: Props) {
   }
 
   // ── Panjang kelas state ──────────────────────────────────────────────────
-  const [pkR, setPkR]       = useState('')
-  const [pkK, setPkK]       = useState('')
+  const [pkR, setPkR] = useState('')
+  const [pkK, setPkK] = useState('')
   const [pkDone, setPkDone] = useState(false)
   const [pkHint, setPkHint] = useState('')
   const [pkShake, setPkShake] = useState(0)
-  const [pkErr, setPkErr]   = useState(false)
+  const [pkErr, setPkErr] = useState(false)
   const [pkRErr, setPkRErr] = useState(false)   // only R input is wrong
   const [pkKErr, setPkKErr] = useState(false)   // only K input is wrong
 
@@ -618,7 +666,7 @@ export default function PregameFormula({ onComplete }: Props) {
           <div style={{
             position: 'fixed',
             inset: 0,
-            background: 'rgba(3, 7, 18, 0.85)',
+            background: 'rgba(250,246,238, 0.85)',
             backdropFilter: 'blur(8px)',
             display: 'flex',
             alignItems: 'center',
@@ -631,167 +679,232 @@ export default function PregameFormula({ onComplete }: Props) {
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
               transition={{ type: 'spring', damping: 25, stiffness: 350 }}
-              style={{
+              style={isFD ? {
                 maxWidth: '700px',
                 width: '100%',
-                background: 'rgba(12, 12, 20, 0.98)',
+                background: 'rgba(255,255,255, 0.98)',
                 border: '2px solid var(--accent)',
                 borderRadius: '20px',
                 padding: 'clamp(12px, 2vh, 20px) clamp(12px, 2vw, 24px)',
-                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 0 30px rgba(0, 255, 136, 0.15)',
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 0 30px rgba(217,119,6, 0.15)',
                 display: 'flex',
                 flexDirection: 'column',
                 gap: 'clamp(10px, 1.8vh, 16px)',
                 position: 'relative',
+              } : {
+                maxWidth: '360px',
+                width: '90%',
+                background: 'rgba(255,255,255, 0.98)',
+                border: '2px solid #ef4444',
+                borderRadius: '22px',
+                padding: '24px 20px',
+                boxShadow: '0 25px 50px rgba(0,0,0,0.6), 0 0 30px rgba(239,68,68,0.15)',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '16px',
+                position: 'relative',
+                textAlign: 'center',
               }}
             >
-              <style>{`
-                @media (max-width: 768px) {
-                  .fd-popup-body { flex-direction: column !important; }
-                  .fd-popup-right { display: none !important; }
-                }
-              `}</style>
+              {isFD ? (
+                <>
+                  <style>{`
+                    @media (max-width: 768px) {
+                      .fd-popup-body { flex-direction: column !important; }
+                      .fd-popup-right { display: none !important; }
+                    }
+                  `}</style>
 
-              {/* Title & Formula Header */}
-              <div style={{ textAlign: 'center', width: '100%', borderBottom: '1px solid rgba(255, 255, 255, 0.1)', paddingBottom: 'clamp(8px, 1.5vh, 14px)' }}>
-                <div style={{
-                  fontSize: 'clamp(9px, 1.6vh, 11px)',
-                  fontWeight: 800,
-                  letterSpacing: '2px',
-                  color: 'var(--accent)',
-                  textTransform: 'uppercase',
-                  marginBottom: '4px',
-                }}>
-                  Petunjuk Asisten Dira
-                </div>
-                <h3 style={{ margin: '0 0 6px 0', fontSize: 'clamp(15px, 2.8vh, 20px)', fontWeight: 900, color: '#fff' }}>
-                  Mencari Nilai Rentang (R) 📏
-                </h3>
-                <p style={{ margin: 0, fontSize: 'clamp(11px, 2vh, 13px)', color: 'rgba(255,255,255,0.75)', lineHeight: 1.5 }}>
-                  Untuk mencari <strong>Rentang</strong>, rumusnya adalah:{' '}
-                  <span style={{ color: 'var(--accent)', fontWeight: 800, fontSize: 'clamp(11px, 2vh, 14px)', marginLeft: '4px' }}>
-                    R = data terbesar − data terkecil
-                  </span>
-                </p>
-              </div>
-
-              {/* Main columns */}
-              <div className="fd-popup-body" style={{
-                display: 'flex',
-                gap: 'clamp(10px, 2vw, 20px)',
-                width: '100%',
-                alignItems: 'stretch',
-              }}>
-                {/* Left Column: Content (Ratio 3) */}
-                <div className="fd-popup-left" style={{
-                  flex: 3,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 'clamp(8px, 1.5vh, 14px)',
-                }}>
-                  {/* Row 1: Largest Value Example */}
-                  <div style={{
-                    background: 'rgba(255, 255, 255, 0.02)',
-                    border: '1px solid rgba(255, 255, 255, 0.06)',
-                    borderRadius: '14px',
-                    padding: 'clamp(10px, 1.8vh, 14px)',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: 'clamp(6px, 1.2vh, 10px)',
-                    textAlign: 'left',
-                  }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ fontSize: 'clamp(11px, 1.9vh, 13px)', fontWeight: 700, color: '#fff', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                        <span style={{ color: 'var(--accent)' }}>📈</span> Contoh 1: Mencari Nilai Terbesar
+                  {/* Title & Formula Header */}
+                  <div style={{ textAlign: 'center', width: '100%', borderBottom: '1px solid rgba(255, 255, 255, 0.1)', paddingBottom: 'clamp(8px, 1.5vh, 14px)' }}>
+                    <div style={{
+                      fontSize: 'clamp(9px, 1.6vh, 11px)',
+                      fontWeight: 800,
+                      letterSpacing: '2px',
+                      color: 'var(--accent)',
+                      textTransform: 'uppercase',
+                      marginBottom: '4px',
+                    }}>
+                      Petunjuk Asisten Dira
+                    </div>
+                    <h3 style={{ margin: '0 0 6px 0', fontSize: 'clamp(15px, 2.8vh, 20px)', fontWeight: 900, color: '#1C1917' }}>
+                      Mencari Nilai Rentang (R) 📏
+                    </h3>
+                    <p style={{ margin: 0, fontSize: 'clamp(11px, 2vh, 13px)', color: 'rgba(255,255,255,0.75)', lineHeight: 1.5 }}>
+                      Untuk mencari <strong>Rentang</strong>, rumusnya adalah:{' '}
+                      <span style={{ color: 'var(--accent)', fontWeight: 800, fontSize: 'clamp(11px, 2vh, 14px)', marginLeft: '4px' }}>
+                        R = data terbesar − data terkecil
                       </span>
-                      <span style={{ fontSize: 'clamp(9px, 1.6vh, 11px)', color: 'rgba(255, 255, 255, 0.5)' }}>(10 Angka)</span>
+                    </p>
+                  </div>
+
+                  {/* Main columns */}
+                  <div className="fd-popup-body" style={{
+                    display: 'flex',
+                    gap: 'clamp(10px, 2vw, 20px)',
+                    width: '100%',
+                    alignItems: 'stretch',
+                  }}>
+                    {/* Left Column: Content (Ratio 3) */}
+                    <div className="fd-popup-left" style={{
+                      flex: 3,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: 'clamp(8px, 1.5vh, 14px)',
+                    }}>
+                      {/* Row 1: Largest Value Example */}
+                      <div style={{
+                        background: 'rgba(255, 255, 255, 0.02)',
+                        border: '1px solid rgba(255, 255, 255, 0.06)',
+                        borderRadius: '14px',
+                        padding: 'clamp(10px, 1.8vh, 14px)',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 'clamp(6px, 1.2vh, 10px)',
+                        textAlign: 'left',
+                      }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span style={{ fontSize: 'clamp(11px, 1.9vh, 13px)', fontWeight: 700, color: '#1C1917', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                            <span style={{ color: 'var(--accent)' }}>📈</span> Contoh 1: Mencari Nilai Terbesar
+                          </span>
+                          <span style={{ fontSize: 'clamp(9px, 1.6vh, 11px)', color: 'rgba(255, 255, 255, 0.5)' }}>(10 Angka)</span>
+                        </div>
+                        <div style={{ display: 'flex', gap: 'clamp(4px, 0.8vw, 7px)', flexWrap: 'wrap' }}>
+                          {[12, 8, 15, 6, 21, 14, 9, 17, 11, 13].map((num, idx) => {
+                            const isTarget = num === 21;
+                            return (
+                              <div key={idx} style={{
+                                width: 'clamp(24px, 4vw, 32px)', height: 'clamp(24px, 4vw, 32px)',
+                                borderRadius: '50%',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                fontSize: 'clamp(10px, 1.8vh, 13px)',
+                                fontWeight: isTarget ? 900 : 500,
+                                background: isTarget ? 'var(--accent)' : 'rgba(180,140,80,0.1)',
+                                color: isTarget ? '#000' : 'rgba(255,255,255,0.7)',
+                                border: isTarget ? '2px solid #fff' : '1px solid rgba(180,140,80,0.1)',
+                                boxShadow: isTarget ? '0 0 10px var(--accent)' : 'none',
+                              }}>
+                                {num}
+                              </div>
+                            );
+                          })}
+                        </div>
+                        <div style={{ fontSize: 'clamp(10px, 1.7vh, 12px)', color: 'rgba(255, 255, 255, 0.7)', lineHeight: 1.5 }}>
+                          Angka <span style={{ color: 'var(--accent)', fontWeight: 800 }}>21</span> ditebalkan karena merupakan angka <strong style={{ color: 'var(--accent)' }}>terbesar</strong> dari kumpulan data tersebut.
+                        </div>
+                      </div>
+
+                      {/* Row 2: Smallest Value Example */}
+                      <div style={{
+                        background: 'rgba(255, 255, 255, 0.02)',
+                        border: '1px solid rgba(255, 255, 255, 0.06)',
+                        borderRadius: '14px',
+                        padding: 'clamp(10px, 1.8vh, 14px)',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 'clamp(6px, 1.2vh, 10px)',
+                        textAlign: 'left',
+                      }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span style={{ fontSize: 'clamp(11px, 1.9vh, 13px)', fontWeight: 700, color: '#1C1917', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                            <span style={{ color: '#D97706' }}>📉</span> Contoh 2: Mencari Nilai Terkecil
+                          </span>
+                          <span style={{ fontSize: 'clamp(9px, 1.6vh, 11px)', color: 'rgba(255, 255, 255, 0.5)' }}>(10 Angka)</span>
+                        </div>
+                        <div style={{ display: 'flex', gap: 'clamp(4px, 0.8vw, 7px)', flexWrap: 'wrap' }}>
+                          {[18, 25, 11, 30, 14, 22, 9, 16, 27, 13].map((num, idx) => {
+                            const isTarget = num === 9;
+                            return (
+                              <div key={idx} style={{
+                                width: 'clamp(24px, 4vw, 32px)', height: 'clamp(24px, 4vw, 32px)',
+                                borderRadius: '50%',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                fontSize: 'clamp(10px, 1.8vh, 13px)',
+                                fontWeight: isTarget ? 900 : 500,
+                                background: isTarget ? '#D97706' : 'rgba(180,140,80,0.1)',
+                                color: isTarget ? '#000' : 'rgba(255,255,255,0.7)',
+                                border: isTarget ? '2px solid #fff' : '1px solid rgba(180,140,80,0.1)',
+                                boxShadow: isTarget ? '0 0 10px #D97706' : 'none',
+                              }}>
+                                {num}
+                              </div>
+                            );
+                          })}
+                        </div>
+                        <div style={{ fontSize: 'clamp(10px, 1.7vh, 12px)', color: 'rgba(255, 255, 255, 0.7)', lineHeight: 1.5 }}>
+                          Angka <span style={{ color: '#D97706', fontWeight: 800 }}>9</span> ditebalkan karena merupakan angka <strong style={{ color: '#D97706' }}>terkecil</strong> dari kumpulan data tersebut.
+                        </div>
+                      </div>
                     </div>
-                    <div style={{ display: 'flex', gap: 'clamp(4px, 0.8vw, 7px)', flexWrap: 'wrap' }}>
-                      {[12, 8, 15, 6, 21, 14, 9, 17, 11, 13].map((num, idx) => {
-                        const isTarget = num === 21;
-                        return (
-                          <div key={idx} style={{
-                            width: 'clamp(24px, 4vw, 32px)', height: 'clamp(24px, 4vw, 32px)',
-                            borderRadius: '50%',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            fontSize: 'clamp(10px, 1.8vh, 13px)',
-                            fontWeight: isTarget ? 900 : 500,
-                            background: isTarget ? 'var(--accent)' : 'rgba(255,255,255,0.05)',
-                            color: isTarget ? '#000' : 'rgba(255,255,255,0.7)',
-                            border: isTarget ? '2px solid #fff' : '1px solid rgba(255,255,255,0.1)',
-                            boxShadow: isTarget ? '0 0 10px var(--accent)' : 'none',
-                          }}>
-                            {num}
-                          </div>
-                        );
-                      })}
-                    </div>
-                    <div style={{ fontSize: 'clamp(10px, 1.7vh, 12px)', color: 'rgba(255, 255, 255, 0.7)', lineHeight: 1.5 }}>
-                      Angka <span style={{ color: 'var(--accent)', fontWeight: 800 }}>21</span> ditebalkan karena merupakan angka <strong style={{ color: 'var(--accent)' }}>terbesar</strong> dari kumpulan data tersebut.
+
+                    {/* Right Column: Agent Dira (Ratio 1) — hidden on mobile */}
+                    <div className="fd-popup-right" style={{
+                      flex: 1.1,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '12px',
+                      background: 'rgba(99, 102, 241, 0.05)',
+                      border: '1px solid rgba(99, 102, 241, 0.15)',
+                      borderRadius: '14px',
+                      padding: '14px',
+                      boxSizing: 'border-box',
+                    }}>
+                      <div style={{
+                        width: '64px', height: '64px', borderRadius: '50%',
+                        border: '2px solid var(--accent)',
+                        boxShadow: 'var(--accent-glow)',
+                        background: 'var(--game-card)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        overflow: 'hidden',
+                      }}>
+                        <img
+                          src="https://tmdbqikqflbeqaqllxge.supabase.co/storage/v1/object/public/Asset/Agent.png"
+                          onError={(e) => { e.currentTarget.src = '/dira-avatar.png' }}
+                          alt="Dira"
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        />
+                      </div>
+                      <div style={{
+                        textAlign: 'center',
+                        fontSize: 'clamp(10px, 1.8vh, 12px)',
+                        lineHeight: 1.55,
+                        color: '#1C1917',
+                        fontWeight: 600,
+                      }}>
+                        <p style={{ margin: '0 0 6px 0', color: 'var(--accent)', fontWeight: 800, fontSize: 'clamp(9px, 1.5vh, 11px)', letterSpacing: '0.5px' }}>
+                          TIPS DARI DIRA
+                        </p>
+                        "Urutkan atau scan data dari kiri ke kanan untuk menemukan nilai tertinggi dan terendah secara cepat!"
+                      </div>
                     </div>
                   </div>
 
-                  {/* Row 2: Smallest Value Example */}
+                  {/* Action Button */}
+                  <button
+                    className="game-btn game-btn-primary"
+                    onClick={() => setShowFDIntroPopup(false)}
+                    style={{
+                      width: '100%',
+                      padding: 'clamp(8px, 1.5vh, 12px)',
+                      fontSize: 'clamp(12px, 2vh, 14px)',
+                      fontWeight: 800,
+                      boxShadow: 'var(--accent-glow)',
+                    }}
+                  >
+                    Mengerti {!isMobile && '(Enter)'}
+                  </button>
+                </>
+              ) : (
+                <>
+                  {/* FI Error Popup */}
+                  <div style={{ fontSize: '32px' }}>⚠️</div>
                   <div style={{
-                    background: 'rgba(255, 255, 255, 0.02)',
-                    border: '1px solid rgba(255, 255, 255, 0.06)',
-                    borderRadius: '14px',
-                    padding: 'clamp(10px, 1.8vh, 14px)',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: 'clamp(6px, 1.2vh, 10px)',
-                    textAlign: 'left',
-                  }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ fontSize: 'clamp(11px, 1.9vh, 13px)', fontWeight: 700, color: '#fff', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                        <span style={{ color: '#4ade80' }}>📉</span> Contoh 2: Mencari Nilai Terkecil
-                      </span>
-                      <span style={{ fontSize: 'clamp(9px, 1.6vh, 11px)', color: 'rgba(255, 255, 255, 0.5)' }}>(10 Angka)</span>
-                    </div>
-                    <div style={{ display: 'flex', gap: 'clamp(4px, 0.8vw, 7px)', flexWrap: 'wrap' }}>
-                      {[18, 25, 11, 30, 14, 22, 9, 16, 27, 13].map((num, idx) => {
-                        const isTarget = num === 9;
-                        return (
-                          <div key={idx} style={{
-                            width: 'clamp(24px, 4vw, 32px)', height: 'clamp(24px, 4vw, 32px)',
-                            borderRadius: '50%',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            fontSize: 'clamp(10px, 1.8vh, 13px)',
-                            fontWeight: isTarget ? 900 : 500,
-                            background: isTarget ? '#4ade80' : 'rgba(255,255,255,0.05)',
-                            color: isTarget ? '#000' : 'rgba(255,255,255,0.7)',
-                            border: isTarget ? '2px solid #fff' : '1px solid rgba(255,255,255,0.1)',
-                            boxShadow: isTarget ? '0 0 10px #4ade80' : 'none',
-                          }}>
-                            {num}
-                          </div>
-                        );
-                      })}
-                    </div>
-                    <div style={{ fontSize: 'clamp(10px, 1.7vh, 12px)', color: 'rgba(255, 255, 255, 0.7)', lineHeight: 1.5 }}>
-                      Angka <span style={{ color: '#4ade80', fontWeight: 800 }}>9</span> ditebalkan karena merupakan angka <strong style={{ color: '#4ade80' }}>terkecil</strong> dari kumpulan data tersebut.
-                    </div>
-                  </div>
-                </div>
-
-                {/* Right Column: Agent Dira (Ratio 1) — hidden on mobile */}
-                <div className="fd-popup-right" style={{
-                  flex: 1.1,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '12px',
-                  background: 'rgba(99, 102, 241, 0.05)',
-                  border: '1px solid rgba(99, 102, 241, 0.15)',
-                  borderRadius: '14px',
-                  padding: '14px',
-                  boxSizing: 'border-box',
-                }}>
-                  <div style={{
-                    width: '64px', height: '64px', borderRadius: '50%',
-                    border: '2px solid var(--accent)',
-                    boxShadow: 'var(--accent-glow)',
+                    width: '60px', height: '60px', borderRadius: '50%',
+                    border: '2px solid #ef4444',
+                    boxShadow: '0 0 12px rgba(239, 68, 68, 0.4)',
                     background: 'var(--game-card)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     overflow: 'hidden',
@@ -803,35 +916,33 @@ export default function PregameFormula({ onComplete }: Props) {
                       style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     />
                   </div>
-                  <div style={{
-                    textAlign: 'center',
-                    fontSize: 'clamp(10px, 1.8vh, 12px)',
-                    lineHeight: 1.55,
-                    color: '#e2e8f0',
-                    fontWeight: 600,
-                  }}>
-                    <p style={{ margin: '0 0 6px 0', color: 'var(--accent)', fontWeight: 800, fontSize: 'clamp(9px, 1.5vh, 11px)', letterSpacing: '0.5px' }}>
-                      TIPS DARI DIRA
-                    </p>
-                    "Urutkan atau scan data dari kiri ke kanan untuk menemukan nilai tertinggi dan terendah secara cepat!"
-                  </div>
-                </div>
-              </div>
-
-              {/* Action Button */}
-              <button
-                className="game-btn game-btn-primary"
-                onClick={() => setShowFDIntroPopup(false)}
-                style={{
-                  width: '100%',
-                  padding: 'clamp(8px, 1.5vh, 12px)',
-                  fontSize: 'clamp(12px, 2vh, 14px)',
-                  fontWeight: 800,
-                  boxShadow: 'var(--accent-glow)',
-                }}
-              >
-                Mengerti {!isMobile && '(Enter)'}
-              </button>
+                  <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 900, color: '#1C1917' }}>
+                    Nilai Tidak Sesuai!
+                  </h3>
+                  <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.78)', lineHeight: 1.6 }}>
+                    Waduh! Nilai <strong style={{ color: '#ef4444', fontSize: '15px' }}>{wrongSelectedValue}</strong> yang kamu ambil bukan merupakan nilai <strong style={{ color: '#ef4444' }}>{wrongAssignType || 'terkecil atau terbesar'}</strong> dari data yang ada di labirin. Coba periksa kembali data dengan teliti! 🔍
+                  </p>
+                  <button
+                    className="game-btn game-btn-primary"
+                    onClick={() => {
+                      setShowFDIntroPopup(false)
+                      setWrongSelectedValue(null)
+                      setWrongAssignType(null)
+                    }}
+                    style={{
+                      width: '100%',
+                      padding: '10px',
+                      fontSize: '13px',
+                      fontWeight: 800,
+                      background: '#ef4444',
+                      border: 'none',
+                      boxShadow: '0 0 12px rgba(239, 68, 68, 0.4)',
+                    }}
+                  >
+                    Mengerti {!isMobile && '(Enter)'}
+                  </button>
+                </>
+              )}
             </motion.div>
           </div>
         )}
@@ -878,7 +989,7 @@ export default function PregameFormula({ onComplete }: Props) {
               {/* Subtle grid overlay */}
               <div style={{
                 position: 'absolute', inset: 0,
-                backgroundImage: 'linear-gradient(rgba(0,255,136,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,136,0.03) 1px, transparent 1px)',
+                backgroundImage: 'linear-gradient(rgba(217,119,6,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(217,119,6,0.03) 1px, transparent 1px)',
                 backgroundSize: '40px 40px',
                 pointerEvents: 'none',
               }} />
@@ -901,9 +1012,9 @@ export default function PregameFormula({ onComplete }: Props) {
                 <div style={{
                   alignSelf: 'flex-start',
                   background: 'rgba(10, 20, 15, 0.95)',
-                  borderTop: '2px solid rgba(0, 255, 136, 0.3)',
-                  borderLeft: '2px solid rgba(0, 255, 136, 0.3)',
-                  borderRight: '2px solid rgba(0, 255, 136, 0.3)',
+                  borderTop: '2px solid rgba(217,119,6, 0.3)',
+                  borderLeft: '2px solid rgba(217,119,6, 0.3)',
+                  borderRight: '2px solid rgba(217,119,6, 0.3)',
                   borderBottom: 'none',
                   borderRadius: '6px 14px 0 0',
                   padding: '4px 16px',
@@ -921,10 +1032,10 @@ export default function PregameFormula({ onComplete }: Props) {
                 {/* Dialog text box */}
                 <div style={{
                   background: 'rgba(10, 20, 18, 0.95)',
-                  border: '2px solid rgba(0, 255, 136, 0.4)',
+                  border: '2px solid rgba(217,119,6, 0.4)',
                   borderRadius: '0px 14px 14px 14px',
                   padding: 'clamp(14px, 2.5vh, 20px) clamp(16px, 3vw, 24px) clamp(12px, 2vh, 18px)',
-                  boxShadow: '0 10px 25px rgba(0, 255, 136, 0.1), inset 0 0 20px rgba(0, 255, 136, 0.03)',
+                  boxShadow: '0 10px 25px rgba(217,119,6, 0.1), inset 0 0 20px rgba(217,119,6, 0.03)',
                   display: 'flex', flexDirection: 'column', gap: '12px',
                   boxSizing: 'border-box', position: 'relative',
                   minHeight: 'clamp(95px, 18vh, 130px)',
@@ -966,7 +1077,7 @@ export default function PregameFormula({ onComplete }: Props) {
                         fontSize: 'clamp(11px, 1.8vh, 15px)',
                         color: 'var(--accent)',
                         transform: 'rotate(12deg)',
-                        boxShadow: '3px 3px 0px rgba(0, 255, 136, 0.3)',
+                        boxShadow: '3px 3px 0px rgba(217,119,6, 0.3)',
                         fontFamily: '"Impact", "Arial Black", sans-serif',
                         letterSpacing: '0.5px',
                         zIndex: 6,
@@ -981,7 +1092,7 @@ export default function PregameFormula({ onComplete }: Props) {
                   <p style={{
                     margin: 0,
                     fontSize: 'clamp(12px, 2vh, 15px)',
-                    color: 'rgba(255,255,255,0.9)',
+                    color: '#1C1917',
                     fontWeight: 600,
                     lineHeight: 1.65,
                     paddingRight: 'clamp(80px, 15vw, 140px)',
@@ -992,9 +1103,9 @@ export default function PregameFormula({ onComplete }: Props) {
                   {/* Footer */}
                   <div style={{
                     display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                    borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '10px',
+                    borderTop: '1px solid rgba(180,140,80,0.12)', paddingTop: '10px',
                   }}>
-                    <span style={{ fontSize: 'clamp(10px, 1.6vh, 12px)', color: 'rgba(255,255,255,0.3)', fontWeight: 600 }}>
+                    <span style={{ fontSize: 'clamp(10px, 1.6vh, 12px)', color: '#A8A29E', fontWeight: 600 }}>
                       Persiapan Statistik — Level 1
                     </span>
                     <motion.button
@@ -1038,7 +1149,7 @@ export default function PregameFormula({ onComplete }: Props) {
               {/* ── Assign popup (terbesar / terkecil) ── */}
               <AnimatePresence>
                 {assignPopup !== null && (
-                  <div style={{ position: 'fixed', inset: 0, zIndex: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(3,7,18,0.75)', backdropFilter: 'blur(6px)' }}>
+                  <div style={{ position: 'fixed', inset: 0, zIndex: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(250,246,238,0.75)', backdropFilter: 'blur(6px)' }}>
                     <motion.div
                       initial={{ scale: 0.88, opacity: 0, y: 16 }}
                       animate={{ scale: 1, opacity: 1, y: 0 }}
@@ -1047,7 +1158,7 @@ export default function PregameFormula({ onComplete }: Props) {
                       style={{ background: 'rgba(10,10,22,0.98)', border: '2px solid var(--accent)', borderRadius: '22px', padding: '28px 24px', maxWidth: '320px', width: '90%', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '18px', boxShadow: '0 25px 50px rgba(0,0,0,0.6), 0 0 30px rgba(99,102,241,0.15)' }}
                     >
                       <div style={{ fontSize: '32px' }}>🎯</div>
-                      <div style={{ fontSize: '15px', fontWeight: 700, color: '#fff' }}>
+                      <div style={{ fontSize: '15px', fontWeight: 700, color: '#1C1917' }}>
                         Jadikan nilai{' '}
                         <span style={{ color: 'var(--accent)', fontSize: '24px', fontWeight: 900, fontFamily: 'var(--font-data)' }}>{assignPopup}</span>{' '}
                         sebagai...
@@ -1105,142 +1216,186 @@ export default function PregameFormula({ onComplete }: Props) {
 
 
               {/* ── Main workspace: 4 : 1 split ── */}
-              <div style={{ flex: 1, minHeight: 0, display: 'flex', gap: '8px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.07)', overflow: 'hidden' }}>
+              <div style={{ flex: 1, minHeight: 0, display: 'flex', gap: '8px', borderRadius: '12px', border: '1px solid rgba(180,140,80,0.1)', overflow: 'hidden' }}>
 
                 {/* ─── LEFT: Maze canvas (flex 4) ─── */}
                 <div
                   ref={mapRef}
-                  style={{ flex: 4, position: 'relative', background: 'linear-gradient(145deg, #08090f 0%, #0d0f1c 100%)', overflow: 'hidden', borderRight: '1px solid rgba(255,255,255,0.06)' }}
+                  style={{ flex: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', borderRadius: 12, border: '1px solid rgba(180,140,80,0.08)', minHeight: 0, position: 'relative' }}
                 >
-                  {/* Grid overlay */}
-                  <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(rgba(99,102,241,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(99,102,241,0.04) 1px, transparent 1px)', backgroundSize: '28px 28px', pointerEvents: 'none' }} />
+                  <div style={{ width: '100%', maxHeight: '100%', aspectRatio: `${RENTANG_VW}/${RENTANG_VH}`, position: 'relative' }}>
+                    <svg viewBox={`0 0 ${RENTANG_VW} ${RENTANG_VH}`} preserveAspectRatio="xMidYMid meet" style={{ width: '100%', height: '100%', display: 'block' }}>
+                      {/* Background (walls) */}
+                      <rect width={RENTANG_VW} height={RENTANG_VH} fill="#060709" />
 
-                  {/* Maze wall segments */}
-                  {[
-                    { top: '28%', left: '16%', width: '40%', height: '2px' },
-                    { top: '28%', left: '16%', width: '2px', height: '34%' },
-                    { top: '62%', left: '36%', width: '42%', height: '2px' },
-                    { top: '14%', left: '66%', width: '2px', height: '30%' },
-                    { top: '14%', left: '66%', width: '23%', height: '2px' },
-                  ].map((s, i) => (
-                    <div key={i} style={{ position: 'absolute', ...s, background: 'rgba(99,102,241,0.28)', borderRadius: '1px', pointerEvents: 'none' }} />
-                  ))}
+                      {/* Floor tiles */}
+                      {RENTANG_MAZE.flatMap((row, r) => row.map((cell, c) => {
+                        if (cell === 1) return null
+                        return <rect key={`f${r}-${c}`} x={c * RENTANG_CELL + 0.5} y={r * RENTANG_CELL + 0.5} width={RENTANG_CELL - 1} height={RENTANG_CELL - 1} fill="#0f1122" rx={0.4} />
+                      }))}
 
-                  {/* Data nodes */}
-                  {MAZE_NODES.map(node => {
-                    const isTakenMax = node.val === mazeMax
-                    const isTakenMin = node.val === mazeMin
-                    const isTaken    = isTakenMax || isTakenMin
-                    const isNear     = nearNode === node.val && !isTaken && assignPopup === null
+                      {/* Subtle grid overlay */}
+                      <defs>
+                        <pattern id="gp-rentang" x={0} y={0} width={RENTANG_CELL} height={RENTANG_CELL} patternUnits="userSpaceOnUse">
+                          <path d={`M ${RENTANG_CELL} 0 L 0 0 0 ${RENTANG_CELL}`} fill="none" stroke="rgba(99,102,241,0.04)" strokeWidth={0.4} />
+                        </pattern>
+                      </defs>
+                      <rect width={RENTANG_VW} height={RENTANG_VH} fill="url(#gp-rentang)" />
 
-                    return (
-                      <div
-                        key={node.val}
-                        style={{ position: 'absolute', left: `${node.x}%`, top: `${node.y}%`, transform: 'translate(-50%, -50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px', zIndex: 5 }}
-                      >
-                        {/* Confirm button */}
-                        <AnimatePresence>
-                          {isNear && (
-                            <motion.button
-                              key="pickup"
-                              initial={{ opacity: 0, y: 6, scale: 0.8 }}
-                              animate={{ opacity: 1, y: 0, scale: 1 }}
-                              exit={{ opacity: 0, y: 6, scale: 0.8 }}
-                              className="game-btn game-btn-primary"
-                              onClick={() => setAssignPopup(node.val)}
-                              style={{ fontSize: '9px', padding: '3px 7px', borderRadius: '20px', fontWeight: 800, minHeight: 'auto', whiteSpace: 'nowrap', boxShadow: '0 0 10px var(--accent)' }}
-                            >
-                              Ambil ✓ {!isMobile && '(Enter)'}
-                            </motion.button>
-                          )}
-                        </AnimatePresence>
+                      {/* Data nodes */}
+                      {RENTANG_MAZE_NODES.map(node => {
+                        const isTakenMax = node.val === mazeMax
+                        const isTakenMin = node.val === mazeMin
+                        const isTaken = isTakenMax || isTakenMin
+                        const isNear = nearNode === node.val && !isTaken && assignPopup === null
+                        const nx = RENTANG_CX(node.col)
+                        const ny = RENTANG_CY(node.row)
 
-                        {/* Node circle */}
-                        <motion.div
-                          animate={isNear
-                            ? { scale: [1, 1.18, 1], boxShadow: ['0 0 6px rgba(99,102,241,0.3)', '0 0 18px rgba(99,102,241,0.85)', '0 0 6px rgba(99,102,241,0.3)'] }
-                            : {}
-                          }
-                          transition={{ repeat: Infinity, duration: 1.1 }}
+                        return (
+                          <g key={node.val} style={{ cursor: isTaken ? 'default' : 'pointer' }}
+                            onClick={() => { if (!isTaken && assignPopup === null) setAssignPopup(node.val) }}>
+                            {/* Glow if near */}
+                            {isNear && (
+                              <circle cx={nx} cy={ny} r={8} fill={`${ACC}18`} stroke={`${ACC}55`} strokeWidth={0.5} />
+                            )}
+
+                            {/* Node circle */}
+                            <circle
+                              cx={nx}
+                              cy={ny}
+                              r={3.8}
+                              fill={isTakenMax ? `${ACC}33` : isTakenMin ? `${GREEN}22` : isNear ? `${ACC}1f` : 'rgba(180,140,80,0.1)'}
+                              stroke={isTakenMax ? ACC : isTakenMin ? GREEN : isNear ? '#fff' : 'rgba(255,255,255,0.2)'}
+                              strokeWidth={isNear ? 0.7 : 0.5}
+                              opacity={isTaken ? 0.45 : 1}
+                              style={{ transition: 'all 0.25s' }}
+                            />
+
+                            {/* Node text */}
+                            {!isTaken ? (
+                              <text
+                                x={nx}
+                                y={ny + 0.4}
+                                textAnchor="middle"
+                                dominantBaseline="middle"
+                                fontSize={3.2}
+                                fontWeight="bold"
+                                fill={isNear ? '#fff' : 'rgba(255,255,255,0.7)'}
+                                fontFamily="var(--font-data)"
+                              >
+                                {node.val}
+                              </text>
+                            ) : (
+                              <text
+                                x={nx}
+                                y={ny + 0.4}
+                                textAnchor="middle"
+                                dominantBaseline="middle"
+                                fontSize={3.2}
+                                fontWeight="bold"
+                                fill={isTakenMax ? ACC : GREEN}
+                                fontFamily="var(--font-data)"
+                              >
+                                ✓
+                              </text>
+                            )}
+                          </g>
+                        )
+                      })}
+
+                      {/* Player character */}
+                      <defs>
+                        <radialGradient id="cg-rentang" cx="35%" cy="35%" r="65%">
+                          <stop offset="0%" stopColor="#ffffff" />
+                          <stop offset="60%" stopColor="var(--accent,#D97706)" />
+                          <stop offset="100%" stopColor="#4f46e5" />
+                        </radialGradient>
+                        <filter id="glow-rentang" x="-80%" y="-80%" width="260%" height="260%">
+                          <feGaussianBlur stdDeviation="1.2" result="b" />
+                          <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+                        </filter>
+                      </defs>
+                      <circle cx={charPos.x} cy={charPos.y} r={2.5} fill="url(#cg-rentang)" filter="url(#glow-rentang)" />
+
+                      {/* Start marker */}
+                      {charPos.x === RENTANG_CX(1) && charPos.y === RENTANG_CY(1) && (
+                        <text x={RENTANG_CX(1)} y={RENTANG_CY(1) - 5} textAnchor="middle" fontSize={2.8} fill="rgba(255,255,255,0.4)" fontFamily="monospace">START</text>
+                      )}
+                    </svg>
+
+                    {/* Mobile node pickup button overlay */}
+                    <AnimatePresence>
+                      {nearNode !== null && assignPopup === null && (
+                        <motion.button
+                          initial={{ opacity: 0, y: 5 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: 5 }}
+                          onClick={() => setAssignPopup(nearNode)}
                           style={{
-                            width: '36px', height: '36px', borderRadius: '50%',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            fontWeight: 800, fontSize: '13px', fontFamily: 'var(--font-data)',
-                            background: isTakenMax ? `${ACC}1f` : isTakenMin ? `${GREEN}1a` : isNear ? `${ACC}1f` : 'rgba(255,255,255,0.05)',
-                            border: isTakenMax ? `2px solid ${ACC}66` : isTakenMin ? `2px solid ${GREEN}55` : isNear ? `2px solid ${ACC}` : '1.5px solid rgba(255,255,255,0.13)',
-                            color: isTakenMax ? ACC : isTakenMin ? GREEN : isNear ? '#fff' : 'rgba(255,255,255,0.62)',
-                            opacity: isTaken ? 0.55 : 1,
-                            transition: 'all 0.25s',
+                            position: 'absolute',
+                            bottom: 8,
+                            right: 8,
+                            zIndex: 20,
+                            background: ACC,
+                            color: '#fff',
+                            border: 'none',
+                            borderRadius: 20,
+                            padding: '6px 12px',
+                            fontSize: 10,
+                            fontWeight: 800,
+                            cursor: 'pointer',
+                            boxShadow: `0 0 10px ${ACC}`,
                           }}
                         >
-                          {isTaken ? '✓' : node.val}
-                        </motion.div>
-                      </div>
-                    )
-                  })}
+                          📥 Ambil Angka {nearNode}
+                        </motion.button>
+                      )}
+                    </AnimatePresence>
 
-                  {/* Player character */}
-                  <motion.div
-                    style={{
-                      position: 'absolute',
-                      left: `${charPos.x}%`,
-                      top: `${charPos.y}%`,
-                      transform: 'translate(-50%, -50%)',
-                      width: '20px', height: '20px', borderRadius: '50%',
-                      background: 'radial-gradient(circle at 35% 35%, #ffffff 0%, var(--accent) 65%, #4f46e5 100%)',
-                      zIndex: 10, pointerEvents: 'none',
-                    }}
-                    animate={{ boxShadow: [
-                      '0 0 8px var(--accent), 0 0 16px rgba(99,102,241,0.35)',
-                      '0 0 16px var(--accent), 0 0 28px rgba(99,102,241,0.6)',
-                      '0 0 8px var(--accent), 0 0 16px rgba(99,102,241,0.35)',
-                    ] }}
-                    transition={{ repeat: Infinity, duration: 1.5 }}
-                  />
+                    {/* Top-right: control hint */}
+                    <div style={{ position: 'absolute', top: '8px', right: '10px', fontSize: '11px', color: '#A8A29E', fontWeight: 700, lineHeight: 1.5, textAlign: 'right' }}>
+                      ⌨ Arrow keys<br />🕹 Joystick
+                    </div>
 
-                  {/* Top-right: control hint */}
-                  <div style={{ position: 'absolute', top: '7px', right: '8px', fontSize: '9px', color: 'rgba(255,255,255,0.25)', fontWeight: 600, lineHeight: 1.4, textAlign: 'right' }}>
-                    ⌨ Arrow keys<br />🕹 Joystick
-                  </div>
+                    {/* Joystick (bottom-left, touch) */}
+                    <MazeJoystick onDir={(x, y) => { dirRef.current = { x, y } }} />
 
-                  {/* Joystick (bottom-left, touch) */}
-                  <MazeJoystick onDir={(x, y) => { dirRef.current = { x, y } }} />
-
-                  {/* D-Pad (bottom-right, desktop) */}
-                  <div style={{ position: 'absolute', bottom: '10px', right: '10px', display: 'grid', gridTemplateColumns: 'repeat(3, 28px)', gridTemplateRows: 'repeat(2, 28px)', gap: '3px', zIndex: 20 }}>
-                    <div />
-                    <DPadBtn label="↑" onActivate={() => { dirRef.current = { x: 0, y: -1 } }} onRelease={() => { dirRef.current = { x: 0, y: 0 } }} />
-                    <div />
-                    <DPadBtn label="←" onActivate={() => { dirRef.current = { x: -1, y: 0 } }} onRelease={() => { dirRef.current = { x: 0, y: 0 } }} />
-                    <DPadBtn label="↓" onActivate={() => { dirRef.current = { x: 0, y: 1 } }} onRelease={() => { dirRef.current = { x: 0, y: 0 } }} />
-                    <DPadBtn label="→" onActivate={() => { dirRef.current = { x: 1, y: 0 } }} onRelease={() => { dirRef.current = { x: 0, y: 0 } }} />
+                    {/* D-Pad (bottom-right, desktop) */}
+                    <div style={{ position: 'absolute', bottom: '10px', right: '10px', display: 'grid', gridTemplateColumns: 'repeat(3, 28px)', gridTemplateRows: 'repeat(2, 28px)', gap: '3px', zIndex: 20 }}>
+                      <div />
+                      <DPadBtn label="↑" onActivate={() => { dirRef.current = { x: 0, y: -1 } }} onRelease={() => { dirRef.current = { x: 0, y: 0 } }} />
+                      <div />
+                      <DPadBtn label="←" onActivate={() => { dirRef.current = { x: -1, y: 0 } }} onRelease={() => { dirRef.current = { x: 0, y: 0 } }} />
+                      <DPadBtn label="↓" onActivate={() => { dirRef.current = { x: 0, y: 1 } }} onRelease={() => { dirRef.current = { x: 0, y: 0 } }} />
+                      <DPadBtn label="→" onActivate={() => { dirRef.current = { x: 1, y: 0 } }} onRelease={() => { dirRef.current = { x: 0, y: 0 } }} />
+                    </div>
                   </div>
                 </div>
 
                 {/* ─── RIGHT: Formula panel (flex 1) ─── */}
-                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '10px', minWidth: 0 }}>
-                  <div style={{ fontSize: '9px', fontWeight: 800, color: 'rgba(255,255,255,0.22)', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                    📐 Rumus
+                <div style={{ flex: 1.2, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '10px', padding: '12px', minWidth: 0 }}>
+                  <div style={{ fontSize: '12px', fontWeight: 800, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '1.5px' }}>
+                    📐 RUMUS RENTANG
                   </div>
 
-                  <div style={{ background: `${ACC}0c`, border: `1px solid ${ACC}2a`, borderRadius: '12px', padding: '10px 8px', width: '100%', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <div style={{ fontSize: '10px', fontWeight: 700, color: '#a5b4fc', textAlign: 'center' }}>
+                  <div style={{ background: `${ACC}0c`, border: `1px solid ${ACC}2a`, borderRadius: '14px', padding: '12px 10px', width: '100%', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    <div style={{ fontSize: '13px', fontWeight: 800, color: '#a5b4fc', textAlign: 'center' }}>
                       R = terbesar − terkecil
                     </div>
 
                     {/* Terbesar slot */}
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px' }}>
-                      <div style={{ fontSize: '8px', fontWeight: 700, color: 'rgba(255,255,255,0.28)', letterSpacing: '0.5px' }}>TERBESAR</div>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                      <div style={{ fontSize: '10px', fontWeight: 800, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.8px' }}>NILAI TERBESAR</div>
                       <motion.div
                         animate={mazeMax !== null ? { scale: [1, 1.12, 1] } : {}}
                         transition={{ duration: 0.35 }}
                         style={{
-                          width: '100%', height: '38px', borderRadius: '8px',
+                          width: '100%', height: '42px', borderRadius: '10px',
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          background: mazeMax !== null ? `${ACC}1f` : 'rgba(255,255,255,0.04)',
-                          border: mazeMax !== null ? `2px solid ${ACC}66` : '2px dashed rgba(255,255,255,0.14)',
-                          fontSize: 'clamp(16px, 2.8vh, 22px)', fontWeight: 900,
-                          color: mazeMax !== null ? '#fff' : 'rgba(255,255,255,0.18)',
+                          background: mazeMax !== null ? `${ACC}1f` : 'rgba(217,119,6,0.06)',
+                          border: mazeMax !== null ? `2.5px solid ${ACC}66` : '2px dashed rgba(255,255,255,0.14)',
+                          fontSize: 'clamp(18px, 3vh, 24px)', fontWeight: 900,
+                          color: mazeMax !== null ? '#fff' : 'rgba(255,255,255,0.22)',
                           fontFamily: 'var(--font-data)',
                         }}
                       >
@@ -1248,21 +1403,21 @@ export default function PregameFormula({ onComplete }: Props) {
                       </motion.div>
                     </div>
 
-                    <div style={{ textAlign: 'center', fontSize: '13px', color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-data)', lineHeight: 1 }}>−</div>
+                    <div style={{ textAlign: 'center', fontSize: '16px', color: '#78716C', fontFamily: 'var(--font-data)', lineHeight: 1 }}>−</div>
 
                     {/* Terkecil slot */}
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px' }}>
-                      <div style={{ fontSize: '8px', fontWeight: 700, color: 'rgba(255,255,255,0.28)', letterSpacing: '0.5px' }}>TERKECIL</div>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                      <div style={{ fontSize: '10px', fontWeight: 800, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.8px' }}>NILAI TERKECIL</div>
                       <motion.div
                         animate={mazeMin !== null ? { scale: [1, 1.12, 1] } : {}}
                         transition={{ duration: 0.35 }}
                         style={{
-                          width: '100%', height: '38px', borderRadius: '8px',
+                          width: '100%', height: '42px', borderRadius: '10px',
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          background: mazeMin !== null ? `${GREEN}18` : 'rgba(255,255,255,0.04)',
+                          background: mazeMin !== null ? `${GREEN}18` : 'rgba(217,119,6,0.06)',
                           border: mazeMin !== null ? `2px solid ${GREEN}55` : '2px dashed rgba(255,255,255,0.14)',
-                          fontSize: 'clamp(16px, 2.8vh, 22px)', fontWeight: 900,
-                          color: mazeMin !== null ? GREEN : 'rgba(255,255,255,0.18)',
+                          fontSize: 'clamp(18px, 3vh, 24px)', fontWeight: 900,
+                          color: mazeMin !== null ? GREEN : 'rgba(255,255,255,0.22)',
                           fontFamily: 'var(--font-data)',
                         }}
                       >
@@ -1278,14 +1433,14 @@ export default function PregameFormula({ onComplete }: Props) {
                           animate={{ opacity: 1, scale: 1 }}
                           exit={{ opacity: 0, scale: 0.8 }}
                           transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-                          style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}
+                          style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px' }}
                         >
-                          <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-data)' }}>=</div>
-                          <div style={{ fontSize: 'clamp(20px, 3.5vh, 28px)', fontWeight: 900, color: rentangDone ? GREEN : '#fff', fontFamily: 'var(--font-data)', textShadow: rentangDone ? `0 0 12px ${GREEN}` : 'none', transition: 'color 0.3s' }}>
+                          <div style={{ fontSize: '14px', color: '#78716C', fontFamily: 'var(--font-data)' }}>=</div>
+                          <div style={{ fontSize: 'clamp(22px, 3.8vh, 32px)', fontWeight: 900, color: rentangDone ? GREEN : '#fff', fontFamily: 'var(--font-data)', textShadow: rentangDone ? `0 0 12px ${GREEN}` : 'none', transition: 'color 0.3s' }}>
                             {mazeMax - mazeMin}
                           </div>
                           {rentangDone && (
-                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ fontSize: '10px', color: GREEN, fontWeight: 700 }}>✅ R = {CORRECT_R}</motion.div>
+                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ fontSize: '13px', color: GREEN, fontWeight: 800 }}>✅ R = {CORRECT_R}</motion.div>
                           )}
                         </motion.div>
                       )}
@@ -1297,7 +1452,7 @@ export default function PregameFormula({ onComplete }: Props) {
                     <button
                       className="game-btn game-btn-primary"
                       onClick={() => navigateTo('banyak-kelas')}
-                      style={{ width: '100%', padding: '8px', fontSize: '11px', boxShadow: 'var(--accent-glow)', marginTop: '4px' }}
+                      style={{ width: '100%', padding: '10px 14px', fontSize: '13px', fontWeight: 800, boxShadow: 'var(--accent-glow)', marginTop: '4px' }}
                     >
                       Lanjut →
                     </button>
@@ -1307,7 +1462,7 @@ export default function PregameFormula({ onComplete }: Props) {
                       onClick={handleConfirmRentang}
                       disabled={mazeMax === null || mazeMin === null}
                       style={{
-                        width: '100%', padding: '8px', fontSize: '11px',
+                        width: '100%', padding: '10px 14px', fontSize: '13px', fontWeight: 800,
                         opacity: mazeMax !== null && mazeMin !== null ? 1 : 0.45,
                         cursor: mazeMax !== null && mazeMin !== null ? 'pointer' : 'not-allowed',
                         marginTop: '4px'
@@ -1323,130 +1478,27 @@ export default function PregameFormula({ onComplete }: Props) {
             </>
           )}
 
-          {/* ══ BANYAK KELAS ═══════════════════════════════════════════════════ */}
+          {/* ══ BANYAK KELAS — NPath Game ══════════════════════════════════════ */}
           {sub === 'banyak-kelas' && (
             <>
-              <StepHeader step={2} title="Banyak Kelas (K)" subtitle="Langkah 2 dari 3" />
+              <StepHeader step={2} title="Mencari Nilai n" subtitle="Langkah 2 dari 3 — Eksplorasi Ruangan" />
 
-              {/* Two-column layout: agent left, formula right */}
+              {/* NPath game fills remaining space */}
               <div style={{
-                flex: 1, minHeight: 0, display: 'flex', flexDirection: 'row', gap: '10px',
-                borderRadius: '12px',
-                background: 'rgba(255,255,255,0.012)',
-                border: '1px solid rgba(255,255,255,0.07)',
-                padding: '10px',
+                flex: 1, minHeight: 0,
+                borderRadius: '14px',
                 overflow: 'hidden',
+                display: 'flex', flexDirection: 'column',
               }}>
-                {/* Left: Agent Sidebar */}
-                <AgentSidebar message={`Data screen time kita semuanya berjumlah ${CORRECT_N} siswa. Jadi nilai n = ${CORRECT_N} ya! 🔢`} />
-
-                {/* Right: Formula area (wider now) */}
-                <div style={{
-                  flex: 1, display: 'flex', flexDirection: 'column',
-                  alignItems: 'center', justifyContent: 'center', gap: '14px',
-                  minWidth: 0,
-                }}>
-                  {/* Formula card */}
-                  <div style={{
-                    background: `${ACC}0c`, border: `1px solid ${ACC}2a`, borderRadius: '14px',
-                    padding: '16px 20px', width: '100%',
-                    display: 'flex', flexDirection: 'column', gap: '12px',
-                  }}>
-                    <div style={{ fontSize: 'clamp(10px, 1.8vh, 14px)', fontWeight: 700, color: '#a5b4fc', textAlign: 'center' }}>
-                      K = 1 + 3,3 × log n
-                    </div>
-
-                    {/* Input row */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
-                      <span style={{ fontSize: 'clamp(12px, 2.2vh, 17px)', fontWeight: 900, color: '#a5b4fc', fontFamily: 'var(--font-data)' }}>K = 1 + 3,3 × log</span>
-
-                      <motion.div
-                        key={nShake}
-                        animate={!isFD && nShake > 0 ? {
-                          x: [-6, 6, -5, 5, -3, 3, 0],
-                          transition: { duration: 0.4 },
-                        } : {}}
-                      >
-                        <input
-                          type="number"
-                          value={nVal}
-                          onChange={e => setNVal(e.target.value)}
-                          onKeyDown={e => e.key === 'Enter' && !nDone && checkBK()}
-                          disabled={nDone}
-                          placeholder="n"
-                          style={{
-                            width: 'clamp(70px, 10vw, 110px)', padding: 'clamp(7px, 1.2vh, 11px) 10px', borderRadius: '8px', textAlign: 'center',
-                            background: nErr ? 'rgba(239,68,68,0.12)' : nDone ? `${GREEN}12` : 'rgba(255,255,255,0.06)',
-                            border: nErr ? `2px solid ${RED}` : nDone ? `2px solid ${GREEN}55` : `2px solid rgba(255,255,255,0.22)`,
-                            color: nDone ? GREEN : '#fff', fontFamily: 'var(--font-data)', fontSize: 'clamp(16px, 3vh, 22px)', fontWeight: 800,
-                            outline: 'none', transition: 'border 0.2s, background 0.2s',
-                          }}
-                        />
-                      </motion.div>
-                    </div>
-
-                    {/* Computed breakdown (shown after correct) */}
-                    {nDone && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
-                        style={{ display: 'flex', flexDirection: 'column', gap: '3px', textAlign: 'center' }}
-                      >
-                        {[
-                          `= 1 + 3,3 × log ${CORRECT_N}`,
-                          `= 1 + 3,3 × 1,544`,
-                          `= 1 + 5,095`,
-                          `= 6,095`,
-                        ].map((line, i) => (
-                          <motion.div
-                            key={i}
-                            initial={{ opacity: 0, x: -6 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: i * 0.1 }}
-                            style={{ fontSize: 'clamp(11px, 2vh, 15px)', color: i < 3 ? 'rgba(255,255,255,0.55)' : 'rgba(255,255,255,0.7)', fontFamily: 'var(--font-data)', fontWeight: 700 }}
-                          >
-                            {line}
-                          </motion.div>
-                        ))}
-                      </motion.div>
-                    )}
-                  </div>
-
-                  {/* Result */}
-                  {nDone && (
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
-                      <ResultBadge value={`K = ${CORRECT_K}`} suffix="kelas" />
-                      <div style={{ fontSize: 'clamp(10px, 1.8vh, 14px)', color: `${GREEN}88` }}>
-                        6,095 → dibulatkan menjadi <strong style={{ color: GREEN }}>6 kelas</strong>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <HintToast hint={nHint} />
-
-              {/* Action */}
-              {nDone ? (
-                <button
-                  className="game-btn game-btn-primary"
-                  onClick={() => navigateTo('panjang-kelas')}
-                  style={{ flexShrink: 0, width: '100%', padding: '8px', fontSize: '12px', boxShadow: 'var(--accent-glow)' }}
-                >
-                  Lanjut: Panjang Kelas (P) →
-                </button>
-              ) : (
-                <button
-                  className="game-btn game-btn-primary"
-                  onClick={checkBK}
-                  disabled={!nVal.trim()}
-                  style={{
-                    flexShrink: 0, width: '100%', padding: '8px', fontSize: '12px',
-                    opacity: nVal.trim() ? 1 : 0.4, cursor: nVal.trim() ? 'pointer' : 'not-allowed',
+                <NPath
+                  isFD={isFD}
+                  onComplete={() => {
+                    setNVal(String(CORRECT_N))
+                    setNDone(true)
+                    setTimeout(() => navigateTo('panjang-kelas'), 400)
                   }}
-                >
-                  Cek Jawaban →
-                </button>
-              )}
+                />
+              </div>
             </>
           )}
 
@@ -1460,7 +1512,7 @@ export default function PregameFormula({ onComplete }: Props) {
                 flex: 1, minHeight: 0, display: 'flex', flexDirection: 'row', gap: '10px',
                 borderRadius: '12px',
                 background: 'rgba(255,255,255,0.012)',
-                border: '1px solid rgba(255,255,255,0.07)',
+                border: '1px solid rgba(180,140,80,0.1)',
                 padding: '10px',
                 overflow: 'hidden',
               }}>
@@ -1473,126 +1525,126 @@ export default function PregameFormula({ onComplete }: Props) {
                   alignItems: 'center', justifyContent: 'center', gap: '14px',
                   minWidth: 0,
                 }}>
-                {/* Formula card */}
-                <div style={{
-                  background: `${ACC}0c`, border: `1px solid ${ACC}2a`, borderRadius: '14px',
-                  padding: '16px 20px', width: '100%', maxWidth: '400px',
-                  display: 'flex', flexDirection: 'column', gap: '12px',
-                }}>
-                  <div style={{ fontSize: 'clamp(10px, 1.8vh, 14px)', fontWeight: 700, color: '#a5b4fc', textAlign: 'center' }}>
-                    P = Rentang (R) ÷ Banyak Kelas (K)
+                  {/* Formula card */}
+                  <div style={{
+                    background: `${ACC}0c`, border: `1px solid ${ACC}2a`, borderRadius: '14px',
+                    padding: '18px 22px', width: '100%', maxWidth: '440px',
+                    display: 'flex', flexDirection: 'column', gap: '14px',
+                  }}>
+                    <div style={{ fontSize: 'clamp(14px, 2.2vh, 18px)', fontWeight: 800, color: '#a5b4fc', textAlign: 'center' }}>
+                      P = Rentang (R) ÷ Banyak Kelas (K)
+                    </div>
+
+                    {/* Input row */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                      <span style={{ fontSize: 'clamp(16px, 2.8vh, 22px)', fontWeight: 900, color: '#a5b4fc', fontFamily: 'var(--font-data)' }}>P =</span>
+
+                      <motion.div
+                        key={`pkR-${pkShake}`}
+                        animate={!isFD && pkShake > 0 ? { x: [-6, 6, -5, 5, 0], transition: { duration: 0.4 } } : {}}
+                      >
+                        <input
+                          type="number"
+                          value={pkR}
+                          onChange={e => setPkR(e.target.value)}
+                          onKeyDown={e => e.key === 'Enter' && !pkDone && checkPK()}
+                          disabled={pkDone}
+                          placeholder="R"
+                          style={{
+                            width: 'clamp(68px, 9vw, 100px)', padding: 'clamp(8px, 1.2vh, 12px) 8px', borderRadius: '10px', textAlign: 'center',
+                            background: pkRErr ? 'rgba(239,68,68,0.12)' : pkDone ? `${GREEN}12` : 'rgba(180,140,80,0.12)',
+                            border: pkRErr ? `1.5px solid ${RED}` : pkDone ? `1.5px solid ${GREEN}55` : `1.5px solid rgba(255,255,255,0.18)`,
+                            color: pkDone ? GREEN : '#fff', fontFamily: 'var(--font-data)', fontSize: 'clamp(18px, 3vh, 24px)', fontWeight: 800,
+                            outline: 'none', transition: 'border 0.2s, background 0.2s',
+                          }}
+                        />
+                      </motion.div>
+
+                      <span style={{ fontSize: 'clamp(22px, 3.8vh, 32px)', color: '#78716C', fontFamily: 'var(--font-data)' }}>÷</span>
+
+                      <motion.div
+                        key={`pkK-${pkShake}`}
+                        animate={!isFD && pkShake > 0 ? { x: [-6, 6, -5, 5, 0], transition: { duration: 0.4 } } : {}}
+                      >
+                        <input
+                          type="number"
+                          value={pkK}
+                          onChange={e => setPkK(e.target.value)}
+                          onKeyDown={e => e.key === 'Enter' && !pkDone && checkPK()}
+                          disabled={pkDone}
+                          placeholder="K"
+                          style={{
+                            width: 'clamp(68px, 9vw, 100px)', padding: 'clamp(8px, 1.2vh, 12px) 8px', borderRadius: '10px', textAlign: 'center',
+                            background: pkKErr ? 'rgba(239,68,68,0.12)' : pkDone ? `${GREEN}12` : 'rgba(180,140,80,0.12)',
+                            border: pkKErr ? `1.5px solid ${RED}` : pkDone ? `1.5px solid ${GREEN}55` : `1.5px solid rgba(255,255,255,0.18)`,
+                            color: pkDone ? GREEN : '#fff', fontFamily: 'var(--font-data)', fontSize: 'clamp(18px, 3vh, 24px)', fontWeight: 800,
+                            outline: 'none', transition: 'border 0.2s, background 0.2s',
+                          }}
+                        />
+                      </motion.div>
+                    </div>
+
+                    {/* Computed breakdown */}
+                    {pkDone && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+                        style={{ display: 'flex', flexDirection: 'column', gap: '4px', textAlign: 'center' }}
+                      >
+                        {[
+                          `= ${CORRECT_R} ÷ ${CORRECT_K}`,
+                          `= 2,833...`,
+                          `≈ 3`,
+                        ].map((line, i) => (
+                          <motion.div
+                            key={i}
+                            initial={{ opacity: 0, x: -6 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: i * 0.1 }}
+                            style={{ fontSize: '14px', color: i < 2 ? '#78716C' : 'rgba(255,255,255,0.85)', fontFamily: 'var(--font-data)', fontWeight: 800 }}
+                          >
+                            {line}
+                          </motion.div>
+                        ))}
+                      </motion.div>
+                    )}
                   </div>
 
-                  {/* Input row */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'center', flexWrap: 'wrap' }}>
-                    <span style={{ fontSize: 'clamp(13px, 2.4vh, 18px)', fontWeight: 900, color: '#a5b4fc', fontFamily: 'var(--font-data)' }}>P =</span>
+                  {/* Result */}
+                  {pkDone && (
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+                      <ResultBadge value="P ≈ 3" />
+                      <div style={{ fontSize: '13px', color: `${GREEN}bb`, fontWeight: 700 }}>
+                        {CORRECT_R}/{CORRECT_K} = 2,833 → dibulatkan ke atas menjadi <strong style={{ color: GREEN, fontSize: '15px' }}>3</strong>
+                      </div>
+                    </div>
+                  )}
 
-                    <motion.div
-                      key={`pkR-${pkShake}`}
-                      animate={!isFD && pkShake > 0 ? { x: [-6, 6, -5, 5, 0], transition: { duration: 0.4 } } : {}}
-                    >
-                      <input
-                        type="number"
-                        value={pkR}
-                        onChange={e => setPkR(e.target.value)}
-                        onKeyDown={e => e.key === 'Enter' && !pkDone && checkPK()}
-                        disabled={pkDone}
-                        placeholder="R"
-                        style={{
-                          width: 'clamp(54px, 7vw, 80px)', padding: 'clamp(6px, 1vh, 9px) 6px', borderRadius: '8px', textAlign: 'center',
-                          background: pkRErr ? 'rgba(239,68,68,0.12)' : pkDone ? `${GREEN}12` : 'rgba(255,255,255,0.06)',
-                          border: pkRErr ? `1.5px solid ${RED}` : pkDone ? `1.5px solid ${GREEN}55` : `1.5px solid rgba(255,255,255,0.18)`,
-                          color: pkDone ? GREEN : '#fff', fontFamily: 'var(--font-data)', fontSize: 'clamp(14px, 2.5vh, 19px)', fontWeight: 800,
-                          outline: 'none', transition: 'border 0.2s, background 0.2s',
-                        }}
-                      />
-                    </motion.div>
-
-                    <span style={{ fontSize: 'clamp(18px, 3.2vh, 26px)', color: 'rgba(255,255,255,0.5)', fontFamily: 'var(--font-data)' }}>÷</span>
-
-                    <motion.div
-                      key={`pkK-${pkShake}`}
-                      animate={!isFD && pkShake > 0 ? { x: [-6, 6, -5, 5, 0], transition: { duration: 0.4 } } : {}}
-                    >
-                      <input
-                        type="number"
-                        value={pkK}
-                        onChange={e => setPkK(e.target.value)}
-                        onKeyDown={e => e.key === 'Enter' && !pkDone && checkPK()}
-                        disabled={pkDone}
-                        placeholder="K"
-                        style={{
-                          width: 'clamp(54px, 7vw, 80px)', padding: 'clamp(6px, 1vh, 9px) 6px', borderRadius: '8px', textAlign: 'center',
-                          background: pkKErr ? 'rgba(239,68,68,0.12)' : pkDone ? `${GREEN}12` : 'rgba(255,255,255,0.06)',
-                          border: pkKErr ? `1.5px solid ${RED}` : pkDone ? `1.5px solid ${GREEN}55` : `1.5px solid rgba(255,255,255,0.18)`,
-                          color: pkDone ? GREEN : '#fff', fontFamily: 'var(--font-data)', fontSize: 'clamp(14px, 2.5vh, 19px)', fontWeight: 800,
-                          outline: 'none', transition: 'border 0.2s, background 0.2s',
-                        }}
-                      />
-                    </motion.div>
-                  </div>
-
-                  {/* Computed breakdown */}
+                  {/* Summary row (after done) */}
                   {pkDone && (
                     <motion.div
-                      initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
-                      style={{ display: 'flex', flexDirection: 'column', gap: '3px', textAlign: 'center' }}
+                      initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.5 }}
+                      style={{
+                        display: 'flex', gap: '10px', flexWrap: 'wrap', justifyContent: 'center',
+                      }}
                     >
                       {[
-                        `= ${CORRECT_R} ÷ ${CORRECT_K}`,
-                        `= 2,833...`,
-                        `≈ 3`,
-                      ].map((line, i) => (
-                        <motion.div
-                          key={i}
-                          initial={{ opacity: 0, x: -6 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: i * 0.1 }}
-                          style={{ fontSize: '11px', color: i < 2 ? 'rgba(255,255,255,0.55)' : 'rgba(255,255,255,0.7)', fontFamily: 'var(--font-data)', fontWeight: 700 }}
-                        >
-                          {line}
-                        </motion.div>
+                        { label: 'R', value: String(CORRECT_R), icon: '📏' },
+                        { label: 'K', value: String(CORRECT_K), icon: '📊' },
+                        { label: 'P', value: '≈ 3', icon: '📐' },
+                      ].map(({ label, value, icon }) => (
+                        <div key={label} style={{
+                          padding: '8px 16px', borderRadius: '12px',
+                          background: `${GREEN}0f`, border: `1.5px solid ${GREEN}33`,
+                          display: 'flex', alignItems: 'center', gap: '6px',
+                        }}>
+                          <span style={{ fontSize: '14px' }}>{icon}</span>
+                          <span style={{ fontSize: '13px', fontWeight: 800, color: `${GREEN}bb` }}>{label} =</span>
+                          <span style={{ fontSize: '16px', fontWeight: 900, color: GREEN, fontFamily: 'var(--font-data)' }}>{value}</span>
+                        </div>
                       ))}
                     </motion.div>
                   )}
-                </div>
-
-                {/* Result */}
-                {pkDone && (
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
-                    <ResultBadge value="P ≈ 3" />
-                    <div style={{ fontSize: '10px', color: `${GREEN}88` }}>
-                      {CORRECT_R}/{CORRECT_K} = 2,833 → dibulatkan menjadi <strong style={{ color: GREEN }}>3</strong>
-                    </div>
-                  </div>
-                )}
-
-                {/* Summary row (after done) */}
-                {pkDone && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.5 }}
-                    style={{
-                      display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center',
-                    }}
-                  >
-                    {[
-                      { label: 'R', value: String(CORRECT_R), icon: '📏' },
-                      { label: 'K', value: String(CORRECT_K), icon: '📊' },
-                      { label: 'P', value: '≈ 3', icon: '📐' },
-                    ].map(({ label, value, icon }) => (
-                      <div key={label} style={{
-                        padding: '6px 12px', borderRadius: '10px',
-                        background: `${GREEN}0f`, border: `1px solid ${GREEN}33`,
-                        display: 'flex', alignItems: 'center', gap: '5px',
-                      }}>
-                        <span style={{ fontSize: '12px' }}>{icon}</span>
-                        <span style={{ fontSize: '11px', fontWeight: 800, color: `${GREEN}bb` }}>{label} =</span>
-                        <span style={{ fontSize: '13px', fontWeight: 900, color: GREEN, fontFamily: 'var(--font-data)' }}>{value}</span>
-                      </div>
-                    ))}
-                  </motion.div>
-                )}
                 </div>
               </div>
 
@@ -1603,7 +1655,7 @@ export default function PregameFormula({ onComplete }: Props) {
                 <button
                   className="game-btn game-btn-primary"
                   onClick={onComplete}
-                  style={{ flexShrink: 0, width: '100%', padding: '8px', fontSize: '12px', boxShadow: 'var(--accent-glow)' }}
+                  style={{ flexShrink: 0, width: '100%', padding: '11px 16px', fontSize: '14px', fontWeight: 800, boxShadow: 'var(--accent-glow)' }}
                 >
                   🎯 Lanjut: Cari Nilai Min & Max →
                 </button>
@@ -1613,7 +1665,7 @@ export default function PregameFormula({ onComplete }: Props) {
                   onClick={checkPK}
                   disabled={!pkR.trim() || !pkK.trim()}
                   style={{
-                    flexShrink: 0, width: '100%', padding: '8px', fontSize: '12px',
+                    flexShrink: 0, width: '100%', padding: '11px 16px', fontSize: '14px', fontWeight: 800,
                     opacity: pkR.trim() && pkK.trim() ? 1 : 0.4,
                     cursor: pkR.trim() && pkK.trim() ? 'pointer' : 'not-allowed',
                   }}

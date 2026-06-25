@@ -29,7 +29,7 @@ export default function BadgeUnlock({ icon, name, desc, onDone }: BadgeUnlockPro
         <motion.div
           style={{
             position: 'absolute', inset: '-4px', borderRadius: 'inherit',
-            background: 'conic-gradient(from 0deg, #00FF88, #00ccff, #00FF88)',
+            background: 'conic-gradient(from 0deg, #D97706, #00ccff, #D97706)',
             zIndex: -1, filter: 'blur(8px)', opacity: 0.6,
           }}
           animate={{ rotate: 360 }}
@@ -44,7 +44,7 @@ export default function BadgeUnlock({ icon, name, desc, onDone }: BadgeUnlockPro
           <div className="badge-icon">{icon}</div>
 
           <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '20px', fontWeight: 800, color: '#fff', marginBottom: '6px' }}>
+            <div style={{ fontSize: '20px', fontWeight: 800, color: '#1C1917', marginBottom: '6px' }}>
               {name}
             </div>
             <div style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>

@@ -114,7 +114,7 @@ export default function OrientationGuard({
               position: 'fixed',
               inset: 0,
               zIndex: 9999,
-              background: 'linear-gradient(135deg, #0A0A0F 0%, #0f1a2e 100%)',
+              background: 'linear-gradient(135deg, #FAF6EE 0%, #FFF1DC 100%)',
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
@@ -143,18 +143,18 @@ export default function OrientationGuard({
             <motion.div
               animate={{ x: [0, 12, 0], opacity: [0.5, 1, 0.5] }}
               transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
-              style={{ fontSize: '28px', color: '#00FF88' }}
+              style={{ fontSize: '28px', color: '#D97706' }}
             >
               ↻
             </motion.div>
 
-            <div style={{ color: '#fff' }}>
+            <div style={{ color: '#1C1917' }}>
               <div
                 style={{
                   fontSize: '11px',
                   fontWeight: 800,
                   letterSpacing: '3px',
-                  color: '#00FF88',
+                  color: '#D97706',
                   marginBottom: '12px',
                   textTransform: 'uppercase',
                 }}
@@ -170,12 +170,12 @@ export default function OrientationGuard({
                 }}
               >
                 Putar HP-mu ke Posisi<br />
-                <span style={{ color: '#00FF88' }}>Mendatar (Landscape)</span>
+                <span style={{ color: '#D97706' }}>Mendatar (Landscape)</span>
               </h2>
               <p
                 style={{
                   fontSize: '13px',
-                  color: 'rgba(255, 255, 255, 0.55)',
+                  color: '#78716C',
                   lineHeight: 1.6,
                   margin: 0,
                   maxWidth: '260px',
@@ -190,9 +190,9 @@ export default function OrientationGuard({
             <motion.div
               animate={{
                 boxShadow: [
-                  '0 0 0 0 rgba(0, 255, 136, 0)',
-                  '0 0 0 12px rgba(0, 255, 136, 0.15)',
-                  '0 0 0 0 rgba(0, 255, 136, 0)',
+                  '0 0 0 0 rgba(217,119,6, 0)',
+                  '0 0 0 12px rgba(217,119,6, 0.15)',
+                  '0 0 0 0 rgba(217,119,6, 0)',
                 ],
               }}
               transition={{ duration: 2, repeat: Infinity }}
@@ -200,7 +200,7 @@ export default function OrientationGuard({
                 width: '64px',
                 height: '64px',
                 borderRadius: '50%',
-                border: '2px solid rgba(0, 255, 136, 0.4)',
+                border: '2px solid rgba(217,119,6, 0.4)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',

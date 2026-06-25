@@ -142,7 +142,7 @@ export default function Cutscene({ onComplete, onPhaseChange }: CutsceneProps) {
         width: '100%',
         height: isMobile ? 'auto' : 'calc(100vh - 68px)',
         minHeight: isMobile ? 'calc(100vh - 68px)' : 'none',
-        background: '#0a0a0f',
+        background: '#FAF6EE',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -198,11 +198,11 @@ export default function Cutscene({ onComplete, onPhaseChange }: CutsceneProps) {
             maxWidth: '320px',
             height: isMobile ? 'auto' : '100%',
             maxHeight: isMobile ? '360px' : '440px',
-            background: '#000',
+            background: '#FAF6EE',
             border: '1px solid rgba(255, 255, 255, 0.12)',
             borderRadius: '16px',
             boxShadow: '0 20px 40px rgba(0, 0, 0, 0.6)',
-            color: '#fff',
+            color: '#1C1917',
             fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
             overflowY: 'auto',
             display: 'flex',
@@ -215,7 +215,7 @@ export default function Cutscene({ onComplete, onPhaseChange }: CutsceneProps) {
               justifyContent: 'space-between',
               padding: '10px 12px',
               borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-              background: '#000',
+              background: '#FAF6EE',
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <div style={{
@@ -244,13 +244,13 @@ export default function Cutscene({ onComplete, onPhaseChange }: CutsceneProps) {
                   </div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <span style={{ fontSize: '13px', fontWeight: 700, color: '#fff' }}>pinterpolitik</span>
+                  <span style={{ fontSize: '13px', fontWeight: 700, color: '#1C1917' }}>pinterpolitik</span>
                   <svg viewBox="0 0 24 24" width="12" height="12" style={{ fill: '#3897f0', marginLeft: '4px', display: 'inline-block', verticalAlign: 'middle' }}>
                     <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
                   </svg>
                 </div>
               </div>
-              <div style={{ color: '#fff', cursor: 'pointer', fontSize: '18px', fontWeight: 'bold' }}>•••</div>
+              <div style={{ color: '#1C1917', cursor: 'pointer', fontSize: '18px', fontWeight: 'bold' }}>•••</div>
             </div>
 
             {/* Post Image Body */}
@@ -336,7 +336,7 @@ export default function Cutscene({ onComplete, onPhaseChange }: CutsceneProps) {
             }}>
               <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
                 <span style={{ cursor: 'pointer', fontSize: '16px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  ❤️ <span style={{ fontSize: '11px', fontWeight: 600, color: '#fff' }}>12,9rb</span>
+                  ❤️ <span style={{ fontSize: '11px', fontWeight: 600, color: '#1C1917' }}>12,9rb</span>
                 </span>
                 <span style={{
                   cursor: 'pointer',
@@ -345,10 +345,10 @@ export default function Cutscene({ onComplete, onPhaseChange }: CutsceneProps) {
                   alignItems: 'center',
                   gap: '4px',
                 }}>
-                  💬 <span style={{ fontSize: '11px', fontWeight: 600, color: '#fff' }}>1.134</span>
+                  💬 <span style={{ fontSize: '11px', fontWeight: 600, color: '#1C1917' }}>1.134</span>
                 </span>
                 <span style={{ cursor: 'pointer', fontSize: '16px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  ✈️ <span style={{ fontSize: '11px', fontWeight: 600, color: '#fff' }}>3.560</span>
+                  ✈️ <span style={{ fontSize: '11px', fontWeight: 600, color: '#1C1917' }}>3.560</span>
                 </span>
               </div>
               <span style={{ cursor: 'pointer', fontSize: '16px' }}>🔖</span>
@@ -359,13 +359,13 @@ export default function Cutscene({ onComplete, onPhaseChange }: CutsceneProps) {
               padding: '0 14px 14px',
               fontSize: '12px',
               lineHeight: 1.4,
-              color: '#fff',
+              color: '#1C1917',
             }}>
-              <div style={{ marginBottom: '6px', color: '#fff' }}>
+              <div style={{ marginBottom: '6px', color: '#1C1917' }}>
                 Disukai oleh <strong>edukasi.kompas</strong> dan <strong>lainnya</strong>
               </div>
               <div>
-                <strong>pinterpolitik</strong> Sebuah studi terbaru mengungkap fakta mencengangkan: remaja Indonesia rata-rata menghabiskan lebih dari 8 jam sehari di media sosial!... <span style={{ color: '#fff', cursor: 'pointer' }}>selengkapnya</span>
+                <strong>pinterpolitik</strong> Sebuah studi terbaru mengungkap fakta mencengangkan: remaja Indonesia rata-rata menghabiskan lebih dari 8 jam sehari di media sosial!... <span style={{ color: '#1C1917', cursor: 'pointer' }}>selengkapnya</span>
               </div>
             </div>
           </div>
@@ -383,25 +383,25 @@ export default function Cutscene({ onComplete, onPhaseChange }: CutsceneProps) {
             width: '100%',
             maxWidth: '440px',
             height: isMobile ? 'auto' : '100%',
-            background: 'rgba(255, 255, 255, 0.02)',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
+            background: '#FFFFFF',
+            border: '1px solid rgba(180, 140, 80, 0.15)',
             borderRadius: '20px',
             padding: isMobile ? '16px 20px' : '20px 24px',
             backdropFilter: 'blur(10px)',
-            boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
+            boxShadow: '0 8px 30px rgba(180, 120, 40, 0.06)',
             justifyContent: 'space-between',
             boxSizing: 'border-box',
           }}
         >
           <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100% - 60px)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px', borderBottom: '1px solid rgba(180,140,80,0.12)', paddingBottom: '12px' }}>
               <span style={{ fontSize: '20px' }}>💬</span>
-              <span style={{ fontSize: '16px', fontWeight: 700, color: '#fff', letterSpacing: '0.5px' }}>
+              <span style={{ fontSize: '16px', fontWeight: 700, color: '#1C1917', letterSpacing: '0.5px' }}>
                 Komentar Netizen
               </span>
               <span style={{
                 background: '#ef4444',
-                color: '#fff',
+                color: '#FFFFFF',
                 fontSize: '10px',
                 fontWeight: 800,
                 padding: '2px 8px',
@@ -430,11 +430,11 @@ export default function Cutscene({ onComplete, onPhaseChange }: CutsceneProps) {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   transition={{ duration: 0.4, ease: 'easeOut' }}
                   style={{
-                    background: 'rgba(255, 255, 255, 0.04)',
-                    border: '1px solid rgba(255, 255, 255, 0.08)',
+                    background: 'rgba(217, 119, 6, 0.04)',
+                    border: '1px solid rgba(180, 140, 80, 0.12)',
                     borderRadius: '14px',
                     padding: '12px 16px',
-                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                    boxShadow: '0 2px 8px rgba(180, 120, 40, 0.04)',
                     display: 'flex',
                     flexDirection: 'column',
                     gap: '4px',
@@ -451,13 +451,13 @@ export default function Cutscene({ onComplete, onPhaseChange }: CutsceneProps) {
                       justifyContent: 'center',
                       fontSize: '8px',
                       fontWeight: 'bold',
-                      color: '#fff',
+                      color: '#1C1917',
                     }}>
                       {c.user[1]?.toUpperCase() || 'U'}
                     </div>
                     <span style={{ color: '#3897f0', fontWeight: 700, fontSize: '12px' }}>{c.user}</span>
                   </div>
-                  <span style={{ color: 'rgba(255, 255, 255, 0.9)', fontSize: '13px', lineHeight: 1.4 }}>{c.text}</span>
+                  <span style={{ color: '#44403C', fontSize: '13px', lineHeight: 1.4 }}>{c.text}</span>
                 </motion.div>
               ))}
               <div ref={commentsEndRef} />
@@ -523,9 +523,9 @@ export default function Cutscene({ onComplete, onPhaseChange }: CutsceneProps) {
               <div style={{
                 alignSelf: 'flex-start',
                 background: 'rgba(10, 20, 15, 0.95)',
-                borderTop: '2px solid rgba(0, 255, 136, 0.3)',
-                borderLeft: '2px solid rgba(0, 255, 136, 0.3)',
-                borderRight: '2px solid rgba(0, 255, 136, 0.3)',
+                borderTop: '2px solid rgba(217,119,6, 0.3)',
+                borderLeft: '2px solid rgba(217,119,6, 0.3)',
+                borderRight: '2px solid rgba(217,119,6, 0.3)',
                 borderBottom: 'none',
                 borderRadius: '6px 14px 0 0',
                 padding: '4px 16px',
@@ -544,10 +544,10 @@ export default function Cutscene({ onComplete, onPhaseChange }: CutsceneProps) {
               {/* Dialog Text Box */}
               <div style={{
                 background: 'rgba(10, 20, 18, 0.95)',
-                border: '2px solid rgba(0, 255, 136, 0.4)',
+                border: '2px solid rgba(217,119,6, 0.4)',
                 borderRadius: '0px 14px 14px 14px',
                 padding: isMobile ? '14px 18px' : '20px 24px',
-                boxShadow: '0 10px 25px rgba(0, 255, 136, 0.1), inset 0 0 20px rgba(0, 255, 136, 0.03)',
+                boxShadow: '0 10px 25px rgba(217,119,6, 0.1), inset 0 0 20px rgba(217,119,6, 0.03)',
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'space-between',
@@ -599,7 +599,7 @@ export default function Cutscene({ onComplete, onPhaseChange }: CutsceneProps) {
                       fontSize: isMobile ? '12px' : '15px',
                       color: 'var(--accent)',
                       transform: 'rotate(12deg)',
-                      boxShadow: '3px 3px 0px rgba(0, 255, 136, 0.3)',
+                      boxShadow: '3px 3px 0px rgba(217,119,6, 0.3)',
                       fontFamily: '"Impact", "Arial Black", sans-serif',
                       letterSpacing: '0.5px',
                       zIndex: 6,
@@ -612,7 +612,7 @@ export default function Cutscene({ onComplete, onPhaseChange }: CutsceneProps) {
                 <p style={{
                   margin: 0,
                   fontSize: isMobile ? '13px' : '15px',
-                  color: 'rgba(255,255,255,0.9)',
+                  color: '#FFFFFF',
                   fontWeight: 600,
                   lineHeight: 1.6,
                   fontFamily: 'var(--font-ui)',
@@ -629,7 +629,7 @@ export default function Cutscene({ onComplete, onPhaseChange }: CutsceneProps) {
                   justifyContent: 'space-between',
                   alignItems: 'center',
                   marginTop: '12px',
-                  borderTop: '1px solid rgba(255,255,255,0.08)',
+                  borderTop: '1px solid rgba(180,140,80,0.12)',
                   paddingTop: '8px',
                 }}>
                   <button

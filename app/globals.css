@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #030712;
-  --foreground: #f3f4f6;
+  --background: #FAF6EE;
+  --foreground: #1C1917;
 }
 
 @theme inline {
@@ -23,7 +23,7 @@ body {
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-outfit), sans-serif;
   font-weight: 700;
-  color: #ffffff;
+  color: #1c1917;
 }
 
 /* Custom scrollbar for premium theme */
@@ -32,14 +32,14 @@ h1, h2, h3, h4, h5, h6 {
   height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #0b1329;
+  background: #f0ebe0;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1e293b;
+  background: #d4b896;
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #334155;
+  background: #b89a78;
 }
 
 /* ── Landscape Mobile Globals ── */
@@ -72,8 +72,8 @@ input:-webkit-autofill,
 input:-webkit-autofill:hover, 
 input:-webkit-autofill:focus, 
 input:-webkit-autofill:active {
-  -webkit-box-shadow: 0 0 0 1000px #12121c inset !important;
-  -webkit-text-fill-color: #ffffff !important;
+  -webkit-box-shadow: 0 0 0 1000px #fff8f0 inset !important;
+  -webkit-text-fill-color: #1c1917 !important;
   transition: background-color 5000s ease-in-out 0s;
 }
 

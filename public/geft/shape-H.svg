@@ -1,19 +1,19 @@
 <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
   <!-- Shape H: Plus / cross (+) -->
   <!-- Lengan atas (vertikal atas) -->
-  <line id="shape-H-line-1" x1="80" y1="45" x2="80" y2="80" stroke="#fff" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
-  <line id="shape-H-line-2" x1="80" y1="45" x2="120" y2="45" stroke="#fff" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
-  <line id="shape-H-line-3" x1="120" y1="45" x2="120" y2="80" stroke="#fff" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
+  <line id="shape-H-line-1" x1="80" y1="45" x2="80" y2="80" stroke="#1C1917" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
+  <line id="shape-H-line-2" x1="80" y1="45" x2="120" y2="45" stroke="#1C1917" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
+  <line id="shape-H-line-3" x1="120" y1="45" x2="120" y2="80" stroke="#1C1917" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
   <!-- Lengan kanan -->
-  <line id="shape-H-line-4" x1="120" y1="80" x2="155" y2="80" stroke="#fff" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
-  <line id="shape-H-line-5" x1="155" y1="80" x2="155" y2="120" stroke="#fff" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
-  <line id="shape-H-line-6" x1="155" y1="120" x2="120" y2="120" stroke="#fff" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
+  <line id="shape-H-line-4" x1="120" y1="80" x2="155" y2="80" stroke="#1C1917" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
+  <line id="shape-H-line-5" x1="155" y1="80" x2="155" y2="120" stroke="#1C1917" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
+  <line id="shape-H-line-6" x1="155" y1="120" x2="120" y2="120" stroke="#1C1917" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
   <!-- Lengan bawah -->
-  <line id="shape-H-line-7" x1="120" y1="120" x2="120" y2="155" stroke="#fff" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
-  <line id="shape-H-line-8" x1="120" y1="155" x2="80" y2="155" stroke="#fff" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
-  <line id="shape-H-line-9" x1="80" y1="155" x2="80" y2="120" stroke="#fff" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
+  <line id="shape-H-line-7" x1="120" y1="120" x2="120" y2="155" stroke="#1C1917" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
+  <line id="shape-H-line-8" x1="120" y1="155" x2="80" y2="155" stroke="#1C1917" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
+  <line id="shape-H-line-9" x1="80" y1="155" x2="80" y2="120" stroke="#1C1917" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
   <!-- Lengan kiri -->
-  <line id="shape-H-line-10" x1="80" y1="120" x2="45" y2="120" stroke="#fff" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
-  <line id="shape-H-line-11" x1="45" y1="120" x2="45" y2="80" stroke="#fff" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
-  <line id="shape-H-line-12" x1="45" y1="80" x2="80" y2="80" stroke="#fff" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
+  <line id="shape-H-line-10" x1="80" y1="120" x2="45" y2="120" stroke="#1C1917" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
+  <line id="shape-H-line-11" x1="45" y1="120" x2="45" y2="80" stroke="#1C1917" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
+  <line id="shape-H-line-12" x1="45" y1="80" x2="80" y2="80" stroke="#1C1917" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
 </svg>

@@ -40,23 +40,24 @@ const SCATTERED_POSITIONS = [
 const CLASS_COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#EC4899', '#8B5CF6']
 
 
-// Indices of items to pre-place in FD mode as a balanced scaffold
-// ~2 items from each class so the student sees all 6 classes represented.
+// Indices of items to pre-place as a balanced scaffold for both modes
+// ~2-3 items left to drag from main classes, and 1 item left to drag from minor classes,
+// so the student can learn the categorization process without getting fatigued.
 // screenTimeData = [1,2,2,2,3,3,3,3,3, 4,4,4,4,5,5,5,5,6,6,6, 7,7,7,7,8,9, 10,11,12, 13,14,15, 16,17,18]
 // idx:              0 1 2 3 4 5 6 7 8  9 10 11 12 ...
-const FD_PREPLACED_INDICES = new Set([
-  0, 4,        // class 0 (1–3): val=1, val=3
-  9, 17,       // class 1 (4–6): val=4, val=6
-  20, 25,      // class 2 (7–9): val=7, val=9
-  26, 27,      // class 3 (10–12): val=10, val=11
-  29, 30,      // class 4 (13–15): val=13, val=14
-  33,          // class 5 (16–18): val=17
+const PREPLACED_INDICES = new Set([
+  0, 1, 2, 4, 5, 6,       // class 0 (1-3): val=1,2,2,3,3,3 (leaves 2,3,3 to drag)
+  9, 10, 11, 13, 14, 15, 17, 18, // class 1 (4-6): val=4,4,4,5,5,5,6,6 (leaves 4,5,6 to drag)
+  20, 21, 23, 24,         // class 2 (7-9): val=7,7,7,8 (leaves 7,9 to drag)
+  26, 28,                 // class 3 (10-12): val=10,12 (leaves 11 to drag)
+  29, 31,                 // class 4 (13-15): val=13,15 (leaves 14 to drag)
+  32, 34,                 // class 5 (16-18): val=16,18 (leaves 17 to drag)
 ])
 
 function initDataPoints(mode: Mode, readOnly: boolean): DataPoint[] {
   return screenTimeData.map((val, idx) => {
     const cIdx = getClassIndex(val)
-    const isPreplaced = readOnly || (mode === 'FD' && FD_PREPLACED_INDICES.has(idx))
+    const isPreplaced = readOnly || PREPLACED_INDICES.has(idx)
     return { id: `dp-${idx}`, val, classIdx: cIdx, placed: isPreplaced, originalIdx: idx }
   })
 }
@@ -193,8 +194,8 @@ export default function DraggableHistogram({
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '12px 8px' }}>
         <div style={{
           display: 'flex', alignItems: 'flex-end', height: '160px', gap: '0px',
-          borderLeft: '2px solid rgba(255,255,255,0.15)',
-          borderBottom: '2px solid rgba(255,255,255,0.15)',
+          borderLeft: '2px solid rgba(180,140,80,0.15)',
+          borderBottom: '2px solid rgba(180,140,80,0.15)',
           paddingLeft: '0px', paddingBottom: '0px',
           position: 'relative',
         }}>
@@ -212,7 +213,7 @@ export default function DraggableHistogram({
                   boxShadow: `0 0 8px ${CLASS_COLORS[i]}44`,
                 }}
               >
-                <span style={{ fontSize: '11px', fontWeight: 800, color: '#fff' }}>f={row.f}</span>
+                <span style={{ fontSize: '11px', fontWeight: 800, color: '#1C1917' }}>f={row.f}</span>
               </motion.div>
             </div>
           ))}
@@ -230,7 +231,7 @@ export default function DraggableHistogram({
               key={idx}
               style={{
                 fontSize: '8px',
-                color: 'rgba(255,255,255,0.35)',
+                color: '#78716C',
                 fontWeight: 700,
                 fontFamily: 'var(--font-data)',
                 transform: 'translateX(-50%)',
@@ -244,7 +245,7 @@ export default function DraggableHistogram({
             </span>
           ))}
         </div>
-        <div style={{ textAlign: 'center', fontSize: '10px', color: 'rgba(255,255,255,0.4)', fontWeight: 700, letterSpacing: '1px', marginTop: '6px' }}>
+        <div style={{ textAlign: 'center', fontSize: '10px', color: '#A8A29E', fontWeight: 700, letterSpacing: '1px', marginTop: '6px' }}>
           SCREEN TIME (JAM/HARI)
         </div>
       </div>
@@ -263,7 +264,7 @@ export default function DraggableHistogram({
         minHeight: 0,
         borderRadius: '16px',
         background: 'rgba(255,255,255,0.012)',
-        border: '1px solid rgba(255,255,255,0.07)',
+        border: '1px solid rgba(180,140,80,0.1)',
         // overflow: 'visible' during drag so the chip is not clipped when crossing
         // from the pool side into the histogram side.
         overflow: isDraggingAny ? 'visible' : 'hidden',
@@ -282,15 +283,15 @@ export default function DraggableHistogram({
           display: 'flex', flexDirection: 'column',
           padding: isUltraCompact ? '4px 6px 4px' : isCompact ? '6px 8px 6px' : '10px 12px 8px',
           position: 'relative',
-          borderRight: stackLayout ? 'none' : '1px solid rgba(255,255,255,0.06)',
-          borderBottom: stackLayout ? '1px solid rgba(255,255,255,0.06)' : 'none',
+          borderRight: stackLayout ? 'none' : '1px solid rgba(180,140,80,0.08)',
+          borderBottom: stackLayout ? '1px solid rgba(180,140,80,0.08)' : 'none',
         }}>
 
           {/* Pool header */}
           <div style={{ flexShrink: 0, marginBottom: '4px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div style={{
               fontSize: '9px', fontWeight: 800, letterSpacing: '1.5px', textTransform: 'uppercase',
-              color: allPlaced ? '#4ade80' : 'rgba(255,255,255,0.3)',
+              color: allPlaced ? '#D97706' : '#A8A29E',
               transition: 'color 0.3s',
             }}>
               {allPlaced ? '✅ Semua terkelompokkan' : `📍 Data — ${activePool.length} tersisa`}
@@ -327,7 +328,7 @@ export default function DraggableHistogram({
                     flex: isCompact ? '1 1 100%' : undefined,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     flexDirection: 'column', gap: '6px', textAlign: 'center',
-                    fontSize: '12px', color: '#4ade80', fontWeight: 700,
+                    fontSize: '12px', color: '#D97706', fontWeight: 700,
                     minHeight: isCompact ? '40px' : undefined,
                   }}
                 >
@@ -500,7 +501,7 @@ export default function DraggableHistogram({
             <div style={{
               position: 'absolute', left: 2, top: '50%',
               transform: 'translateY(-50%) rotate(-90deg)',
-              fontSize: '7px', color: 'rgba(255,255,255,0.25)',
+              fontSize: '7px', color: '#A8A29E',
               fontWeight: 800, letterSpacing: '1.5px', whiteSpace: 'nowrap',
             }}>
               FREKUENSI
@@ -545,7 +546,7 @@ export default function DraggableHistogram({
                           ? `${col}12`
                           : isDraggingAny
                             // Non-matching: dim out so the correct column stands out
-                            ? 'rgba(255,255,255,0.02)'
+                            ? 'rgba(217,119,6,0.03)'
                             : 'transparent',
                     outline: isMatchDrag && !isError
                       ? `2px dashed ${col}99`
@@ -605,7 +606,7 @@ export default function DraggableHistogram({
                       ? '2px solid #EF4444'
                       : isTarget || (isDraggingAny && !isError)
                         ? `2px solid ${col}${isTarget ? 'ff' : '55'}`
-                        : '2px solid rgba(255,255,255,0.1)',
+                        : '2px solid rgba(180,140,80,0.1)',
                     transition: 'border-color 0.2s',
                   }}>
                     <AnimatePresence>
@@ -625,7 +626,7 @@ export default function DraggableHistogram({
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
                             fontSize: isUltraCompact ? '6.5px' : isCompact ? '7.5px' : '8px',
                             fontWeight: 800,
-                            color: '#fff',
+                            color: '#1C1917',
                           }}
                         >
                           {dp.val}
@@ -643,7 +644,7 @@ export default function DraggableHistogram({
                             ? `2px dashed ${col}`
                             : isDraggingAny
                               ? `1px dashed ${col}45`
-                              : '1px dashed rgba(255,255,255,0.08)',
+                              : '1px dashed rgba(180,140,80,0.12)',
                         background: isTarget ? `${col}08` : 'transparent',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                         fontSize: '15px', color: 'rgba(255,255,255,0.12)',
@@ -679,7 +680,7 @@ export default function DraggableHistogram({
                 key={idx}
                 style={{
                   fontSize: '8px',
-                  color: 'rgba(255,255,255,0.35)',
+                  color: '#78716C',
                   fontWeight: 700,
                   fontFamily: 'var(--font-data)',
                   transform: 'translateX(-50%)',
@@ -697,7 +698,7 @@ export default function DraggableHistogram({
           {/* X-axis title */}
           <div style={{
             textAlign: 'center', fontSize: '7.5px',
-            color: 'rgba(255,255,255,0.3)', fontWeight: 800,
+            color: '#A8A29E', fontWeight: 800,
             letterSpacing: '1px', marginTop: '3px', flexShrink: 0,
           }}>
             SCREEN TIME (JAM/HARI)
@@ -718,7 +719,7 @@ export default function DraggableHistogram({
               padding: '7px 12px', borderRadius: '10px', fontSize: '12px',
               background: 'rgba(239,68,68,0.08)',
               border: '1px solid rgba(239,68,68,0.25)',
-              color: 'rgba(255,255,255,0.85)', lineHeight: 1.4,
+              color: '#44403C', lineHeight: 1.4,
             }}
           >
             {flashHint}

@@ -1,11 +1,11 @@
 <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
   <!-- Shape F: Layang-layang / kite (runcing ke atas, lebar di tengah, meruncing ke bawah) -->
   <!-- Sisi kiri atas (dari titik tengah kiri ke puncak) -->
-  <line id="shape-F-line-1" x1="100" y1="50" x2="65" y2="115" stroke="#fff" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
+  <line id="shape-F-line-1" x1="100" y1="50" x2="65" y2="115" stroke="#1C1917" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
   <!-- Sisi kiri bawah (dari titik tengah kiri ke bawah) -->
-  <line id="shape-F-line-2" x1="65" y1="115" x2="100" y2="155" stroke="#fff" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
+  <line id="shape-F-line-2" x1="65" y1="115" x2="100" y2="155" stroke="#1C1917" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
   <!-- Sisi kanan bawah -->
-  <line id="shape-F-line-3" x1="100" y1="155" x2="135" y2="115" stroke="#fff" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
+  <line id="shape-F-line-3" x1="100" y1="155" x2="135" y2="115" stroke="#1C1917" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
   <!-- Sisi kanan atas (dari titik tengah kanan ke puncak) -->
-  <line id="shape-F-line-4" x1="135" y1="115" x2="100" y2="50" stroke="#fff" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
+  <line id="shape-F-line-4" x1="135" y1="115" x2="100" y2="50" stroke="#1C1917" stroke-width="3" fill="none" pointer-events="all" style="cursor: pointer;" />
 </svg>

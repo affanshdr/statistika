@@ -55,7 +55,34 @@ export async function POST(req: NextRequest) {
       },
     })
 
-    // Jika tidak ditemukan, buat siswa baru dengan generate NISN acak di backend
+    // Jika tidak ditemukan, cari apakah siswa dengan nama yang sama ada di kelas lain (migrasi kelas)
+    if (!student) {
+      const existingStudent = await prisma.student.findFirst({
+        where: {
+          name: {
+            equals: cleanName,
+            mode: 'insensitive',
+          },
+        },
+        include: {
+          classroom: true,
+          geftResult: true,
+        },
+      })
+
+      if (existingStudent) {
+        student = await prisma.student.update({
+          where: { id: existingStudent.id },
+          data: { classroomId },
+          include: {
+            classroom: true,
+            geftResult: true,
+          },
+        })
+      }
+    }
+
+    // Jika tetap tidak ditemukan, buat siswa baru dengan generate NISN acak di backend
     if (!student) {
       const generatedNisn = await generateUniqueNisn()
       student = await prisma.student.create({

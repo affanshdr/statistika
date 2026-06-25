@@ -50,22 +50,21 @@ function ReadingCard({ minVal, maxVal, onNext }: { minVal: number; maxVal: numbe
       }}>
         <span style={{ fontSize: '22px' }}>🎉</span>
         <div>
-          <div style={{ fontSize: '12px', fontWeight: 800, color: '#4ade80' }}>
+          <div style={{ fontSize: '12px', fontWeight: 800, color: '#D97706' }}>
             Tepat! Nilai terkecil = {minVal}, Nilai terbesar = {maxVal}
           </div>
-          <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.5)', marginTop: '2px' }}>
+          <div style={{ fontSize: '10px', color: '#78716C', marginTop: '2px' }}>
             Sekarang kita gunakan keduanya untuk membuat tabel distribusi frekuensi!
           </div>
         </div>
       </div>
 
       {/* Steps */}
-      <div style={{
-        background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)',
-        borderRadius: '12px', padding: '12px 14px', flexShrink: 0,
-        display: 'flex', flexDirection: 'column', gap: '8px',
-      }}>
-        <div style={{ fontSize: '10px', fontWeight: 800, color: 'rgba(255,255,255,0.35)', letterSpacing: '1px', textTransform: 'uppercase' }}>
+        <div style={{ background: 'rgba(217,119,6,0.05)', border: '1px solid rgba(180,140,80,0.15)',
+          borderRadius: '12px', padding: '12px 14px', flexShrink: 0,
+          display: 'flex', flexDirection: 'column', gap: '8px',
+        }}>
+          <div style={{ fontSize: '10px', fontWeight: 800, color: '#78716C', letterSpacing: '1px', textTransform: 'uppercase' }}>
           📖 Cara Membuat Tabel Distribusi Frekuensi
         </div>
         {[
@@ -76,49 +75,49 @@ function ReadingCard({ minVal, maxVal, onNext }: { minVal: number; maxVal: numbe
         ].map((step, i, arr) => (
           <div key={i} style={{
             display: 'flex', gap: '10px', alignItems: 'flex-start',
-            borderBottom: i < arr.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none',
+            borderBottom: i < arr.length - 1 ? '1px solid rgba(180,140,80,0.12)' : 'none',
             paddingBottom: i < arr.length - 1 ? '8px' : 0,
           }}>
             <div style={{
               flexShrink: 0, width: '20px', height: '20px', borderRadius: '50%',
               background: `${CHIP_COLOR}33`, border: `1px solid ${CHIP_COLOR}66`,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: '10px', fontWeight: 900, color: '#a5b4fc',
+              fontSize: '10px', fontWeight: 900, color: '#D97706',
             }}>{i + 1}</div>
             <div>
-              <div style={{ fontSize: '11px', fontWeight: 800, color: '#a5b4fc', marginBottom: '2px' }}>{step.label}</div>
-              <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.5)', lineHeight: 1.5 }}>{step.formula}</div>
-              <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.8)', fontWeight: 700, lineHeight: 1.5, fontFamily: 'var(--font-data)' }}>{step.calc}</div>
+              <div style={{ fontSize: '11px', fontWeight: 800, color: '#D97706', marginBottom: '2px' }}>{step.label}</div>
+              <div style={{ fontSize: '10px', color: '#78716C', lineHeight: 1.5 }}>{step.formula}</div>
+              <div style={{ fontSize: '10px', color: '#44403C', fontWeight: 700, lineHeight: 1.5, fontFamily: 'var(--font-data)' }}>{step.calc}</div>
             </div>
           </div>
         ))}
       </div>
 
       {/* Table */}
-      <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '12px', overflow: 'hidden', flexShrink: 0 }}>
-        <div style={{ padding: '8px 12px', fontSize: '10px', fontWeight: 800, color: 'rgba(255,255,255,0.35)', letterSpacing: '1px', textTransform: 'uppercase', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+      <div style={{ background: 'rgba(217,119,6,0.04)', border: '1px solid rgba(180,140,80,0.15)', borderRadius: '12px', overflow: 'hidden', flexShrink: 0 }}>
+        <div style={{ padding: '8px 12px', fontSize: '10px', fontWeight: 800, color: '#78716C', letterSpacing: '1px', textTransform: 'uppercase', borderBottom: '1px solid rgba(180,140,80,0.12)' }}>
           📊 Tabel Distribusi Frekuensi
         </div>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ background: `${CHIP_COLOR}18` }}>
               {['Kelas Interval', 'Tepi Bawah', 'Tepi Atas', 'Frekuensi (f)'].map(h => (
-                <th key={h} style={{ padding: '6px 8px', fontSize: '9px', fontWeight: 800, color: '#a5b4fc', textAlign: 'center', letterSpacing: '0.3px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>{h}</th>
+                <th key={h} style={{ padding: '6px 8px', fontSize: '9px', fontWeight: 800, color: '#D97706', textAlign: 'center', letterSpacing: '0.3px', borderBottom: '1px solid rgba(180,140,80,0.15)' }}>{h}</th>
               ))}
             </tr>
           </thead>
           <tbody>
             {rows.map((row, i) => (
-              <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                <td style={{ padding: '5px 8px', fontSize: '10px', fontWeight: 700, color: '#e2e8f0', textAlign: 'center', fontFamily: 'var(--font-data)' }}>{row.kelas}</td>
-                <td style={{ padding: '5px 8px', fontSize: '10px', color: 'rgba(255,255,255,0.55)', textAlign: 'center', fontFamily: 'var(--font-data)' }}>{row.tb}</td>
-                <td style={{ padding: '5px 8px', fontSize: '10px', color: 'rgba(255,255,255,0.55)', textAlign: 'center', fontFamily: 'var(--font-data)' }}>{row.ta}</td>
-                <td style={{ padding: '5px 8px', fontSize: '11px', fontWeight: 900, color: '#4ade80', textAlign: 'center', fontFamily: 'var(--font-data)' }}>{row.f}</td>
+              <tr key={i} style={{ borderBottom: '1px solid rgba(180,140,80,0.08)' }}>
+                <td style={{ padding: '5px 8px', fontSize: '10px', fontWeight: 700, color: '#1C1917', textAlign: 'center', fontFamily: 'var(--font-data)' }}>{row.kelas}</td>
+                <td style={{ padding: '5px 8px', fontSize: '10px', color: '#78716C', textAlign: 'center', fontFamily: 'var(--font-data)' }}>{row.tb}</td>
+                <td style={{ padding: '5px 8px', fontSize: '10px', color: '#78716C', textAlign: 'center', fontFamily: 'var(--font-data)' }}>{row.ta}</td>
+                <td style={{ padding: '5px 8px', fontSize: '11px', fontWeight: 900, color: '#D97706', textAlign: 'center', fontFamily: 'var(--font-data)' }}>{row.f}</td>
               </tr>
             ))}
             <tr style={{ background: `${CHIP_COLOR}0f` }}>
-              <td colSpan={3} style={{ padding: '5px 8px', fontSize: '10px', fontWeight: 800, color: '#a5b4fc', textAlign: 'right' }}>Total</td>
-              <td style={{ padding: '5px 8px', fontSize: '11px', fontWeight: 900, color: '#4ade80', textAlign: 'center', fontFamily: 'var(--font-data)' }}>{rows.reduce((s, r) => s + r.f, 0)}</td>
+              <td colSpan={3} style={{ padding: '5px 8px', fontSize: '10px', fontWeight: 800, color: '#D97706', textAlign: 'right' }}>Total</td>
+              <td style={{ padding: '5px 8px', fontSize: '11px', fontWeight: 900, color: '#D97706', textAlign: 'center', fontFamily: 'var(--font-data)' }}>{rows.reduce((s, r) => s + r.f, 0)}</td>
             </tr>
           </tbody>
         </table>
@@ -268,8 +267,8 @@ export default function PregameMinMaxDrop({ onComplete }: PregameMinMaxDropProps
         display: 'flex', flexDirection: 'row',
         flex: 1, minHeight: 0,
         borderRadius: '14px',
-        background: 'rgba(255,255,255,0.012)',
-        border: '1px solid rgba(255,255,255,0.07)',
+        background: 'rgba(217,119,6,0.04)',
+        border: '1px solid rgba(180,140,80,0.12)',
         // Keep overflow visible during drag so chip is never clipped mid-gesture
         overflow: isDraggingAny ? 'visible' : 'hidden',
       }}>
@@ -279,14 +278,14 @@ export default function PregameMinMaxDrop({ onComplete }: PregameMinMaxDropProps
           flex: '0 0 55%',
           display: 'flex', flexDirection: 'column',
           padding: '8px 10px 6px',
-          borderRight: '1px solid rgba(255,255,255,0.06)',
+          borderRight: '1px solid rgba(180,140,80,0.1)',
           // Must also be visible during drag — otherwise chip is clipped
           // as it crosses the panel boundary toward the drop zone.
           overflow: isDraggingAny ? 'visible' : 'hidden',
         }}>
           <div style={{
             fontSize: '9px', fontWeight: 800, letterSpacing: '1.5px', textTransform: 'uppercase',
-            color: activePool.length === 0 ? '#4ade80' : 'rgba(255,255,255,0.3)',
+            color: activePool.length === 0 ? '#D97706' : '#78716C',
             transition: 'color 0.3s', marginBottom: '6px', flexShrink: 0,
           }}>
             {activePool.length === 0 ? '✅ Kedua nilai ditemukan!' : `📍 Data (nilai unik) — ketuk atau seret`}
@@ -308,7 +307,7 @@ export default function PregameMinMaxDrop({ onComplete }: PregameMinMaxDropProps
                   style={{
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     flexDirection: 'column', gap: '4px', textAlign: 'center',
-                    fontSize: '11px', color: '#4ade80', fontWeight: 700,
+                    fontSize: '11px', color: '#D97706', fontWeight: 700,
                     flex: '1 1 100%', minHeight: '60px',
                   }}
                 >
@@ -384,7 +383,7 @@ export default function PregameMinMaxDrop({ onComplete }: PregameMinMaxDropProps
         }}>
           <div style={{
             fontSize: '9px', fontWeight: 800, letterSpacing: '1.5px',
-            color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase',
+            color: '#A8A29E', textTransform: 'uppercase',
           }}>
             🎯 Seret ke sini
           </div>
@@ -408,10 +407,10 @@ export default function PregameMinMaxDrop({ onComplete }: PregameMinMaxDropProps
                     ? '2px dashed #EF4444'
                     : slotChip
                       ? `2px solid ${CHIP_COLOR}99`
-                      : isTarget ? `2px dashed ${CHIP_COLOR}88` : '2px dashed rgba(255,255,255,0.12)',
+                      : isTarget ? `2px dashed ${CHIP_COLOR}88` : '2px dashed rgba(180,140,80,0.3)',
                   background: isError
                     ? 'rgba(239,68,68,0.08)'
-                    : slotChip ? `${CHIP_COLOR}18` : isTarget ? `${CHIP_COLOR}06` : 'rgba(255,255,255,0.01)',
+                    : slotChip ? `${CHIP_COLOR}18` : isTarget ? `${CHIP_COLOR}06` : 'rgba(217,119,6,0.02)',
                   display: 'flex', flexDirection: 'column',
                   alignItems: 'center', justifyContent: 'center', gap: '4px',
                   cursor: selectedChip ? 'pointer' : 'default',
@@ -420,7 +419,7 @@ export default function PregameMinMaxDrop({ onComplete }: PregameMinMaxDropProps
               >
                 <div style={{
                   fontSize: '9px', fontWeight: 800,
-                  color: slotChip ? '#a5b4fc' : 'rgba(255,255,255,0.3)',
+                  color: slotChip ? '#D97706' : '#78716C',
                   letterSpacing: '0.5px',
                 }}>
                   {slotLabel}
@@ -438,7 +437,7 @@ export default function PregameMinMaxDrop({ onComplete }: PregameMinMaxDropProps
                         padding: '6px 18px', borderRadius: '50px',
                         background: `linear-gradient(135deg, ${CHIP_COLOR}dd 0%, ${CHIP_COLOR}88 100%)`,
                         border: `2px solid ${CHIP_COLOR}99`,
-                        color: '#fff', fontSize: '16px', fontWeight: 900,
+                        color: '#1C1917', fontSize: '16px', fontWeight: 900,
                         fontFamily: 'var(--font-data)',
                         boxShadow: `0 0 14px ${CHIP_COLOR}44`,
                       }}
@@ -470,7 +469,7 @@ export default function PregameMinMaxDrop({ onComplete }: PregameMinMaxDropProps
             style={{
               flexShrink: 0, padding: '6px 12px', borderRadius: '10px', fontSize: '11px',
               background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)',
-              color: 'rgba(255,255,255,0.85)', lineHeight: 1.4,
+              color: '#44403C', lineHeight: 1.4,
             }}
           >
             {flashHint}

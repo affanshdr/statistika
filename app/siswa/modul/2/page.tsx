@@ -102,7 +102,7 @@ function ThreeDHistogram({ frequencies, highlightedIndex, onBarClick, activeLabe
                 x={x0} 
                 y={y0 + 20} 
                 textAnchor="middle" 
-                fill={isHighlighted ? '#22d3ee' : 'rgba(255,255,255,0.45)'} 
+                fill={isHighlighted ? '#22d3ee' : '#78716C'} 
                 style={{ fontSize: '10px', fontFamily: 'monospace', fontWeight: isHighlighted ? 700 : 500 }}
               >
                 {INTERVALS[i].label}
@@ -123,7 +123,7 @@ function ThreeDHistogram({ frequencies, highlightedIndex, onBarClick, activeLabe
         })}
       </svg>
       {activeLabel && (
-        <div style={{ marginTop: '12px', fontSize: '12px', color: 'rgba(255,255,255,0.7)', background: 'rgba(255,255,255,0.03)', padding: '6px 14px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.06)' }}>
+        <div style={{ marginTop: '12px', fontSize: '12px', color: '#57534E', background: 'rgba(217,119,6,0.04)', padding: '6px 14px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.06)' }}>
           {activeLabel}
         </div>
       )}
@@ -151,8 +151,8 @@ export default function Modul2Page() {
 
   if (loading || !student) {
     return (
-      <main style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#030712' }}>
-        <p style={{ color: '#fff' }}>Memuat Modul Adaptif...</p>
+      <main style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#FAF6EE' }}>
+        <p style={{ color: '#1C1917' }}>Memuat Modul Adaptif...</p>
       </main>
     )
   }
@@ -218,7 +218,7 @@ export default function Modul2Page() {
       {/* Layout styling */}
       <style>{`
         .modul-navbar {
-          background: rgba(3, 7, 18, 0.65);
+          background: rgba(250,246,238, 0.65);
           backdrop-filter: blur(16px);
           border-bottom: 1px solid rgba(255, 255, 255, 0.06);
           position: sticky;
@@ -296,13 +296,13 @@ export default function Modul2Page() {
         <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span style={{ fontSize: '22px' }}>🔬</span>
-            <span style={{ fontFamily: 'var(--font-heading), sans-serif', fontWeight: 800, fontSize: '16px', letterSpacing: '0.5px', background: 'linear-gradient(90deg, #3b82f6, #06b6d4)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>AR-COGNISTATS</span>
+            <span style={{ fontFamily: 'var(--font-heading), sans-serif', fontWeight: 800, fontSize: '16px', letterSpacing: '0.5px', background: 'linear-gradient(90deg, #3b82f6, #EA580C)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>AR-COGNISTATS</span>
           </div>
           <button 
             onClick={() => router.push('/siswa')}
-            style={{ padding: '8px 18px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.15)', background: 'rgba(255,255,255,0.03)', color: 'rgba(255,255,255,0.85)', fontSize: '13px', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s' }}
-            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)' }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.03)' }}
+            style={{ padding: '8px 18px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.15)', background: 'rgba(217,119,6,0.04)', color: '#44403C', fontSize: '13px', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s' }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(180,140,80,0.15)' }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(217,119,6,0.04)' }}
           >
             ← Dashboard
           </button>
@@ -315,7 +315,7 @@ export default function Modul2Page() {
         {/* Header & Style Banner */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           {cognitiveStyle === 'FI' ? (
-            <span className="adaptive-badge" style={{ color: '#60a5fa', background: 'rgba(59,130,246,0.12)', borderColor: 'rgba(59,130,246,0.25)' }}>
+            <span className="adaptive-badge" style={{ color: '#2563EB', background: 'rgba(59,130,246,0.12)', borderColor: 'rgba(59,130,246,0.25)' }}>
               🧠 FIELD INDEPENDENT MODE: ANALYTICAL & EXPLORATIVE LEARNING
             </span>
           ) : (
@@ -324,7 +324,7 @@ export default function Modul2Page() {
             </span>
           )}
           <h1 style={{ fontSize: '28px', fontWeight: 800, margin: 0 }}>Modul 2: Ukuran Pemusatan Data Kelompok</h1>
-          <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.5)', margin: 0 }}>
+          <p style={{ fontSize: '14px', color: '#78716C', margin: 0 }}>
             Pelajari konsep Mean, Median, dan Modus data kelompok melalui simulasi interaktif proyeksi 3D AR.
           </p>
         </div>
@@ -465,8 +465,8 @@ function FIMaterialView({
 
         {/* Data Customizer Control Panel */}
         <div className="glass-card">
-          <h3 style={{ fontSize: '16px', fontWeight: 800, margin: '0 0 16px 0', color: '#fff' }}>🛠️ Eksplorasi Data: Atur Frekuensi</h3>
-          <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.45)', marginTop: '-8px', marginBottom: '16px', lineHeight: 1.5 }}>
+          <h3 style={{ fontSize: '16px', fontWeight: 800, margin: '0 0 16px 0', color: '#1C1917' }}>🛠️ Eksplorasi Data: Atur Frekuensi</h3>
+          <p style={{ fontSize: '13px', color: '#78716C', marginTop: '-8px', marginBottom: '16px', lineHeight: 1.5 }}>
             Ubah frekuensi kelas tinggi badan di bawah menggunakan slider untuk mengamati perubahan letak Mean, Median, dan Modus secara dinamis di grafik 3D.
           </p>
           <div className="control-slider-group">
@@ -496,15 +496,15 @@ function FIMaterialView({
         {/* Results summary widget */}
         <div className="glass-card" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', textAlign: 'center', background: 'rgba(59,130,246,0.04)', borderColor: 'rgba(59,130,246,0.15)' }}>
           <div>
-            <span style={{ display: 'block', fontSize: '10px', color: 'rgba(255,255,255,0.45)', fontWeight: 600, letterSpacing: '0.5px' }}>RATA-RATA (MEAN)</span>
+            <span style={{ display: 'block', fontSize: '10px', color: '#78716C', fontWeight: 600, letterSpacing: '0.5px' }}>RATA-RATA (MEAN)</span>
             <span style={{ fontSize: '20px', fontWeight: 800, color: '#3b82f6' }}>{meanVal.toFixed(2)}</span>
           </div>
           <div>
-            <span style={{ display: 'block', fontSize: '10px', color: 'rgba(255,255,255,0.45)', fontWeight: 600, letterSpacing: '0.5px' }}>NILAI TENGAH (MEDIAN)</span>
-            <span style={{ fontSize: '20px', fontWeight: 800, color: '#60a5fa' }}>{medianVal.toFixed(2)}</span>
+            <span style={{ display: 'block', fontSize: '10px', color: '#78716C', fontWeight: 600, letterSpacing: '0.5px' }}>NILAI TENGAH (MEDIAN)</span>
+            <span style={{ fontSize: '20px', fontWeight: 800, color: '#2563EB' }}>{medianVal.toFixed(2)}</span>
           </div>
           <div>
-            <span style={{ display: 'block', fontSize: '10px', color: 'rgba(255,255,255,0.45)', fontWeight: 600, letterSpacing: '0.5px' }}>MODUS</span>
+            <span style={{ display: 'block', fontSize: '10px', color: '#78716C', fontWeight: 600, letterSpacing: '0.5px' }}>MODUS</span>
             <span style={{ fontSize: '20px', fontWeight: 800, color: '#22d3ee' }}>{modusVal.toFixed(2)}</span>
           </div>
         </div>
@@ -516,19 +516,19 @@ function FIMaterialView({
           <div style={{ display: 'flex', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '12px', marginBottom: '20px', gap: '8px' }}>
             <button 
               onClick={() => setActiveTab('mean')}
-              style={{ flex: 1, padding: '10px', borderRadius: '8px', border: 'none', background: activeTab === 'mean' ? '#3b82f6' : 'rgba(255,255,255,0.03)', color: activeTab === 'mean' ? '#fff' : 'rgba(255,255,255,0.5)', fontWeight: 700, fontSize: '13px', cursor: 'pointer', transition: 'all 0.2s' }}
+              style={{ flex: 1, padding: '10px', borderRadius: '8px', border: 'none', background: activeTab === 'mean' ? '#3b82f6' : 'rgba(217,119,6,0.04)', color: activeTab === 'mean' ? '#fff' : 'rgba(255,255,255,0.5)', fontWeight: 700, fontSize: '13px', cursor: 'pointer', transition: 'all 0.2s' }}
             >
               Rata-Rata (Mean)
             </button>
             <button 
               onClick={() => setActiveTab('median')}
-              style={{ flex: 1, padding: '10px', borderRadius: '8px', border: 'none', background: activeTab === 'median' ? '#3b82f6' : 'rgba(255,255,255,0.03)', color: activeTab === 'median' ? '#fff' : 'rgba(255,255,255,0.5)', fontWeight: 700, fontSize: '13px', cursor: 'pointer', transition: 'all 0.2s' }}
+              style={{ flex: 1, padding: '10px', borderRadius: '8px', border: 'none', background: activeTab === 'median' ? '#3b82f6' : 'rgba(217,119,6,0.04)', color: activeTab === 'median' ? '#fff' : 'rgba(255,255,255,0.5)', fontWeight: 700, fontSize: '13px', cursor: 'pointer', transition: 'all 0.2s' }}
             >
               Nilai Tengah (Median)
             </button>
             <button 
               onClick={() => setActiveTab('modus')}
-              style={{ flex: 1, padding: '10px', borderRadius: '8px', border: 'none', background: activeTab === 'modus' ? '#3b82f6' : 'rgba(255,255,255,0.03)', color: activeTab === 'modus' ? '#fff' : 'rgba(255,255,255,0.5)', fontWeight: 700, fontSize: '13px', cursor: 'pointer', transition: 'all 0.2s' }}
+              style={{ flex: 1, padding: '10px', borderRadius: '8px', border: 'none', background: activeTab === 'modus' ? '#3b82f6' : 'rgba(217,119,6,0.04)', color: activeTab === 'modus' ? '#fff' : 'rgba(255,255,255,0.5)', fontWeight: 700, fontSize: '13px', cursor: 'pointer', transition: 'all 0.2s' }}
             >
               Modus
             </button>
@@ -540,10 +540,10 @@ function FIMaterialView({
               <h4 style={{ margin: 0, fontSize: '16px', fontWeight: 800 }}>Rumus Mean Data Kelompok</h4>
               
               <div className="formula-card">
-                <div style={{ fontSize: '14px', fontFamily: 'monospace', fontWeight: 700, color: '#93c5fd' }}>
+                <div style={{ fontSize: '14px', fontFamily: 'monospace', fontWeight: 700, color: '#1D4ED8' }}>
                   x̄ = (Σ (f_i × x_i)) / Σ f_i
                 </div>
-                <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', marginTop: '6px' }}>
+                <div style={{ fontSize: '12px', color: '#A8A29E', marginTop: '6px' }}>
                   Keterangan: f_i = frekuensi kelas ke-i, x_i = nilai tengah kelas ke-i
                 </div>
               </div>
@@ -551,7 +551,7 @@ function FIMaterialView({
               {/* Math Table representation */}
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px', textAlign: 'left', marginTop: '8px' }}>
                 <thead>
-                  <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.4)' }}>
+                  <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', color: '#A8A29E' }}>
                     <th style={{ padding: '8px 4px' }}>Tinggi (cm)</th>
                     <th style={{ padding: '8px 4px', textAlign: 'center' }}>f_i</th>
                     <th style={{ padding: '8px 4px', textAlign: 'center' }}>x_i</th>
@@ -562,8 +562,8 @@ function FIMaterialView({
                   {INTERVALS.map((int, i) => (
                     <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
                       <td style={{ padding: '10px 4px', fontWeight: 600 }}>{int.label}</td>
-                      <td style={{ padding: '10px 4px', textAlign: 'center', color: '#60a5fa' }}>{frequencies[i]}</td>
-                      <td style={{ padding: '10px 4px', textAlign: 'center', color: 'rgba(255,255,255,0.6)' }}>{int.midpoint}</td>
+                      <td style={{ padding: '10px 4px', textAlign: 'center', color: '#2563EB' }}>{frequencies[i]}</td>
+                      <td style={{ padding: '10px 4px', textAlign: 'center', color: '#78716C' }}>{int.midpoint}</td>
                       <td style={{ padding: '10px 4px', textAlign: 'right', fontWeight: 700 }}>{frequencies[i] * int.midpoint}</td>
                     </tr>
                   ))}
@@ -576,7 +576,7 @@ function FIMaterialView({
                 </tbody>
               </table>
 
-              <div style={{ background: 'rgba(255,255,255,0.02)', padding: '14px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', fontSize: '13px', lineHeight: 1.6 }}>
+              <div style={{ background: 'rgba(217,119,6,0.03)', padding: '14px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', fontSize: '13px', lineHeight: 1.6 }}>
                 <strong>Langkah Perhitungan Substitusi:</strong>
                 <div style={{ fontFamily: 'monospace', margin: '8px 0', fontSize: '13px' }}>
                   x̄ = {sumFX} / {totalN} = <span style={{ color: '#3b82f6', fontWeight: 800 }}>{meanVal.toFixed(2)} cm</span>
@@ -590,40 +590,40 @@ function FIMaterialView({
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <h4 style={{ margin: 0, fontSize: '16px', fontWeight: 800 }}>Rumus Median Data Kelompok</h4>
               
-              <div className="formula-card" style={{ borderLeftColor: '#60a5fa', background: 'rgba(96,165,250,0.03)' }}>
-                <div style={{ fontSize: '14px', fontFamily: 'monospace', fontWeight: 700, color: '#93c5fd' }}>
+              <div className="formula-card" style={{ borderLeftColor: '#2563EB', background: 'rgba(96,165,250,0.03)' }}>
+                <div style={{ fontSize: '14px', fontFamily: 'monospace', fontWeight: 700, color: '#1D4ED8' }}>
                   Me = L + ((N/2 - F_k) / f_m) × c
                 </div>
-                <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', marginTop: '6px', lineHeight: 1.4 }}>
+                <div style={{ fontSize: '12px', color: '#A8A29E', marginTop: '6px', lineHeight: 1.4 }}>
                   L = tepi bawah kelas median, N = total frekuensi, F_k = frekuensi kumulatif sebelum kelas median, f_m = frekuensi kelas median, c = panjang kelas
                 </div>
               </div>
 
               {/* Step checklist */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px' }}>
-                <div style={{ background: 'rgba(255,255,255,0.02)', padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.04)' }}>
+                <div style={{ background: 'rgba(217,119,6,0.03)', padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.04)' }}>
                   <strong>1. Cari Kelas Median:</strong> Letak median = N / 2 = {totalN} / 2 = {targetHalfN}. 
                   Kelas dengan F_k ≥ {targetHalfN} terdekat adalah kelas <span style={{ color: '#22d3ee', fontWeight: 700 }}>{medClass.label}</span>.
                 </div>
                 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                  <div style={{ background: 'rgba(255,255,255,0.02)', padding: '10px', borderRadius: '8px', fontSize: '12px' }}>
-                    <span style={{ color: 'rgba(255,255,255,0.4)' }}>Tepi Bawah (L):</span>
-                    <strong style={{ display: 'block', color: '#fff', fontSize: '14px' }}>{medClass.lower} - 0.5 = {L_median}</strong>
+                  <div style={{ background: 'rgba(217,119,6,0.03)', padding: '10px', borderRadius: '8px', fontSize: '12px' }}>
+                    <span style={{ color: '#A8A29E' }}>Tepi Bawah (L):</span>
+                    <strong style={{ display: 'block', color: '#1C1917', fontSize: '14px' }}>{medClass.lower} - 0.5 = {L_median}</strong>
                   </div>
-                  <div style={{ background: 'rgba(255,255,255,0.02)', padding: '10px', borderRadius: '8px', fontSize: '12px' }}>
-                    <span style={{ color: 'rgba(255,255,255,0.4)' }}>F_k sebelum:</span>
-                    <strong style={{ display: 'block', color: '#fff', fontSize: '14px' }}>{F_median}</strong>
+                  <div style={{ background: 'rgba(217,119,6,0.03)', padding: '10px', borderRadius: '8px', fontSize: '12px' }}>
+                    <span style={{ color: '#A8A29E' }}>F_k sebelum:</span>
+                    <strong style={{ display: 'block', color: '#1C1917', fontSize: '14px' }}>{F_median}</strong>
                   </div>
                 </div>
 
-                <div style={{ background: 'rgba(255,255,255,0.02)', padding: '14px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', lineHeight: 1.6 }}>
+                <div style={{ background: 'rgba(217,119,6,0.03)', padding: '14px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', lineHeight: 1.6 }}>
                   <strong>Langkah Perhitungan Substitusi:</strong>
                   <div style={{ fontFamily: 'monospace', margin: '8px 0', fontSize: '12px', lineHeight: 1.6 }}>
                     Me = {L_median} + (({targetHalfN} - {F_median}) / {f_median}) × {classWidth} <br/>
                     Me = {L_median} + ({(targetHalfN - F_median).toFixed(1)} / {f_median}) × {classWidth} <br/>
                     Me = {L_median} + {(((targetHalfN - F_median) / f_median) * classWidth).toFixed(3)} <br/>
-                    Me = <span style={{ color: '#60a5fa', fontWeight: 800 }}>{medianVal.toFixed(2)} cm</span>
+                    Me = <span style={{ color: '#2563EB', fontWeight: 800 }}>{medianVal.toFixed(2)} cm</span>
                   </div>
                 </div>
               </div>
@@ -636,32 +636,32 @@ function FIMaterialView({
               <h4 style={{ margin: 0, fontSize: '16px', fontWeight: 800 }}>Rumus Modus Data Kelompok</h4>
               
               <div className="formula-card" style={{ borderLeftColor: '#22d3ee', background: 'rgba(34,211,238,0.03)' }}>
-                <div style={{ fontSize: '14px', fontFamily: 'monospace', fontWeight: 700, color: '#93c5fd' }}>
+                <div style={{ fontSize: '14px', fontFamily: 'monospace', fontWeight: 700, color: '#1D4ED8' }}>
                   Mo = L + (d1 / (d1 + d2)) × c
                 </div>
-                <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', marginTop: '6px', lineHeight: 1.4 }}>
+                <div style={{ fontSize: '12px', color: '#A8A29E', marginTop: '6px', lineHeight: 1.4 }}>
                   L = tepi bawah kelas modus, d1 = f_modus - f_sebelumnya, d2 = f_modus - f_setelahnya, c = panjang kelas
                 </div>
               </div>
 
               {/* Step info */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px' }}>
-                <div style={{ background: 'rgba(255,255,255,0.02)', padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.04)' }}>
+                <div style={{ background: 'rgba(217,119,6,0.03)', padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.04)' }}>
                   <strong>1. Cari Kelas Modus:</strong> Frekuensi tertinggi = {f_modal} pada kelas <span style={{ color: '#22d3ee', fontWeight: 700 }}>{modClass.label}</span>.
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                  <div style={{ background: 'rgba(255,255,255,0.02)', padding: '10px', borderRadius: '8px', fontSize: '12px' }}>
-                    <span style={{ color: 'rgba(255,255,255,0.4)' }}>Selisih Sebelum (d1):</span>
-                    <strong style={{ display: 'block', color: '#fff', fontSize: '14px' }}>{f_modal} - {f_prev} = {d1}</strong>
+                  <div style={{ background: 'rgba(217,119,6,0.03)', padding: '10px', borderRadius: '8px', fontSize: '12px' }}>
+                    <span style={{ color: '#A8A29E' }}>Selisih Sebelum (d1):</span>
+                    <strong style={{ display: 'block', color: '#1C1917', fontSize: '14px' }}>{f_modal} - {f_prev} = {d1}</strong>
                   </div>
-                  <div style={{ background: 'rgba(255,255,255,0.02)', padding: '10px', borderRadius: '8px', fontSize: '12px' }}>
-                    <span style={{ color: 'rgba(255,255,255,0.4)' }}>Selisih Setelah (d2):</span>
-                    <strong style={{ display: 'block', color: '#fff', fontSize: '14px' }}>{f_modal} - {f_next} = {d2}</strong>
+                  <div style={{ background: 'rgba(217,119,6,0.03)', padding: '10px', borderRadius: '8px', fontSize: '12px' }}>
+                    <span style={{ color: '#A8A29E' }}>Selisih Setelah (d2):</span>
+                    <strong style={{ display: 'block', color: '#1C1917', fontSize: '14px' }}>{f_modal} - {f_next} = {d2}</strong>
                   </div>
                 </div>
 
-                <div style={{ background: 'rgba(255,255,255,0.02)', padding: '14px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', lineHeight: 1.6 }}>
+                <div style={{ background: 'rgba(217,119,6,0.03)', padding: '14px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', lineHeight: 1.6 }}>
                   <strong>Langkah Perhitungan Substitusi:</strong>
                   <div style={{ fontFamily: 'monospace', margin: '8px 0', fontSize: '12px', lineHeight: 1.6 }}>
                     Mo = {L_modus} + ({d1} / ({d1} + {d2})) × {classWidth} <br/>
@@ -771,13 +771,13 @@ function FDMaterialView({
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       
       {/* Wizard Steps indicator */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.02)', padding: '12px 20px', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.05)' }}>
-        <div style={{ fontSize: '13px', fontWeight: 600, color: 'rgba(255,255,255,0.5)' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(217,119,6,0.03)', padding: '12px 20px', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.05)' }}>
+        <div style={{ fontSize: '13px', fontWeight: 600, color: '#78716C' }}>
           Progres Belajar: <strong style={{ color: '#22d3ee' }}>Langkah {step} dari 4</strong>
         </div>
         <div style={{ display: 'flex', gap: '6px' }}>
           {[1, 2, 3, 4].map(s => (
-            <div key={s} style={{ width: '28px', height: '6px', borderRadius: '3px', background: s <= step ? '#22d3ee' : 'rgba(255,255,255,0.1)', transition: 'background 0.3s' }} />
+            <div key={s} style={{ width: '28px', height: '6px', borderRadius: '3px', background: s <= step ? '#22d3ee' : 'rgba(217,119,6,0.1)', transition: 'background 0.3s' }} />
           ))}
         </div>
       </div>
@@ -801,7 +801,7 @@ function FDMaterialView({
             <div>
               <span style={{ fontSize: '10px', fontWeight: 800, color: '#22d3ee', letterSpacing: '1px' }}>LANGKAH 1: MENGENAL DATA</span>
               <h3 style={{ fontSize: '18px', fontWeight: 800, margin: '6px 0 10px 0' }}>Bagaimana Data Kelompok Terbentuk? 📊</h3>
-              <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.6)', lineHeight: 1.6, margin: 0 }}>
+              <p style={{ fontSize: '13px', color: '#78716C', lineHeight: 1.6, margin: 0 }}>
                 Bayangkan kamu mengukur tinggi badan dari <strong>{totalN} teman sekelasmu</strong>. Untuk mempermudah, data dikelompokkan ke dalam 5 baris/balok tinggi badan.
               </p>
               <div style={{ marginTop: '16px', background: 'rgba(34,211,238,0.04)', border: '1px dashed rgba(34,211,238,0.25)', padding: '14px', borderRadius: '12px', fontSize: '13px', display: 'flex', gap: '10px', alignItems: 'center' }}>
@@ -816,27 +816,27 @@ function FDMaterialView({
             <div>
               <span style={{ fontSize: '10px', fontWeight: 800, color: '#22d3ee', letterSpacing: '1px' }}>LANGKAH 2: RATA-RATA (MEAN)</span>
               <h3 style={{ fontSize: '18px', fontWeight: 800, margin: '6px 0 10px 0' }}>Mencari Titik Tengah Keseimbangan ⚖️</h3>
-              <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.6)', lineHeight: 1.6, margin: '0 0 16px 0' }}>
+              <p style={{ fontSize: '13px', color: '#78716C', lineHeight: 1.6, margin: '0 0 16px 0' }}>
                 Rata-rata (*Mean*) adalah nilai tunggal yang mewakili titik pusat keseimbangan dari seluruh tinggi badan siswa.
               </p>
 
               {/* Scaffolding explanation card */}
-              <div style={{ background: 'rgba(255,255,255,0.02)', padding: '16px', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                <strong style={{ fontSize: '13px', display: 'block', marginBottom: '8px', color: '#fff' }}>Panduan Langkah Perhitungan:</strong>
+              <div style={{ background: 'rgba(217,119,6,0.03)', padding: '16px', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                <strong style={{ fontSize: '13px', display: 'block', marginBottom: '8px', color: '#1C1917' }}>Panduan Langkah Perhitungan:</strong>
                 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '12px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span style={{ color: 'rgba(255,255,255,0.45)' }}>1. Kalikan (Tinggi Tengah × Jumlah Siswa):</span>
-                    <strong style={{ color: '#60a5fa' }}>Σ(x_i × f_i) = {sumFX}</strong>
+                    <span style={{ color: '#78716C' }}>1. Kalikan (Tinggi Tengah × Jumlah Siswa):</span>
+                    <strong style={{ color: '#2563EB' }}>Σ(x_i × f_i) = {sumFX}</strong>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span style={{ color: 'rgba(255,255,255,0.45)' }}>2. Bagi dengan Total Siswa:</span>
+                    <span style={{ color: '#78716C' }}>2. Bagi dengan Total Siswa:</span>
                     <strong style={{ color: '#22d3ee' }}>N = {totalN}</strong>
                   </div>
                 </div>
 
                 <div className="formula-card" style={{ borderLeftColor: '#22d3ee', background: 'rgba(34,211,238,0.03)', marginTop: '12px' }}>
-                  <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)' }}>Rumus Mean:</div>
+                  <div style={{ fontSize: '12px', color: '#A8A29E' }}>Rumus Mean:</div>
                   <div style={{ fontSize: '13px', fontFamily: 'monospace', fontWeight: 700, margin: '2px 0' }}>
                     Mean = {sumFX} / {totalN} = <span style={{ color: '#22d3ee' }}>{meanVal.toFixed(2)} cm</span>
                   </div>
@@ -850,20 +850,20 @@ function FDMaterialView({
             <div>
               <span style={{ fontSize: '10px', fontWeight: 800, color: '#22d3ee', letterSpacing: '1px' }}>LANGKAH 3: NILAI TENGAH (MEDIAN)</span>
               <h3 style={{ fontSize: '18px', fontWeight: 800, margin: '6px 0 10px 0' }}>Membagi Data Tepat di Tengah 🎯</h3>
-              <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.6)', lineHeight: 1.6, margin: '0 0 12px 0' }}>
+              <p style={{ fontSize: '13px', color: '#78716C', lineHeight: 1.6, margin: '0 0 12px 0' }}>
                 Jika semua {totalN} siswa berbaris rapi dari yang terpendek ke tertinggi, **Median** adalah tinggi siswa yang berdiri tepat di posisi tengah (antrean ke-{targetHalfN}).
               </p>
 
               {/* Scaffolding Color matching */}
-              <div style={{ background: 'rgba(255,255,255,0.02)', padding: '14px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.04)', fontSize: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div style={{ background: 'rgba(217,119,6,0.03)', padding: '14px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.04)', fontSize: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <div>
-                  <span style={{ color: 'rgba(255,255,255,0.4)' }}>📍 Letak antrean tengah:</span> {totalN} / 2 = <strong>{targetHalfN}</strong>
+                  <span style={{ color: '#A8A29E' }}>📍 Letak antrean tengah:</span> {totalN} / 2 = <strong>{targetHalfN}</strong>
                 </div>
                 <div>
-                  <span style={{ color: 'rgba(255,255,255,0.4)' }}>📌 Kelas Median (Disorot Cyan):</span> Kelas <strong>{medClass.label} cm</strong>
+                  <span style={{ color: '#A8A29E' }}>📌 Kelas Median (Disorot Cyan):</span> Kelas <strong>{medClass.label} cm</strong>
                 </div>
                 <div>
-                  <span style={{ color: 'rgba(255,255,255,0.4)' }}>📏 Hasil perhitungan median:</span>
+                  <span style={{ color: '#A8A29E' }}>📏 Hasil perhitungan median:</span>
                   <span style={{ color: '#22d3ee', fontWeight: 700, marginLeft: '6px' }}>{medianVal.toFixed(2)} cm</span>
                 </div>
               </div>
@@ -875,13 +875,13 @@ function FDMaterialView({
             <div>
               <span style={{ fontSize: '10px', fontWeight: 800, color: '#22d3ee', letterSpacing: '1px' }}>LANGKAH 4: NILAI PALING SERING (MODUS)</span>
               <h3 style={{ fontSize: '18px', fontWeight: 800, margin: '6px 0 10px 0' }}>Mendeteksi Puncak Kerumunan ⛰️</h3>
-              <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.6)', lineHeight: 1.6, margin: '0 0 16px 0' }}>
+              <p style={{ fontSize: '13px', color: '#78716C', lineHeight: 1.6, margin: '0 0 16px 0' }}>
                 **Modus** adalah kelompok tinggi badan yang paling banyak dimiliki oleh siswa. Pada grafik 3D AR di samping, ini ditunjukkan oleh balok yang **paling tinggi**.
               </p>
 
               {/* Interactive confirmation */}
               {modalCheckPassed === null ? (
-                <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', padding: '14px', borderRadius: '12px', fontSize: '13px', textAlign: 'center' }}>
+                <div style={{ background: 'rgba(217,119,6,0.03)', border: '1px solid rgba(255,255,255,0.06)', padding: '14px', borderRadius: '12px', fontSize: '13px', textAlign: 'center' }}>
                   👆 Ketuk balok paling tinggi di sebelah kiri!
                 </div>
               ) : modalCheckPassed ? (
@@ -889,7 +889,7 @@ function FDMaterialView({
                   <div style={{ background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.25)', color: '#34d399', padding: '12px', borderRadius: '12px', fontSize: '13px', fontWeight: 600 }}>
                     Hebat! Modus berada di kelas {modClass.label} cm.
                   </div>
-                  <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)', lineHeight: 1.45 }}>
+                  <div style={{ fontSize: '12px', color: '#78716C', lineHeight: 1.45 }}>
                     Hasil rumus Modus: <strong>{modusVal.toFixed(2)} cm</strong>.
                   </div>
                 </div>
@@ -914,7 +914,7 @@ function FDMaterialView({
             {step < 4 ? (
               <button 
                 onClick={() => setStep(prev => Math.min(prev + 1, 4))}
-                style={{ flex: 1, padding: '12px 18px', borderRadius: '10px', border: 'none', background: 'linear-gradient(90deg, #3b82f6, #06b6d4)', color: '#fff', fontWeight: 700, fontSize: '13px', cursor: 'pointer', boxShadow: '0 4px 15px rgba(33, 150, 243, 0.25)' }}
+                style={{ flex: 1, padding: '12px 18px', borderRadius: '10px', border: 'none', background: 'linear-gradient(90deg, #3b82f6, #EA580C)', color: '#fff', fontWeight: 700, fontSize: '13px', cursor: 'pointer', boxShadow: '0 4px 15px rgba(33, 150, 243, 0.25)' }}
               >
                 Langkah Selanjutnya →
               </button>
@@ -922,7 +922,7 @@ function FDMaterialView({
               <button 
                 disabled={!modalCheckPassed}
                 onClick={() => router.push('/siswa')}
-                style={{ flex: 1, padding: '12px 18px', borderRadius: '10px', border: 'none', background: modalCheckPassed ? 'linear-gradient(90deg, #10b981, #059669)' : 'rgba(255,255,255,0.05)', color: modalCheckPassed ? '#fff' : 'rgba(255,255,255,0.25)', fontWeight: 700, fontSize: '13px', cursor: modalCheckPassed ? 'pointer' : 'not-allowed', boxShadow: modalCheckPassed ? '0 4px 15px rgba(16, 185, 129, 0.25)' : 'none' }}
+                style={{ flex: 1, padding: '12px 18px', borderRadius: '10px', border: 'none', background: modalCheckPassed ? 'linear-gradient(90deg, #D97706, #B45309)' : 'rgba(180,140,80,0.1)', color: modalCheckPassed ? '#fff' : 'rgba(255,255,255,0.25)', fontWeight: 700, fontSize: '13px', cursor: modalCheckPassed ? 'pointer' : 'not-allowed', boxShadow: modalCheckPassed ? '0 4px 15px rgba(16, 185, 129, 0.25)' : 'none' }}
               >
                 Selesaikan Belajar 🏁
               </button>

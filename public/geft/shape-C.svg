@@ -1,15 +1,15 @@
 <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
   <!-- Shape C: reversed L-shape / boot pointing left with slanted cuts -->
   <!-- Bottom horizontal edge -->
-  <line x1="30"  y1="170" x2="170" y2="170" stroke="#fff" stroke-width="4" stroke-linecap="round" fill="none" />
+  <line x1="30"  y1="170" x2="170" y2="170" stroke="#1C1917" stroke-width="4" stroke-linecap="round" fill="none" />
   <!-- Right vertical edge -->
-  <line x1="170" y1="30"  x2="170" y2="170" stroke="#fff" stroke-width="4" stroke-linecap="round" fill="none" />
+  <line x1="170" y1="30"  x2="170" y2="170" stroke="#1C1917" stroke-width="4" stroke-linecap="round" fill="none" />
   <!-- Top slanted edge -->
-  <line x1="110" y1="90"  x2="170" y2="30"  stroke="#fff" stroke-width="4" stroke-linecap="round" fill="none" />
+  <line x1="110" y1="90"  x2="170" y2="30"  stroke="#1C1917" stroke-width="4" stroke-linecap="round" fill="none" />
   <!-- Inner vertical edge -->
-  <line x1="110" y1="90"  x2="110" y2="130" stroke="#fff" stroke-width="4" stroke-linecap="round" fill="none" />
+  <line x1="110" y1="90"  x2="110" y2="130" stroke="#1C1917" stroke-width="4" stroke-linecap="round" fill="none" />
   <!-- Inner horizontal edge -->
-  <line x1="70"  y1="130" x2="110" y2="130" stroke="#fff" stroke-width="4" stroke-linecap="round" fill="none" />
+  <line x1="70"  y1="130" x2="110" y2="130" stroke="#1C1917" stroke-width="4" stroke-linecap="round" fill="none" />
   <!-- Left slanted edge -->
-  <line x1="30"  y1="170" x2="70"  y2="130" stroke="#fff" stroke-width="4" stroke-linecap="round" fill="none" />
+  <line x1="30"  y1="170" x2="70"  y2="130" stroke="#1C1917" stroke-width="4" stroke-linecap="round" fill="none" />
 </svg>

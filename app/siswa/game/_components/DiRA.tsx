@@ -121,9 +121,9 @@ export default function DiRA({ message, onDismiss, showAvatar = true }: DiRAProp
             <div style={{
               alignSelf: 'flex-start',
               background: 'rgba(10, 20, 15, 0.95)',
-              borderTop: '2px solid rgba(0, 255, 136, 0.3)',
-              borderLeft: '2px solid rgba(0, 255, 136, 0.3)',
-              borderRight: '2px solid rgba(0, 255, 136, 0.3)',
+              borderTop: '2px solid rgba(217,119,6, 0.3)',
+              borderLeft: '2px solid rgba(217,119,6, 0.3)',
+              borderRight: '2px solid rgba(217,119,6, 0.3)',
               borderBottom: 'none',
               borderRadius: '6px 14px 0 0',
               padding: '4px 16px',
@@ -146,10 +146,10 @@ export default function DiRA({ message, onDismiss, showAvatar = true }: DiRAProp
             {/* Dialog text box */}
             <div style={{
               background: 'rgba(10, 20, 18, 0.95)',
-              border: '2px solid rgba(0, 255, 136, 0.4)',
+              border: '2px solid rgba(217,119,6, 0.4)',
               borderRadius: '0px 14px 14px 14px',
               padding: isMobile ? '14px 18px' : '20px 24px',
-              boxShadow: '0 10px 25px rgba(0, 255, 136, 0.1), inset 0 0 20px rgba(0, 255, 136, 0.03)',
+              boxShadow: '0 10px 25px rgba(217,119,6, 0.1), inset 0 0 20px rgba(217,119,6, 0.03)',
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'space-between',
@@ -196,7 +196,7 @@ export default function DiRA({ message, onDismiss, showAvatar = true }: DiRAProp
                     fontSize: isMobile ? '11px' : '14px',
                     color: 'var(--accent)',
                     transform: 'rotate(12deg)',
-                    boxShadow: '3px 3px 0px rgba(0, 255, 136, 0.3)',
+                    boxShadow: '3px 3px 0px rgba(217,119,6, 0.3)',
                     fontFamily: '"Impact", "Arial Black", sans-serif',
                     letterSpacing: '0.5px',
                     zIndex: 6,
@@ -211,7 +211,7 @@ export default function DiRA({ message, onDismiss, showAvatar = true }: DiRAProp
               <p style={{
                 margin: 0,
                 fontSize: isMobile ? '13px' : '15px',
-                color: 'rgba(255,255,255,0.9)',
+                color: '#1C1917',
                 fontWeight: 600,
                 lineHeight: 1.65,
                 paddingRight: isMobile ? '110px' : '160px',
@@ -225,10 +225,10 @@ export default function DiRA({ message, onDismiss, showAvatar = true }: DiRAProp
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 marginTop: '12px',
-                borderTop: '1px solid rgba(255,255,255,0.08)',
+                borderTop: '1px solid rgba(180,140,80,0.12)',
                 paddingTop: '10px',
               }}>
-                <span style={{ fontSize: isMobile ? '10px' : '12px', color: 'rgba(255,255,255,0.3)', fontWeight: 600 }}>
+                <span style={{ fontSize: isMobile ? '10px' : '12px', color: '#A8A29E', fontWeight: 600 }}>
                   Level 1 — Analisis Berita
                 </span>
                 <motion.button
@@ -249,8 +249,8 @@ export default function DiRA({ message, onDismiss, showAvatar = true }: DiRAProp
                     boxShadow: typewriterDone ? 'var(--accent-glow)' : 'none',
                     cursor: typewriterDone ? 'pointer' : 'not-allowed',
                     border: 'none',
-                    background: typewriterDone ? 'var(--accent)' : 'rgba(255,255,255,0.1)',
-                    color: typewriterDone ? '#000' : 'rgba(255,255,255,0.3)',
+                    background: typewriterDone ? 'var(--accent)' : 'rgba(217,119,6,0.1)',
+                    color: typewriterDone ? '#000' : '#A8A29E',
                   }}
                 >
                   Paham, lanjut! →

@@ -11,17 +11,17 @@
     Warna putih agar terlihat di background gelap.
   -->
   <!-- Left shoulder -->
-  <line x1="75" y1="215" x2="140" y2="215" stroke="#fff" stroke-width="4" stroke-linecap="round" fill="none" />
+  <line x1="75" y1="215" x2="140" y2="215" stroke="#1C1917" stroke-width="4" stroke-linecap="round" fill="none" />
   <!-- Left roof slope -->
-  <line x1="140" y1="215" x2="200" y2="140" stroke="#fff" stroke-width="4" stroke-linecap="round" fill="none" />
+  <line x1="140" y1="215" x2="200" y2="140" stroke="#1C1917" stroke-width="4" stroke-linecap="round" fill="none" />
   <!-- Right roof slope -->
-  <line x1="200" y1="140" x2="260" y2="215" stroke="#fff" stroke-width="4" stroke-linecap="round" fill="none" />
+  <line x1="200" y1="140" x2="260" y2="215" stroke="#1C1917" stroke-width="4" stroke-linecap="round" fill="none" />
   <!-- Right shoulder -->
-  <line x1="260" y1="215" x2="325" y2="215" stroke="#fff" stroke-width="4" stroke-linecap="round" fill="none" />
+  <line x1="260" y1="215" x2="325" y2="215" stroke="#1C1917" stroke-width="4" stroke-linecap="round" fill="none" />
   <!-- Right vertical edge -->
-  <line x1="325" y1="215" x2="325" y2="340" stroke="#fff" stroke-width="4" stroke-linecap="round" fill="none" />
+  <line x1="325" y1="215" x2="325" y2="340" stroke="#1C1917" stroke-width="4" stroke-linecap="round" fill="none" />
   <!-- Bottom edge -->
-  <line x1="325" y1="340" x2="75" y2="340" stroke="#fff" stroke-width="4" stroke-linecap="round" fill="none" />
+  <line x1="325" y1="340" x2="75" y2="340" stroke="#1C1917" stroke-width="4" stroke-linecap="round" fill="none" />
   <!-- Left vertical edge -->
-  <line x1="75" y1="340" x2="75" y2="215" stroke="#fff" stroke-width="4" stroke-linecap="round" fill="none" />
+  <line x1="75" y1="340" x2="75" y2="215" stroke="#1C1917" stroke-width="4" stroke-linecap="round" fill="none" />
 </svg>

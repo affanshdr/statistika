@@ -74,9 +74,9 @@ function SlideData({ step }: { step: number }) {
             flexShrink: 0,
           }}
         >
-          <div style={{ fontSize: '8px', color: 'rgba(255,255,255,0.6)', fontWeight: 700 }}>s{i + 1}</div>
-          <div style={{ fontSize: '14px', fontWeight: 800, color: '#fff', fontFamily: 'var(--font-data)' }}>{val}</div>
-          <div style={{ fontSize: '8px', color: 'rgba(255,255,255,0.5)' }}>jam</div>
+          <div style={{ fontSize: '8px', color: '#78716C', fontWeight: 700 }}>s{i + 1}</div>
+          <div style={{ fontSize: '14px', fontWeight: 800, color: '#1C1917', fontFamily: 'var(--font-data)' }}>{val}</div>
+          <div style={{ fontSize: '8px', color: '#78716C' }}>jam</div>
         </motion.div>
       ))}
     </div>
@@ -86,7 +86,7 @@ function SlideData({ step }: { step: number }) {
 const CLASS_INTERVALS = [
   { label: '3.5–4.4', color: '#6366F1', items: [3.7, 4.0] },
   { label: '4.5–5.4', color: '#8B5CF6', items: [4.5, 5.1] },
-  { label: '5.5–6.4', color: '#06B6D4', items: [5.8, 6.1, 6.4] },
+  { label: '5.5–6.4', color: '#EA580C', items: [5.8, 6.1, 6.4] },
   { label: '6.5–7.4', color: '#10B981', items: [7.2] },
   { label: '7.5–8.4', color: '#F59E0B', items: [7.7] },
   { label: '8.5–9.4', color: '#EF4444', items: [8.8] },
@@ -123,7 +123,7 @@ function SlideDistribusi({ step }: { step: number }) {
                 transition={{ delay: ci * 0.12 + vi * 0.08 + 0.1, type: 'spring' }}
                 style={{
                   background: cls.color,
-                  color: '#fff',
+                  color: '#1C1917',
                   borderRadius: '50px',
                   padding: '3px 7px',
                   fontSize: '11px',
@@ -137,7 +137,7 @@ function SlideDistribusi({ step }: { step: number }) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: ci * 0.12 + 0.4 }}
-            style={{ fontSize: '13px', fontWeight: 800, color: '#fff', background: cls.color, borderRadius: '6px', padding: '2px 10px' }}
+            style={{ fontSize: '13px', fontWeight: 800, color: '#1C1917', background: cls.color, borderRadius: '6px', padding: '2px 10px' }}
           >
             f = {cls.items.length}
           </motion.div>
@@ -160,7 +160,7 @@ function SlideHistogram() {
   const maxF = 3
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', marginTop: '4px', width: '100%' }}>
-      <div style={{ display: 'flex', gap: '0', alignItems: 'flex-end', height: '130px', width: '100%', maxWidth: '380px', borderLeft: '2px solid rgba(255,255,255,0.2)', borderBottom: '2px solid rgba(255,255,255,0.2)', paddingLeft: '8px', paddingBottom: '4px' }}>
+      <div style={{ display: 'flex', gap: '0', alignItems: 'flex-end', height: '130px', width: '100%', maxWidth: '380px', borderLeft: '2px solid #A8A29E', borderBottom: '2px solid #A8A29E', paddingLeft: '8px', paddingBottom: '4px' }}>
         {HISTOGRAM_DATA.map((bar, i) => (
           <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', height: '100%', justifyContent: 'flex-end', paddingBottom: '2px' }}>
             <motion.div
@@ -169,13 +169,13 @@ function SlideHistogram() {
               transition={{ delay: i * 0.12, duration: 0.6, ease: 'easeOut' }}
               style={{
                 width: '90%',
-                background: 'linear-gradient(180deg, #00FF88 0%, #00cc88 100%)',
+                background: 'linear-gradient(180deg, #D97706 0%, #00cc88 100%)',
                 borderRadius: '4px 4px 0 0',
                 display: 'flex',
                 alignItems: 'flex-start',
                 justifyContent: 'center',
                 paddingTop: '3px',
-                boxShadow: '0 0 10px rgba(0,255,136,0.4)',
+                boxShadow: '0 0 10px rgba(217,119,6,0.4)',
               }}
             >
               <span style={{ fontSize: '11px', fontWeight: 800, color: '#000' }}>f={bar.f}</span>
@@ -207,8 +207,8 @@ function SlideMean() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
         style={{
-          background: 'rgba(0,255,136,0.06)',
-          border: '1px solid rgba(0,255,136,0.2)',
+          background: 'rgba(217,119,6,0.06)',
+          border: '1px solid rgba(217,119,6,0.2)',
           borderRadius: '14px',
           padding: '14px 20px',
           width: '100%',
@@ -226,7 +226,7 @@ function SlideMean() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
         style={{
-          background: 'rgba(255,255,255,0.03)',
+          background: 'rgba(217,119,6,0.04)',
           border: '1px solid var(--game-border)',
           borderRadius: '14px',
           padding: '14px 20px',
@@ -235,10 +235,10 @@ function SlideMean() {
         }}
       >
         <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: '6px', fontWeight: 600 }}>PERHITUNGAN:</div>
-        <div style={{ fontFamily: 'var(--font-data)', fontSize: '13px', color: 'rgba(255,255,255,0.7)', marginBottom: '6px' }}>
+        <div style={{ fontFamily: 'var(--font-data)', fontSize: '13px', color: '#57534E', marginBottom: '6px' }}>
           ({screenTimeData.join(' + ')})
         </div>
-        <div style={{ fontFamily: 'var(--font-data)', fontSize: '13px', color: 'rgba(255,255,255,0.7)', marginBottom: '8px' }}>
+        <div style={{ fontFamily: 'var(--font-data)', fontSize: '13px', color: '#57534E', marginBottom: '8px' }}>
           = {total.toFixed(1)} ÷ {STATS.n}
         </div>
         <motion.div
@@ -261,7 +261,7 @@ function SlideMean() {
           borderRadius: '10px',
           padding: '10px 16px',
           fontSize: '13px',
-          color: 'rgba(255,255,255,0.85)',
+          color: '#44403C',
           width: '100%',
           textAlign: 'center',
         }}
@@ -291,14 +291,14 @@ function SlideKritis() {
             display: 'flex',
             alignItems: 'center',
             gap: '12px',
-            background: 'rgba(255,255,255,0.03)',
+            background: 'rgba(217,119,6,0.04)',
             border: '1px solid var(--game-border)',
             borderRadius: '10px',
             padding: '10px 14px',
           }}
         >
           <span style={{ fontSize: '20px' }}>{p.icon}</span>
-          <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.85)', lineHeight: 1.5 }}>{p.text}</span>
+          <span style={{ fontSize: '13px', color: '#44403C', lineHeight: 1.5 }}>{p.text}</span>
         </motion.div>
       ))}
       <motion.div
@@ -306,7 +306,7 @@ function SlideKritis() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.8 }}
         style={{
-          background: 'rgba(0,255,136,0.06)',
+          background: 'rgba(217,119,6,0.06)',
           border: '1px solid var(--game-border-accent)',
           borderRadius: '12px',
           padding: '12px 16px',
@@ -416,10 +416,10 @@ export default function TutorialPhase({ mode, onComplete }: TutorialPhaseProps) 
                 height: '4px',
                 borderRadius: '2px',
                 background: i < slideIndex
-                  ? 'rgba(0,255,136,0.6)'
+                  ? 'rgba(217,119,6,0.6)'
                   : i === slideIndex
                     ? 'var(--accent)'
-                    : 'rgba(255,255,255,0.1)',
+                    : 'rgba(217,119,6,0.1)',
               }}
               animate={{ scaleX: i === slideIndex ? [1, 1.03, 1] : 1 }}
               transition={{ repeat: i === slideIndex ? Infinity : 0, duration: 2 }}
@@ -454,7 +454,7 @@ export default function TutorialPhase({ mode, onComplete }: TutorialPhaseProps) 
             display: 'flex',
             flexDirection: isLandscape ? 'row' : 'column',
             gap: isLandscape ? '12px' : isMobile ? '14px' : '20px',
-            boxShadow: '0 0 40px rgba(0,255,136,0.06)',
+            boxShadow: '0 0 40px rgba(217,119,6,0.06)',
           }}
         >
           {/* LEFT column in landscape, normal flow otherwise */}
@@ -471,7 +471,7 @@ export default function TutorialPhase({ mode, onComplete }: TutorialPhaseProps) 
                 width: isLandscape ? '36px' : isMobile ? '48px' : '64px',
                 height: isLandscape ? '36px' : isMobile ? '48px' : '64px',
                 borderRadius: '50%',
-                background: 'rgba(0,255,136,0.08)',
+                background: 'rgba(217,119,6,0.08)',
                 border: '1px solid var(--game-border-accent)',
                 display: 'flex',
                 alignItems: 'center',
@@ -501,7 +501,7 @@ export default function TutorialPhase({ mode, onComplete }: TutorialPhaseProps) 
               fontSize: isLandscape ? '12px' : isMobile ? '13px' : '14px',
               lineHeight: 1.6,
               color: 'var(--text-secondary)',
-              background: 'rgba(255,255,255,0.02)',
+              background: 'rgba(217,119,6,0.03)',
               border: '1px solid var(--game-border)',
               borderRadius: '10px',
               padding: isLandscape ? '8px 12px' : isMobile ? '12px 14px' : '14px 16px',
@@ -520,14 +520,14 @@ export default function TutorialPhase({ mode, onComplete }: TutorialPhaseProps) 
                 display: 'flex',
                 gap: '12px',
                 alignItems: 'flex-start',
-                background: 'rgba(0,255,136,0.04)',
+                background: 'rgba(217,119,6,0.04)',
                 border: '1px solid var(--game-border-accent)',
                 borderRadius: '14px',
                 padding: '12px 16px',
               }}
             >
               <img src="/dira-avatar.png" alt="Dira" style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
-              <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.85)', lineHeight: 1.6 }}>
+              <div style={{ fontSize: '13px', color: '#44403C', lineHeight: 1.6 }}>
                 <strong style={{ color: 'var(--accent)' }}>Dira:</strong>{' '}
                 {slideIndex === 0 && 'Hei! Sebelum kita mulai investigasi, aku mau ajarin kamu beberapa hal penting dulu. Siap? 😊'}
                 {slideIndex === 1 && 'Keren! Sekarang kamu udah tau apa itu data. Yuk lanjut ke langkah berikutnya — mengelompokkan data! 📦'}
@@ -572,7 +572,7 @@ export default function TutorialPhase({ mode, onComplete }: TutorialPhaseProps) 
               background: 'rgba(0,0,0,0.2)',
               borderRadius: '12px',
               padding: '10px',
-              border: '1px solid rgba(255,255,255,0.04)',
+              border: '1px solid rgba(217,119,6,0.05)',
               overflowY: 'auto',
             }}>
               <SlideVisual step={slideIndex} />
@@ -591,7 +591,7 @@ export default function TutorialPhase({ mode, onComplete }: TutorialPhaseProps) 
               height: '6px',
               borderRadius: '3px',
               background: i < slideIndex
-                ? 'rgba(0,255,136,0.5)'
+                ? 'rgba(217,119,6,0.5)'
                 : i === slideIndex
                   ? 'var(--accent)'
                   : 'rgba(255,255,255,0.12)',

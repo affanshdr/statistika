@@ -86,7 +86,7 @@ export default function LobbyPage() {
       {/* Header */}
       <header style={{
         position: 'sticky', top: 0, zIndex: 100,
-        background: 'rgba(10,10,15,0.85)', backdropFilter: 'blur(20px)',
+        background: 'rgba(250,246,238,0.85)', backdropFilter: 'blur(20px)',
         borderBottom: '1px solid var(--game-border)',
         padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         gap: '8px',
@@ -121,10 +121,10 @@ export default function LobbyPage() {
             width: '56px', height: '56px', borderRadius: '50%', flexShrink: 0,
             background: isFI
               ? 'linear-gradient(135deg, #3B82F6, #8B5CF6)'
-              : 'linear-gradient(135deg, #06B6D4, #00FF88)',
+              : 'linear-gradient(135deg, #EA580C, #D97706)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: '22px', fontWeight: 800, color: '#fff',
-            boxShadow: isFI ? '0 0 20px rgba(59,130,246,0.4)' : '0 0 20px rgba(0,255,136,0.4)'
+            fontSize: '22px', fontWeight: 800, color: '#1C1917',
+            boxShadow: isFI ? '0 0 20px rgba(59,130,246,0.4)' : '0 0 20px rgba(217,119,6,0.4)'
           }}>
             {student?.name?.charAt(0).toUpperCase()}
           </div>
@@ -132,7 +132,7 @@ export default function LobbyPage() {
           <div style={{ flex: 1, minWidth: '160px' }}>
             <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: '4px' }}>SELAMAT DATANG KEMBALI</div>
             <h2 style={{ margin: '0 0 6px', fontSize: '20px', fontWeight: 800 }}>{student?.name}</h2>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: isFI ? 'rgba(59,130,246,0.12)' : 'rgba(0,255,136,0.1)', border: `1px solid ${isFI ? 'rgba(59,130,246,0.3)' : 'var(--game-border-accent)'}`, borderRadius: '50px', padding: '4px 12px', fontSize: '12px', fontWeight: 700, color: isFI ? '#60A5FA' : 'var(--accent)' }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: isFI ? 'rgba(59,130,246,0.12)' : 'rgba(217,119,6,0.1)', border: `1px solid ${isFI ? 'rgba(59,130,246,0.3)' : 'var(--game-border-accent)'}`, borderRadius: '50px', padding: '4px 12px', fontSize: '12px', fontWeight: 700, color: isFI ? '#60A5FA' : 'var(--accent)' }}>
               {isFI ? '🧠 Field Independent (FI)' : '👥 Field Dependent (FD)'}
             </div>
           </div>
@@ -154,7 +154,7 @@ export default function LobbyPage() {
                 onClick={() => !level.locked && handlePlayLevel(level.id)}
               >
                 <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
-                  <div style={{ fontSize: '36px', padding: '12px', background: 'rgba(255,255,255,0.04)', borderRadius: '14px', flexShrink: 0 }}>
+                  <div style={{ fontSize: '36px', padding: '12px', background: 'rgba(217,119,6,0.06)', borderRadius: '14px', flexShrink: 0 }}>
                     {level.icon}
                   </div>
                   <div style={{ flex: 1 }}>
@@ -171,7 +171,7 @@ export default function LobbyPage() {
                     {level.tags.length > 0 && (
                       <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                         {level.tags.map(tag => (
-                          <span key={tag} style={{ fontSize: '10px', color: 'var(--text-muted)', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--game-border)', borderRadius: '50px', padding: '3px 8px', fontWeight: 700 }}>
+                          <span key={tag} style={{ fontSize: '10px', color: 'var(--text-muted)', background: 'rgba(180,140,80,0.1)', border: '1px solid var(--game-border)', borderRadius: '50px', padding: '3px 8px', fontWeight: 700 }}>
                             {tag}
                           </span>
                         ))}

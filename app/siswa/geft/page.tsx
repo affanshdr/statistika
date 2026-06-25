@@ -102,8 +102,8 @@ const GeftSvgViewer = memo(function GeftSvgViewer({ svgContent, selected, onSvgC
         position: 'relative',
         borderRadius: 12,
         overflow: 'hidden',
-        border: '1px solid rgba(255,255,255,0.08)',
-        background: '#0c0c14',
+        border: '1px solid rgba(180,140,80,0.2)',
+        background: '#FFFDF8',
         touchAction: 'none'
       }}
     />
@@ -131,6 +131,7 @@ export default function GeftPage() {
   const [submitting, setSubmitting] = useState(false)
   const [phase, setPhase] = useState<'intro' | 'test' | 'done'>('intro')
   const [showSkipModal, setShowSkipModal] = useState(false)
+  const [showExitConfirm, setShowExitConfirm] = useState(false)
   const confirmingRef = useRef(false)
   const processingNextRef = useRef(false)
 
@@ -533,17 +534,17 @@ export default function GeftPage() {
         <div
           onClick={() => {
             if (phase === 'test') {
-              if (confirm("Apakah Anda yakin ingin keluar dari tes? Kemajuan Anda saat ini tidak akan disimpan.")) {
-                router.push('/')
-              }
+              setShowExitConfirm(true)
             } else {
+              localStorage.removeItem('student')
+              sessionStorage.removeItem('greeting_shown')
               router.push('/')
             }
           }}
           style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
         >
           <motion.div
-            animate={{ filter: ['drop-shadow(0 0 6px #00FF88)', 'drop-shadow(0 0 14px #00FF88)', 'drop-shadow(0 0 6px #00FF88)'] }}
+            animate={{ filter: ['drop-shadow(0 0 6px #D97706)', 'drop-shadow(0 0 14px #D97706)', 'drop-shadow(0 0 6px #D97706)'] }}
             transition={{ duration: 2.5, repeat: Infinity }}
             style={{ fontSize: '24px', lineHeight: 1 }}
           >
@@ -552,20 +553,20 @@ export default function GeftPage() {
           <div>
             <div style={{
               fontWeight: 900, fontSize: '16px', letterSpacing: '0.5px',
-              background: 'linear-gradient(90deg, #00FF88, #06b6d4)',
+              background: 'linear-gradient(90deg, #D97706, #EA580C)',
               WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
               whiteSpace: 'nowrap',
               fontFamily: 'var(--font-heading), sans-serif',
             }}>
               Skeptikos
             </div>
-            <div className="nav-subtitle" style={{ fontSize: '9px', color: 'rgba(255,255,255,0.35)', letterSpacing: '2px', fontWeight: 700, marginTop: '1px' }}>
+            <div className="nav-subtitle" style={{ fontSize: '9px', color: 'rgba(87,83,78,0.5)', letterSpacing: '2px', fontWeight: 700, marginTop: '1px' }}>
               INVESTIGASI DATA
             </div>
           </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <span style={{ fontSize: '11px', fontWeight: 600, color: 'rgba(255,255,255,0.4)', letterSpacing: '1px' }}>
+          <span style={{ fontSize: '11px', fontWeight: 600, color: 'rgba(87,83,78,0.5)', letterSpacing: '1px' }}>
             {titleSuffix}
           </span>
           <select
@@ -576,10 +577,10 @@ export default function GeftPage() {
             }}
             defaultValue=""
             style={{
-              background: 'rgba(255, 255, 255, 0.05)',
-              border: '1px solid rgba(0, 255, 136, 0.3)',
+              background: 'rgba(217,119,6,0.06)',
+              border: '1px solid rgba(217,119,6,0.25)',
               borderRadius: '6px',
-              color: '#00FF88',
+              color: '#D97706',
               fontSize: '10px',
               fontWeight: 700,
               padding: '4px 8px',
@@ -587,9 +588,9 @@ export default function GeftPage() {
               outline: 'none',
             }}
           >
-            <option value="" disabled style={{ background: '#0c0c14', color: '#fff' }}>⚡ DEV BYPASS</option>
-            <option value="FI" style={{ background: '#0c0c14', color: '#fff' }}>Bypass ke FI (Skor 6)</option>
-            <option value="FD" style={{ background: '#0c0c14', color: '#fff' }}>Bypass ke FD (Skor 0)</option>
+            <option value="" disabled style={{ background: '#FAFAF5', color: '#1C1917' }}>⚡ DEV BYPASS</option>
+            <option value="FI" style={{ background: '#FAFAF5', color: '#1C1917' }}>Bypass ke FI (Skor 6)</option>
+            <option value="FD" style={{ background: '#FAFAF5', color: '#1C1917' }}>Bypass ke FD (Skor 0)</option>
           </select>
         </div>
       </div>
@@ -607,10 +608,10 @@ export default function GeftPage() {
           <style>{`
             .geft-page-container {
               min-height: 100vh;
-              background: #0A0A0F;
-              background-image: linear-gradient(rgba(0,255,136,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,136,0.03) 1px, transparent 1px);
-              background-size: 40px 40px;
-              color: #f3f4f6;
+              background: #FAF6EE;
+              background-image: radial-gradient(circle, rgba(180,140,80,0.12) 1px, transparent 1px);
+              background-size: 28px 28px;
+              color: #1C1917;
               font-family: var(--font-sans), sans-serif;
               padding: 20px 16px;
               display: flex;
@@ -619,9 +620,10 @@ export default function GeftPage() {
             }
             .geft-navbar {
               position: sticky; top: 0; z-index: 50;
-              background: rgba(10,10,15,0.85);
+              background: rgba(250,246,238,0.92);
               backdrop-filter: blur(16px);
-              border-bottom: 1px solid rgba(0,255,136,0.08);
+              border-bottom: 1px solid rgba(180,140,80,0.15);
+              box-shadow: 0 1px 6px rgba(180,140,80,0.08);
             }
             .nav-subtitle { display: block; }
             @media (max-width: 480px) {
@@ -631,11 +633,11 @@ export default function GeftPage() {
               max-width: 660px;
               width: 100%;
               margin: 24px auto 16px;
-              background: rgba(12, 12, 20, 0.95);
-              border: 1px solid rgba(255, 255, 255, 0.08);
+              background: #FFFFFF;
+              border: 1px solid rgba(180,140,80,0.15);
               border-radius: 22px;
               padding: 28px 28px 20px;
-              box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(0,255,136,0.08);
+              box-shadow: 0 8px 30px rgba(180,120,40,0.1), 0 0 0 1px rgba(217,119,6,0.06);
               backdrop-filter: blur(20px);
               box-sizing: border-box;
               display: flex;
@@ -661,14 +663,14 @@ export default function GeftPage() {
               font-size: 10px;
               font-weight: 700;
               letter-spacing: 2px;
-              color: #00FF88;
+              color: #D97706;
               text-transform: uppercase;
               margin-bottom: 4px;
             }
             .geft-tut-title {
               font-size: 19px;
               font-weight: 800;
-              background: linear-gradient(90deg, #00FF88, #06b6d4);
+              background: linear-gradient(90deg, #D97706, #EA580C);
               -webkit-background-clip: text;
               -webkit-text-fill-color: transparent;
               margin: 0;
@@ -683,10 +685,10 @@ export default function GeftPage() {
             }
             .geft-tut-progress-fill {
               height: 100%;
-              background: linear-gradient(90deg, #00FF88, #06b6d4);
+              background: linear-gradient(90deg, #D97706, #EA580C);
               border-radius: 99px;
               transition: width 0.4s ease;
-              box-shadow: 0 0 8px rgba(0,255,136,0.5);
+              box-shadow: 0 0 8px rgba(217,119,6,0.4);
             }
             .geft-tutorial-container {
               display: flex;
@@ -694,7 +696,7 @@ export default function GeftPage() {
               gap: 14px;
             }
             .geft-tut-desc {
-              color: rgba(255,255,255,0.82);
+              color: #44403C;
               font-size: 14px;
               line-height: 1.65;
               margin: 0;
@@ -709,8 +711,8 @@ export default function GeftPage() {
               .geft-tutorial-cols { grid-template-columns: 1fr; gap: 10px; }
             }
             .geft-tutorial-box {
-              background: rgba(255,255,255,0.025);
-              border: 1px solid rgba(255,255,255,0.07);
+              background: rgba(217,119,6,0.04);
+              border: 1px solid rgba(180,140,80,0.12);
               border-radius: 12px;
               padding: 14px 12px;
               display: flex;
@@ -720,14 +722,14 @@ export default function GeftPage() {
               box-sizing: border-box;
             }
             .geft-tut-interactive-box {
-              border-color: rgba(0,255,136,0.25);
-              background: rgba(0,255,136,0.04);
+              border-color: rgba(217,119,6,0.3);
+              background: rgba(217,119,6,0.06);
             }
             .geft-tut-box-label {
               font-size: 10px;
               font-weight: 700;
               letter-spacing: 1.5px;
-              color: rgba(255,255,255,0.4);
+              color: rgba(87,83,78,0.6);
               text-transform: uppercase;
             }
             .geft-tutorial-svg-wrapper {
@@ -736,8 +738,8 @@ export default function GeftPage() {
               display: flex;
               align-items: center;
               justify-content: center;
-              background: #0c0c14;
-              border: 1px solid rgba(255,255,255,0.07);
+              background: #FFFDF8;
+              border: 1px solid rgba(180,140,80,0.15);
               border-radius: 10px;
               padding: 10px;
               box-sizing: border-box;
@@ -765,38 +767,38 @@ export default function GeftPage() {
             }
             .geft-tut-card-badge {
               font-size: 9px; font-weight: 700;
-              color: rgba(255,255,255,0.3);
+              color: rgba(87,83,78,0.5);
               letter-spacing: 1px; text-transform: uppercase;
             }
             .geft-tut-reveal-btn {
               align-self: center;
               padding: 9px 20px;
               border-radius: 10px;
-              border: 1px solid rgba(255,255,255,0.12);
-              background: rgba(255,255,255,0.04);
-              color: rgba(255,255,255,0.75);
+              border: 1px solid rgba(180,140,80,0.25);
+              background: rgba(217,119,6,0.06);
+              color: #78716C;
               font-size: 13px; font-weight: 600;
               cursor: pointer; transition: all 0.2s;
               width: fit-content;
             }
             .geft-tut-reveal-btn:hover {
-              background: rgba(255,255,255,0.08); color: #fff;
+              background: rgba(217,119,6,0.12); color: #1C1917;
               transform: translateY(-1px);
             }
             .geft-tut-reveal-btn.active {
-              border-color: rgba(0,255,136,0.5);
-              background: rgba(0,255,136,0.08); color: #00FF88;
+              border-color: rgba(217,119,6,0.5);
+              background: rgba(217,119,6,0.08); color: #D97706;
             }
             .geft-tut-tip {
-              font-size: 12.5px; color: rgba(255,255,255,0.5);
+              font-size: 12.5px; color: #78716C;
               line-height: 1.55;
-              background: rgba(255,255,255,0.02);
-              border: 1px solid rgba(255,255,255,0.05);
+              background: rgba(217,119,6,0.04);
+              border: 1px solid rgba(180,140,80,0.15);
               border-radius: 10px; padding: 10px 14px;
             }
             .geft-tut-sel-count {
               font-size: 11px; font-weight: 700;
-              color: rgba(255,255,255,0.4); letter-spacing: 0.5px;
+              color: rgba(87,83,78,0.5); letter-spacing: 0.5px;
             }
             .geft-tut-actions-row {
               display: flex; align-items: center; gap: 10px;
@@ -816,14 +818,14 @@ export default function GeftPage() {
               line-height: 1.45; transition: all 0.25s;
             }
             .geft-tut-feedback.idle {
-              color: rgba(255,255,255,0.35);
-              background: rgba(255,255,255,0.02);
-              border: 1px solid rgba(255,255,255,0.05);
+              color: #78716C;
+              background: rgba(217,119,6,0.04);
+              border: 1px solid rgba(180,140,80,0.12);
             }
             .geft-tut-feedback.hint {
-              color: rgba(251,191,36,0.9);
-              background: rgba(251,191,36,0.06);
-              border: 1px solid rgba(251,191,36,0.15);
+              color: #D97706;
+              background: rgba(217,119,6,0.06);
+              border: 1px solid rgba(217,119,6,0.25);
             }
             .geft-tut-feedback.success {
               color: #34d399;
@@ -836,8 +838,8 @@ export default function GeftPage() {
               fill: none; pointer-events: none; stroke-linecap: round;
               transition: stroke 0.15s, stroke-width 0.15s;
             }
-            .geft-interactive-line:hover { stroke: #00FF88; stroke-width: 7px; }
-            .geft-interactive-line.selected { stroke: #00FF88 !important; stroke-width: 8px !important; filter: drop-shadow(0 0 4px rgba(0,255,136,0.7)); }
+            .geft-interactive-line:hover { stroke: #D97706; stroke-width: 7px; }
+            .geft-interactive-line.selected { stroke: #D97706 !important; stroke-width: 8px !important; filter: drop-shadow(0 0 4px rgba(217,119,6,0.7)); }
             /* Hit-area transparan yang lebar — pointer-events ditarget ke sini */
             .geft-hit-area {
               stroke: transparent;
@@ -859,7 +861,7 @@ export default function GeftPage() {
             }
             .geft-tutorial-steps-nav {
               display: flex; align-items: center; padding-top: 14px;
-              border-top: 1px solid rgba(255,255,255,0.06);
+              border-top: 1px solid rgba(180,140,80,0.15);
             }
             .geft-tutorial-steps-nav > * { flex: 1; }
             .geft-tutorial-steps-nav .geft-tutorial-indicator { display: flex; justify-content: center; }
@@ -867,31 +869,31 @@ export default function GeftPage() {
             .geft-tutorial-indicator { display: flex; gap: 8px; }
             .geft-tutorial-dot {
               width: 7px; height: 7px; border-radius: 50%;
-              background: rgba(255,255,255,0.15); transition: all 0.25s;
+              background: rgba(180,140,80,0.3); transition: all 0.25s;
             }
             .geft-tutorial-dot.active {
-              background: #00FF88;
-              box-shadow: 0 0 8px rgba(0,255,136,0.7);
+              background: #D97706;
+              box-shadow: 0 0 8px rgba(217,119,6,0.7);
               transform: scale(1.3);
             }
             .geft-btn-text {
-              background: none; border: none; color: rgba(255,255,255,0.5);
+              background: none; border: none; color: #78716C;
               font-size: 13px; font-weight: 600; cursor: pointer;
               padding: 8px 12px; border-radius: 8px; transition: all 0.2s;
             }
-            .geft-btn-text:hover:not(:disabled) { color: #fff; background: rgba(255,255,255,0.05); }
+            .geft-btn-text:hover:not(:disabled) { color: #1C1917; background: rgba(180,140,80,0.1); }
             .geft-btn-primary {
               padding: 10px 20px; border-radius: 10px; border: none;
-              background: linear-gradient(90deg, #00FF88, #06b6d4);
-              color: #000; font-size: 13px; font-weight: 700;
+              background: linear-gradient(90deg, #D97706, #EA580C);
+              color: #ffffff; font-size: 13px; font-weight: 700;
               cursor: pointer; transition: all 0.2s;
               width: fit-content; white-space: nowrap; flex-shrink: 0;
-              box-shadow: 0 4px 16px rgba(0,255,136,0.3);
+              box-shadow: 0 4px 16px rgba(217,119,6,0.3);
             }
             .geft-btn-primary:hover { filter: brightness(1.1); transform: translateY(-1px); }
             /* Override background rect fill of loaded SVGs to match dark theme */
             .geft-svg-container svg rect {
-              fill: #0c0c14 !important;
+              fill: #FFFDF8 !important;
             }
           `}</style>
 
@@ -905,14 +907,14 @@ export default function GeftPage() {
               </div>
               <div className="geft-tut-progress-ring">
                 <svg viewBox="0 0 36 36" style={{ width: 44, height: 44 }}>
-                  <circle cx="18" cy="18" r="15" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="3" />
-                  <circle cx="18" cy="18" r="15" fill="none" stroke="#00FF88" strokeWidth="3"
+                  <circle cx="18" cy="18" r="15" fill="none" stroke="rgba(217,119,6,0.12)" strokeWidth="3" />
+                  <circle cx="18" cy="18" r="15" fill="none" stroke="#D97706" strokeWidth="3"
                     strokeDasharray={`${((tutorialStep + 1) / 3) * 94.2} 94.2`}
                     strokeLinecap="round"
                     transform="rotate(-90 18 18)"
                     style={{ transition: 'stroke-dasharray 0.4s ease' }}
                   />
-                  <text x="18" y="22" textAnchor="middle" fill="#fff" fontSize="9" fontWeight="700">{tutorialStep + 1}/3</text>
+                  <text x="18" y="22" textAnchor="middle" fill="#1C1917" fontSize="9" fontWeight="700">{tutorialStep + 1}/3</text>
                 </svg>
               </div>
             </div>
@@ -933,9 +935,9 @@ export default function GeftPage() {
                     <div className="geft-tut-box-label">Bentuk &quot;X&quot;</div>
                     <div className="geft-tutorial-svg-wrapper">
                       <svg viewBox="0 0 100 110" style={{ width: '100%', height: '100%' }}>
-                        <line x1="20" y1="20" x2="20" y2="90" stroke="#fff" strokeWidth="3" strokeLinecap="round" />
-                        <line x1="20" y1="90" x2="80" y2="70" stroke="#fff" strokeWidth="3" strokeLinecap="round" />
-                        <line x1="80" y1="70" x2="20" y2="20" stroke="#fff" strokeWidth="3" strokeLinecap="round" />
+                        <line x1="20" y1="20" x2="20" y2="90" stroke="#1C1917" strokeWidth="3" strokeLinecap="round" />
+                        <line x1="20" y1="90" x2="80" y2="70" stroke="#1C1917" strokeWidth="3" strokeLinecap="round" />
+                        <line x1="80" y1="70" x2="20" y2="20" stroke="#1C1917" strokeWidth="3" strokeLinecap="round" />
                       </svg>
                     </div>
                     <div className="geft-tut-card-badge">Bentuk Target</div>
@@ -945,7 +947,7 @@ export default function GeftPage() {
                     <div className="geft-tutorial-svg-wrapper geft-tutorial-svg-wrapper-lg">
                       <svg viewBox="0 0 200 200" style={{ width: '100%', height: '100%' }}>
                         <line x1="40" y1="80" x2="100" y2="100" stroke="#555" strokeWidth="2" />
-                        <line x1="100" y1="100" x2="160" y2="80" stroke={showAnswer1 ? '#00FF88' : '#555'} strokeWidth={showAnswer1 ? '5' : '2'} style={{ transition: 'all 0.25s' }} />
+                        <line x1="100" y1="100" x2="160" y2="80" stroke={showAnswer1 ? '#D97706' : '#555'} strokeWidth={showAnswer1 ? '5' : '2'} style={{ transition: 'all 0.25s' }} />
                         <line x1="160" y1="80" x2="100" y2="60" stroke="#555" strokeWidth="2" />
                         <line x1="100" y1="60" x2="40" y2="80" stroke="#555" strokeWidth="2" />
                         <line x1="40" y1="80" x2="40" y2="160" stroke="#555" strokeWidth="2" />
@@ -955,8 +957,8 @@ export default function GeftPage() {
                         <line x1="100" y1="180" x2="160" y2="160" stroke="#555" strokeWidth="2" />
                         <line x1="100" y1="30" x2="40" y2="80" stroke="#555" strokeWidth="2" />
                         <line x1="100" y1="30" x2="100" y2="60" stroke="#555" strokeWidth="2" />
-                        <line x1="100" y1="30" x2="100" y2="100" stroke={showAnswer1 ? '#00FF88' : '#555'} strokeWidth={showAnswer1 ? '5' : '2'} style={{ transition: 'all 0.25s' }} />
-                        <line x1="100" y1="30" x2="160" y2="80" stroke={showAnswer1 ? '#00FF88' : '#555'} strokeWidth={showAnswer1 ? '5' : '2'} style={{ transition: 'all 0.25s' }} />
+                        <line x1="100" y1="30" x2="100" y2="100" stroke={showAnswer1 ? '#D97706' : '#555'} strokeWidth={showAnswer1 ? '5' : '2'} style={{ transition: 'all 0.25s' }} />
+                        <line x1="100" y1="30" x2="160" y2="80" stroke={showAnswer1 ? '#D97706' : '#555'} strokeWidth={showAnswer1 ? '5' : '2'} style={{ transition: 'all 0.25s' }} />
                       </svg>
                     </div>
                     {showAnswer1 && <div className="geft-tut-found-badge">✓ Ditemukan!</div>}
@@ -982,11 +984,11 @@ export default function GeftPage() {
                     <div className="geft-tut-box-label">Bentuk &quot;Y&quot;</div>
                     <div className="geft-tutorial-svg-wrapper">
                       <svg viewBox="0 0 100 120" style={{ width: '100%', height: '100%' }}>
-                        <line x1="50" y1="20" x2="25" y2="60" stroke="#fff" strokeWidth="3" strokeLinecap="round" />
-                        <line x1="25" y1="60" x2="50" y2="100" stroke="#fff" strokeWidth="3" strokeLinecap="round" />
-                        <line x1="50" y1="100" x2="75" y2="60" stroke="#fff" strokeWidth="3" strokeLinecap="round" />
-                        <line x1="75" y1="60" x2="50" y2="20" stroke="#fff" strokeWidth="3" strokeLinecap="round" />
-                        <line x1="25" y1="60" x2="75" y2="60" stroke="rgba(255,255,255,0.35)" strokeWidth="1.5" />
+                        <line x1="50" y1="20" x2="25" y2="60" stroke="#1C1917" strokeWidth="3" strokeLinecap="round" />
+                        <line x1="25" y1="60" x2="50" y2="100" stroke="#1C1917" strokeWidth="3" strokeLinecap="round" />
+                        <line x1="50" y1="100" x2="75" y2="60" stroke="#1C1917" strokeWidth="3" strokeLinecap="round" />
+                        <line x1="75" y1="60" x2="50" y2="20" stroke="#1C1917" strokeWidth="3" strokeLinecap="round" />
+                        <line x1="25" y1="60" x2="75" y2="60" stroke="rgba(28,25,23,0.25)" strokeWidth="1.5" />
                       </svg>
                     </div>
                     <div className="geft-tut-card-badge">Bentuk Target</div>
@@ -1004,11 +1006,11 @@ export default function GeftPage() {
                         <line x1="137.5" y1="90" x2="155" y2="120" stroke="#555" strokeWidth="2" />
                         <line x1="62.5" y1="90" x2="35" y2="75" stroke="#555" strokeWidth="2" />
                         <line x1="137.5" y1="90" x2="165" y2="75" stroke="#555" strokeWidth="2" />
-                        <line x1="62.5" y1="90" x2="137.5" y2="90" stroke="rgba(255,255,255,0.25)" strokeWidth="1.5" strokeDasharray="3 3" />
-                        <line x1="100" y1="30" x2="62.5" y2="90" stroke={showAnswer2 ? '#00FF88' : '#555'} strokeWidth={showAnswer2 ? '5' : '2'} style={{ transition: 'all 0.25s' }} />
-                        <line x1="100" y1="30" x2="137.5" y2="90" stroke={showAnswer2 ? '#00FF88' : '#555'} strokeWidth={showAnswer2 ? '5' : '2'} style={{ transition: 'all 0.25s' }} />
-                        <line x1="62.5" y1="90" x2="100" y2="150" stroke={showAnswer2 ? '#00FF88' : '#555'} strokeWidth={showAnswer2 ? '5' : '2'} style={{ transition: 'all 0.25s' }} />
-                        <line x1="137.5" y1="90" x2="100" y2="150" stroke={showAnswer2 ? '#00FF88' : '#555'} strokeWidth={showAnswer2 ? '5' : '2'} style={{ transition: 'all 0.25s' }} />
+                        <line x1="62.5" y1="90" x2="137.5" y2="90" stroke="rgba(28,25,23,0.2)" strokeWidth="1.5" strokeDasharray="3 3" />
+                        <line x1="100" y1="30" x2="62.5" y2="90" stroke={showAnswer2 ? '#D97706' : '#555'} strokeWidth={showAnswer2 ? '5' : '2'} style={{ transition: 'all 0.25s' }} />
+                        <line x1="100" y1="30" x2="137.5" y2="90" stroke={showAnswer2 ? '#D97706' : '#555'} strokeWidth={showAnswer2 ? '5' : '2'} style={{ transition: 'all 0.25s' }} />
+                        <line x1="62.5" y1="90" x2="100" y2="150" stroke={showAnswer2 ? '#D97706' : '#555'} strokeWidth={showAnswer2 ? '5' : '2'} style={{ transition: 'all 0.25s' }} />
+                        <line x1="137.5" y1="90" x2="100" y2="150" stroke={showAnswer2 ? '#D97706' : '#555'} strokeWidth={showAnswer2 ? '5' : '2'} style={{ transition: 'all 0.25s' }} />
                       </svg>
                     </div>
                     {showAnswer2 && <div className="geft-tut-found-badge">✓ Ditemukan!</div>}
@@ -1034,9 +1036,9 @@ export default function GeftPage() {
                     <div className="geft-tut-box-label">Cari Bentuk Ini</div>
                     <div className="geft-tutorial-svg-wrapper">
                       <svg viewBox="0 0 100 110" style={{ width: '100%', height: '100%' }}>
-                        <line x1="30" y1="20" x2="30" y2="90" stroke="#fff" strokeWidth="3" strokeLinecap="round" />
-                        <line x1="30" y1="90" x2="90" y2="55" stroke="#fff" strokeWidth="3" strokeLinecap="round" />
-                        <line x1="90" y1="55" x2="30" y2="20" stroke="#fff" strokeWidth="3" strokeLinecap="round" />
+                        <line x1="30" y1="20" x2="30" y2="90" stroke="#1C1917" strokeWidth="3" strokeLinecap="round" />
+                        <line x1="30" y1="90" x2="90" y2="55" stroke="#1C1917" strokeWidth="3" strokeLinecap="round" />
+                        <line x1="90" y1="55" x2="30" y2="20" stroke="#1C1917" strokeWidth="3" strokeLinecap="round" />
                       </svg>
                     </div>
                     <div className="geft-tut-card-badge">Bentuk Target</div>
@@ -1104,9 +1106,9 @@ export default function GeftPage() {
                   className="geft-btn-primary"
                   onClick={() => setTutorialStep(tutorialStep + 1)}
                   style={{
-                    background: isTutorialSuccess && tutorialStep === 2 ? 'linear-gradient(90deg, #10b981, #059669)' : 'linear-gradient(90deg, #00FF88, #06b6d4)',
-                    boxShadow: isTutorialSuccess && tutorialStep === 2 ? '0 4px 15px rgba(16,185,129,0.3)' : '0 4px 15px rgba(0,255,136,0.3)',
-                    color: '#000',
+                    background: isTutorialSuccess && tutorialStep === 2 ? 'linear-gradient(90deg, #D97706, #B45309)' : 'linear-gradient(90deg, #D97706, #EA580C)',
+                    boxShadow: isTutorialSuccess && tutorialStep === 2 ? '0 4px 15px rgba(16,185,129,0.3)' : '0 4px 15px rgba(217,119,6,0.3)',
+                    color: '#fff',
                   }}
                 >
                   {tutorialStep === 2 ? 'Lanjut ke Mulai Tes →' : 'Lanjut →'}
@@ -1123,11 +1125,11 @@ export default function GeftPage() {
       <main className="geft-page-container" style={{ overflowY: 'auto' }}>
         {renderNavbar("TES DIAGNOSTIK (GEFT) ⏱️")}
 
-        <div className="geft-intro-card" style={{ maxWidth: '600px', margin: '48px auto', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '20px', padding: '36px', boxShadow: '0 15px 35px rgba(0,0,0,0.3)' }}>
-          <h2 style={{ marginBottom: 16, fontSize: '24px', fontWeight: 800 }}>
+        <div className="geft-intro-card" style={{ maxWidth: '600px', margin: '48px auto', background: '#FFFFFF', border: '1px solid rgba(180,140,80,0.15)', borderRadius: '20px', padding: '36px', boxShadow: '0 8px 30px rgba(180,120,40,0.06)' }}>
+          <h2 style={{ marginBottom: 16, fontSize: '24px', fontWeight: 800, color: '#1C1917' }}>
             {isFirst ? 'Selamat datang di Tes GEFT' : `Mulai ${SECTION_LABELS[nextSection]}`}
           </h2>
-          <p style={{ color: 'rgba(255,255,255,0.6)', lineHeight: 1.7, fontSize: '14px', margin: '0 0 12px 0' }}>
+          <p style={{ color: '#78716C', lineHeight: 1.7, fontSize: '14px', margin: '0 0 12px 0' }}>
             {isFirst
               ? 'Tes ini terdiri dari 3 sesi. Sesi 1 adalah latihan dan tidak dihitung. Sesi 2 dan 3 dihitung untuk menentukan gaya kognitif kamu.'
               : nextSection === 2
@@ -1135,16 +1137,16 @@ export default function GeftPage() {
                 : 'Sesi 2 selesai. Satu sesi lagi!'
             }
           </p>
-          <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: '13px', marginBottom: '28px', lineHeight: 1.5 }}>
-            💡 Caranya: <strong style={{ color: 'rgba(255,255,255,0.65)' }}>Ketuk / klik garis-garis</strong> pada gambar teka-teki yang membentuk bentuk sederhana yang diminta. Batas waktu: 30 detik per soal.
+          <p style={{ color: '#78716C', fontSize: '13px', marginBottom: '28px', lineHeight: 1.5 }}>
+            💡 Caranya: <strong style={{ color: '#1C1917' }}>Ketuk / klik garis-garis</strong> pada gambar teka-teki yang membentuk bentuk sederhana yang diminta. Batas waktu: 30 detik per soal.
           </p>
           <button
             onClick={() => setPhase('test')}
             style={{
               width: '100%', padding: '16px 32px', borderRadius: '12px', border: 'none',
-              background: 'linear-gradient(90deg, #00FF88, #06b6d4)',
-              color: '#000', fontSize: '15px', fontWeight: 700, cursor: 'pointer',
-              boxShadow: '0 4px 15px rgba(0,255,136,0.35)',
+              background: 'linear-gradient(90deg, #D97706, #EA580C)',
+              color: '#fff', fontSize: '15px', fontWeight: 700, cursor: 'pointer',
+              boxShadow: '0 4px 15px rgba(217,119,6,0.35)',
               minHeight: '52px',
             }}
           >
@@ -1175,7 +1177,7 @@ export default function GeftPage() {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 1 }}>
           <div style={{ textAlign: 'center', padding: '40px 20px' }}>
             <h2 style={{ marginBottom: 12, fontSize: '28px', fontWeight: 800 }}>Tes selesai! 🎉</h2>
-            <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '15px' }}>{submitting ? 'Menyimpan hasil tes...' : 'Mengarahkan ke halaman utama...'}</p>
+            <p style={{ color: '#78716C', fontSize: '15px' }}>{submitting ? 'Menyimpan hasil tes...' : 'Mengarahkan ke halaman utama...'}</p>
           </div>
         </div>
       </main>
@@ -1193,11 +1195,11 @@ export default function GeftPage() {
           max-width: 680px;
           width: calc(100% - 32px);
           margin: 32px auto 20px;
-          background: rgba(12, 12, 20, 0.95);
+          background: rgba(255,255,255, 0.95);
           border: 1px solid rgba(255, 255, 255, 0.08);
           border-radius: 24px;
           padding: 32px 32px 24px;
-          box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(0, 255, 136, 0.08);
+          box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(217,119,6, 0.08);
           backdrop-filter: blur(20px);
           box-sizing: border-box;
           display: flex;
@@ -1224,14 +1226,14 @@ export default function GeftPage() {
           font-size: 10px;
           font-weight: 700;
           letter-spacing: 2px;
-          color: #00FF88;
+          color: #D97706;
           text-transform: uppercase;
           margin-bottom: 4px;
         }
         .geft-tut-title {
           font-size: 20px;
           font-weight: 800;
-          background: linear-gradient(90deg, #00FF88, #06b6d4);
+          background: linear-gradient(90deg, #D97706, #EA580C);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           margin: 0;
@@ -1243,13 +1245,13 @@ export default function GeftPage() {
         /* Progress bar */
         .geft-tut-progress-track {
           height: 3px;
-          background: rgba(255,255,255,0.07);
+          background: rgba(180,140,80,0.15);
           border-radius: 99px;
           overflow: hidden;
         }
         .geft-tut-progress-fill {
           height: 100%;
-          background: linear-gradient(90deg, #00FF88, #06b6d4);
+          background: linear-gradient(90deg, #D97706, #EA580C);
           border-radius: 99px;
           transition: width 0.4s ease;
         }
@@ -1260,7 +1262,7 @@ export default function GeftPage() {
           gap: 16px;
         }
         .geft-tut-desc {
-          color: rgba(255,255,255,0.8);
+          color: #44403C;
           font-size: 14px;
           line-height: 1.65;
           margin: 0;
@@ -1279,8 +1281,8 @@ export default function GeftPage() {
           }
         }
         .geft-tutorial-box {
-          background: rgba(255,255,255,0.025);
-          border: 1px solid rgba(255,255,255,0.07);
+          background: rgba(217,119,6,0.04);
+          border: 1px solid rgba(180,140,80,0.12);
           border-radius: 14px;
           padding: 16px;
           display: flex;
@@ -1290,8 +1292,8 @@ export default function GeftPage() {
           box-sizing: border-box;
         }
         .geft-tut-interactive-box {
-          border-color: rgba(0,255,136,0.2);
-          background: rgba(0,255,136,0.03);
+          border-color: rgba(217,119,6,0.2);
+          background: rgba(217,119,6,0.03);
         }
         /* SVG wrappers */
         .geft-tutorial-svg-wrapper {
@@ -1300,8 +1302,8 @@ export default function GeftPage() {
           display: flex;
           align-items: center;
           justify-content: center;
-          background: #0c0c14;
-          border: 1px solid rgba(255,255,255,0.07);
+          background: #FFFDF8;
+          border: 1px solid rgba(180,140,80,0.15);
           border-radius: 10px;
           padding: 10px;
           box-sizing: border-box;
@@ -1329,7 +1331,7 @@ export default function GeftPage() {
         .geft-tut-card-badge {
           font-size: 10px;
           font-weight: 700;
-          color: rgba(255,255,255,0.35);
+          color: rgba(87,83,78,0.5);
           letter-spacing: 1px;
           text-transform: uppercase;
         }
@@ -1338,9 +1340,9 @@ export default function GeftPage() {
           align-self: center;
           padding: 10px 22px;
           border-radius: 10px;
-          border: 1px solid rgba(255,255,255,0.12);
-          background: rgba(255,255,255,0.04);
-          color: rgba(255,255,255,0.75);
+          border: 1px solid rgba(180,140,80,0.25);
+          background: rgba(217,119,6,0.06);
+          color: #78716C;
           font-size: 13px;
           font-weight: 600;
           cursor: pointer;
@@ -1348,22 +1350,22 @@ export default function GeftPage() {
           width: fit-content;
         }
         .geft-tut-reveal-btn:hover {
-          background: rgba(255,255,255,0.08);
-          color: #fff;
+          background: rgba(217,119,6,0.12);
+          color: #1C1917;
           transform: translateY(-1px);
         }
         .geft-tut-reveal-btn.active {
-          border-color: rgba(0,255,136,0.5);
-          background: rgba(0,255,136,0.08);
-          color: #00FF88;
+          border-color: rgba(217,119,6,0.5);
+          background: rgba(217,119,6,0.08);
+          color: #D97706;
         }
         /* Tip */
         .geft-tut-tip {
           font-size: 12.5px;
-          color: rgba(255,255,255,0.5);
+          color: #78716C;
           line-height: 1.55;
-          background: rgba(255,255,255,0.02);
-          border: 1px solid rgba(255,255,255,0.05);
+          background: rgba(217,119,6,0.04);
+          border: 1px solid rgba(180,140,80,0.15);
           border-radius: 10px;
           padding: 10px 14px;
         }
@@ -1371,7 +1373,7 @@ export default function GeftPage() {
         .geft-tut-sel-count {
           font-size: 12px;
           font-weight: 700;
-          color: rgba(255,255,255,0.4);
+          color: rgba(87,83,78,0.5);
           letter-spacing: 0.5px;
         }
         .geft-tut-actions-row {
@@ -1409,14 +1411,14 @@ export default function GeftPage() {
           transition: all 0.25s;
         }
         .geft-tut-feedback.idle {
-          color: rgba(255,255,255,0.35);
-          background: rgba(255,255,255,0.02);
-          border: 1px solid rgba(255,255,255,0.05);
+          color: #78716C;
+          background: rgba(217,119,6,0.04);
+          border: 1px solid rgba(180,140,80,0.12);
         }
         .geft-tut-feedback.hint {
-          color: rgba(251,191,36,0.9);
-          background: rgba(251,191,36,0.06);
-          border: 1px solid rgba(251,191,36,0.15);
+          color: #D97706;
+          background: rgba(217,119,6,0.06);
+          border: 1px solid rgba(217,119,6,0.25);
         }
         .geft-tut-feedback.success {
           color: #34d399;
@@ -1435,13 +1437,13 @@ export default function GeftPage() {
           transition: stroke 0.15s, stroke-width 0.15s;
         }
         .geft-interactive-line:hover {
-          stroke: #00FF88;
+          stroke: #D97706;
           stroke-width: 6px;
         }
         .geft-interactive-line.selected {
-          stroke: #00FF88 !important;
+          stroke: #D97706 !important;
           stroke-width: 6.5px !important;
-          filter: drop-shadow(0 0 3px rgba(0,255,136,0.6));
+          filter: drop-shadow(0 0 3px rgba(217,119,6,0.6));
         }
         /* Nav */
         .geft-tutorial-steps-nav {
@@ -1449,19 +1451,19 @@ export default function GeftPage() {
           justify-content: space-between;
           align-items: center;
           padding-top: 16px;
-          border-top: 1px solid rgba(255,255,255,0.06);
+          border-top: 1px solid rgba(180,140,80,0.15);
         }
         .geft-tutorial-indicator { display: flex; gap: 8px; }
         .geft-tutorial-dot {
           width: 8px;
           height: 8px;
           border-radius: 50%;
-          background: rgba(255,255,255,0.15);
+          background: rgba(180,140,80,0.3);
           transition: all 0.25s;
         }
         .geft-tutorial-dot.active {
-          background: #00FF88;
-          box-shadow: 0 0 8px rgba(0,255,136,0.7);
+          background: #D97706;
+          box-shadow: 0 0 8px rgba(217,119,6,0.7);
           transform: scale(1.2);
         }
 
@@ -1474,10 +1476,10 @@ export default function GeftPage() {
 
         .geft-page-container {
           min-height: 100vh;
-          background: #0A0A0F;
-          background-image: linear-gradient(rgba(0,255,136,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,136,0.03) 1px, transparent 1px);
+          background: #FAF6EE;
+          background-image: linear-gradient(rgba(217,119,6,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(217,119,6,0.03) 1px, transparent 1px);
           background-size: 40px 40px;
-          color: #f3f4f6;
+          color: #1C1917;
           font-family: var(--font-sans), sans-serif;
           padding: 24px 20px;
           display: flex;
@@ -1486,16 +1488,16 @@ export default function GeftPage() {
         }
         
         header.geft-navbar {
-          background: rgba(10, 10, 15, 0.85);
+          background: rgba(250,246,238, 0.85);
           backdrop-filter: blur(16px);
-          border-bottom: 1px solid rgba(0, 255, 136, 0.08);
+          border-bottom: 1px solid rgba(217,119,6, 0.08);
           margin: -24px -20px 24px -20px;
         }
         .nav-subtitle { display: block; }
         @media (max-width: 480px) {
           .nav-subtitle { display: none; }
         }
-
+ 
         .geft-workspace {
           display: grid;
           grid-template-columns: 1fr 1.3fr;
@@ -1505,16 +1507,16 @@ export default function GeftPage() {
           width: 100%;
           align-items: start;
         }
-
+ 
         .geft-side-panel {
           display: flex;
           flex-direction: column;
           gap: 20px;
-          background: rgba(255, 255, 255, 0.02);
-          backdrop-filter: blur(10px);
-          border: 1px solid rgba(255, 255, 255, 0.06);
+          background: #FFFFFF;
+          border: 1px solid rgba(180,140,80,0.15);
           border-radius: 18px;
           padding: 24px;
+          box-shadow: 0 8px 30px rgba(180,120,40,0.06);
         }
 
         .geft-main-panel {
@@ -1541,7 +1543,7 @@ export default function GeftPage() {
         }
 
         .geft-svg-container svg rect {
-          fill: #0c0c14 !important;
+          fill: #FFFDF8 !important;
         }
 
         /* ── SVG Line Styles ────────────────────────────── */
@@ -1560,9 +1562,9 @@ export default function GeftPage() {
           stroke-linejoin: round;
         }
         .geft-svg-container svg line.selected, .geft-svg-container svg path.selected {
-          stroke: #00FF88 !important;
+          stroke: #D97706 !important;
           stroke-width: 8px !important;
-          filter: drop-shadow(0 0 4px rgba(0,255,136,0.6));
+          filter: drop-shadow(0 0 4px rgba(217,119,6,0.6));
         }
         
         .geft-btn-primary {
@@ -1570,12 +1572,12 @@ export default function GeftPage() {
           min-height: 48px;
           border-radius: 12px;
           border: none;
-          background: linear-gradient(90deg, #00FF88, #06b6d4);
-          color: #000;
+          background: linear-gradient(90deg, #D97706, #EA580C);
+          color: #ffffff;
           font-weight: 700;
           font-size: 14px;
           cursor: pointer;
-          box-shadow: 0 4px 15px rgba(0,255,136,0.35);
+          box-shadow: 0 4px 15px rgba(217,119,6,0.35);
           transition: all 0.2s;
           text-align: center;
           display: flex;
@@ -1584,7 +1586,7 @@ export default function GeftPage() {
         }
         .geft-btn-primary:hover {
           transform: translateY(-1px);
-          box-shadow: 0 6px 20px rgba(0,255,136,0.5);
+          box-shadow: 0 6px 20px rgba(217,119,6,0.5);
         }
         
         .geft-btn-secondary {
@@ -1611,9 +1613,9 @@ export default function GeftPage() {
           padding: 12px 20px;
           min-height: 48px;
           border-radius: 12px;
-          border: 1px solid rgba(255,255,255,0.15);
+          border: 1px solid rgba(180,140,80,0.25);
           background: transparent;
-          color: rgba(255,255,255,0.6);
+          color: #78716C;
           font-weight: 500;
           font-size: 14px;
           cursor: pointer;
@@ -1624,8 +1626,8 @@ export default function GeftPage() {
           justify-content: center;
         }
         .geft-btn-text:hover {
-          background: rgba(255,255,255,0.05);
-          color: #fff;
+          background: rgba(180,140,80,0.1);
+          color: #1C1917;
         }
 
         @media (max-width: 800px) {
@@ -1664,8 +1666,8 @@ export default function GeftPage() {
           .geft-meta-header {
             order: 1;
             padding: 8px 12px;
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.06);
+            background: rgba(217,119,6, 0.03);
+            border: 1px solid rgba(180,140,80, 0.15);
             border-radius: 12px;
             display: flex;
             justify-content: space-between;
@@ -1680,7 +1682,8 @@ export default function GeftPage() {
             padding: 6px 12px !important;
             gap: 12px !important;
             border-radius: 12px !important;
-            background: rgba(255, 255, 255, 0.02) !important;
+            background: rgba(217,119,6, 0.03) !important;
+            border: 1px solid rgba(180,140,80, 0.12) !important;
             width: 100%;
             box-sizing: border-box;
             flex-shrink: 0;
@@ -1773,14 +1776,14 @@ export default function GeftPage() {
           /* Active tap feedback on mobile */
           .geft-svg-container svg line.hit-area:active,
           .geft-svg-container svg path.hit-area:active {
-            stroke: rgba(0, 255, 136, 0.25) !important;
+            stroke: rgba(217,119,6, 0.25) !important;
           }
 
           .geft-actions-area {
             order: 4;
             gap: 6px !important;
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.06);
+            background: rgba(217,119,6, 0.03);
+            border: 1px solid rgba(180,140,80, 0.15);
             border-radius: 12px;
             padding: 8px 12px;
             width: 100%;
@@ -1818,8 +1821,8 @@ export default function GeftPage() {
       {renderNavbar("TES DIAGNOSTIK (GEFT) ⏱️")}
 
       {/* Progress */}
-      <div className="geft-progress-container" style={{ height: 5, background: 'rgba(255,255,255,0.1)', borderRadius: 3, marginBottom: 20, maxWidth: 1040, margin: '0 auto 20px' }}>
-        <div style={{ height: '100%', width: `${progress}%`, background: 'linear-gradient(90deg, #00FF88, #06b6d4)', borderRadius: 3, transition: 'width 0.3s', boxShadow: '0 0 8px rgba(0,255,136,0.4)' }} />
+      <div className="geft-progress-container" style={{ height: 5, background: 'rgba(217,119,6,0.1)', borderRadius: 3, marginBottom: 20, maxWidth: 1040, margin: '0 auto 20px' }}>
+        <div style={{ height: '100%', width: `${progress}%`, background: 'linear-gradient(90deg, #D97706, #EA580C)', borderRadius: 3, transition: 'width 0.3s', boxShadow: '0 0 8px rgba(217,119,6,0.4)' }} />
       </div>
 
       <div className="geft-workspace">
@@ -1827,28 +1830,28 @@ export default function GeftPage() {
         <div className="geft-side-panel">
           {/* Header */}
           <div className="geft-meta-header">
-            <span style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.6)', background: 'rgba(255,255,255,0.07)', padding: '5px 12px', borderRadius: 8 }}>
+            <span style={{ fontSize: 13, fontWeight: 600, color: '#78716C', background: 'rgba(217,119,6,0.06)', padding: '5px 12px', borderRadius: 8 }}>
               {SECTION_LABELS[q.section]}
             </span>
-            <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)' }}>
-              Soal <strong style={{ color: '#fff' }}>{qIndex + 1}</strong> dari <strong style={{ color: '#fff' }}>{totalQ}</strong>
+            <div style={{ fontSize: 14, color: '#A8A29E' }}>
+              Soal <strong style={{ color: '#1C1917' }}>{qIndex + 1}</strong> dari <strong style={{ color: '#1C1917' }}>{totalQ}</strong>
             </div>
             <span style={{ fontSize: 16, fontWeight: 700, color: timerColor, fontFamily: 'monospace' }}>⏱️ {timerStr}</span>
           </div>
 
           {/* Referensi bentuk */}
-          <div className="geft-target-card" style={{ display: 'flex', gap: 16, alignItems: 'center', background: 'rgba(255,255,255,0.02)', padding: '16px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.05)' }}>
-            <div className="geft-target-img-container" style={{ border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '12px', background: '#0c0c14', textAlign: 'center', flexShrink: 0 }}>
-              <div style={{ width: 80, height: 80, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.05)', borderRadius: 8 }}>
+          <div className="geft-target-card" style={{ display: 'flex', gap: 16, alignItems: 'center', background: 'rgba(217,119,6,0.03)', padding: '16px', borderRadius: 12, border: '1px solid rgba(180,140,80,0.12)' }}>
+            <div className="geft-target-img-container" style={{ border: '1px solid rgba(180,140,80,0.15)', borderRadius: 12, padding: '12px', background: '#FFFDF8', textAlign: 'center', flexShrink: 0 }}>
+              <div style={{ width: 80, height: 80, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(180,140,80,0.1)', borderRadius: 8 }}>
                 <img src={`/geft/shape-${q.targetShape}.svg`} alt={q.targetShape} style={{ maxWidth: '90%', maxHeight: '90%' }} />
               </div>
             </div>
             <div className="geft-target-info">
               <div>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', letterSpacing: 1, marginBottom: 4 }}>BENTUK TARGET</div>
-                <div style={{ fontSize: 18, fontWeight: 800, color: '#fff', marginBottom: 4 }}>Pola {q.targetShape}</div>
+                <div style={{ fontSize: 11, color: '#A8A29E', letterSpacing: 1, marginBottom: 4 }}>BENTUK TARGET</div>
+                <div style={{ fontSize: 18, fontWeight: 800, color: '#1C1917', marginBottom: 4 }}>Pola {q.targetShape}</div>
               </div>
-              <div className="geft-target-desc" style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', lineHeight: 1.5 }}>
+              <div className="geft-target-desc" style={{ fontSize: 12, color: '#78716C', lineHeight: 1.5 }}>
                 Temukan bentuk ini secara persis di dalam gambar teka-teki.
               </div>
             </div>
@@ -1858,8 +1861,8 @@ export default function GeftPage() {
           <div className="geft-actions-area">
             {/* Status Pemilihan */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <div style={{ width: 8, height: 8, borderRadius: '50%', background: selected.size > 0 ? '#10b981' : '#f59e0b' }} />
-              <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)' }}>
+              <div style={{ width: 8, height: 8, borderRadius: '50%', background: selected.size > 0 ? '#D97706' : '#f59e0b' }} />
+              <span style={{ fontSize: 13, color: '#78716C' }}>
                 {selected.size} garis dipilih
               </span>
             </div>
@@ -1917,7 +1920,7 @@ export default function GeftPage() {
         {/* Panel Kanan: Canvas SVG */}
         <div className="geft-main-panel">
           <div className="geft-svg-area" style={{ display: 'flex', flexDirection: 'column', gap: 8, width: '100%', height: '100%' }}>
-            <div className="geft-svg-instruction" style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', paddingLeft: 4 }}>
+            <div className="geft-svg-instruction" style={{ fontSize: 13, color: '#A8A29E', paddingLeft: 4 }}>
               KLIK PADA GARIS GAMBAR DI BAWAH UNTUK MEMILIH:
             </div>
             <GeftSvgViewer
@@ -1934,7 +1937,7 @@ export default function GeftPage() {
         <div style={{
           position: 'fixed',
           inset: 0,
-          background: 'rgba(3, 7, 18, 0.85)',
+          background: 'rgba(250,246,238, 0.85)',
           backdropFilter: 'blur(8px)',
           display: 'flex',
           alignItems: 'center',
@@ -1945,11 +1948,11 @@ export default function GeftPage() {
           <div style={{
             maxWidth: '440px',
             width: '100%',
-            background: '#0c0c14',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
+            background: '#FFFDF8',
+            border: '1px solid rgba(180,140,80,0.15)',
             borderRadius: '20px',
             padding: '28px',
-            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(0, 255, 136, 0.08)',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(217,119,6, 0.08)',
             display: 'flex',
             flexDirection: 'column',
             gap: '20px',
@@ -1957,10 +1960,10 @@ export default function GeftPage() {
           }}>
             <div style={{ fontSize: '40px' }}>⚠️</div>
             <div>
-              <h3 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: 800, color: '#f3f4f6' }}>
+              <h3 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: 800, color: '#1C1917' }}>
                 Lewati Soal Ini?
               </h3>
-              <p style={{ margin: 0, fontSize: '14px', color: 'rgba(255,255,255,0.6)', lineHeight: 1.55 }}>
+              <p style={{ margin: 0, fontSize: '14px', color: '#78716C', lineHeight: 1.55 }}>
                 Apakah kamu yakin ingin melewati soal ini? Jawaban untuk soal ini akan dianggap <strong style={{ color: '#f87171' }}>belum tepat (0 poin)</strong>. Coba cari polanya dulu!
               </p>
             </div>
@@ -1989,6 +1992,99 @@ export default function GeftPage() {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Exit Confirmation Modal */}
+      {showExitConfirm && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(250,246,238, 0.85)',
+          backdropFilter: 'blur(8px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 200,
+          padding: '20px',
+        }}>
+          <motion.div
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            style={{
+              background: '#FFFFFF',
+              border: '1px solid rgba(180,140,80,0.15)',
+              borderRadius: '24px',
+              padding: '28px',
+              width: '380px',
+              maxWidth: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '20px',
+              boxShadow: '0 20px 40px rgba(180,120,40,0.08)',
+            }}
+          >
+            <div>
+              <h3 style={{ margin: 0, fontSize: '17px', fontWeight: 800, color: '#DC2626', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                ⚠️ Konfirmasi Keluar
+              </h3>
+              <p style={{ margin: '10px 0 0 0', fontSize: '13px', color: '#78716C', lineHeight: 1.55, textAlign: 'left' }}>
+                Apakah Anda yakin ingin keluar dari tes? Kemajuan Anda saat ini tidak akan disimpan.
+              </p>
+            </div>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button
+                onClick={() => setShowExitConfirm(false)}
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  borderRadius: '12px',
+                  border: '1px solid rgba(180,140,80,0.2)',
+                  background: 'transparent',
+                  color: '#78716C',
+                  fontSize: '13px',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.background = 'rgba(217,119,6,0.06)'
+                  e.currentTarget.style.borderColor = 'rgba(217,119,6,0.3)'
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.background = 'transparent'
+                  e.currentTarget.style.borderColor = 'rgba(180,140,80,0.2)'
+                }}
+              >
+                Batal
+              </button>
+              <button
+                onClick={() => {
+                  setShowExitConfirm(false)
+                  localStorage.removeItem('student')
+                  sessionStorage.removeItem('greeting_shown')
+                  router.push('/')
+                }}
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  borderRadius: '12px',
+                  border: 'none',
+                  background: '#ef4444',
+                  color: '#FFFFFF',
+                  fontSize: '13px',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 15px rgba(239, 68, 68, 0.3)',
+                  transition: 'all 0.2s'
+                }}
+                onMouseEnter={e => { e.currentTarget.style.filter = 'brightness(1.1)' }}
+                onMouseLeave={e => { e.currentTarget.style.filter = 'none' }}
+              >
+                Keluar
+              </button>
+            </div>
+          </motion.div>
         </div>
       )}
     </main>

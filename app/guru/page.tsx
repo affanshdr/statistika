@@ -203,8 +203,8 @@ export default function GuruPage() {
 
   if (checkingAuth) {
     return (
-      <main style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0A0A0F' }}>
-        <p style={{ color: '#fff' }}>Memuat Portal...</p>
+      <main style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#FAF6EE' }}>
+        <p style={{ color: '#1C1917' }}>Memuat Portal...</p>
       </main>
     )
   }
@@ -214,8 +214,8 @@ export default function GuruPage() {
     return (
       <main style={{
         minHeight: '100vh',
-        background: '#0A0A0F',
-        color: '#fff',
+        background: '#FAF6EE',
+        color: '#1C1917',
         position: 'relative',
         display: 'flex',
         alignItems: 'center',
@@ -224,17 +224,17 @@ export default function GuruPage() {
         padding: '20px'
       }}>
         {/* Background Grid */}
-        <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', backgroundImage: 'linear-gradient(rgba(0,255,136,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,136,0.03) 1px, transparent 1px)', backgroundSize: '40px 40px', zIndex: 0 }} />
+        <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', backgroundImage: 'linear-gradient(rgba(217,119,6,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(217,119,6,0.03) 1px, transparent 1px)', backgroundSize: '40px 40px', zIndex: 0 }} />
 
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           style={{
-            background: 'rgba(12,12,20,0.95)',
+            background: 'rgba(255,255,255,0.95)',
             backdropFilter: 'blur(20px)',
             borderRadius: '24px',
-            border: '1px solid rgba(0, 255, 136, 0.25)',
-            boxShadow: '0 0 40px rgba(0, 255, 136, 0.15)',
+            border: '1px solid rgba(217,119,6, 0.25)',
+            boxShadow: '0 0 40px rgba(217,119,6, 0.15)',
             width: '100%',
             maxWidth: '400px',
             padding: '36px 30px',
@@ -245,11 +245,11 @@ export default function GuruPage() {
           <button
             onClick={() => router.push('/')}
             style={{
-              background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)',
+              background: 'none', border: 'none', color: '#A8A29E',
               cursor: 'pointer', fontSize: '13px', fontWeight: 600, display: 'flex',
               alignItems: 'center', gap: '6px', marginBottom: '24px', padding: 0
             }}
-            onMouseEnter={e => e.currentTarget.style.color = '#00FF88'}
+            onMouseEnter={e => e.currentTarget.style.color = '#D97706'}
             onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.4)'}
           >
             ← Kembali ke Menu Utama
@@ -258,14 +258,14 @@ export default function GuruPage() {
           <div style={{ textAlign: 'center', marginBottom: '28px' }}>
             <span style={{ fontSize: '36px', display: 'block', marginBottom: '10px' }}>🧑‍🏫</span>
             <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 900 }}>Portal Otoritas Guru</h2>
-            <p style={{ margin: '6px 0 0', fontSize: '12px', color: 'rgba(255,255,255,0.4)' }}>
+            <p style={{ margin: '6px 0 0', fontSize: '12px', color: '#A8A29E' }}>
               Silakan masukkan sandi otentikasi guru untuk masuk.
             </p>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <div>
-              <label style={{ display: 'block', fontSize: '10px', fontWeight: 800, color: 'rgba(255,255,255,0.4)', letterSpacing: '2px', marginBottom: '8px' }}>
+              <label style={{ display: 'block', fontSize: '10px', fontWeight: 800, color: '#A8A29E', letterSpacing: '2px', marginBottom: '8px' }}>
                 KATA SANDI PORTAL
               </label>
               <input
@@ -277,13 +277,13 @@ export default function GuruPage() {
                 style={{
                   width: '100%', boxSizing: 'border-box',
                   padding: '14px 16px', borderRadius: '12px',
-                  background: 'rgba(255,255,255,0.04)',
+                  background: 'rgba(217,119,6,0.06)',
                   border: '1px solid rgba(255,255,255,0.08)',
-                  color: '#fff', fontSize: '14px', outline: 'none',
+                  color: '#1C1917', fontSize: '14px', outline: 'none',
                   transition: 'all 0.2s',
                 }}
-                onFocus={e => e.target.style.borderColor = '#00FF88'}
-                onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.08)'}
+                onFocus={e => e.target.style.borderColor = '#D97706'}
+                onBlur={e => e.target.style.borderColor = 'rgba(180,140,80,0.15)'}
               />
             </div>
 
@@ -302,9 +302,9 @@ export default function GuruPage() {
               style={{
                 width: '100%', padding: '16px',
                 borderRadius: '14px', border: 'none',
-                background: 'linear-gradient(90deg, #00FF88 0%, #06b6d4 100%)',
+                background: 'linear-gradient(90deg, #D97706 0%, #EA580C 100%)',
                 color: '#000', fontSize: '15px', fontWeight: 900,
-                cursor: 'pointer', boxShadow: '0 4px 20px rgba(0,255,136,0.3)',
+                cursor: 'pointer', boxShadow: '0 4px 20px rgba(217,119,6,0.3)',
                 transition: 'all 0.2s',
               }}
             >
@@ -320,7 +320,7 @@ export default function GuruPage() {
   return (
     <main style={{
       minHeight: '100vh',
-      background: '#0A0A0F',
+      background: '#FAF6EE',
       color: '#f3f4f6',
       fontFamily: "'Plus Jakarta Sans', 'Inter', sans-serif",
       paddingBottom: '80px',
@@ -328,17 +328,17 @@ export default function GuruPage() {
     }}>
       {/* Background decorations */}
       <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none' }}>
-        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(rgba(0,255,136,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,136,0.02) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
-        <div style={{ position: 'absolute', top: '0%', left: '0%', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(0,255,136,0.03) 0%, transparent 70%)', filter: 'blur(50px)' }} />
+        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(rgba(217,119,6,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(217,119,6,0.02) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+        <div style={{ position: 'absolute', top: '0%', left: '0%', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(217,119,6,0.03) 0%, transparent 70%)', filter: 'blur(50px)' }} />
         <div style={{ position: 'absolute', bottom: '0%', right: '0%', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(6,182,212,0.03) 0%, transparent 70%)', filter: 'blur(50px)' }} />
       </div>
 
       {/* Header bar */}
       <header style={{
         position: 'sticky', top: 0, zIndex: 50,
-        background: 'rgba(6,8,14,0.96)',
+        background: 'rgba(250,246,238,0.96)',
         backdropFilter: 'blur(20px)',
-        borderBottom: '1px solid rgba(0,255,136,0.14)',
+        borderBottom: '1px solid rgba(217,119,6,0.14)',
         boxShadow: '0 4px 24px rgba(0,0,0,0.4)',
       }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -346,10 +346,10 @@ export default function GuruPage() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <span style={{ fontSize: '24px' }}>🕵️</span>
             <div>
-              <h1 style={{ margin: 0, fontSize: '16px', fontWeight: 900, background: 'linear-gradient(90deg, #00FF88, #06b6d4)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+              <h1 style={{ margin: 0, fontSize: '16px', fontWeight: 900, background: 'linear-gradient(90deg, #D97706, #EA580C)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
                 Skeptikos Control Panel
               </h1>
-              <span style={{ fontSize: '9px', color: 'rgba(255,255,255,0.4)', letterSpacing: '1px', fontWeight: 700 }}>PORTAL GURU</span>
+              <span style={{ fontSize: '9px', color: '#A8A29E', letterSpacing: '1px', fontWeight: 700 }}>PORTAL GURU</span>
             </div>
           </div>
 
@@ -359,12 +359,12 @@ export default function GuruPage() {
               style={{
                 padding: '8px 16px', borderRadius: '10px',
                 border: '1px solid rgba(255,255,255,0.08)',
-                background: 'rgba(255,255,255,0.03)',
-                color: 'rgba(255,255,255,0.8)', fontSize: '12px',
+                background: 'rgba(217,119,6,0.04)',
+                color: '#44403C', fontSize: '12px',
                 fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s',
               }}
-              onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}
-              onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.03)'}
+              onMouseEnter={e => e.currentTarget.style.background = 'rgba(180,140,80,0.15)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'rgba(217,119,6,0.04)'}
             >
               Menu Utama
             </button>
@@ -393,7 +393,7 @@ export default function GuruPage() {
         {/* Banner info */}
         <div style={{ marginBottom: '32px' }}>
           <h2 style={{ fontSize: '28px', fontWeight: 800, margin: 0, letterSpacing: '-0.5px' }}>Dashboard Pendidik</h2>
-          <p style={{ margin: '8px 0 0', fontSize: '14px', color: 'rgba(255,255,255,0.5)' }}>
+          <p style={{ margin: '8px 0 0', fontSize: '14px', color: '#78716C' }}>
             Kelola data siswa, pantau hasil diagnostik, serta konfigurasi pangkalan pengetahuan untuk RAG Chatbot DiRA.
           </p>
         </div>
@@ -404,7 +404,7 @@ export default function GuruPage() {
             onClick={() => setActiveTab('students')}
             style={{
               padding: '12px 16px', border: 'none', background: 'none',
-              color: activeTab === 'students' ? '#00FF88' : 'rgba(255,255,255,0.4)',
+              color: activeTab === 'students' ? '#D97706' : 'rgba(255,255,255,0.4)',
               fontSize: '15px', fontWeight: 800, cursor: 'pointer',
               position: 'relative', transition: 'all 0.2s',
               fontFamily: 'inherit'
@@ -412,7 +412,7 @@ export default function GuruPage() {
           >
             📊 Pemantauan Siswa ({students.length})
             {activeTab === 'students' && (
-              <motion.div layoutId="activeTabUnderline" style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '2.5px', background: '#00FF88' }} />
+              <motion.div layoutId="activeTabUnderline" style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '2.5px', background: '#D97706' }} />
             )}
           </button>
           
@@ -420,7 +420,7 @@ export default function GuruPage() {
             onClick={() => setActiveTab('knowledge')}
             style={{
               padding: '12px 16px', border: 'none', background: 'none',
-              color: activeTab === 'knowledge' ? '#00FF88' : 'rgba(255,255,255,0.4)',
+              color: activeTab === 'knowledge' ? '#D97706' : 'rgba(255,255,255,0.4)',
               fontSize: '15px', fontWeight: 800, cursor: 'pointer',
               position: 'relative', transition: 'all 0.2s',
               fontFamily: 'inherit'
@@ -428,7 +428,7 @@ export default function GuruPage() {
           >
             📚 Kelola Pengetahuan Chatbot (RAG) ({knowledgeItems.length})
             {activeTab === 'knowledge' && (
-              <motion.div layoutId="activeTabUnderline" style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '2.5px', background: '#00FF88' }} />
+              <motion.div layoutId="activeTabUnderline" style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '2.5px', background: '#D97706' }} />
             )}
           </button>
         </div>
@@ -438,13 +438,13 @@ export default function GuruPage() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             
             {loadingStudents ? (
-              <div style={{ padding: '40px', textAlign: 'center', color: 'rgba(255,255,255,0.4)' }}>
+              <div style={{ padding: '40px', textAlign: 'center', color: '#A8A29E' }}>
                 Memuat data siswa...
               </div>
             ) : students.length === 0 ? (
               <div style={{
-                background: 'rgba(255,255,255,0.02)', border: '1px dashed rgba(255,255,255,0.1)',
-                padding: '48px', borderRadius: '16px', textAlign: 'center', color: 'rgba(255,255,255,0.4)'
+                background: 'rgba(217,119,6,0.03)', border: '1px dashed rgba(255,255,255,0.1)',
+                padding: '48px', borderRadius: '16px', textAlign: 'center', color: '#A8A29E'
               }}>
                 Belum ada siswa yang mendaftar di sistem ini.
               </div>
@@ -458,7 +458,7 @@ export default function GuruPage() {
               }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', textAlign: 'left', minWidth: '800px' }}>
                   <thead>
-                    <tr style={{ background: 'rgba(255,255,255,0.02)', borderBottom: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.4)' }}>
+                    <tr style={{ background: 'rgba(217,119,6,0.03)', borderBottom: '1px solid rgba(255,255,255,0.08)', color: '#A8A29E' }}>
                       <th style={{ padding: '16px 20px' }}>Nama Siswa</th>
                       <th style={{ padding: '16px 20px' }}>Kelas</th>
                       <th style={{ padding: '16px 20px', textAlign: 'center' }}>Gaya Kognitif</th>
@@ -475,21 +475,21 @@ export default function GuruPage() {
                       
                       return (
                         <tr key={student.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)', transition: 'background 0.2s' }} className="student-row">
-                          <td style={{ padding: '16px 20px', fontWeight: 700, color: '#fff' }}>
+                          <td style={{ padding: '16px 20px', fontWeight: 700, color: '#1C1917' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                               <div style={{
                                 width: '32px', height: '32px', borderRadius: '50%',
-                                background: isFI ? 'rgba(59,130,246,0.1)' : cognitiveStyle ? 'rgba(6,182,212,0.1)' : 'rgba(255,255,255,0.05)',
-                                color: isFI ? '#60a5fa' : cognitiveStyle ? '#22d3ee' : 'rgba(255,255,255,0.4)',
+                                background: isFI ? 'rgba(59,130,246,0.1)' : cognitiveStyle ? 'rgba(6,182,212,0.1)' : 'rgba(180,140,80,0.1)',
+                                color: isFI ? '#2563EB' : cognitiveStyle ? '#22d3ee' : 'rgba(255,255,255,0.4)',
                                 display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 800,
-                                border: `1px solid ${isFI ? 'rgba(59,130,246,0.2)' : cognitiveStyle ? 'rgba(6,182,212,0.2)' : 'rgba(255,255,255,0.08)'}`
+                                border: `1px solid ${isFI ? 'rgba(59,130,246,0.2)' : cognitiveStyle ? 'rgba(6,182,212,0.2)' : 'rgba(180,140,80,0.15)'}`
                               }}>
                                 {student.name.charAt(0).toUpperCase()}
                               </div>
                               {student.name}
                             </div>
                           </td>
-                          <td style={{ padding: '16px 20px', color: 'rgba(255,255,255,0.7)' }}>
+                          <td style={{ padding: '16px 20px', color: '#57534E' }}>
                             {student.classroom?.name || '—'}
                           </td>
                           <td style={{ padding: '16px 20px', textAlign: 'center' }}>
@@ -498,15 +498,15 @@ export default function GuruPage() {
                                 display: 'inline-flex', padding: '4px 10px', borderRadius: '50px', fontSize: '11px', fontWeight: 800,
                                 background: isFI ? 'rgba(59,130,246,0.1)' : 'rgba(6,182,212,0.1)',
                                 border: `1px solid ${isFI ? 'rgba(59,130,246,0.25)' : 'rgba(6,182,212,0.25)'}`,
-                                color: isFI ? '#93c5fd' : '#22d3ee'
+                                color: isFI ? '#1D4ED8' : '#22d3ee'
                               }}>
                                 {isFI ? '🧠 Field Independent (FI)' : '👥 Field Dependent (FD)'}
                               </span>
                             ) : (
-                              <span style={{ color: 'rgba(255,255,255,0.25)' }}>Belum Tes</span>
+                              <span style={{ color: '#A8A29E' }}>Belum Tes</span>
                             )}
                           </td>
-                          <td style={{ padding: '16px 20px', textAlign: 'center', fontWeight: 700, fontFamily: 'monospace', color: '#fff' }}>
+                          <td style={{ padding: '16px 20px', textAlign: 'center', fontWeight: 700, fontFamily: 'monospace', color: '#1C1917' }}>
                             {score !== undefined && score !== null ? `${score} / 18` : '—'}
                           </td>
                           <td style={{ padding: '16px 20px', textAlign: 'center' }}>
@@ -521,10 +521,10 @@ export default function GuruPage() {
                                 {student.diagnosticLevel} ({student.diagnosticScore || 0})
                               </span>
                             ) : (
-                              <span style={{ color: 'rgba(255,255,255,0.25)' }}>Belum Tes</span>
+                              <span style={{ color: '#A8A29E' }}>Belum Tes</span>
                             )}
                           </td>
-                          <td style={{ padding: '16px 20px', textAlign: 'right', fontWeight: 800, color: '#00FF88', fontFamily: "'Geist Mono', monospace" }}>
+                          <td style={{ padding: '16px 20px', textAlign: 'right', fontWeight: 800, color: '#D97706', fontFamily: "'Geist Mono', monospace" }}>
                             {student.leaderboard?.totalXp !== undefined ? `${student.leaderboard.totalXp} XP` : '0 XP'}
                           </td>
                         </tr>
@@ -565,7 +565,7 @@ export default function GuruPage() {
               <form onSubmit={handleSaveKnowledge} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 
                 <div>
-                  <label style={{ display: 'block', fontSize: '10px', fontWeight: 800, color: 'rgba(255,255,255,0.4)', letterSpacing: '1.5px', marginBottom: '8px' }}>
+                  <label style={{ display: 'block', fontSize: '10px', fontWeight: 800, color: '#A8A29E', letterSpacing: '1.5px', marginBottom: '8px' }}>
                     JUDUL MATERI / KONTEKS
                   </label>
                   <input
@@ -576,17 +576,17 @@ export default function GuruPage() {
                     style={{
                       width: '100%', boxSizing: 'border-box',
                       padding: '12px 14px', borderRadius: '10px',
-                      background: 'rgba(255,255,255,0.03)',
+                      background: 'rgba(217,119,6,0.04)',
                       border: '1px solid rgba(255,255,255,0.08)',
-                      color: '#fff', fontSize: '13px', outline: 'none',
+                      color: '#1C1917', fontSize: '13px', outline: 'none',
                     }}
-                    onFocus={e => e.target.style.borderColor = '#00FF88'}
-                    onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.08)'}
+                    onFocus={e => e.target.style.borderColor = '#D97706'}
+                    onBlur={e => e.target.style.borderColor = 'rgba(180,140,80,0.15)'}
                   />
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: '10px', fontWeight: 800, color: 'rgba(255,255,255,0.4)', letterSpacing: '1.5px', marginBottom: '8px' }}>
+                  <label style={{ display: 'block', fontSize: '10px', fontWeight: 800, color: '#A8A29E', letterSpacing: '1.5px', marginBottom: '8px' }}>
                     KATEGORI
                   </label>
                   <select
@@ -597,7 +597,7 @@ export default function GuruPage() {
                       padding: '12px 14px', borderRadius: '10px',
                       background: 'rgba(11,14,25,0.9)',
                       border: '1px solid rgba(255,255,255,0.08)',
-                      color: '#fff', fontSize: '13px', outline: 'none',
+                      color: '#1C1917', fontSize: '13px', outline: 'none',
                       cursor: 'pointer'
                     }}
                   >
@@ -608,7 +608,7 @@ export default function GuruPage() {
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: '10px', fontWeight: 800, color: 'rgba(255,255,255,0.4)', letterSpacing: '1.5px', marginBottom: '8px' }}>
+                  <label style={{ display: 'block', fontSize: '10px', fontWeight: 800, color: '#A8A29E', letterSpacing: '1.5px', marginBottom: '8px' }}>
                     KONTEN PENGETAHUAN (RAG TEXT)
                   </label>
                   <textarea
@@ -619,13 +619,13 @@ export default function GuruPage() {
                     style={{
                       width: '100%', boxSizing: 'border-box',
                       padding: '12px 14px', borderRadius: '10px',
-                      background: 'rgba(255,255,255,0.03)',
+                      background: 'rgba(217,119,6,0.04)',
                       border: '1px solid rgba(255,255,255,0.08)',
-                      color: '#fff', fontSize: '13px', outline: 'none',
+                      color: '#1C1917', fontSize: '13px', outline: 'none',
                       fontFamily: 'inherit', resize: 'vertical', lineHeight: 1.5
                     }}
-                    onFocus={e => e.target.style.borderColor = '#00FF88'}
-                    onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.08)'}
+                    onFocus={e => e.target.style.borderColor = '#D97706'}
+                    onBlur={e => e.target.style.borderColor = 'rgba(180,140,80,0.15)'}
                   />
                 </div>
 
@@ -647,10 +647,10 @@ export default function GuruPage() {
                       style={{
                         flex: 1, padding: '12px',
                         borderRadius: '10px', border: '1px solid rgba(255,255,255,0.1)',
-                        background: 'transparent', color: '#fff', fontSize: '13px',
+                        background: 'transparent', color: '#1C1917', fontSize: '13px',
                         fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s',
                       }}
-                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(180,140,80,0.1)'}
                       onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                     >
                       Batal
@@ -662,7 +662,7 @@ export default function GuruPage() {
                     style={{
                       flex: 2, padding: '12px',
                       borderRadius: '10px', border: 'none',
-                      background: 'linear-gradient(90deg, #00FF88 0%, #06b6d4 100%)',
+                      background: 'linear-gradient(90deg, #D97706 0%, #EA580C 100%)',
                       color: '#000', fontSize: '13px', fontWeight: 900,
                       cursor: formSaving ? 'not-allowed' : 'pointer', transition: 'all 0.2s',
                     }}
@@ -679,13 +679,13 @@ export default function GuruPage() {
               <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 800 }}>Daftar Dokumen RAG saat ini</h3>
 
               {loadingKnowledge ? (
-                <div style={{ padding: '40px', textAlign: 'center', color: 'rgba(255,255,255,0.4)' }}>
+                <div style={{ padding: '40px', textAlign: 'center', color: '#A8A29E' }}>
                   Memuat data pangkalan pengetahuan RAG...
                 </div>
               ) : knowledgeItems.length === 0 ? (
                 <div style={{
-                  background: 'rgba(255,255,255,0.02)', border: '1px dashed rgba(255,255,255,0.1)',
-                  padding: '40px', borderRadius: '16px', textAlign: 'center', color: 'rgba(255,255,255,0.4)'
+                  background: 'rgba(217,119,6,0.03)', border: '1px dashed rgba(255,255,255,0.1)',
+                  padding: '40px', borderRadius: '16px', textAlign: 'center', color: '#A8A29E'
                 }}>
                   Belum ada dokumen yang tersimpan. Sistem akan otomatis mengisi data default pada percakapan pertama siswa.
                 </div>
@@ -712,12 +712,12 @@ export default function GuruPage() {
                               display: 'inline-block', padding: '2px 8px', borderRadius: '4px', fontSize: '9px', fontWeight: 800,
                               background: item.category === 'statistika' ? 'rgba(59,130,246,0.1)' : item.category === 'gameplay' ? 'rgba(16,185,129,0.1)' : 'rgba(245,158,11,0.1)',
                               border: `1px solid ${item.category === 'statistika' ? 'rgba(59,130,246,0.2)' : item.category === 'gameplay' ? 'rgba(16,185,129,0.2)' : 'rgba(245,158,11,0.2)'}`,
-                              color: item.category === 'statistika' ? '#60a5fa' : item.category === 'gameplay' ? '#34d399' : '#fbbf24',
+                              color: item.category === 'statistika' ? '#2563EB' : item.category === 'gameplay' ? '#34d399' : '#fbbf24',
                               textTransform: 'uppercase', marginBottom: '8px'
                             }}>
                               {item.category}
                             </span>
-                            <h4 style={{ margin: 0, fontSize: '15px', fontWeight: 800, color: '#fff' }}>{item.title}</h4>
+                            <h4 style={{ margin: 0, fontSize: '15px', fontWeight: 800, color: '#1C1917' }}>{item.title}</h4>
                           </div>
                           
                           <div style={{ display: 'flex', gap: '8px' }}>
@@ -748,11 +748,11 @@ export default function GuruPage() {
                           </div>
                         </div>
 
-                        <p style={{ margin: 0, fontSize: '12.5px', color: 'rgba(255,255,255,0.6)', lineHeight: 1.55, whiteSpace: 'pre-wrap' }}>
+                        <p style={{ margin: 0, fontSize: '12.5px', color: '#78716C', lineHeight: 1.55, whiteSpace: 'pre-wrap' }}>
                           {item.content}
                         </p>
                         
-                        <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.25)', borderTop: '1px solid rgba(255,255,255,0.04)', paddingTop: '8px', textAlign: 'right' }}>
+                        <div style={{ fontSize: '9px', color: '#A8A29E', borderTop: '1px solid rgba(255,255,255,0.04)', paddingTop: '8px', textAlign: 'right' }}>
                           Diperbarui: {new Date(item.updatedAt).toLocaleString('id-ID')}
                         </div>
                       </div>
