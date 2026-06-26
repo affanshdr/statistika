@@ -302,13 +302,18 @@ export default function GuruPage() {
       if (classId && classId !== 'semua') params.set('classroomId', classId)
       params.set('stuckDays', String(days ?? stuckDays))
       const res = await fetch(`/api/guru/analysis?${params}`)
-      if (res.ok) startTransition(() => setAnalysisData(await res.json()))
+      if (res.ok) {
+        const data = await res.json()
+        startTransition(() => setAnalysisData(data))
+      }
     } catch (e) { console.error(e) } finally { setLoadingAnalysis(false) }
   }, [stuckDays])
 
   useEffect(() => {
     if (isAuthorized && activeTab === 'analisis') {
-      fetchAnalysis(analysisClassFilter, stuckDays)
+      startTransition(() => {
+        fetchAnalysis(analysisClassFilter, stuckDays)
+      })
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthorized, activeTab])
