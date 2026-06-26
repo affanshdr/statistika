@@ -159,21 +159,13 @@ const IconTrendDown = () => (
 )
 
 // ─────────────────────────────────────────────
-// MOCK FALLBACK DATA
+// DEFAULT GROUPS INITIALIZATION
 // ─────────────────────────────────────────────
-const INITIAL_AVAILABLE: GroupStudent[] = [
-  { id: 'av-1', name: 'Siswa Allah', label: 'FD GROUP 3 CANDIDATE', cognitiveStyle: 'FD' },
-  { id: 'av-2', name: 'Siswa Senara', label: 'FD GROUP 4 CANDIDATE', cognitiveStyle: 'FD' },
-  { id: 'av-3', name: 'Dilah Kozer', label: 'HIGH PERFORMANCE', cognitiveStyle: 'FI' },
-]
-const INITIAL_GROUPS: Group[] = [
-  { id: 'grp-1', name: 'Kelompok FD 1', students: [
-    { id: 'g1-1', name: 'Nama Siswa', label: 'FD GROUP 1 CANDIDATE', cognitiveStyle: 'FD' },
-    { id: 'g1-2', name: 'Nama Senara', label: 'FD GROUP 2 CANDIDATE', cognitiveStyle: 'FD' },
-  ]},
-  { id: 'grp-2', name: 'Kelompok FD 2', students: [
-    { id: 'g2-1', name: 'Nama Siswa', label: 'FD GROUP 2 CANDIDATE', cognitiveStyle: 'FD' },
-  ]},
+const DEFAULT_GROUPS: Group[] = [
+  { id: 'grp-1', name: 'Kelompok FD 1', students: [] },
+  { id: 'grp-2', name: 'Kelompok FD 2', students: [] },
+  { id: 'grp-3', name: 'Kelompok FD 3', students: [] },
+  { id: 'grp-4', name: 'Kelompok FD 4', students: [] },
 ]
 
 // ─────────────────────────────────────────────
@@ -328,17 +320,53 @@ export default function GuruPage() {
     }
   }, [isAuthorized, fetchStudents, fetchClassrooms, fetchKnowledge])
 
-  useEffect(() => {
-    if (!isAuthorized) return
-    const savedGroups = localStorage.getItem('groups_fd')
-    const savedAvailable = localStorage.getItem('available_students')
+  const initGroupsAndAvailable = useCallback((studentList: Student[]) => {
+    const savedGroupsRaw = localStorage.getItem('groups_fd')
     const savedTime = localStorage.getItem('last_saved_time')
+
+    const dbGroupStudents: GroupStudent[] = studentList
+      .filter(s => s.geftResult && s.geftResult.cognitiveStyle)
+      .map(s => ({
+        id: s.id,
+        name: s.name,
+        label: `${s.geftResult?.cognitiveStyle} · ${s.classroom?.name || '-'}`,
+        cognitiveStyle: s.geftResult?.cognitiveStyle as 'FI' | 'FD'
+      }))
+
+    let loadedGroups: Group[] = []
+    if (savedGroupsRaw) {
+      try {
+        const parsed = JSON.parse(savedGroupsRaw) as Group[]
+        loadedGroups = parsed.map(g => ({
+          ...g,
+          students: g.students
+            .map(gs => dbGroupStudents.find(dbS => dbS.id === gs.id))
+            .filter((gs): gs is GroupStudent => !!gs)
+        }))
+      } catch (e) {
+        console.error(e)
+      }
+    }
+
+    if (loadedGroups.length === 0) {
+      loadedGroups = DEFAULT_GROUPS
+    }
+
+    const assignedIds = new Set(loadedGroups.flatMap(g => g.students.map(s => s.id)))
+    const loadedAvailable = dbGroupStudents.filter(s => !assignedIds.has(s.id))
+
     startTransition(() => {
-      setGroups(savedGroups ? JSON.parse(savedGroups) : INITIAL_GROUPS)
-      setAvailableStudents(savedAvailable ? JSON.parse(savedAvailable) : INITIAL_AVAILABLE)
+      setGroups(loadedGroups)
+      setAvailableStudents(loadedAvailable)
       if (savedTime) setLastSaved(savedTime)
     })
-  }, [isAuthorized])
+  }, [])
+
+  useEffect(() => {
+    if (isAuthorized) {
+      initGroupsAndAvailable(students)
+    }
+  }, [isAuthorized, students, initGroupsAndAvailable])
 
   useEffect(() => {
     if (selectedClassId) startTransition(() => { fetchClassStudents(selectedClassId) })
@@ -395,6 +423,14 @@ export default function GuruPage() {
     const fullSave = `HARI INI, ${timeStr} ${now.getHours() >= 12 ? 'PM' : 'AM'}`
     localStorage.setItem('last_saved_time', fullSave)
     setLastSaved(fullSave)
+  }
+  const handleResetGroups = () => {
+    if (!confirm('Apakah Anda yakin ingin mereset kelompok diskusi? Semua pengaturan kelompok saat ini akan dihapus.')) return
+    localStorage.removeItem('groups_fd')
+    localStorage.removeItem('available_students')
+    localStorage.removeItem('last_saved_time')
+    initGroupsAndAvailable(students)
+    setLastSaved('BELUM DISIMPAN')
   }
 
   // ── CLASS CRUD ──
@@ -903,7 +939,7 @@ export default function GuruPage() {
                   <p style={{ margin: '4px 0 0', fontSize: '12px', color: '#78716C' }}>Drag & drop siswa ke kelompok diskusi</p>
                 </div>
                 <div style={{ display: 'flex', gap: '8px' }}>
-                  <button onClick={() => { setAvailableStudents(INITIAL_AVAILABLE); setGroups(INITIAL_GROUPS); localStorage.removeItem('available_students'); localStorage.removeItem('groups_fd') }} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '9px 13px', borderRadius: '10px', border: '1px solid rgba(180,140,80,0.3)', background: '#fff', color: '#78716C', fontSize: '11px', fontWeight: 800, cursor: 'pointer' }}>
+                  <button onClick={handleResetGroups} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '9px 13px', borderRadius: '10px', border: '1px solid rgba(180,140,80,0.3)', background: '#fff', color: '#78716C', fontSize: '11px', fontWeight: 800, cursor: 'pointer' }}>
                     <IconHistory /> Reset
                   </button>
                   <button onClick={handleSaveGroups} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '9px 13px', borderRadius: '10px', border: 'none', background: '#8F4F06', color: '#fff', fontSize: '11px', fontWeight: 800, cursor: 'pointer' }}>
