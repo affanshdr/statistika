@@ -190,7 +190,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "D:\\Karir\\Competition\\LIDM IPDP\\ar-cognistats\\src\\generated\\prisma",
+      "value": "D:\\Lomba\\lidm2027\\new\\statistika\\src\\generated\\prisma",
       "fromEnvVar": null
     },
     "config": {
@@ -204,7 +204,7 @@ const config = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "D:\\Karir\\Competition\\LIDM IPDP\\ar-cognistats\\prisma\\schema.prisma",
+    "sourceFilePath": "D:\\Lomba\\lidm2027\\new\\statistika\\prisma\\schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
