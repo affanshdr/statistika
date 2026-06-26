@@ -53,6 +53,40 @@ interface Group {
   students: GroupStudent[]
 }
 
+interface PreVsPostEntry {
+  id: string
+  name: string
+  classroomName: string
+  classroomId: string
+  cognitiveStyle: 'FI' | 'FD' | null
+  preScore: number | null
+  postScore: number | null
+  gain: number | null
+  totalSessions: number
+  lastActivityAt: string
+  daysSinceActivity?: number
+}
+
+interface LevelStat {
+  levelId: number
+  label: string
+  total: number
+  correct: number
+  incorrect: number
+  errorRate: number
+  avgTimeSec: number
+  topWrongAnswers: { answer: string; count: number }[]
+}
+
+interface AnalysisData {
+  preVsPost: PreVsPostEntry[]
+  levelAnalysis: LevelStat[]
+  stuckStudents: (PreVsPostEntry & { daysSinceActivity: number })[]
+  stuckDays: number
+  totalStudents: number
+  generatedAt: string
+}
+
 // ─────────────────────────────────────────────
 // SVG ICONS
 // ─────────────────────────────────────────────
@@ -111,6 +145,18 @@ const IconFilter = () => (
 const IconHistory = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><polyline points="3 3 3 8 8 8"/><line x1="12" y1="7" x2="12" y2="12"/><line x1="12" y1="12" x2="16" y2="14"/></svg>
 )
+const IconAnalysis = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg>
+)
+const IconAlertOctagon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+)
+const IconTrendUp = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+)
+const IconTrendDown = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/><polyline points="16 17 22 17 22 11"/></svg>
+)
 
 // ─────────────────────────────────────────────
 // MOCK FALLBACK DATA
@@ -143,7 +189,7 @@ export default function GuruPage() {
   const [checkingAuth, setCheckingAuth] = useState(true)
 
   // Tabs
-  type Tab = 'dashboard' | 'progress' | 'manajemen-kelas' | 'modul-ajar'
+  type Tab = 'dashboard' | 'progress' | 'manajemen-kelas' | 'modul-ajar' | 'analisis'
   const [activeTab, setActiveTab] = useState<Tab>('dashboard')
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
@@ -200,6 +246,13 @@ export default function GuruPage() {
   const [formError, setFormError] = useState('')
   const [formSaving, setFormSaving] = useState(false)
 
+  // Analisis (fitur 6-7-8)
+  const [analysisData, setAnalysisData] = useState<AnalysisData | null>(null)
+  const [loadingAnalysis, setLoadingAnalysis] = useState(false)
+  const [stuckDays, setStuckDays] = useState(3)
+  const [analysisClassFilter, setAnalysisClassFilter] = useState('semua')
+  const [showNotifPanel, setShowNotifPanel] = useState(false)
+
   // ── AUTH ──
   useEffect(() => {
     const authStatus = sessionStorage.getItem('teacher_authorized')
@@ -241,6 +294,24 @@ export default function GuruPage() {
       if (res.ok) setClassStudents(await res.json())
     } catch (e) { console.error(e) } finally { setLoadingClassStudents(false) }
   }, [])
+
+  const fetchAnalysis = useCallback(async (classId?: string, days?: number) => {
+    setLoadingAnalysis(true)
+    try {
+      const params = new URLSearchParams()
+      if (classId && classId !== 'semua') params.set('classroomId', classId)
+      params.set('stuckDays', String(days ?? stuckDays))
+      const res = await fetch(`/api/guru/analysis?${params}`)
+      if (res.ok) startTransition(() => setAnalysisData(await res.json()))
+    } catch (e) { console.error(e) } finally { setLoadingAnalysis(false) }
+  }, [stuckDays])
+
+  useEffect(() => {
+    if (isAuthorized && activeTab === 'analisis') {
+      fetchAnalysis(analysisClassFilter, stuckDays)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthorized, activeTab])
 
   useEffect(() => {
     if (isAuthorized) {
@@ -514,10 +585,12 @@ export default function GuruPage() {
   // ─────────────────────────────────────────────
   // MAIN LAYOUT
   // ─────────────────────────────────────────────
-  const sidebarItems: { key: Tab; label: string; icon: React.ReactNode }[] = [
+  const stuckCount = analysisData?.stuckStudents.length ?? 0
+  const sidebarItems: { key: Tab; label: string; icon: React.ReactNode; badge?: number }[] = [
     { key: 'dashboard', label: 'Dashboard', icon: <IconDashboard /> },
     { key: 'progress', label: 'Progress Siswa', icon: <IconProgress /> },
     { key: 'manajemen-kelas', label: 'Manajemen Kelas', icon: <IconKelas /> },
+    { key: 'analisis', label: 'Analisis Belajar', icon: <IconAnalysis />, badge: stuckCount },
     { key: 'modul-ajar', label: 'Modul Ajar (RAG)', icon: <IconModul /> },
   ]
 
@@ -525,6 +598,7 @@ export default function GuruPage() {
     <div className="guru-layout" style={{ minHeight: '100vh', background: '#FAF6EE', display: 'flex', fontFamily: 'var(--font-sans), sans-serif' }}>
       <style>{`
         @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes pulse-ring { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.15);opacity:.8} }
         .guru-tab-content { animation: fadeIn 0.25s ease; }
         .guru-layout { color: #1C1917; }
         .stat-card { background:#fff; border-radius:20px; border:1px solid rgba(180,140,80,0.15); padding:24px; box-shadow:0 4px 20px rgba(143,79,6,0.03); transition: box-shadow 0.2s, transform 0.2s; }
@@ -543,7 +617,7 @@ export default function GuruPage() {
         .btn-icon { background:none; border:1px solid rgba(180,140,80,0.25); border-radius:8px; padding:6px 8px; cursor:pointer; display:flex; align-items:center; gap:4px; font-size:11px; font-weight:700; transition:all 0.2s; color:#78716C; }
         .btn-icon:hover { background:#FAF6EE; color:#8F4F06; border-color:#8F4F06; }
         .btn-icon.danger:hover { background:#FEF2F2; color:#DC2626; border-color:#FCA5A5; }
-        .sidebar-nav-btn { display:flex; align-items:center; gap:12px; padding:11px 16px; border-radius:0 12px 12px 0; border:none; border-left:3px solid transparent; background:transparent; color:#78716C; font-size:13.5px; font-weight:600; cursor:pointer; text-align:left; width:100%; transition:all 0.18s; }
+        .sidebar-nav-btn { display:flex; align-items:center; gap:12px; padding:11px 16px; border-radius:0 12px 12px 0; border:none; border-left:3px solid transparent; background:transparent; color:#78716C; font-size:13.5px; font-weight:600; cursor:pointer; text-align:left; width:100%; transition:all 0.18s; justify-content:space-between; }
         .sidebar-nav-btn.active { border-left-color:#8F4F06; background:#F4EFE6; color:#8F4F06; font-weight:800; }
         .sidebar-nav-btn:hover:not(.active) { background:rgba(143,79,6,0.04); color:#8F4F06; }
         .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:200; display:flex; align-items:center; justify-content:center; padding:20px; }
@@ -551,6 +625,11 @@ export default function GuruPage() {
         .form-input { width:100%; box-sizing:border-box; padding:11px 14px; border-radius:10px; background:#FAF6EE; border:1.5px solid rgba(180,140,80,0.25); color:#1C1917; font-size:13px; outline:none; font-family:inherit; transition:border-color 0.15s; }
         .form-input:focus { border-color:#8F4F06; }
         .form-label { display:block; font-size:10px; font-weight:800; color:#78716C; letter-spacing:1px; margin-bottom:7px; }
+        .gain-bar-bg { height:10px; border-radius:5px; background:#F4EDE0; overflow:hidden; flex:1; }
+        .notif-panel { position:absolute; right:0; top:calc(100% + 8px); width:340px; background:#fff; border-radius:20px; border:1px solid rgba(180,140,80,0.2); box-shadow:0 16px 48px rgba(143,79,6,0.12); z-index:100; overflow:hidden; }
+        .stuck-row { display:flex; align-items:center; gap:12px; padding:14px 18px; border-bottom:1px solid rgba(180,140,80,0.08); transition:background 0.15s; }
+        .stuck-row:hover { background:#FAF6EE; }
+        .notif-badge { animation: pulse-ring 2s infinite; }
         @media (max-width: 768px) {
           .guru-sidebar { display:none !important; }
           .guru-sidebar.mobile-open { display:flex !important; position:fixed !important; left:0; top:0; bottom:0; z-index:150; box-shadow:0 0 40px rgba(0,0,0,0.15); }
@@ -625,12 +704,14 @@ export default function GuruPage() {
               {activeTab === 'dashboard' && 'Ringkasan Kelas'}
               {activeTab === 'progress' && 'Progress Per Siswa'}
               {activeTab === 'manajemen-kelas' && 'Manajemen Kelas'}
+              {activeTab === 'analisis' && 'Analisis Belajar'}
               {activeTab === 'modul-ajar' && 'Modul Ajar (RAG)'}
             </h1>
             <p style={{ margin: '4px 0 0', fontSize: '12px', color: '#78716C', fontWeight: 600 }}>
               {activeTab === 'dashboard' && 'Snapshot cepat kondisi kelas Anda saat ini'}
               {activeTab === 'progress' && 'Detail tahapan tiap siswa — filter siapa yang perlu dikejar'}
               {activeTab === 'manajemen-kelas' && 'Kelola kelas, daftar siswa, dan pindah kelas'}
+              {activeTab === 'analisis' && 'Pre/Post learning gain · Pola kesalahan · Siswa macet'}
               {activeTab === 'modul-ajar' && 'Kelola basis pengetahuan RAG untuk AI Chatbot'}
             </p>
           </div>
@@ -645,6 +726,61 @@ export default function GuruPage() {
                 <IconPlus /> Tambah Kelas
               </button>
             )}
+            {activeTab === 'analisis' && (
+              <button onClick={() => fetchAnalysis(analysisClassFilter, stuckDays)} style={{ display: 'flex', alignItems: 'center', gap: '7px', padding: '10px 16px', borderRadius: '12px', border: 'none', background: '#8F4F06', color: '#fff', fontSize: '12px', fontWeight: 800, cursor: 'pointer' }}>
+                <IconHistory /> Refresh
+              </button>
+            )}
+            {/* Notifikasi Bell */}
+            <div style={{ position: 'relative' }}>
+              <button onClick={() => setShowNotifPanel(p => !p)} style={{ position: 'relative', background: '#fff', border: '1px solid rgba(180,140,80,0.25)', borderRadius: '12px', padding: '10px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', color: '#78716C' }}>
+                <IconBell />
+                {stuckCount > 0 && (
+                  <span className="notif-badge" style={{ position: 'absolute', top: '-5px', right: '-5px', background: '#C2410C', color: '#fff', fontSize: '9px', fontWeight: 900, borderRadius: '20px', padding: '2px 5px', minWidth: '16px', textAlign: 'center', lineHeight: 1.4 }}>{stuckCount}</span>
+                )}
+              </button>
+              <AnimatePresence>
+                {showNotifPanel && (
+                  <motion.div className="notif-panel" initial={{ opacity: 0, y: -8, scale: 0.96 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -8, scale: 0.96 }}>
+                    <div style={{ padding: '16px 18px', borderBottom: '1px solid rgba(180,140,80,0.12)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div>
+                        <div style={{ fontSize: '13px', fontWeight: 800, color: '#1C1917' }}>🔔 Siswa Macet</div>
+                        <div style={{ fontSize: '10px', color: '#78716C', fontWeight: 600, marginTop: '2px' }}>Tidak ada aktivitas ≥ {stuckDays} hari</div>
+                      </div>
+                      <button onClick={() => setShowNotifPanel(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#A8A29E' }}><IconClose /></button>
+                    </div>
+                    <div style={{ maxHeight: '320px', overflowY: 'auto' }}>
+                      {!analysisData ? (
+                        <div style={{ padding: '24px', textAlign: 'center', color: '#78716C', fontSize: '12px' }}>
+                          <button onClick={() => { setActiveTab('analisis'); setShowNotifPanel(false) }} style={{ background: '#8F4F06', color: '#fff', border: 'none', borderRadius: '10px', padding: '10px 16px', cursor: 'pointer', fontSize: '12px', fontWeight: 800 }}>Muat Analisis →</button>
+                        </div>
+                      ) : stuckCount === 0 ? (
+                        <div style={{ padding: '28px', textAlign: 'center', color: '#78716C', fontSize: '12px', fontWeight: 600 }}>✅ Semua siswa aktif!</div>
+                      ) : analysisData.stuckStudents.map(s => (
+                        <div key={s.id} className="stuck-row">
+                          <div style={{ width: '34px', height: '34px', borderRadius: '50%', background: '#FFF3EE', color: '#C2410C', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 900, flexShrink: 0, border: '1px solid #FDBA74' }}>
+                            {s.name.split(' ').map((n:string) => n[0]).join('').substring(0,2).toUpperCase()}
+                          </div>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontSize: '13px', fontWeight: 800, color: '#1C1917', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{s.name}</div>
+                            <div style={{ fontSize: '10px', color: '#78716C', fontWeight: 600 }}>{s.classroomName}</div>
+                          </div>
+                          <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                            <div style={{ fontSize: '14px', fontWeight: 900, color: '#C2410C' }}>{s.daysSinceActivity}h</div>
+                            <div style={{ fontSize: '9px', color: '#A8A29E', fontWeight: 700 }}>tidak aktif</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    {stuckCount > 0 && (
+                      <div style={{ padding: '12px 18px', borderTop: '1px solid rgba(180,140,80,0.1)' }}>
+                        <button onClick={() => { setActiveTab('analisis'); setShowNotifPanel(false) }} style={{ width: '100%', background: '#FFF3EE', color: '#9A3412', border: 'none', borderRadius: '10px', padding: '10px', cursor: 'pointer', fontSize: '11px', fontWeight: 800 }}>Lihat Semua di Analisis →</button>
+                      </div>
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
         </header>
 
@@ -1124,6 +1260,208 @@ export default function GuruPage() {
                 </div>
               ))}
             </div>
+          </div>
+        )}
+
+        {/* ═══════════════════════════════════════
+            TAB: ANALISIS BELAJAR (6,7,8)
+        ═══════════════════════════════════════ */}
+        {activeTab === 'analisis' && (
+          <div className="guru-tab-content" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+
+            {/* Filter Bar */}
+            <div style={{ background: '#fff', borderRadius: '16px', padding: '16px 20px', border: '1px solid rgba(180,140,80,0.15)', display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
+              <select value={analysisClassFilter} onChange={e => { setAnalysisClassFilter(e.target.value); fetchAnalysis(e.target.value, stuckDays) }} style={{ padding: '9px 12px', borderRadius: '10px', border: '1.5px solid rgba(180,140,80,0.2)', background: '#FAF6EE', color: '#8F4F06', fontSize: '12px', fontWeight: 800, outline: 'none', cursor: 'pointer' }}>
+                <option value="semua">Semua Kelas</option>
+                {classrooms.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+              </select>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '12px', fontWeight: 700, color: '#78716C' }}>Macet setelah</span>
+                <input type="number" min={1} max={30} value={stuckDays} onChange={e => setStuckDays(Number(e.target.value))} style={{ width: '52px', padding: '8px 10px', borderRadius: '10px', border: '1.5px solid rgba(180,140,80,0.2)', background: '#FAF6EE', fontSize: '13px', fontWeight: 800, color: '#8F4F06', outline: 'none', textAlign: 'center' }} />
+                <span style={{ fontSize: '12px', fontWeight: 700, color: '#78716C' }}>hari</span>
+                <button onClick={() => fetchAnalysis(analysisClassFilter, stuckDays)} style={{ padding: '9px 16px', borderRadius: '10px', border: 'none', background: '#8F4F06', color: '#fff', fontSize: '12px', fontWeight: 800, cursor: 'pointer' }}>Terapkan</button>
+              </div>
+              {analysisData && <span style={{ marginLeft: 'auto', fontSize: '10px', color: '#A8A29E', fontWeight: 700 }}>Diperbarui: {new Date(analysisData.generatedAt).toLocaleTimeString('id-ID')}</span>}
+            </div>
+
+            {loadingAnalysis ? (
+              <div style={{ textAlign: 'center', padding: '60px', color: '#78716C', fontWeight: 600 }}>⏳ Menganalisis data...</div>
+            ) : !analysisData ? (
+              <div style={{ textAlign: 'center', padding: '60px' }}>
+                <p style={{ color: '#78716C', fontWeight: 600, marginBottom: '16px' }}>Klik Refresh untuk memuat analisis</p>
+                <button onClick={() => fetchAnalysis(analysisClassFilter, stuckDays)} style={{ padding: '12px 24px', borderRadius: '12px', border: 'none', background: '#8F4F06', color: '#fff', fontWeight: 800, cursor: 'pointer', fontSize: '14px' }}>Muat Analisis 🔍</button>
+              </div>
+            ) : (
+              <>
+                {/* ── FITUR 8: STUCK STUDENTS ── */}
+                {analysisData.stuckStudents.length > 0 && (
+                  <div style={{ background: '#FFF3EE', borderRadius: '20px', padding: '20px 24px', border: '1.5px solid #FDBA74', display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+                    <div style={{ width: '44px', height: '44px', borderRadius: '14px', background: '#C2410C', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <IconAlertOctagon />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+                        <div>
+                          <div style={{ fontSize: '15px', fontWeight: 800, color: '#7C2D12' }}>⚠️ {analysisData.stuckStudents.length} Siswa Tidak Aktif ≥ {stuckDays} Hari</div>
+                          <div style={{ fontSize: '12px', color: '#9A3412', fontWeight: 600, marginTop: '2px' }}>Butuh intervensi segera — perhatikan daftar ini</div>
+                        </div>
+                      </div>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '10px' }}>
+                        {analysisData.stuckStudents.map(s => (
+                          <div key={s.id} style={{ background: '#fff', borderRadius: '12px', padding: '12px 14px', border: '1px solid #FCD19C', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#FFF3EE', border: '2px solid #FDBA74', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 900, color: '#C2410C', flexShrink: 0 }}>
+                              {s.name.split(' ').map((n:string) => n[0]).join('').substring(0,2).toUpperCase()}
+                            </div>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div style={{ fontWeight: 800, fontSize: '13px', color: '#1C1917', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{s.name}</div>
+                              <div style={{ fontSize: '10px', color: '#78716C', fontWeight: 600 }}>{s.classroomName}</div>
+                            </div>
+                            <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                              <div style={{ fontSize: '18px', fontWeight: 900, color: '#C2410C', lineHeight: 1 }}>{s.daysSinceActivity}</div>
+                              <div style={{ fontSize: '9px', fontWeight: 700, color: '#9A3412' }}>HARI</div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {analysisData.stuckStudents.length === 0 && (
+                  <div style={{ background: '#F7FEE7', borderRadius: '16px', padding: '16px 20px', border: '1px solid #BEF264', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <span style={{ fontSize: '20px' }}>✅</span>
+                    <span style={{ fontSize: '14px', fontWeight: 700, color: '#4D7C0F' }}>Semua siswa aktif dalam {stuckDays} hari terakhir!</span>
+                  </div>
+                )}
+
+                {/* ── FITUR 6: PRE vs POST ── */}
+                <div style={{ background: '#fff', borderRadius: '24px', padding: '24px', border: '1px solid rgba(180,140,80,0.15)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                    <div>
+                      <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 800, color: '#1C1917' }}>📊 Learning Gain — Pre vs Post</h3>
+                      <p style={{ margin: '4px 0 0', fontSize: '12px', color: '#78716C' }}>Diagnostik awal ↔ Skor investigasi akhir per siswa</p>
+                    </div>
+                    <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><div style={{ width: '10px', height: '10px', borderRadius: '2px', background: '#D4B280' }} /><span style={{ fontSize: '11px', color: '#78716C', fontWeight: 700 }}>Pre (Diagnostik)</span></div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><div style={{ width: '10px', height: '10px', borderRadius: '2px', background: '#8F4F06' }} /><span style={{ fontSize: '11px', color: '#78716C', fontWeight: 700 }}>Post (Investigasi)</span></div>
+                    </div>
+                  </div>
+                  {analysisData.preVsPost.filter(s => s.preScore !== null || s.postScore !== null).length === 0 ? (
+                    <div style={{ padding: '32px', textAlign: 'center', color: '#A8A29E', fontWeight: 600, fontSize: '13px' }}>Belum ada data skor untuk ditampilkan.</div>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '480px', overflowY: 'auto', paddingRight: '4px' }}>
+                      {analysisData.preVsPost
+                        .filter(s => s.preScore !== null || s.postScore !== null)
+                        .sort((a, b) => (b.gain ?? -99) - (a.gain ?? -99))
+                        .map(s => {
+                          const pre = s.preScore ?? 0
+                          const post = s.postScore ?? 0
+                          const gain = s.gain
+                          const isPositive = gain !== null && gain >= 0
+                          return (
+                            <div key={s.id} style={{ display: 'grid', gridTemplateColumns: '160px 1fr 70px', gap: '12px', alignItems: 'center', padding: '10px 14px', borderRadius: '12px', background: '#FAF8F5', border: '1px solid rgba(180,140,80,0.08)' }}>
+                              <div>
+                                <div style={{ fontSize: '13px', fontWeight: 800, color: '#1C1917', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{s.name}</div>
+                                <div style={{ fontSize: '10px', color: '#78716C', fontWeight: 600 }}>{s.classroomName}</div>
+                              </div>
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                {/* Pre bar */}
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                  <span style={{ fontSize: '9px', fontWeight: 800, color: '#B48C50', width: '28px', textAlign: 'right' }}>PRE</span>
+                                  <div className="gain-bar-bg">
+                                    <div style={{ height: '100%', width: `${pre}%`, background: '#D4B280', borderRadius: '5px', transition: 'width 0.6s ease' }} />
+                                  </div>
+                                  <span style={{ fontSize: '10px', fontWeight: 800, color: '#78716C', width: '28px' }}>{s.preScore ?? '—'}</span>
+                                </div>
+                                {/* Post bar */}
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                  <span style={{ fontSize: '9px', fontWeight: 800, color: '#8F4F06', width: '28px', textAlign: 'right' }}>POST</span>
+                                  <div className="gain-bar-bg">
+                                    <div style={{ height: '100%', width: `${post}%`, background: '#8F4F06', borderRadius: '5px', transition: 'width 0.6s ease' }} />
+                                  </div>
+                                  <span style={{ fontSize: '10px', fontWeight: 800, color: '#8F4F06', width: '28px' }}>{s.postScore ?? '—'}</span>
+                                </div>
+                              </div>
+                              <div style={{ textAlign: 'center' }}>
+                                {gain !== null ? (
+                                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '3px', color: isPositive ? '#4D7C0F' : '#B91C1C' }}>
+                                      {isPositive ? <IconTrendUp /> : <IconTrendDown />}
+                                      <span style={{ fontSize: '15px', fontWeight: 900 }}>{gain > 0 ? '+' : ''}{gain}</span>
+                                    </div>
+                                    <span style={{ fontSize: '9px', fontWeight: 700, color: '#A8A29E' }}>GAIN</span>
+                                  </div>
+                                ) : <span style={{ fontSize: '11px', color: '#A8A29E' }}>—</span>}
+                              </div>
+                            </div>
+                          )
+                        })}
+                    </div>
+                  )}
+                </div>
+
+                {/* ── FITUR 7: LEVEL ERROR ANALYSIS ── */}
+                <div style={{ background: '#fff', borderRadius: '24px', padding: '24px', border: '1px solid rgba(180,140,80,0.15)' }}>
+                  <div style={{ marginBottom: '20px' }}>
+                    <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 800, color: '#1C1917' }}>🎯 Pola Kesalahan per Level Investigasi</h3>
+                    <p style={{ margin: '4px 0 0', fontSize: '12px', color: '#78716C' }}>Diurutkan dari level dengan error rate tertinggi — langsung actionable</p>
+                  </div>
+                  {analysisData.levelAnalysis.length === 0 ? (
+                    <div style={{ padding: '32px', textAlign: 'center', color: '#A8A29E', fontWeight: 600, fontSize: '13px' }}>Belum ada data sesi investigasi.</div>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      {analysisData.levelAnalysis.map((lv, idx) => {
+                        const isHigh = lv.errorRate >= 60
+                        const isMed = lv.errorRate >= 30 && lv.errorRate < 60
+                        const accent = isHigh ? '#C2410C' : isMed ? '#B45309' : '#4D7C0F'
+                        const bg = isHigh ? '#FFF3EE' : isMed ? '#FEF7ED' : '#F7FEE7'
+                        const border = isHigh ? '#FDBA74' : isMed ? '#FCD19C' : '#BEF264'
+                        return (
+                          <div key={lv.levelId} style={{ borderRadius: '16px', border: `1.5px solid ${border}`, background: bg, padding: '16px 20px' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: '28px 1fr auto', gap: '12px', alignItems: 'center', marginBottom: lv.topWrongAnswers.length > 0 ? '12px' : '0' }}>
+                              {/* Rank */}
+                              <div style={{ width: '28px', height: '28px', borderRadius: '8px', background: accent, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 900 }}>#{idx + 1}</div>
+                              {/* Info */}
+                              <div>
+                                <div style={{ fontSize: '14px', fontWeight: 800, color: '#1C1917' }}>{lv.label}</div>
+                                <div style={{ display: 'flex', gap: '12px', marginTop: '6px', alignItems: 'center' }}>
+                                  {/* Error bar */}
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flex: 1 }}>
+                                    <div style={{ flex: 1, height: '6px', background: 'rgba(0,0,0,0.07)', borderRadius: '3px', overflow: 'hidden' }}>
+                                      <div style={{ height: '100%', width: `${lv.errorRate}%`, background: accent, borderRadius: '3px', transition: 'width 0.5s' }} />
+                                    </div>
+                                    <span style={{ fontSize: '12px', fontWeight: 900, color: accent, minWidth: '34px' }}>{lv.errorRate}%</span>
+                                  </div>
+                                  <span style={{ fontSize: '10px', color: '#78716C', fontWeight: 700 }}>{lv.incorrect}/{lv.total} salah</span>
+                                  <span style={{ fontSize: '10px', color: '#A8A29E', fontWeight: 700 }}>~{lv.avgTimeSec}det/soal</span>
+                                </div>
+                              </div>
+                              {/* Badge */}
+                              <div style={{ textAlign: 'right' }}>
+                                <span style={{ display: 'inline-block', padding: '4px 10px', borderRadius: '20px', fontSize: '10px', fontWeight: 800, background: accent, color: '#fff' }}>
+                                  {isHigh ? '🔴 Kritis' : isMed ? '🟡 Perhatian' : '🟢 Baik'}
+                                </span>
+                              </div>
+                            </div>
+                            {/* Top wrong answers */}
+                            {lv.topWrongAnswers.length > 0 && (
+                              <div style={{ paddingTop: '10px', borderTop: `1px solid ${border}`, display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
+                                <span style={{ fontSize: '10px', fontWeight: 800, color: accent }}>Jawaban salah terbanyak:</span>
+                                {lv.topWrongAnswers.map((w, i) => (
+                                  <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: '#fff', border: `1px solid ${border}`, borderRadius: '8px', padding: '3px 10px', fontSize: '11px', fontWeight: 700, color: '#44403C' }}>
+                                    &ldquo;{w.answer}&rdquo; <span style={{ color: accent, fontWeight: 900 }}>×{w.count}</span>
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
           </div>
         )}
       </main>
