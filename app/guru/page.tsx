@@ -532,11 +532,11 @@ export default function GuruPage() {
         .guru-table th { background:#FAF6EE; font-size:10px; font-weight:800; color:#A8A29E; letter-spacing:0.8px; padding:12px 16px; text-align:left; border-bottom:1px solid rgba(180,140,80,0.15); }
         .guru-table td { padding:14px 16px; border-bottom:1px solid rgba(180,140,80,0.07); font-size:13px; vertical-align:middle; }
         .guru-table tr:hover td { background:rgba(250,246,238,0.6); }
-        .badge-fi { background:#EFF6FF; color:#1D4ED8; border:1px solid #BFDBFE; }
-        .badge-fd { background:#FEF3C7; color:#B45309; border:1px solid #FDE68A; }
-        .badge-selesai { background:#ECFDF5; color:#047857; border:1px solid #A7F3D0; }
-        .badge-pending { background:#FEF2F2; color:#DC2626; border:1px solid #FECACA; }
-        .badge-progress { background:#FFF7ED; color:#C2410C; border:1px solid #FED7AA; }
+        .badge-fi { background:#F0FDFA; color:#0D9488; border:1px solid #99F6E4; }
+        .badge-fd { background:#FEF7ED; color:#B45309; border:1px solid #FCD19C; }
+        .badge-selesai { background:#F7FEE7; color:#4D7C0F; border:1px solid #BEF264; }
+        .badge-pending { background:#FEF2F2; color:#B91C1C; border:1px solid #FCA5A5; }
+        .badge-progress { background:#FFF3EE; color:#C2410C; border:1px solid #FDBA74; }
         .class-card { background:#fff; border-radius:20px; border:1px solid rgba(180,140,80,0.15); padding:20px; cursor:pointer; transition:all 0.2s; box-shadow:0 2px 12px rgba(143,79,6,0.02); }
         .class-card:hover { border-color:#8F4F06; box-shadow:0 6px 24px rgba(143,79,6,0.1); transform:translateY(-2px); }
         .class-card.selected { border-color:#8F4F06; box-shadow:0 0 0 3px rgba(143,79,6,0.12); }
@@ -657,67 +657,67 @@ export default function GuruPage() {
             {/* SNAPSHOT CARDS — 3 angka besar */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
               {/* Selesai Semua Tahap */}
-              <div className="stat-card">
+              <div className="stat-card" style={{ borderTop: '4px solid #65A30D' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
-                  <div style={{ width: '44px', height: '44px', borderRadius: '14px', background: '#ECFDF5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#047857" strokeWidth="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                  <div style={{ width: '44px', height: '44px', borderRadius: '14px', background: '#F7FEE7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4D7C0F" strokeWidth="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
                   </div>
-                  <span style={{ fontSize: '10px', fontWeight: 800, color: '#047857', background: '#ECFDF5', padding: '4px 10px', borderRadius: '20px', border: '1px solid #A7F3D0' }}>SELESAI</span>
+                  <span style={{ fontSize: '10px', fontWeight: 800, color: '#4D7C0F', background: '#F7FEE7', padding: '4px 10px', borderRadius: '20px', border: '1px solid #BEF264' }}>SELESAI</span>
                 </div>
                 <div style={{ fontSize: '42px', fontWeight: 900, color: '#1C1917', lineHeight: 1, fontFamily: 'var(--font-heading)' }}>{totalSelesai}</div>
                 <div style={{ fontSize: '13px', fontWeight: 700, color: '#44403C', marginTop: '6px' }}>Siswa Selesai Semua Tahap</div>
                 <div style={{ fontSize: '11px', color: '#78716C', marginTop: '4px' }}>GEFT + Diagnostik + Gameplay</div>
                 {students.length > 0 && (
-                  <div style={{ marginTop: '14px', background: '#ECFDF5', borderRadius: '10px', padding: '8px 12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <div style={{ height: '6px', flex: 1, background: '#D1FAE5', borderRadius: '3px', overflow: 'hidden' }}>
-                      <div style={{ height: '100%', width: `${Math.round((totalSelesai / students.length) * 100)}%`, background: '#059669', borderRadius: '3px', transition: 'width 0.5s' }} />
+                  <div style={{ marginTop: '14px', background: '#F7FEE7', borderRadius: '10px', padding: '8px 12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <div style={{ height: '6px', flex: 1, background: '#D9F99D', borderRadius: '3px', overflow: 'hidden' }}>
+                      <div style={{ height: '100%', width: `${Math.round((totalSelesai / students.length) * 100)}%`, background: '#65A30D', borderRadius: '3px', transition: 'width 0.5s' }} />
                     </div>
-                    <span style={{ fontSize: '11px', fontWeight: 800, color: '#047857' }}>{Math.round((totalSelesai / students.length) * 100)}%</span>
+                    <span style={{ fontSize: '11px', fontWeight: 800, color: '#4D7C0F' }}>{Math.round((totalSelesai / students.length) * 100)}%</span>
                   </div>
                 )}
               </div>
 
               {/* Stuck di GEFT/Diagnostik */}
-              <div className="stat-card">
+              <div className="stat-card" style={{ borderTop: '4px solid #C2410C' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
-                  <div style={{ width: '44px', height: '44px', borderRadius: '14px', background: '#FEF3C7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#D97706" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                  <div style={{ width: '44px', height: '44px', borderRadius: '14px', background: '#FFF3EE', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C2410C" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                   </div>
-                  <span style={{ fontSize: '10px', fontWeight: 800, color: '#B45309', background: '#FEF3C7', padding: '4px 10px', borderRadius: '20px', border: '1px solid #FDE68A' }}>PERLU KEJAR</span>
+                  <span style={{ fontSize: '10px', fontWeight: 800, color: '#9A3412', background: '#FFF3EE', padding: '4px 10px', borderRadius: '20px', border: '1px solid #FDBA74' }}>PERLU KEJAR</span>
                 </div>
                 <div style={{ fontSize: '42px', fontWeight: 900, color: '#1C1917', lineHeight: 1, fontFamily: 'var(--font-heading)' }}>{totalStuck}</div>
                 <div style={{ fontSize: '13px', fontWeight: 700, color: '#44403C', marginTop: '6px' }}>Siswa Belum Selesai</div>
                 <div style={{ fontSize: '11px', color: '#78716C', marginTop: '4px' }}>Stuck di GEFT atau Diagnostik</div>
-                <button onClick={() => { setActiveTab('progress'); setProgressFilter('belum-selesai') }} style={{ marginTop: '14px', width: '100%', padding: '8px', borderRadius: '10px', border: 'none', background: '#FEF3C7', color: '#B45309', fontSize: '11px', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                <button onClick={() => { setActiveTab('progress'); setProgressFilter('belum-selesai') }} style={{ marginTop: '14px', width: '100%', padding: '8px', borderRadius: '10px', border: 'none', background: '#FFF3EE', color: '#9A3412', fontSize: '11px', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
                   Lihat Detail <IconArrowRight />
                 </button>
               </div>
 
               {/* Distribusi FI vs FD */}
-              <div className="stat-card">
+              <div className="stat-card" style={{ borderTop: '4px solid #8F4F06' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
-                  <div style={{ width: '44px', height: '44px', borderRadius: '14px', background: '#EFF6FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1D4ED8" strokeWidth="2.5"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                  <div style={{ width: '44px', height: '44px', borderRadius: '14px', background: '#F0FDFA', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0D9488" strokeWidth="2.5"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
                   </div>
-                  <span style={{ fontSize: '10px', fontWeight: 800, color: '#1D4ED8', background: '#EFF6FF', padding: '4px 10px', borderRadius: '20px', border: '1px solid #BFDBFE' }}>KOGNITIF</span>
+                  <span style={{ fontSize: '10px', fontWeight: 800, color: '#0D9488', background: '#F0FDFA', padding: '4px 10px', borderRadius: '20px', border: '1px solid #99F6E4' }}>KOGNITIF</span>
                 </div>
                 <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-end', marginBottom: '10px' }}>
                   <div>
-                    <div style={{ fontSize: '36px', fontWeight: 900, color: '#1D4ED8', lineHeight: 1, fontFamily: 'var(--font-heading)' }}>{totalFI}</div>
-                    <div style={{ fontSize: '10px', fontWeight: 800, color: '#1D4ED8', marginTop: '2px' }}>Field Independent</div>
+                    <div style={{ fontSize: '36px', fontWeight: 900, color: '#0D9488', lineHeight: 1, fontFamily: 'var(--font-heading)' }}>{totalFI}</div>
+                    <div style={{ fontSize: '10px', fontWeight: 800, color: '#0D9488', marginTop: '2px' }}>Field Independent</div>
                   </div>
                   <div style={{ fontSize: '24px', color: '#D1D5DB', fontWeight: 300, marginBottom: '4px' }}>|</div>
                   <div>
-                    <div style={{ fontSize: '36px', fontWeight: 900, color: '#D97706', lineHeight: 1, fontFamily: 'var(--font-heading)' }}>{totalFD}</div>
-                    <div style={{ fontSize: '10px', fontWeight: 800, color: '#D97706', marginTop: '2px' }}>Field Dependent</div>
+                    <div style={{ fontSize: '36px', fontWeight: 900, color: '#B45309', lineHeight: 1, fontFamily: 'var(--font-heading)' }}>{totalFD}</div>
+                    <div style={{ fontSize: '10px', fontWeight: 800, color: '#B45309', marginTop: '2px' }}>Field Dependent</div>
                   </div>
                 </div>
                 {totalWithGeft > 0 ? (
                   <div style={{ display: 'flex', height: '8px', borderRadius: '4px', overflow: 'hidden', gap: '2px' }}>
-                    <div style={{ width: `${(totalFI / totalWithGeft) * 100}%`, background: '#3B82F6', borderRadius: '4px', transition: 'width 0.5s' }} />
-                    <div style={{ flex: 1, background: '#FBBF24', borderRadius: '4px' }} />
+                    <div style={{ width: `${(totalFI / totalWithGeft) * 100}%`, background: '#0D9488', borderRadius: '4px', transition: 'width 0.5s' }} />
+                    <div style={{ flex: 1, background: '#D97706', borderRadius: '4px' }} />
                   </div>
-                ) : <div style={{ height: '8px', borderRadius: '4px', background: '#E5E7EB' }} />}
+                ) : <div style={{ height: '8px', borderRadius: '4px', background: '#E7DDD0' }} />}
                 <div style={{ fontSize: '10px', color: '#78716C', fontWeight: 700, marginTop: '8px' }}>
                   {totalWithGeft > 0 ? `${Math.round((totalFI/totalWithGeft)*100)}% FI · ${Math.round((totalFD/totalWithGeft)*100)}% FD` : 'Menunggu hasil GEFT'}
                 </div>
@@ -735,16 +735,16 @@ export default function GuruPage() {
                       <div key={cls.id} style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                         <div style={{ minWidth: '140px', fontSize: '13px', fontWeight: 700, color: '#1C1917' }}>{cls.name}</div>
                         <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <div style={{ flex: 1, height: '10px', background: '#F3F4F6', borderRadius: '5px', overflow: 'hidden', display: 'flex' }}>
+                          <div style={{ flex: 1, height: '10px', background: '#F4EDE0', borderRadius: '5px', overflow: 'hidden', display: 'flex' }}>
                             {(cls.fiCount + cls.fdCount) > 0 ? (
                               <>
-                                <div style={{ width: `${fiPct}%`, background: '#3B82F6', transition: 'width 0.5s' }} />
-                                <div style={{ flex: 1, background: '#FBBF24' }} />
+                                <div style={{ width: `${fiPct}%`, background: '#0D9488', transition: 'width 0.5s' }} />
+                                <div style={{ flex: 1, background: '#D97706' }} />
                               </>
-                            ) : <div style={{ flex: 1, background: '#E5E7EB' }} />}
+                            ) : <div style={{ flex: 1, background: '#E7DDD0' }} />}
                           </div>
-                          <span style={{ fontSize: '11px', color: '#3B82F6', fontWeight: 800, minWidth: '30px' }}>FI:{cls.fiCount}</span>
-                          <span style={{ fontSize: '11px', color: '#D97706', fontWeight: 800, minWidth: '30px' }}>FD:{cls.fdCount}</span>
+                          <span style={{ fontSize: '11px', color: '#0D9488', fontWeight: 800, minWidth: '30px' }}>FI:{cls.fiCount}</span>
+                          <span style={{ fontSize: '11px', color: '#B45309', fontWeight: 800, minWidth: '30px' }}>FD:{cls.fdCount}</span>
                           <span style={{ fontSize: '10px', color: '#A8A29E', fontWeight: 700 }}>({cls.totalStudents} siswa)</span>
                         </div>
                       </div>
@@ -824,7 +824,7 @@ export default function GuruPage() {
               {/* Status Filter */}
               <div style={{ display: 'flex', gap: '6px' }}>
                 {(['semua', 'belum-selesai', 'selesai'] as const).map(f => (
-                  <button key={f} onClick={() => setProgressFilter(f)} style={{ padding: '8px 14px', borderRadius: '10px', border: 'none', fontSize: '12px', fontWeight: 800, cursor: 'pointer', background: progressFilter === f ? '#8F4F06' : '#F3F4F6', color: progressFilter === f ? '#fff' : '#78716C', transition: 'all 0.18s' }}>
+                  <button key={f} onClick={() => setProgressFilter(f)} style={{ padding: '8px 14px', borderRadius: '10px', border: 'none', fontSize: '12px', fontWeight: 800, cursor: 'pointer', background: progressFilter === f ? '#8F4F06' : '#F0EAE1', color: progressFilter === f ? '#fff' : '#78716C', transition: 'all 0.18s' }}>
                     {f === 'semua' ? 'Semua' : f === 'belum-selesai' ? '⚠️ Belum Selesai' : '✅ Selesai'}
                   </button>
                 ))}
@@ -945,21 +945,21 @@ export default function GuruPage() {
                           <div style={{ fontSize: '22px', fontWeight: 900, color: '#8F4F06', fontFamily: 'var(--font-heading)' }}>{cls.totalStudents}</div>
                           <div style={{ fontSize: '9px', fontWeight: 800, color: '#78716C' }}>TOTAL SISWA</div>
                         </div>
-                        <div style={{ flex: 1, padding: '10px', borderRadius: '10px', background: '#EFF6FF', textAlign: 'center' }}>
-                          <div style={{ fontSize: '22px', fontWeight: 900, color: '#1D4ED8', fontFamily: 'var(--font-heading)' }}>{cls.fiCount}</div>
-                          <div style={{ fontSize: '9px', fontWeight: 800, color: '#1D4ED8' }}>FI</div>
+                        <div style={{ flex: 1, padding: '10px', borderRadius: '10px', background: '#F0FDFA', textAlign: 'center' }}>
+                          <div style={{ fontSize: '22px', fontWeight: 900, color: '#0D9488', fontFamily: 'var(--font-heading)' }}>{cls.fiCount}</div>
+                          <div style={{ fontSize: '9px', fontWeight: 800, color: '#0D9488' }}>FI</div>
                         </div>
-                        <div style={{ flex: 1, padding: '10px', borderRadius: '10px', background: '#FEF3C7', textAlign: 'center' }}>
-                          <div style={{ fontSize: '22px', fontWeight: 900, color: '#D97706', fontFamily: 'var(--font-heading)' }}>{cls.fdCount}</div>
-                          <div style={{ fontSize: '9px', fontWeight: 800, color: '#D97706' }}>FD</div>
+                        <div style={{ flex: 1, padding: '10px', borderRadius: '10px', background: '#FEF7ED', textAlign: 'center' }}>
+                          <div style={{ fontSize: '22px', fontWeight: 900, color: '#B45309', fontFamily: 'var(--font-heading)' }}>{cls.fdCount}</div>
+                          <div style={{ fontSize: '9px', fontWeight: 800, color: '#B45309' }}>FD</div>
                         </div>
                       </div>
 
                       {/* Mini bar */}
                       {withGeft > 0 && (
-                        <div style={{ height: '6px', borderRadius: '3px', background: '#F3F4F6', overflow: 'hidden', display: 'flex', marginBottom: '10px' }}>
-                          <div style={{ width: `${(cls.fiCount / withGeft) * 100}%`, background: '#3B82F6', transition: 'width 0.5s' }} />
-                          <div style={{ flex: 1, background: '#FBBF24' }} />
+                        <div style={{ height: '6px', borderRadius: '3px', background: '#F4EDE0', overflow: 'hidden', display: 'flex', marginBottom: '10px' }}>
+                          <div style={{ width: `${(cls.fiCount / withGeft) * 100}%`, background: '#0D9488', transition: 'width 0.5s' }} />
+                          <div style={{ flex: 1, background: '#D97706' }} />
                         </div>
                       )}
 
