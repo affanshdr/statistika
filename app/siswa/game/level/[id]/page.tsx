@@ -108,7 +108,7 @@ export default function LevelPage({
         }
 
         // Fetch team's current synced state
-        const syncRes = await fetch(`/api/game/team/sync?teamId=${currentTeamId}`)
+        const syncRes = await fetch(`/api/game/team/sync?teamId=${currentTeamId}${studentInfo?.id ? `&studentId=${studentInfo.id}` : ''}`)
         if (!syncRes.ok) { setInitializing(false); return }
         const data = await syncRes.json()
 

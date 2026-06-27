@@ -59,7 +59,13 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
   const sessionActiveRef = useRef(false)
 
   // ── Supabase Realtime: presence across game steps ────────────────────────
-  const { broadcastStep } = useGameRealtime(teamId, studentId, studentName)
+  const { broadcastStep, broadcastSyncTrigger } = useGameRealtime(
+    teamId,
+    studentId,
+    studentName,
+    undefined,
+    fetchTeamState // triggers immediate sync on WebSocket message
+  )
 
   useEffect(() => { sessionActiveRef.current = true }, [])
 
@@ -88,11 +94,10 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
     setShowDira(true)
   }, [teamId])
 
-  // Polling team state
   const fetchTeamState = useCallback(async () => {
     if (!teamId) return
     try {
-      const res = await fetch(`/api/game/team/sync?teamId=${teamId}`)
+      const res = await fetch(`/api/game/team/sync?teamId=${teamId}${studentId ? `&studentId=${studentId}` : ''}`)
       if (!res.ok) return
       const data = await res.json()
 
@@ -153,7 +158,7 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
       return
     }
     fetchTeamState() // initial
-    const interval = setInterval(fetchTeamState, 2000)
+    const interval = setInterval(fetchTeamState, 1000) // Kurangi polling interval dari 2s ke 1s
     return () => clearInterval(interval)
   }, [teamId, fetchTeamState])
 
@@ -191,7 +196,7 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
         setDiraMsg('Histogram benar! 🎉 Kamu sudah vote untuk lanjut. Tunggu konfirmasi tim — minimal 1 anggota lagi harus setuju!')
         setShowDira(true)
         try {
-          await fetch('/api/game/team/sync', {
+          const res = await fetch('/api/game/team/sync', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -200,8 +205,18 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
               castVote: { gate: 'gate_step0_done', studentId },
             }),
           })
+          if (res.ok) {
+            const data = await res.json()
+            if (data.team) {
+              setTeamReadyVotes(data.team.readyVotes ?? {})
+              broadcastSyncTrigger() // tell other group members to fetch immediately!
+              if (data.team.currentStep !== undefined && data.team.currentStep !== step) {
+                setStep(data.team.currentStep as GameStep)
+              }
+            }
+          }
         } catch (e) { console.error(e) }
-        // Step advance is handled by polling when server sets currentStep = 1
+        // Step advance is handled by polling/instant response when server sets currentStep = 1
       } else {
         // Solo/FI mode: advance immediately
         setDiraMsg('Luar biasa! Kamu berhasil menyusun histogram dengan benar. 📊\nSekarang, yuk kita amati statistik dasar dari data tersebut di Tahap B ini!')
@@ -246,7 +261,7 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
     if (teamId && studentId) {
       // Team mode: cast gate vote — server advances all when 2/3 answer correctly
       try {
-        await fetch('/api/game/team/sync', {
+        const res = await fetch('/api/game/team/sync', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -254,8 +269,18 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
             castVote: { gate: 'gate_verdict_done', studentId },
           }),
         })
+        if (res.ok) {
+          const data = await res.json()
+          if (data.team) {
+            setTeamReadyVotes(data.team.readyVotes ?? {})
+            broadcastSyncTrigger() // tell other group members to fetch immediately!
+            if (data.team.currentStep !== undefined && data.team.currentStep !== step) {
+              setStep(data.team.currentStep as GameStep)
+            }
+          }
+        }
       } catch (e) { console.error(e) }
-      // Step advance is handled by polling when server sets currentStep = 2
+      // Step advance is handled by polling/instant response when server sets currentStep = 2
     } else {
       // Solo/FI mode: advance immediately
       setTimeout(() => setStep(2), 400)
@@ -431,6 +456,13 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
                       readyVotes={teamReadyVotes}
                       label="Lanjut: Verifikasi Berita →"
                       onVote={() => { addXP(20, 'Analisis distribusi FD tepat', 1); setShowDira(false) }}
+                      onVoteSuccess={(votes, stepVal) => {
+                        setTeamReadyVotes(votes)
+                        broadcastSyncTrigger() // tell others to sync immediately!
+                        if (stepVal !== undefined && stepVal !== step) {
+                          setStep(stepVal as GameStep)
+                        }
+                      }}
                       onComplete={() => setStep(1.5)}
                     />
                   ) : (

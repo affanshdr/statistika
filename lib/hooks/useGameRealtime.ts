@@ -37,17 +37,16 @@ type PresenceMap = Record<string, PlayerPresence>
  *   const { players, broadcastPos, broadcastSub, broadcastStep } =
  *     useGameRealtime(teamId, studentId, studentName)
  */
-export function useGameRealtime(
-  teamId: string | null | undefined,
-  studentId: string | undefined,
-  studentName: string | undefined,
   onPlayersChange?: (players: PresenceMap) => void,
+  onSyncTrigger?: () => void,
 ) {
   const channelRef = useRef<RealtimeChannel | null>(null)
   const playersRef = useRef<PresenceMap>({})
   const myColorRef = useRef<string>(PLAYER_COLORS[0])
   const onChangeRef = useRef(onPlayersChange)
   onChangeRef.current = onPlayersChange
+  const onSyncTriggerRef = useRef(onSyncTrigger)
+  onSyncTriggerRef.current = onSyncTrigger
 
   useEffect(() => {
     if (!teamId || !studentId || !studentName) return
@@ -66,6 +65,9 @@ export function useGameRealtime(
           [payload.studentId]: payload,
         }
         onChangeRef.current?.({ ...playersRef.current })
+      })
+      .on('broadcast', { event: 'sync_trigger' }, () => {
+        onSyncTriggerRef.current?.()
       })
       .subscribe((status) => {
         if (status === 'SUBSCRIBED') {
@@ -146,5 +148,15 @@ export function useGameRealtime(
     })
   }, [studentId, studentName])
 
-  return { broadcastPos, broadcastSub, broadcastStep }
+  /** Broadcast a request for all other clients to sync immediately with the database */
+  const broadcastSyncTrigger = useCallback(() => {
+    if (!channelRef.current) return
+    channelRef.current.send({
+      type: 'broadcast',
+      event: 'sync_trigger',
+      payload: {},
+    })
+  }, [])
+
+  return { broadcastPos, broadcastSub, broadcastStep, broadcastSyncTrigger }
 }

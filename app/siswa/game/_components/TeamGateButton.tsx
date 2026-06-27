@@ -32,6 +32,8 @@ interface TeamGateButtonProps {
    * Berguna untuk award XP / badge di parent sebelum advance.
    */
   onVote?: () => void
+  /** Dipanggil setelah POST vote sukses untuk mengirim data tim ter-update ke parent */
+  onVoteSuccess?: (readyVotes: Record<string, string[]>, currentStep: number) => void
   disabled?: boolean
   style?: React.CSSProperties
   className?: string
@@ -47,8 +49,8 @@ export default function TeamGateButton({
   readyVotes,
   label,
   labelVoted,
-  onComplete,
   onVote,
+  onVoteSuccess,
   disabled = false,
   style,
   className,
@@ -88,8 +90,17 @@ export default function TeamGateButton({
         body: JSON.stringify({ teamId, castVote: { gate, studentId } }),
       })
       if (!res.ok) throw new Error('Gagal mengirim vote')
+      const data = await res.json()
       setLocalVoted(true)
       onVote?.()
+      if (data.team) {
+        onVoteSuccess?.(data.team.readyVotes ?? {}, data.team.currentStep)
+        // Jika threshold sudah terpenuhi dari vote kita ini, langsung panggil onComplete
+        const currentVotes = (data.team.readyVotes?.[gate] ?? []) as string[]
+        if (currentVotes.length >= THRESHOLD || data.team.currentStep === 1.5 || data.team.status === 'PLAYING') {
+          onComplete()
+        }
+      }
     } catch (err: unknown) {
       setVoteError(err instanceof Error ? err.message : 'Terjadi kesalahan')
     } finally {

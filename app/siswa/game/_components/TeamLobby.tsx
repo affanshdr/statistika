@@ -41,7 +41,7 @@ export default function TeamLobby({
     // Don't poll when countdown is already running
     if (countdownRef.current !== null) return
     try {
-      const res = await fetch(`/api/game/team/sync?teamId=${teamId}`)
+      const res = await fetch(`/api/game/team/sync?teamId=${teamId}${studentId ? `&studentId=${studentId}` : ''}`)
       if (!res.ok) throw new Error('Gagal memuat status tim')
       const data = await res.json()
 
@@ -71,7 +71,7 @@ export default function TeamLobby({
 
     pollIntervalRef.current = setInterval(() => {
       pollTeamStatus()
-    }, 2000)
+    }, 1000) // Kurangi polling interval dari 2s ke 1s
 
     return () => {
       if (pollIntervalRef.current) clearInterval(pollIntervalRef.current)

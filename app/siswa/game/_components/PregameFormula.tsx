@@ -421,12 +421,51 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
   // My display name from teamMembers
   const myName = teamMembers?.find(m => m.id === studentId)?.name
 
+  // ── Multiplayer: poll team sync (stable callback) ─────────────────────────
+  const mazeMaxRef = useRef<number | null>(null)
+  const mazeMinRef = useRef<number | null>(null)
+  const subRef = useRef<SubScreen>('intro')
+  mazeMaxRef.current = mazeMax
+  mazeMinRef.current = mazeMin
+  subRef.current = sub
+
+  const poll = useCallback(async () => {
+    if (!teamId) return
+    try {
+      const res = await fetch(`/api/game/team/sync?teamId=${teamId}${studentId ? `&studentId=${studentId}` : ''}`)
+      if (!res.ok) return
+      const data = await res.json()
+      const fs = (data.formulaState ?? {}) as Record<string, any>
+      setGateVotes(data.readyVotes ?? {})
+
+      // Sync found maze values (once found by anyone, fill everyone)
+      if (fs.mazeMax !== null && fs.mazeMax !== undefined && mazeMaxRef.current !== fs.mazeMax) {
+        setMazeMax(fs.mazeMax)
+      }
+      if (fs.mazeMin !== null && fs.mazeMin !== undefined && mazeMinRef.current !== fs.mazeMin) {
+        setMazeMin(fs.mazeMin)
+      }
+
+      // Sync current sub-screen
+      if (fs.sub && fs.sub !== subRef.current) {
+        setSub(fs.sub as SubScreen)
+      }
+
+      // Detect formula_done gate cleared (server auto-advanced gamePhase)
+      const serverPhase: string = data.gamePhase ?? ''
+      if (serverPhase === 'lobby' || serverPhase === 'game') {
+        onCompleteRef.current()
+      }
+    } catch { /* ignore */ }
+  }, [teamId])
+
   // ── Supabase Realtime: positions + presence across all sub-screens ──────────
-  const { broadcastPos, broadcastSub } = useGameRealtime(
+  const { broadcastPos, broadcastSub, broadcastSyncTrigger } = useGameRealtime(
     isFD ? teamId : null,
     studentId,
     myName,
     (players) => setRtPlayers(players),
+    poll // triggers immediate fetch when someone else broadcasts sync_trigger
   )
 
   // Teammate maze positions — only entries that have x,y set
@@ -637,50 +676,12 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
     if (mazeMax !== null && mazeMin !== null) setRentangDone(true)
   }, [mazeMax, mazeMin])
 
-  // ── Multiplayer: poll team sync every 2s ─────────────────────────────────
-  const mazeMaxRef = useRef(mazeMax)
-  const mazeMinRef = useRef(mazeMin)
-  const subRef = useRef(sub)
-  mazeMaxRef.current = mazeMax
-  mazeMinRef.current = mazeMin
-  subRef.current = sub
-
   useEffect(() => {
     if (!teamId) return
-    const poll = async () => {
-      try {
-        const res = await fetch(`/api/game/team/sync?teamId=${teamId}`)
-        if (!res.ok) return
-        const data = await res.json()
-        const fs = (data.formulaState ?? {}) as Record<string, any>
-        setGateVotes(data.readyVotes ?? {})
-
-        // Sync found maze values (once found by anyone, fill everyone)
-        if (fs.mazeMax !== null && fs.mazeMax !== undefined && mazeMaxRef.current !== fs.mazeMax) {
-          setMazeMax(fs.mazeMax)
-        }
-        if (fs.mazeMin !== null && fs.mazeMin !== undefined && mazeMinRef.current !== fs.mazeMin) {
-          setMazeMin(fs.mazeMin)
-        }
-
-        // Sync current sub-screen
-        if (fs.sub && fs.sub !== subRef.current) {
-          setSub(fs.sub as SubScreen)
-        }
-
-        // Note: teammate positions now come from Supabase Broadcast (no DB polling needed)
-
-        // Detect formula_done gate cleared (server auto-advanced gamePhase)
-        const serverPhase: string = data.gamePhase ?? ''
-        if (serverPhase === 'lobby' || serverPhase === 'game') {
-          onCompleteRef.current()
-        }
-      } catch { /* ignore */ }
-    }
     poll()
-    const interval = setInterval(poll, 2000)
+    const interval = setInterval(poll, 1000) // Kurangi polling interval dari 2s ke 1s
     return () => clearInterval(interval)
-  }, [teamId, studentId])
+  }, [teamId, poll])
 
   // ── Broadcast position via Supabase Realtime every 50ms (replaces 2s DB push) ──
   useEffect(() => {
@@ -728,13 +729,24 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
     if (!teamId || !studentId) { onCompleteRef.current(); return }
     setMyVotedGates(prev => new Set(prev).add('gate_formula_done'))
     try {
-      await fetch('/api/game/team/sync', {
+      const res = await fetch('/api/game/team/sync', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ teamId, castVote: { gate: 'gate_formula_done', studentId } }),
       })
+      if (res.ok) {
+        const data = await res.json()
+        if (data.team) {
+          setGateVotes(data.team.readyVotes ?? {})
+          broadcastSyncTrigger() // tell other team members to sync instantly!
+          const serverPhase = data.team.gamePhase ?? ''
+          if (serverPhase === 'lobby' || serverPhase === 'game') {
+            onCompleteRef.current()
+          }
+        }
+      }
     } catch { /* ignore */ }
-  }, [teamId, studentId])
+  }, [teamId, studentId, broadcastSyncTrigger])
 
   // ── Banyak kelas state ───────────────────────────────────────────────────
   const [nVal, setNVal] = useState('')

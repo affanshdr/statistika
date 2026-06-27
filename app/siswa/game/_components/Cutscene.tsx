@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useGameRealtime } from '@/lib/hooks/useGameRealtime'
 
 interface CutsceneProps {
   onComplete: () => void
@@ -105,43 +106,68 @@ export default function Cutscene({ onComplete, onPhaseChange, teamId, studentId,
     onPhaseChange?.(phase)
   }, [phase, onPhaseChange])
 
-  // ── Multiplayer: Poll gamePhase every 2s ─────────────────────────────────
+  // Move poll to useCallback so it's stable and can be triggered by realtime WebSocket
+  const poll = useCallback(async () => {
+    if (!teamId) return
+    try {
+      const res = await fetch(`/api/game/team/sync?teamId=${teamId}${studentId ? `&studentId=${studentId}` : ''}`)
+      if (!res.ok) return
+      const data = await res.json()
+      const serverPhase: string = data.gamePhase ?? 'cutscene_comments'
+      setGateVotes(data.readyVotes ?? {})
+
+      if (serverPhase === 'cutscene_mentor' && phase === 'comments') {
+        setPhase('mentor')
+      } else if (serverPhase === 'formula' || serverPhase === 'lobby' || serverPhase === 'game') {
+        onCompleteRef.current()
+      }
+    } catch { /* ignore */ }
+  }, [teamId, phase])
+
+  // ── Supabase Realtime for instant synchronization ────────────────────────
+  const { broadcastSyncTrigger } = useGameRealtime(
+    teamId,
+    studentId,
+    teamMembers?.find(m => m.id === studentId)?.name ?? 'Detektif',
+    undefined,
+    poll // triggers immediate fetch when someone else broadcasts sync_trigger
+  )
+
+  // ── Multiplayer: Poll gamePhase every 1s ─────────────────────────────────
   const castVote = useCallback(async (gate: string) => {
     if (!teamId || !studentId || isVoting) return
     setIsVoting(true)
     setMyVotedGates(prev => new Set(prev).add(gate))
     try {
-      await fetch('/api/game/team/sync', {
+      const res = await fetch('/api/game/team/sync', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ teamId, castVote: { gate, studentId } }),
       })
+      if (res.ok) {
+        const data = await res.json()
+        if (data.team) {
+          setGateVotes(data.team.readyVotes ?? {})
+          broadcastSyncTrigger() // Tell other group members to fetch immediately!
+          const serverPhase = data.team.gamePhase ?? 'cutscene_comments'
+          if (serverPhase === 'cutscene_mentor' && phase === 'comments') {
+            setPhase('mentor')
+          } else if (serverPhase === 'formula' || serverPhase === 'lobby' || serverPhase === 'game') {
+            onCompleteRef.current()
+          }
+        }
+      }
     } catch { /* ignore */ } finally {
       setIsVoting(false)
     }
-  }, [teamId, studentId, isVoting])
+  }, [teamId, studentId, isVoting, phase, broadcastSyncTrigger])
 
   useEffect(() => {
     if (!teamId) return
-    const poll = async () => {
-      try {
-        const res = await fetch(`/api/game/team/sync?teamId=${teamId}`)
-        if (!res.ok) return
-        const data = await res.json()
-        const serverPhase: string = data.gamePhase ?? 'cutscene_comments'
-        setGateVotes(data.readyVotes ?? {})
-
-        if (serverPhase === 'cutscene_mentor' && phase === 'comments') {
-          setPhase('mentor')
-        } else if (serverPhase === 'formula' || serverPhase === 'lobby' || serverPhase === 'game') {
-          onCompleteRef.current()
-        }
-      } catch { /* ignore */ }
-    }
     poll()
-    const interval = setInterval(poll, 2000)
+    const interval = setInterval(poll, 1000)
     return () => clearInterval(interval)
-  }, [teamId, phase])
+  }, [teamId, poll])
 
   const commentsEndRef = useRef<HTMLDivElement | null>(null)
 

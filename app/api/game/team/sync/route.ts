@@ -17,13 +17,63 @@ const GATE_STEP_MAP: Record<string, Record<string, unknown>> = {
 
 const READY_THRESHOLD = 2
 
+// Map memori global untuk mencatat timestamp keaktifan siswa (studentId -> timestamp)
+const lastActiveMap = new Map<string, number>()
+const INACTIVE_THRESHOLD_MS = 15000 // 15 detik tanpa polling = tidak aktif
+
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url)
     const teamId = searchParams.get('teamId')
+    const studentId = searchParams.get('studentId')
 
     if (!teamId) {
       return NextResponse.json({ error: 'teamId wajib disertakan' }, { status: 400 })
+    }
+
+    if (studentId) {
+      // 1. Cari tim dan anggota-anggotanya terlebih dahulu
+      const checkTeam = await prisma.team.findUnique({
+        where: { id: teamId },
+        select: {
+          members: {
+            select: { studentId: true }
+          }
+        }
+      })
+
+      if (checkTeam) {
+        const memberIds = checkTeam.members.map(m => m.studentId)
+        // Periksa apakah ada anggota tim LAIN yang masih aktif dalam 15 detik terakhir
+        const hasActiveMembers = memberIds.some(id => {
+          if (id === studentId) return false // Jangan hitung diri sendiri yang baru masuk
+          const lastActive = lastActiveMap.get(id)
+          return lastActive && (Date.now() - lastActive < INACTIVE_THRESHOLD_MS)
+        })
+
+        // Jika tidak ada satu pun anggota yang aktif (semua sudah keluar/offline), reset progress tim
+        if (!hasActiveMembers) {
+          console.log(`[Sync API] Seluruh anggota tim ${teamId} telah keluar. Meriset kemajuan tim ke default.`)
+          await prisma.team.update({
+            where: { id: teamId },
+            data: {
+              status: 'WAITING',
+              currentStep: 0,
+              histogramState: null,
+              verdictAnswer: '',
+              isCorrect: false,
+              gamePhase: 'cutscene_comments',
+              readyVotes: {},
+              formulaState: {}
+            }
+          })
+          // Hapus sisa-sisa map aktif lama untuk members ini agar bersih
+          memberIds.forEach(id => lastActiveMap.delete(id))
+        }
+      }
+
+      // Catat keaktifan siswa ini sekarang
+      lastActiveMap.set(studentId, Date.now())
     }
 
     const team = await prisma.team.findUnique({

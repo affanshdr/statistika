@@ -966,8 +966,8 @@ export default function SiswaPage() {
                   </div>
                 </div>
 
-                {/* Resume button (PLAYING) or waiting hint (WAITING) */}
-                {activeTeam.status === 'PLAYING' ? (
+                {/* Resume button (PLAYING or 3 members in lobby) or waiting hint (WAITING) */}
+                {activeTeam.status === 'PLAYING' || activeTeam.members.length === 3 ? (
                   <button
                     onClick={() => handlePlayLevel(activeTeam.levelId)}
                     style={{
@@ -983,7 +983,7 @@ export default function SiswaPage() {
                     onMouseEnter={e => e.currentTarget.style.filter = 'brightness(1.1)'}
                     onMouseLeave={e => e.currentTarget.style.filter = 'none'}
                   >
-                    <span>🎮 Lanjutkan Permainan</span>
+                    <span>{activeTeam.status === 'PLAYING' ? '🎮 Lanjutkan Permainan' : '👥 Masuk Lobi Permainan'}</span>
                     <span>→</span>
                   </button>
                 ) : (
