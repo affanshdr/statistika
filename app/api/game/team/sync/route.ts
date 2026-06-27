@@ -127,16 +127,17 @@ export async function POST(req: NextRequest) {
       if (gateVotes.length >= READY_THRESHOLD) {
         if (gate === 'lobby_ready') {
           // Special: mark team as PLAYING so all clients start countdown
+          // Keep lobby_ready votes intact so UI can display who is ready during countdown
           updateData.status = 'PLAYING'
         } else if (GATE_PHASE_MAP[gate]) {
           updateData.gamePhase = GATE_PHASE_MAP[gate]
+          // Clear gate votes after advancing (non-lobby gates only)
+          votes[gate] = []
+          updateData.readyVotes = votes
         }
         if (gate === 'gate_step1_done') {
           updateData.currentStep = 1.5
         }
-        // Clear gate votes after advancing
-        votes[gate] = []
-        updateData.readyVotes = votes
       }
     }
 

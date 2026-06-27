@@ -34,9 +34,12 @@ export default function TeamLobby({
 
   const countdownTimerRef = useRef<NodeJS.Timeout | null>(null)
   const pollIntervalRef = useRef<NodeJS.Timeout | null>(null)
+  const countdownRef = useRef<number | null>(null) // mirror countdown for use inside setInterval closure
 
   // Polling team status
   const pollTeamStatus = async () => {
+    // Don't poll when countdown is already running
+    if (countdownRef.current !== null) return
     try {
       const res = await fetch(`/api/game/team/sync?teamId=${teamId}`)
       if (!res.ok) throw new Error('Gagal memuat status tim')
@@ -50,8 +53,9 @@ export default function TeamLobby({
       setReadyVotes(lobbyReadyVotes)
       if (lobbyReadyVotes.includes(studentId)) setHasVoted(true)
 
-      // When 2+ have voted → status becomes PLAYING → start countdown
-      if (data.status === 'PLAYING' && countdown === null && !countdownTimerRef.current) {
+      // When status becomes PLAYING → start countdown
+      if (data.status === 'PLAYING' && countdownRef.current === null) {
+        countdownRef.current = 3
         setCountdown(3)
       }
     } catch (err: any) {
@@ -61,12 +65,12 @@ export default function TeamLobby({
     }
   }
 
-  // Polling effect
+  // Polling effect — runs once on mount, re-runs only if teamId changes
   useEffect(() => {
     pollTeamStatus()
 
     pollIntervalRef.current = setInterval(() => {
-      if (countdown === null) pollTeamStatus()
+      pollTeamStatus()
     }, 2000)
 
     return () => {
@@ -74,11 +78,13 @@ export default function TeamLobby({
       if (countdownTimerRef.current) clearInterval(countdownTimerRef.current)
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [teamId, countdown])
+  }, [teamId])
 
   // Countdown timer
   useEffect(() => {
     if (countdown !== null) {
+      countdownRef.current = countdown
+      // Stop polling when countdown starts
       if (pollIntervalRef.current) {
         clearInterval(pollIntervalRef.current)
         pollIntervalRef.current = null
@@ -131,6 +137,7 @@ export default function TeamLobby({
 
   const readyCount = readyVotes.length
   const totalMembers = members.length
+  const READY_THRESHOLD = 2 // harus sesuai dengan server
 
   return (
     <div style={{ maxWidth: '640px', margin: '0 auto', padding: '24px 16px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -148,7 +155,7 @@ export default function TeamLobby({
         </h2>
         <p style={{ color: 'var(--text-secondary)', fontSize: '13px', margin: '0 auto', maxWidth: '460px', lineHeight: 1.6 }}>
           Tim Anda sudah terbentuk! Klik <strong>Saya Siap</strong> untuk mulai bermain.
-          Game dimulai otomatis saat <strong>2 dari {totalMembers} anggota</strong> siap.
+          Game dimulai otomatis saat <strong>{READY_THRESHOLD} dari {totalMembers} anggota</strong> siap.
         </p>
       </motion.div>
 
@@ -173,7 +180,7 @@ export default function TeamLobby({
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span style={{
                 width: '8px', height: '8px', borderRadius: '50%',
-                background: readyCount >= 2 ? '#10B981' : '#EF4444',
+                background: readyCount >= READY_THRESHOLD ? '#10B981' : '#EF4444',
                 display: 'inline-block',
                 animation: 'pulse 1.5s infinite alternate',
               }} />
@@ -182,9 +189,9 @@ export default function TeamLobby({
               </span>
             </div>
             <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-              {readyCount >= 2
+              {readyCount >= READY_THRESHOLD
                 ? 'Threshold terpenuhi! Menunggu konfirmasi server...'
-                : `Butuh ${2 - readyCount} anggota lagi untuk mulai`}
+                : `Butuh ${READY_THRESHOLD - readyCount} anggota lagi untuk mulai`}
             </span>
           </div>
         )}
@@ -321,8 +328,9 @@ export default function TeamLobby({
 
             <p style={{ fontSize: '11px', color: 'var(--text-muted)', textAlign: 'center', margin: 0 }}>
               {hasVoted
-                ? `Menunggu ${Math.max(0, 2 - readyCount)} anggota lagi...`
+                ? `Menunggu ${Math.max(0, READY_THRESHOLD - readyCount)} anggota lagi...`
                 : 'Klik tombol di atas untuk menyatakan siap bermain'}
+
             </p>
           </motion.div>
         )}
