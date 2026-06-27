@@ -10,6 +10,7 @@ import MythBustedStamp from '../../../_components/MythBustedStamp'
 import VerdictScreen from '../../../_components/VerdictScreen'
 import { BADGES, STATS } from '../../../_data/level1'
 import { useRouter } from 'next/navigation'
+import { useGameRealtime } from '@/lib/hooks/useGameRealtime'
 
 const DraggableHistogram = dynamic(() => import('../../../_components/DraggableHistogram'), { ssr: false })
 
@@ -53,7 +54,10 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
 
   const chatEndRef = useRef<HTMLDivElement | null>(null)
   const sessionActiveRef = useRef(false)
-  
+
+  // ── Supabase Realtime: presence across game steps ────────────────────────
+  const { broadcastStep } = useGameRealtime(teamId, studentId, studentName)
+
   useEffect(() => { sessionActiveRef.current = true }, [])
 
   // Auto-scroll chat to bottom
@@ -190,6 +194,7 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
           console.error(e)
         }
       }
+      broadcastStep(1) // real-time: tell teammates I moved to step 1
       setStep(1)
     } else {
       // FD: hanya red flash, tanpa life lost — eksplorasi mandiri
@@ -497,11 +502,18 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
               {teamMembers.map((m) => {
                 const isMe = m.id === studentId
                 return (
-                  <div key={m.id} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ fontSize: '14px' }}>🕵️</span>
-                    <span style={{ fontSize: '12px', fontWeight: 700, color: isMe ? 'var(--accent)' : '#fff' }}>
-                      {m.name} {isMe ? '(Anda)' : ''}
-                    </span>
+                  <div key={m.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span style={{ fontSize: '14px' }}>🕵️</span>
+                      <span style={{ fontSize: '12px', fontWeight: 700, color: isMe ? 'var(--accent)' : '#fff' }}>
+                        {m.name} {isMe ? '(Anda)' : ''}
+                      </span>
+                    </div>
+                    {isMe ? (
+                      <span style={{ fontSize: '9px', color: 'var(--accent)', fontWeight: 700 }}>
+                        {['Histogram', 'Analisis', 'Verifikasi', 'Selesai'][step === 0 ? 0 : step === 1 ? 1 : step === 1.5 ? 2 : 3]}
+                      </span>
+                    ) : null}
                   </div>
                 )
               })}

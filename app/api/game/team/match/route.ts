@@ -97,23 +97,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Gagal membuat/mencari tim' }, { status: 500 })
     }
 
-    // 3. If team has reached 3 members, set status to PLAYING
-    if (team.members.length >= 3 && team.status === 'WAITING') {
-      const updatedTeam = await prisma.team.update({
-        where: { id: team.id },
-        data: { status: 'PLAYING' },
-        include: {
-          members: {
-            include: {
-              student: {
-                select: { name: true },
-              },
-            },
-          },
-        },
-      })
-      team = updatedTeam
-    }
+    // 3. Status stays WAITING — game starts when 2+ members vote ready in the lobby
 
     return NextResponse.json({
       teamId: team.id,

@@ -25,9 +25,11 @@ export default function TeamLobby({
 }: TeamLobbyProps) {
   const [members, setMembers] = useState<Member[]>([])
   const [status, setStatus] = useState<string>('WAITING')
+  const [readyVotes, setReadyVotes] = useState<string[]>([]) // studentIds who clicked Siap
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [simulating, setSimulating] = useState(false)
+  const [hasVoted, setHasVoted] = useState(false)
+  const [voting, setVoting] = useState(false)
   const [countdown, setCountdown] = useState<number | null>(null)
 
   const countdownTimerRef = useRef<NodeJS.Timeout | null>(null)
@@ -37,18 +39,20 @@ export default function TeamLobby({
   const pollTeamStatus = async () => {
     try {
       const res = await fetch(`/api/game/team/sync?teamId=${teamId}`)
-      if (!res.ok) {
-        throw new Error('Gagal memuat status tim')
-      }
+      if (!res.ok) throw new Error('Gagal memuat status tim')
       const data = await res.json()
+
       setMembers(data.members || [])
       setStatus(data.status)
 
-      if (data.status === 'PLAYING' || (data.members && data.members.length >= 3)) {
-        // Start countdown if not already started
-        if (countdown === null && !countdownTimerRef.current) {
-          setCountdown(3)
-        }
+      // Update who has voted ready
+      const lobbyReadyVotes: string[] = (data.readyVotes as Record<string, string[]>)?.lobby_ready ?? []
+      setReadyVotes(lobbyReadyVotes)
+      if (lobbyReadyVotes.includes(studentId)) setHasVoted(true)
+
+      // When 2+ have voted → status becomes PLAYING → start countdown
+      if (data.status === 'PLAYING' && countdown === null && !countdownTimerRef.current) {
+        setCountdown(3)
       }
     } catch (err: any) {
       setError(err.message || 'Terjadi kesalahan saat polling status tim')
@@ -57,66 +61,58 @@ export default function TeamLobby({
     }
   }
 
-  // Effect for polling
+  // Polling effect
   useEffect(() => {
-    pollTeamStatus() // Initial check
+    pollTeamStatus()
 
     pollIntervalRef.current = setInterval(() => {
-      // Only keep polling if we aren't in countdown phase
-      if (countdown === null) {
-        pollTeamStatus()
-      }
+      if (countdown === null) pollTeamStatus()
     }, 2000)
 
     return () => {
       if (pollIntervalRef.current) clearInterval(pollIntervalRef.current)
       if (countdownTimerRef.current) clearInterval(countdownTimerRef.current)
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [teamId, countdown])
 
-  // Countdown timer logic
+  // Countdown timer
   useEffect(() => {
     if (countdown !== null) {
       if (pollIntervalRef.current) {
         clearInterval(pollIntervalRef.current)
         pollIntervalRef.current = null
       }
-
       if (countdown > 0) {
-        countdownTimerRef.current = setTimeout(() => {
-          setCountdown(countdown - 1)
-        }, 1000)
+        countdownTimerRef.current = setTimeout(() => setCountdown(countdown - 1), 1000)
       } else {
         onComplete(members)
       }
     }
-    return () => {
-      if (countdownTimerRef.current) clearTimeout(countdownTimerRef.current)
-    }
+    return () => { if (countdownTimerRef.current) clearTimeout(countdownTimerRef.current) }
   }, [countdown, members, onComplete])
 
-  // Simulate teammates joining (Dev Mode Bypass)
-  const handleSimulateTeammates = async () => {
-    if (simulating) return
-    setSimulating(true)
+  // Cast "Siap" vote
+  const handleReady = async () => {
+    if (hasVoted || voting) return
+    setVoting(true)
     setError(null)
     try {
-      const res = await fetch('/api/game/team/simulate', {
+      const res = await fetch('/api/game/team/sync', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ teamId }),
+        body: JSON.stringify({
+          teamId,
+          castVote: { gate: 'lobby_ready', studentId },
+        }),
       })
-      if (!res.ok) {
-        throw new Error('Gagal mensimulasikan partner')
-      }
-      const data = await res.json()
-      setMembers(data.members || [])
-      setStatus(data.status)
-      setCountdown(3) // Start countdown immediately after simulation completes
+      if (!res.ok) throw new Error('Gagal mengirim vote')
+      setHasVoted(true)
+      await pollTeamStatus() // Refresh immediately
     } catch (err: any) {
-      setError(err.message || 'Gagal mensimulasikan partner')
+      setError(err.message)
     } finally {
-      setSimulating(false)
+      setVoting(false)
     }
   }
 
@@ -133,10 +129,13 @@ export default function TeamLobby({
     )
   }
 
+  const readyCount = readyVotes.length
+  const totalMembers = members.length
+
   return (
     <div style={{ maxWidth: '640px', margin: '0 auto', padding: '24px 16px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-      
-      {/* Lobby Title Card */}
+
+      {/* Lobby Title */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -148,12 +147,12 @@ export default function TeamLobby({
           Lobi Kolaborasi Tim
         </h2>
         <p style={{ color: 'var(--text-secondary)', fontSize: '13px', margin: '0 auto', maxWidth: '460px', lineHeight: 1.6 }}>
-          Selamat datang di mode kolaborasi! Karena Anda memiliki gaya belajar <strong>Field Dependent (FD)</strong>, 
-          Anda akan bekerja sama dengan 2 agen dari kelas Anda untuk menyelesaikan kasus Level 1.
+          Tim Anda sudah terbentuk! Klik <strong>Saya Siap</strong> untuk mulai bermain.
+          Game dimulai otomatis saat <strong>2 dari {totalMembers} anggota</strong> siap.
         </p>
       </motion.div>
 
-      {/* Connection Status & Countdown */}
+      {/* Status Bar / Countdown */}
       <div style={{ textAlign: 'center', padding: '16px', background: 'rgba(217,119,6,0.05)', borderRadius: '14px', border: '1px solid var(--game-border-accent)' }}>
         {countdown !== null ? (
           <motion.div
@@ -163,7 +162,7 @@ export default function TeamLobby({
             style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}
           >
             <div style={{ fontSize: '12px', fontWeight: 800, color: 'var(--accent)', letterSpacing: '1.5px' }}>
-              TIM LENGKAP! MEMULAI PERMAINAN
+              MEMULAI PERMAINAN...
             </div>
             <div style={{ fontSize: '32px', fontWeight: 900, color: '#fff', fontFamily: 'var(--font-data)' }}>
               {countdown} ...
@@ -172,35 +171,42 @@ export default function TeamLobby({
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'center' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span className="pulse-dot" style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#EF4444' }}></span>
+              <span style={{
+                width: '8px', height: '8px', borderRadius: '50%',
+                background: readyCount >= 2 ? '#10B981' : '#EF4444',
+                display: 'inline-block',
+                animation: 'pulse 1.5s infinite alternate',
+              }} />
               <span style={{ fontSize: '13px', fontWeight: 700, color: '#fff' }}>
-                Mencari Agen Detektif Lain ({members.length} / 3 Terhubung)
+                {readyCount} / {totalMembers} anggota siap
               </span>
             </div>
             <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-              Menunggu teman sekelas Anda bergabung...
+              {readyCount >= 2
+                ? 'Threshold terpenuhi! Menunggu konfirmasi server...'
+                : `Butuh ${2 - readyCount} anggota lagi untuk mulai`}
             </span>
           </div>
         )}
       </div>
 
-      {/* Error Message */}
+      {/* Error */}
       {error && (
         <div style={{ padding: '10px 14px', borderRadius: '8px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', color: '#EF4444', fontSize: '12px', textAlign: 'center' }}>
           ⚠️ {error}
         </div>
       )}
 
-      {/* Connected Members Card */}
+      {/* Member Slots */}
       <div className="game-card" style={{ padding: '20px' }}>
         <h3 style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 800, letterSpacing: '1.5px', margin: '0 0 16px', textTransform: 'uppercase' }}>
-          📋 Daftar Agen Terkoneksi
+          📋 Anggota Tim
         </h3>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          {/* Member slots */}
           {[0, 1, 2].map((idx) => {
             const member = members[idx]
             const isMe = member?.id === studentId
+            const isReady = member ? readyVotes.includes(member.id) : false
 
             return (
               <div
@@ -210,32 +216,52 @@ export default function TeamLobby({
                   alignItems: 'center',
                   justifyContent: 'space-between',
                   padding: '12px 16px',
-                  background: member 
-                    ? (isMe ? 'rgba(217,119,6,0.06)' : 'rgba(255,255,255,0.02)') 
+                  background: member
+                    ? (isMe ? 'rgba(217,119,6,0.06)' : 'rgba(255,255,255,0.02)')
                     : 'transparent',
-                  border: member 
-                    ? `1px solid ${isMe ? 'var(--game-border-accent)' : 'var(--game-border)'}` 
+                  border: member
+                    ? `1px solid ${isReady ? 'rgba(16,185,129,0.4)' : isMe ? 'var(--game-border-accent)' : 'var(--game-border)'}`
                     : '1px dashed rgba(180,140,80,0.15)',
                   borderRadius: '12px',
-                  transition: 'all 0.2s',
+                  transition: 'all 0.3s',
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <span style={{ fontSize: '20px' }}>{member ? '🕵️' : '❓'}</span>
+                  {/* Avatar with ready indicator */}
+                  <div style={{ position: 'relative' }}>
+                    <span style={{ fontSize: '20px' }}>{member ? '🕵️' : '❓'}</span>
+                    {member && (
+                      <span style={{
+                        position: 'absolute', bottom: -2, right: -2,
+                        width: '9px', height: '9px', borderRadius: '50%',
+                        background: isReady ? '#10B981' : '#6B7280',
+                        border: '1.5px solid rgba(0,0,0,0.5)',
+                      }} />
+                    )}
+                  </div>
                   <div>
                     <div style={{ fontSize: '14px', fontWeight: 700, color: member ? '#fff' : 'var(--text-muted)' }}>
-                      {member ? member.name : `Menunggu Agen ${idx + 1}...`}
+                      {member ? member.name : `Slot ${idx + 1} (kosong)`}
                     </div>
                     {member && (
                       <div style={{ fontSize: '10px', color: isMe ? 'var(--accent)' : 'var(--text-muted)', fontWeight: 600 }}>
-                        {isMe ? 'Anda (Agen Aktif)' : 'Agen Partner'}
+                        {isMe ? 'Anda' : 'Anggota Tim'}
                       </div>
                     )}
                   </div>
                 </div>
+
+                {/* Status chip */}
                 {member && (
-                  <span style={{ fontSize: '10px', color: '#10B981', background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)', padding: '2px 8px', borderRadius: '50px', fontWeight: 700 }}>
-                    Siap
+                  <span style={{
+                    fontSize: '10px', fontWeight: 700,
+                    color: isReady ? '#10B981' : '#6B7280',
+                    background: isReady ? 'rgba(16,185,129,0.12)' : 'rgba(107,114,128,0.1)',
+                    border: `1px solid ${isReady ? 'rgba(16,185,129,0.3)' : 'rgba(107,114,128,0.2)'}`,
+                    padding: '3px 10px', borderRadius: '50px',
+                    transition: 'all 0.3s',
+                  }}>
+                    {isReady ? '✓ Siap' : '⏳ Menunggu'}
                   </span>
                 )}
               </div>
@@ -244,64 +270,66 @@ export default function TeamLobby({
         </div>
       </div>
 
-      {/* Dev Bypass Section */}
+      {/* "Saya Siap" CTA button */}
       <AnimatePresence>
         {countdown === null && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            style={{
-              padding: '16px',
-              borderRadius: '14px',
-              border: '1px solid rgba(217,119,6,0.15)',
-              background: 'linear-gradient(135deg, rgba(217,119,6,0.03) 0%, rgba(0,0,0,0.2) 100%)',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '12px',
-              alignItems: 'center',
-            }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}
           >
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '11px', fontWeight: 800, color: 'var(--accent)', letterSpacing: '1px', marginBottom: '2px' }}>
-                🔧 MENU SIMULASI TESTING (DEV MODE)
-              </div>
-              <div style={{ fontSize: '11px', color: 'var(--text-muted)', lineHeight: 1.4, maxWidth: '480px' }}>
-                Gunakan tombol di bawah untuk mensimulasikan siswa kelas lain masuk ke lobi. Tim Anda akan langsung terisi penuh dan game akan otomatis dimulai.
-              </div>
-            </div>
             <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              disabled={simulating}
-              onClick={handleSimulateTeammates}
-              className="game-btn game-btn-primary"
+              whileHover={!hasVoted ? { scale: 1.02 } : {}}
+              whileTap={!hasVoted ? { scale: 0.98 } : {}}
+              disabled={hasVoted || voting}
+              onClick={handleReady}
+              className="game-btn"
               style={{
-                fontSize: '12px',
-                padding: '10px 24px',
                 width: '100%',
-                maxWidth: '320px',
+                maxWidth: '360px',
+                padding: '14px 24px',
+                fontSize: '14px',
+                fontWeight: 800,
+                borderRadius: '14px',
+                border: 'none',
+                background: hasVoted
+                  ? 'rgba(16,185,129,0.15)'
+                  : 'linear-gradient(90deg, #D97706, #F59E0B)',
+                color: hasVoted ? '#10B981' : '#fff',
+                cursor: hasVoted ? 'default' : 'pointer',
+                boxShadow: hasVoted ? 'none' : '0 4px 20px rgba(217,119,6,0.35)',
+                transition: 'all 0.3s',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: '8px',
-                boxShadow: '0 4px 15px rgba(217,119,6,0.2)',
+                outline: hasVoted ? `1px solid rgba(16,185,129,0.3)` : 'none',
               }}
             >
-              {simulating ? (
+              {voting ? (
                 <>
-                  <span className="spinner" style={{ width: '12px', height: '12px', border: '2px solid #fff', borderTopColor: 'transparent', borderRadius: '50%', display: 'inline-block', animation: 'spin 1s linear infinite' }}></span>
-                  Menghubungkan Simulasi...
+                  <span style={{ width: '14px', height: '14px', border: '2px solid currentColor', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite', display: 'inline-block' }} />
+                  Mengirim...
                 </>
+              ) : hasVoted ? (
+                '✓ Anda Sudah Siap!'
               ) : (
-                '👥 Simulasikan Partner (Demo) →'
+                '🚀 Saya Siap Mulai'
               )}
             </motion.button>
+
+            <p style={{ fontSize: '11px', color: 'var(--text-muted)', textAlign: 'center', margin: 0 }}>
+              {hasVoted
+                ? `Menunggu ${Math.max(0, 2 - readyCount)} anggota lagi...`
+                : 'Klik tombol di atas untuk menyatakan siap bermain'}
+            </p>
           </motion.div>
         )}
       </AnimatePresence>
 
       {/* Back button */}
-      <div style={{ display: 'flex', justifyContent: 'center', marginTop: '12px' }}>
+      <div style={{ display: 'flex', justifyContent: 'center', marginTop: '4px' }}>
         <button
           className="game-btn game-btn-secondary"
           style={{ fontSize: '13px', padding: '8px 24px' }}
@@ -312,15 +340,10 @@ export default function TeamLobby({
       </div>
 
       <style jsx global>{`
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
-        .pulse-dot {
-          animation: pulse 1.5s infinite alternate;
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes pulse {
           from { opacity: 0.4; transform: scale(0.9); }
-          to { opacity: 1; transform: scale(1.1); }
+          to   { opacity: 1;   transform: scale(1.1); }
         }
       `}</style>
     </div>

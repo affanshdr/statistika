@@ -125,7 +125,10 @@ export async function POST(req: NextRequest) {
 
       // Auto-advance if threshold met
       if (gateVotes.length >= READY_THRESHOLD) {
-        if (GATE_PHASE_MAP[gate]) {
+        if (gate === 'lobby_ready') {
+          // Special: mark team as PLAYING so all clients start countdown
+          updateData.status = 'PLAYING'
+        } else if (GATE_PHASE_MAP[gate]) {
           updateData.gamePhase = GATE_PHASE_MAP[gate]
         }
         if (gate === 'gate_step1_done') {

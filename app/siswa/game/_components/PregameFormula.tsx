@@ -6,6 +6,7 @@ import { screenTimeData, STATS } from '../_data/level1'
 import { useGameStore } from '@/lib/store/gameStore'
 import DiraPopup, { DiraPopupStep } from './DiraPopup'
 import NPath from './NPath'
+import { useGameRealtime, type PlayerPresence } from '@/lib/hooks/useGameRealtime'
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 const CORRECT_MAX = Math.max(...screenTimeData)  // 18
@@ -411,10 +412,29 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
   // Multiplayer gate/sync state
   const [myVotedGates, setMyVotedGates] = useState<Set<string>>(new Set())
   const [gateVotes, setGateVotes] = useState<Record<string, string[]>>({})
-  const [teammatePositions, setTeammatePositions] = useState<Record<string, { x: number; y: number }>>({})
+  // Real-time presence from Supabase Broadcast (replaces polling-based positions)
+  const [rtPlayers, setRtPlayers] = useState<Record<string, PlayerPresence>>({})
   const onCompleteRef = useRef(onComplete)
   onCompleteRef.current = onComplete
   const charPosRef = useRef({ x: RENTANG_CX(1), y: RENTANG_CY(1) })
+
+  // My display name from teamMembers
+  const myName = teamMembers?.find(m => m.id === studentId)?.name
+
+  // ── Supabase Realtime: positions + presence across all sub-screens ──────────
+  const { broadcastPos, broadcastSub } = useGameRealtime(
+    isFD ? teamId : null,
+    studentId,
+    myName,
+    (players) => setRtPlayers(players),
+  )
+
+  // Teammate maze positions — only entries that have x,y set
+  const teammatePositions: Record<string, { x: number; y: number }> = Object.fromEntries(
+    Object.entries(rtPlayers)
+      .filter(([, p]) => p.x !== undefined && p.y !== undefined)
+      .map(([id, p]) => [id, { x: p.x!, y: p.y! }])
+  )
 
   // ── DiRA Popup state ─────────────────────────────────────────────────────
   const [diraPopupStep, setDiraPopupStep] = useState<DiraPopupStep | null>(null)
@@ -425,6 +445,7 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
 
   const navigateTo = useCallback((next: SubScreen) => {
     setSub(next)
+    broadcastSub(next) // tell teammates which sub-screen I'm on (real-time)
     if (!shownSteps.current.has(next)) {
       shownSteps.current.add(next)
       // Small delay so the screen transition plays first
@@ -434,7 +455,7 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
         setTimeout(() => setDiraPopupStep(next as DiraPopupStep), 350)
       }
     }
-  }, [isFD])
+  }, [isFD, broadcastSub])
 
   // ── Flash overlay (FI error) ─────────────────────────────────────────────
   const [flashScreen, setFlashScreen] = useState(false)
@@ -647,13 +668,7 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
           setSub(fs.sub as SubScreen)
         }
 
-        // Sync teammate positions
-        const positions = (fs.positions ?? {}) as Record<string, { x: number; y: number }>
-        const others: Record<string, { x: number; y: number }> = {}
-        for (const [id, pos] of Object.entries(positions)) {
-          if (id !== studentId) others[id] = pos
-        }
-        setTeammatePositions(others)
+        // Note: teammate positions now come from Supabase Broadcast (no DB polling needed)
 
         // Detect formula_done gate cleared (server auto-advanced gamePhase)
         const serverPhase: string = data.gamePhase ?? ''
@@ -667,23 +682,17 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
     return () => clearInterval(interval)
   }, [teamId, studentId])
 
-  // ── Push own position every 2s when in rentang ───────────────────────────
+  // ── Broadcast position via Supabase Realtime every 50ms (replaces 2s DB push) ──
   useEffect(() => {
     if (!teamId || !studentId || sub !== 'rentang') return
-    const push = () => {
-      fetch('/api/game/team/sync', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          teamId,
-          formulaStateUpdate: { positions: { [studentId]: charPosRef.current } },
-        }),
-      }).catch(() => {})
-    }
-    push() // immediate
-    const interval = setInterval(push, 2000)
+    // Broadcast immediately on entering maze
+    broadcastPos(charPosRef.current.x, charPosRef.current.y)
+    // Then broadcast at 20fps (50ms) — Supabase allows 20 events/s per client
+    const interval = setInterval(() => {
+      broadcastPos(charPosRef.current.x, charPosRef.current.y)
+    }, 50)
     return () => clearInterval(interval)
-  }, [teamId, studentId, sub])
+  }, [teamId, studentId, sub, broadcastPos])
 
   // ── Sync mazeMax/mazeMin when found ─────────────────────────────────────
   useEffect(() => {
@@ -1644,6 +1653,19 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
           {sub === 'banyak-kelas' && (
             <>
               <StepHeader step={2} title="Mencari Nilai n" subtitle="Langkah 2 dari 3 — Eksplorasi Ruangan" />
+              {/* Real-time teammate presence */}
+              {isFD && Object.values(rtPlayers).length > 0 && (
+                <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '4px' }}>
+                  {Object.values(rtPlayers).map(p => (
+                    <span key={p.studentId} style={{
+                      fontSize: '10px', fontWeight: 700, padding: '2px 8px', borderRadius: '50px',
+                      background: `${p.color}20`, border: `1px solid ${p.color}50`, color: p.color,
+                    }}>
+                      👤 {p.name.split(' ')[0]} · {p.sub === 'banyak-kelas' ? '📍 Halaman ini' : `📌 ${p.sub ?? '...'}`}
+                    </span>
+                  ))}
+                </div>
+              )}
 
               {/* NPath game fills remaining space */}
               <div style={{
@@ -1668,6 +1690,19 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
           {sub === 'panjang-kelas' && (
             <>
               <StepHeader step={3} title="Panjang Kelas (P)" subtitle="Langkah 3 dari 3" />
+              {/* Real-time teammate presence */}
+              {isFD && Object.values(rtPlayers).length > 0 && (
+                <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '4px' }}>
+                  {Object.values(rtPlayers).map(p => (
+                    <span key={p.studentId} style={{
+                      fontSize: '10px', fontWeight: 700, padding: '2px 8px', borderRadius: '50px',
+                      background: `${p.color}20`, border: `1px solid ${p.color}50`, color: p.color,
+                    }}>
+                      👤 {p.name.split(' ')[0]} · {p.sub === 'panjang-kelas' ? '📍 Halaman ini' : `📌 ${p.sub ?? '...'}`}
+                    </span>
+                  ))}
+                </div>
+              )}
 
               {/* Two-column layout: agent left, formula right */}
               <div style={{

@@ -25,7 +25,7 @@ type ActiveTeam = {
   levelId: number
   status: 'WAITING' | 'PLAYING'
   classroomName: string
-  members: { id: string; name: string }[]
+  members: { id: string; name: string; isOnline?: boolean }[]
 }
 
 const COGNITIVE_INFO = {
@@ -159,45 +159,27 @@ export default function SiswaPage() {
     }
   }
 
-  // Auto-group FD students on page load:
-  // Fetch their active team first; if none exists, immediately call matchmaking
-  // so they're grouped with classmates as soon as they open the dashboard.
+  // Auto-group ALL FD students in the class into teams on page load,
+  // then send heartbeats every 30s so team members can see who's online.
   useEffect(() => {
     const resolvedStudent = student
     const isFDStudent = resolvedStudent?.geftResult?.cognitiveStyle === 'FD'
     if (!resolvedStudent || !isFDStudent) return
 
     const initTeam = async () => {
-      // 1. Check if already in a team
       setTeamLoading(true)
       try {
-        const res = await fetch(`/api/game/team/my-team?studentId=${resolvedStudent.id}`)
+        // auto-group groups ALL FD students in the class (even offline ones)
+        const res = await fetch('/api/game/team/auto-group', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ studentId: resolvedStudent.id, levelId: 1 }),
+        })
         if (res.ok) {
           const data = await res.json()
           if (data.team) {
             setActiveTeam(data.team)
             if (data.team.teamId) setTeamId(data.team.teamId)
-            setTeamLoading(false)
-            return // already in a team, nothing to do
-          }
-        }
-      } catch { /* ignore */ }
-
-      // 2. No active team → auto-match into one
-      try {
-        const matchRes = await fetch('/api/game/team/match', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ studentId: resolvedStudent.id, levelId: 1 }),
-        })
-        if (matchRes.ok) {
-          const matchData = await matchRes.json()
-          setTeamId(matchData.teamId)
-          // Fetch fresh team info to populate the widget
-          const teamRes = await fetch(`/api/game/team/my-team?studentId=${resolvedStudent.id}`)
-          if (teamRes.ok) {
-            const teamData = await teamRes.json()
-            setActiveTeam(teamData.team ?? null)
           }
         }
       } catch { /* ignore */ } finally {
@@ -207,16 +189,29 @@ export default function SiswaPage() {
 
     initTeam()
 
-    // Poll every 10s while WAITING to pick up new members joining
-    const interval = setInterval(() => {
-      if (activeTeam?.status === 'WAITING' || activeTeam === null) {
-        fetchActiveTeam(resolvedStudent.id, true)
-      }
-    }, 10000)
+    // Heartbeat: update lastSeenAt every 30s so teammates can see we're online
+    const sendHeartbeat = () => {
+      fetch('/api/students/heartbeat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ studentId: resolvedStudent.id }),
+      }).catch(() => {})
+    }
+    sendHeartbeat() // immediate on mount
+    const heartbeatInterval = setInterval(sendHeartbeat, 30_000)
 
-    return () => clearInterval(interval)
+    // Poll every 10s to refresh team status and online indicators
+    const pollInterval = setInterval(() => {
+      fetchActiveTeam(resolvedStudent.id, true)
+    }, 10_000)
+
+    return () => {
+      clearInterval(heartbeatInterval)
+      clearInterval(pollInterval)
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [student])
+
 
   // Detect mobile/portrait orientation
   useEffect(() => {
@@ -880,7 +875,10 @@ export default function SiswaPage() {
                     display: 'inline-block',
                     animation: activeTeam.status === 'WAITING' ? 'teamPulse 1.5s infinite alternate' : 'none',
                   }} />
-                  {activeTeam.status === 'PLAYING' ? '🎮 Tim Sedang Bermain' : '⏳ Mencari Anggota...'}
+                  {activeTeam.status === 'PLAYING'
+                    ? '🎮 Permainan Berlangsung'
+                    : `👥 Tim Terbentuk · ${activeTeam.members.filter(m => m.isOnline).length}/${activeTeam.members.length} Online`
+                  }
                 </div>
 
                 {/* Member Slots */}
@@ -906,14 +904,26 @@ export default function SiswaPage() {
                         }}
                       >
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                          <span style={{ fontSize: '18px' }}>{member ? '🕵️' : '❓'}</span>
+                          {/* Avatar with online dot */}
+                          <div style={{ position: 'relative', flexShrink: 0 }}>
+                            <span style={{ fontSize: '18px' }}>{member ? '🕵️' : '❓'}</span>
+                            {member && (
+                              <span style={{
+                                position: 'absolute', bottom: -1, right: -1,
+                                width: '8px', height: '8px', borderRadius: '50%',
+                                background: member.isOnline ? '#10B981' : '#94A3B8',
+                                border: '1.5px solid #fff',
+                                display: 'block',
+                              }} />
+                            )}
+                          </div>
                           <div>
                             <div style={{ fontSize: '13px', fontWeight: 700, color: member ? '#1C1917' : '#A8A29E' }}>
-                              {member ? member.name : `Menunggu Agen ${idx + 1}...`}
+                              {member ? member.name : `Slot ${idx + 1} (kosong)`}
                             </div>
                             {member && (
                               <div style={{ fontSize: '10px', color: isMe ? '#0e7490' : '#78716C', fontWeight: 600 }}>
-                                {isMe ? 'Anda (Agen Aktif)' : 'Agen Partner'}
+                                {isMe ? 'Anda' : 'Anggota Tim'}
                               </div>
                             )}
                           </div>
@@ -921,18 +931,17 @@ export default function SiswaPage() {
                         {member && (
                           <span style={{
                             fontSize: '10px', fontWeight: 700,
-                            color: '#10B981',
-                            background: 'rgba(16,185,129,0.1)',
-                            border: '1px solid rgba(16,185,129,0.2)',
+                            color: member.isOnline ? '#10B981' : '#94A3B8',
+                            background: member.isOnline ? 'rgba(16,185,129,0.1)' : 'rgba(148,163,184,0.1)',
+                            border: `1px solid ${member.isOnline ? 'rgba(16,185,129,0.3)' : 'rgba(148,163,184,0.2)'}`,
                             padding: '2px 8px', borderRadius: '50px',
-                          }}>Siap</span>
+                          }}>{member.isOnline ? '🟢 Online' : '⚫ Offline'}</span>
                         )}
                         {!member && (
                           <span style={{
                             fontSize: '10px', fontWeight: 600,
                             color: '#A8A29E',
-                            animation: 'teamPulse 1.5s infinite alternate',
-                          }}>Bergabung...</span>
+                          }}>—</span>
                         )}
                       </div>
                     )

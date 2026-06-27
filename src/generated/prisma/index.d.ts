@@ -2676,6 +2676,7 @@ export namespace Prisma {
     geftStatus: $Enums.GeftStatus | null
     diagnosticScore: number | null
     diagnosticLevel: string | null
+    lastSeenAt: Date | null
     createdAt: Date | null
   }
 
@@ -2687,6 +2688,7 @@ export namespace Prisma {
     geftStatus: $Enums.GeftStatus | null
     diagnosticScore: number | null
     diagnosticLevel: string | null
+    lastSeenAt: Date | null
     createdAt: Date | null
   }
 
@@ -2698,6 +2700,7 @@ export namespace Prisma {
     geftStatus: number
     diagnosticScore: number
     diagnosticLevel: number
+    lastSeenAt: number
     createdAt: number
     _all: number
   }
@@ -2719,6 +2722,7 @@ export namespace Prisma {
     geftStatus?: true
     diagnosticScore?: true
     diagnosticLevel?: true
+    lastSeenAt?: true
     createdAt?: true
   }
 
@@ -2730,6 +2734,7 @@ export namespace Prisma {
     geftStatus?: true
     diagnosticScore?: true
     diagnosticLevel?: true
+    lastSeenAt?: true
     createdAt?: true
   }
 
@@ -2741,6 +2746,7 @@ export namespace Prisma {
     geftStatus?: true
     diagnosticScore?: true
     diagnosticLevel?: true
+    lastSeenAt?: true
     createdAt?: true
     _all?: true
   }
@@ -2839,6 +2845,7 @@ export namespace Prisma {
     geftStatus: $Enums.GeftStatus
     diagnosticScore: number | null
     diagnosticLevel: string | null
+    lastSeenAt: Date | null
     createdAt: Date
     _count: StudentCountAggregateOutputType | null
     _avg: StudentAvgAggregateOutputType | null
@@ -2869,6 +2876,7 @@ export namespace Prisma {
     geftStatus?: boolean
     diagnosticScore?: boolean
     diagnosticLevel?: boolean
+    lastSeenAt?: boolean
     createdAt?: boolean
     geftResult?: boolean | Student$geftResultArgs<ExtArgs>
     gameSessions?: boolean | Student$gameSessionsArgs<ExtArgs>
@@ -2887,6 +2895,7 @@ export namespace Prisma {
     geftStatus?: boolean
     diagnosticScore?: boolean
     diagnosticLevel?: boolean
+    lastSeenAt?: boolean
     createdAt?: boolean
     classroom?: boolean | ClassroomDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["student"]>
@@ -2899,6 +2908,7 @@ export namespace Prisma {
     geftStatus?: boolean
     diagnosticScore?: boolean
     diagnosticLevel?: boolean
+    lastSeenAt?: boolean
     createdAt?: boolean
   }
 
@@ -2933,6 +2943,7 @@ export namespace Prisma {
       geftStatus: $Enums.GeftStatus
       diagnosticScore: number | null
       diagnosticLevel: string | null
+      lastSeenAt: Date | null
       createdAt: Date
     }, ExtArgs["result"]["student"]>
     composites: {}
@@ -3340,6 +3351,7 @@ export namespace Prisma {
     readonly geftStatus: FieldRef<"Student", 'GeftStatus'>
     readonly diagnosticScore: FieldRef<"Student", 'Int'>
     readonly diagnosticLevel: FieldRef<"Student", 'String'>
+    readonly lastSeenAt: FieldRef<"Student", 'DateTime'>
     readonly createdAt: FieldRef<"Student", 'DateTime'>
   }
     
@@ -10649,6 +10661,7 @@ export namespace Prisma {
     geftStatus: 'geftStatus',
     diagnosticScore: 'diagnosticScore',
     diagnosticLevel: 'diagnosticLevel',
+    lastSeenAt: 'lastSeenAt',
     createdAt: 'createdAt'
   };
 
@@ -10958,6 +10971,7 @@ export namespace Prisma {
     geftStatus?: EnumGeftStatusFilter<"Student"> | $Enums.GeftStatus
     diagnosticScore?: IntNullableFilter<"Student"> | number | null
     diagnosticLevel?: StringNullableFilter<"Student"> | string | null
+    lastSeenAt?: DateTimeNullableFilter<"Student"> | Date | string | null
     createdAt?: DateTimeFilter<"Student"> | Date | string
     geftResult?: XOR<GeftResultNullableRelationFilter, GeftResultWhereInput> | null
     gameSessions?: GameSessionListRelationFilter
@@ -10975,6 +10989,7 @@ export namespace Prisma {
     geftStatus?: SortOrder
     diagnosticScore?: SortOrderInput | SortOrder
     diagnosticLevel?: SortOrderInput | SortOrder
+    lastSeenAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     geftResult?: GeftResultOrderByWithRelationInput
     gameSessions?: GameSessionOrderByRelationAggregateInput
@@ -10995,6 +11010,7 @@ export namespace Prisma {
     geftStatus?: EnumGeftStatusFilter<"Student"> | $Enums.GeftStatus
     diagnosticScore?: IntNullableFilter<"Student"> | number | null
     diagnosticLevel?: StringNullableFilter<"Student"> | string | null
+    lastSeenAt?: DateTimeNullableFilter<"Student"> | Date | string | null
     createdAt?: DateTimeFilter<"Student"> | Date | string
     geftResult?: XOR<GeftResultNullableRelationFilter, GeftResultWhereInput> | null
     gameSessions?: GameSessionListRelationFilter
@@ -11012,6 +11028,7 @@ export namespace Prisma {
     geftStatus?: SortOrder
     diagnosticScore?: SortOrderInput | SortOrder
     diagnosticLevel?: SortOrderInput | SortOrder
+    lastSeenAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     _count?: StudentCountOrderByAggregateInput
     _avg?: StudentAvgOrderByAggregateInput
@@ -11031,6 +11048,7 @@ export namespace Prisma {
     geftStatus?: EnumGeftStatusWithAggregatesFilter<"Student"> | $Enums.GeftStatus
     diagnosticScore?: IntNullableWithAggregatesFilter<"Student"> | number | null
     diagnosticLevel?: StringNullableWithAggregatesFilter<"Student"> | string | null
+    lastSeenAt?: DateTimeNullableWithAggregatesFilter<"Student"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Student"> | Date | string
   }
 
@@ -11576,6 +11594,7 @@ export namespace Prisma {
     geftStatus?: $Enums.GeftStatus
     diagnosticScore?: number | null
     diagnosticLevel?: string | null
+    lastSeenAt?: Date | string | null
     createdAt?: Date | string
     geftResult?: GeftResultCreateNestedOneWithoutStudentInput
     gameSessions?: GameSessionCreateNestedManyWithoutStudentInput
@@ -11593,6 +11612,7 @@ export namespace Prisma {
     geftStatus?: $Enums.GeftStatus
     diagnosticScore?: number | null
     diagnosticLevel?: string | null
+    lastSeenAt?: Date | string | null
     createdAt?: Date | string
     geftResult?: GeftResultUncheckedCreateNestedOneWithoutStudentInput
     gameSessions?: GameSessionUncheckedCreateNestedManyWithoutStudentInput
@@ -11608,6 +11628,7 @@ export namespace Prisma {
     geftStatus?: EnumGeftStatusFieldUpdateOperationsInput | $Enums.GeftStatus
     diagnosticScore?: NullableIntFieldUpdateOperationsInput | number | null
     diagnosticLevel?: NullableStringFieldUpdateOperationsInput | string | null
+    lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     geftResult?: GeftResultUpdateOneWithoutStudentNestedInput
     gameSessions?: GameSessionUpdateManyWithoutStudentNestedInput
@@ -11625,6 +11646,7 @@ export namespace Prisma {
     geftStatus?: EnumGeftStatusFieldUpdateOperationsInput | $Enums.GeftStatus
     diagnosticScore?: NullableIntFieldUpdateOperationsInput | number | null
     diagnosticLevel?: NullableStringFieldUpdateOperationsInput | string | null
+    lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     geftResult?: GeftResultUncheckedUpdateOneWithoutStudentNestedInput
     gameSessions?: GameSessionUncheckedUpdateManyWithoutStudentNestedInput
@@ -11641,6 +11663,7 @@ export namespace Prisma {
     geftStatus?: $Enums.GeftStatus
     diagnosticScore?: number | null
     diagnosticLevel?: string | null
+    lastSeenAt?: Date | string | null
     createdAt?: Date | string
   }
 
@@ -11651,6 +11674,7 @@ export namespace Prisma {
     geftStatus?: EnumGeftStatusFieldUpdateOperationsInput | $Enums.GeftStatus
     diagnosticScore?: NullableIntFieldUpdateOperationsInput | number | null
     diagnosticLevel?: NullableStringFieldUpdateOperationsInput | string | null
+    lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -11662,6 +11686,7 @@ export namespace Prisma {
     geftStatus?: EnumGeftStatusFieldUpdateOperationsInput | $Enums.GeftStatus
     diagnosticScore?: NullableIntFieldUpdateOperationsInput | number | null
     diagnosticLevel?: NullableStringFieldUpdateOperationsInput | string | null
+    lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -12269,6 +12294,17 @@ export namespace Prisma {
     not?: NestedStringNullableFilter<$PrismaModel> | string | null
   }
 
+  export type DateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
   export type DateTimeFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
@@ -12338,6 +12374,7 @@ export namespace Prisma {
     geftStatus?: SortOrder
     diagnosticScore?: SortOrder
     diagnosticLevel?: SortOrder
+    lastSeenAt?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -12353,6 +12390,7 @@ export namespace Prisma {
     geftStatus?: SortOrder
     diagnosticScore?: SortOrder
     diagnosticLevel?: SortOrder
+    lastSeenAt?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -12364,6 +12402,7 @@ export namespace Prisma {
     geftStatus?: SortOrder
     diagnosticScore?: SortOrder
     diagnosticLevel?: SortOrder
+    lastSeenAt?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -12413,6 +12452,20 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedStringNullableFilter<$PrismaModel>
     _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+
+  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
   export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
@@ -12977,6 +13030,10 @@ export namespace Prisma {
     set?: string | null
   }
 
+  export type NullableDateTimeFieldUpdateOperationsInput = {
+    set?: Date | string | null
+  }
+
   export type DateTimeFieldUpdateOperationsInput = {
     set?: Date | string
   }
@@ -13408,6 +13465,17 @@ export namespace Prisma {
     not?: NestedStringNullableFilter<$PrismaModel> | string | null
   }
 
+  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
   export type NestedDateTimeFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
@@ -13471,6 +13539,20 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedStringNullableFilter<$PrismaModel>
     _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+
+  export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
   export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
@@ -13573,6 +13655,7 @@ export namespace Prisma {
     geftStatus?: $Enums.GeftStatus
     diagnosticScore?: number | null
     diagnosticLevel?: string | null
+    lastSeenAt?: Date | string | null
     createdAt?: Date | string
     geftResult?: GeftResultCreateNestedOneWithoutStudentInput
     gameSessions?: GameSessionCreateNestedManyWithoutStudentInput
@@ -13588,6 +13671,7 @@ export namespace Prisma {
     geftStatus?: $Enums.GeftStatus
     diagnosticScore?: number | null
     diagnosticLevel?: string | null
+    lastSeenAt?: Date | string | null
     createdAt?: Date | string
     geftResult?: GeftResultUncheckedCreateNestedOneWithoutStudentInput
     gameSessions?: GameSessionUncheckedCreateNestedManyWithoutStudentInput
@@ -13677,6 +13761,7 @@ export namespace Prisma {
     geftStatus?: EnumGeftStatusFilter<"Student"> | $Enums.GeftStatus
     diagnosticScore?: IntNullableFilter<"Student"> | number | null
     diagnosticLevel?: StringNullableFilter<"Student"> | string | null
+    lastSeenAt?: DateTimeNullableFilter<"Student"> | Date | string | null
     createdAt?: DateTimeFilter<"Student"> | Date | string
   }
 
@@ -14030,6 +14115,7 @@ export namespace Prisma {
     geftStatus?: $Enums.GeftStatus
     diagnosticScore?: number | null
     diagnosticLevel?: string | null
+    lastSeenAt?: Date | string | null
     createdAt?: Date | string
     gameSessions?: GameSessionCreateNestedManyWithoutStudentInput
     leaderboard?: LeaderboardCreateNestedOneWithoutStudentInput
@@ -14046,6 +14132,7 @@ export namespace Prisma {
     geftStatus?: $Enums.GeftStatus
     diagnosticScore?: number | null
     diagnosticLevel?: string | null
+    lastSeenAt?: Date | string | null
     createdAt?: Date | string
     gameSessions?: GameSessionUncheckedCreateNestedManyWithoutStudentInput
     leaderboard?: LeaderboardUncheckedCreateNestedOneWithoutStudentInput
@@ -14076,6 +14163,7 @@ export namespace Prisma {
     geftStatus?: EnumGeftStatusFieldUpdateOperationsInput | $Enums.GeftStatus
     diagnosticScore?: NullableIntFieldUpdateOperationsInput | number | null
     diagnosticLevel?: NullableStringFieldUpdateOperationsInput | string | null
+    lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     gameSessions?: GameSessionUpdateManyWithoutStudentNestedInput
     leaderboard?: LeaderboardUpdateOneWithoutStudentNestedInput
@@ -14092,6 +14180,7 @@ export namespace Prisma {
     geftStatus?: EnumGeftStatusFieldUpdateOperationsInput | $Enums.GeftStatus
     diagnosticScore?: NullableIntFieldUpdateOperationsInput | number | null
     diagnosticLevel?: NullableStringFieldUpdateOperationsInput | string | null
+    lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     gameSessions?: GameSessionUncheckedUpdateManyWithoutStudentNestedInput
     leaderboard?: LeaderboardUncheckedUpdateOneWithoutStudentNestedInput
@@ -14106,6 +14195,7 @@ export namespace Prisma {
     geftStatus?: $Enums.GeftStatus
     diagnosticScore?: number | null
     diagnosticLevel?: string | null
+    lastSeenAt?: Date | string | null
     createdAt?: Date | string
     geftResult?: GeftResultCreateNestedOneWithoutStudentInput
     leaderboard?: LeaderboardCreateNestedOneWithoutStudentInput
@@ -14122,6 +14212,7 @@ export namespace Prisma {
     geftStatus?: $Enums.GeftStatus
     diagnosticScore?: number | null
     diagnosticLevel?: string | null
+    lastSeenAt?: Date | string | null
     createdAt?: Date | string
     geftResult?: GeftResultUncheckedCreateNestedOneWithoutStudentInput
     leaderboard?: LeaderboardUncheckedCreateNestedOneWithoutStudentInput
@@ -14152,6 +14243,7 @@ export namespace Prisma {
     geftStatus?: EnumGeftStatusFieldUpdateOperationsInput | $Enums.GeftStatus
     diagnosticScore?: NullableIntFieldUpdateOperationsInput | number | null
     diagnosticLevel?: NullableStringFieldUpdateOperationsInput | string | null
+    lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     geftResult?: GeftResultUpdateOneWithoutStudentNestedInput
     leaderboard?: LeaderboardUpdateOneWithoutStudentNestedInput
@@ -14168,6 +14260,7 @@ export namespace Prisma {
     geftStatus?: EnumGeftStatusFieldUpdateOperationsInput | $Enums.GeftStatus
     diagnosticScore?: NullableIntFieldUpdateOperationsInput | number | null
     diagnosticLevel?: NullableStringFieldUpdateOperationsInput | string | null
+    lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     geftResult?: GeftResultUncheckedUpdateOneWithoutStudentNestedInput
     leaderboard?: LeaderboardUncheckedUpdateOneWithoutStudentNestedInput
@@ -14182,6 +14275,7 @@ export namespace Prisma {
     geftStatus?: $Enums.GeftStatus
     diagnosticScore?: number | null
     diagnosticLevel?: string | null
+    lastSeenAt?: Date | string | null
     createdAt?: Date | string
     geftResult?: GeftResultCreateNestedOneWithoutStudentInput
     gameSessions?: GameSessionCreateNestedManyWithoutStudentInput
@@ -14198,6 +14292,7 @@ export namespace Prisma {
     geftStatus?: $Enums.GeftStatus
     diagnosticScore?: number | null
     diagnosticLevel?: string | null
+    lastSeenAt?: Date | string | null
     createdAt?: Date | string
     geftResult?: GeftResultUncheckedCreateNestedOneWithoutStudentInput
     gameSessions?: GameSessionUncheckedCreateNestedManyWithoutStudentInput
@@ -14228,6 +14323,7 @@ export namespace Prisma {
     geftStatus?: EnumGeftStatusFieldUpdateOperationsInput | $Enums.GeftStatus
     diagnosticScore?: NullableIntFieldUpdateOperationsInput | number | null
     diagnosticLevel?: NullableStringFieldUpdateOperationsInput | string | null
+    lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     geftResult?: GeftResultUpdateOneWithoutStudentNestedInput
     gameSessions?: GameSessionUpdateManyWithoutStudentNestedInput
@@ -14244,6 +14340,7 @@ export namespace Prisma {
     geftStatus?: EnumGeftStatusFieldUpdateOperationsInput | $Enums.GeftStatus
     diagnosticScore?: NullableIntFieldUpdateOperationsInput | number | null
     diagnosticLevel?: NullableStringFieldUpdateOperationsInput | string | null
+    lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     geftResult?: GeftResultUncheckedUpdateOneWithoutStudentNestedInput
     gameSessions?: GameSessionUncheckedUpdateManyWithoutStudentNestedInput
@@ -14425,6 +14522,7 @@ export namespace Prisma {
     geftStatus?: $Enums.GeftStatus
     diagnosticScore?: number | null
     diagnosticLevel?: string | null
+    lastSeenAt?: Date | string | null
     createdAt?: Date | string
     geftResult?: GeftResultCreateNestedOneWithoutStudentInput
     gameSessions?: GameSessionCreateNestedManyWithoutStudentInput
@@ -14441,6 +14539,7 @@ export namespace Prisma {
     geftStatus?: $Enums.GeftStatus
     diagnosticScore?: number | null
     diagnosticLevel?: string | null
+    lastSeenAt?: Date | string | null
     createdAt?: Date | string
     geftResult?: GeftResultUncheckedCreateNestedOneWithoutStudentInput
     gameSessions?: GameSessionUncheckedCreateNestedManyWithoutStudentInput
@@ -14516,6 +14615,7 @@ export namespace Prisma {
     geftStatus?: EnumGeftStatusFieldUpdateOperationsInput | $Enums.GeftStatus
     diagnosticScore?: NullableIntFieldUpdateOperationsInput | number | null
     diagnosticLevel?: NullableStringFieldUpdateOperationsInput | string | null
+    lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     geftResult?: GeftResultUpdateOneWithoutStudentNestedInput
     gameSessions?: GameSessionUpdateManyWithoutStudentNestedInput
@@ -14532,6 +14632,7 @@ export namespace Prisma {
     geftStatus?: EnumGeftStatusFieldUpdateOperationsInput | $Enums.GeftStatus
     diagnosticScore?: NullableIntFieldUpdateOperationsInput | number | null
     diagnosticLevel?: NullableStringFieldUpdateOperationsInput | string | null
+    lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     geftResult?: GeftResultUncheckedUpdateOneWithoutStudentNestedInput
     gameSessions?: GameSessionUncheckedUpdateManyWithoutStudentNestedInput
@@ -14585,6 +14686,7 @@ export namespace Prisma {
     geftStatus?: $Enums.GeftStatus
     diagnosticScore?: number | null
     diagnosticLevel?: string | null
+    lastSeenAt?: Date | string | null
     createdAt?: Date | string
     geftResult?: GeftResultCreateNestedOneWithoutStudentInput
     gameSessions?: GameSessionCreateNestedManyWithoutStudentInput
@@ -14601,6 +14703,7 @@ export namespace Prisma {
     geftStatus?: $Enums.GeftStatus
     diagnosticScore?: number | null
     diagnosticLevel?: string | null
+    lastSeenAt?: Date | string | null
     createdAt?: Date | string
     geftResult?: GeftResultUncheckedCreateNestedOneWithoutStudentInput
     gameSessions?: GameSessionUncheckedCreateNestedManyWithoutStudentInput
@@ -14676,6 +14779,7 @@ export namespace Prisma {
     geftStatus?: EnumGeftStatusFieldUpdateOperationsInput | $Enums.GeftStatus
     diagnosticScore?: NullableIntFieldUpdateOperationsInput | number | null
     diagnosticLevel?: NullableStringFieldUpdateOperationsInput | string | null
+    lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     geftResult?: GeftResultUpdateOneWithoutStudentNestedInput
     gameSessions?: GameSessionUpdateManyWithoutStudentNestedInput
@@ -14692,6 +14796,7 @@ export namespace Prisma {
     geftStatus?: EnumGeftStatusFieldUpdateOperationsInput | $Enums.GeftStatus
     diagnosticScore?: NullableIntFieldUpdateOperationsInput | number | null
     diagnosticLevel?: NullableStringFieldUpdateOperationsInput | string | null
+    lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     geftResult?: GeftResultUncheckedUpdateOneWithoutStudentNestedInput
     gameSessions?: GameSessionUncheckedUpdateManyWithoutStudentNestedInput
@@ -14706,6 +14811,7 @@ export namespace Prisma {
     geftStatus?: $Enums.GeftStatus
     diagnosticScore?: number | null
     diagnosticLevel?: string | null
+    lastSeenAt?: Date | string | null
     createdAt?: Date | string
   }
 
@@ -14731,6 +14837,7 @@ export namespace Prisma {
     geftStatus?: EnumGeftStatusFieldUpdateOperationsInput | $Enums.GeftStatus
     diagnosticScore?: NullableIntFieldUpdateOperationsInput | number | null
     diagnosticLevel?: NullableStringFieldUpdateOperationsInput | string | null
+    lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     geftResult?: GeftResultUpdateOneWithoutStudentNestedInput
     gameSessions?: GameSessionUpdateManyWithoutStudentNestedInput
@@ -14746,6 +14853,7 @@ export namespace Prisma {
     geftStatus?: EnumGeftStatusFieldUpdateOperationsInput | $Enums.GeftStatus
     diagnosticScore?: NullableIntFieldUpdateOperationsInput | number | null
     diagnosticLevel?: NullableStringFieldUpdateOperationsInput | string | null
+    lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     geftResult?: GeftResultUncheckedUpdateOneWithoutStudentNestedInput
     gameSessions?: GameSessionUncheckedUpdateManyWithoutStudentNestedInput
@@ -14761,6 +14869,7 @@ export namespace Prisma {
     geftStatus?: EnumGeftStatusFieldUpdateOperationsInput | $Enums.GeftStatus
     diagnosticScore?: NullableIntFieldUpdateOperationsInput | number | null
     diagnosticLevel?: NullableStringFieldUpdateOperationsInput | string | null
+    lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 

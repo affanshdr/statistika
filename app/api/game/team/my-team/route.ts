@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
+const ONLINE_THRESHOLD_MS = 2 * 60 * 1000 // 2 minutes
+
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url)
@@ -27,7 +29,7 @@ export async function GET(req: NextRequest) {
             members: {
               include: {
                 student: {
-                  select: { id: true, name: true },
+                  select: { id: true, name: true, lastSeenAt: true },
                 },
               },
               orderBy: { joinedAt: 'asc' },
@@ -55,6 +57,9 @@ export async function GET(req: NextRequest) {
         members: team.members.map((m) => ({
           id: m.student.id,
           name: m.student.name,
+          isOnline: m.student.lastSeenAt
+            ? Date.now() - new Date(m.student.lastSeenAt).getTime() < ONLINE_THRESHOLD_MS
+            : false,
         })),
       },
     })
