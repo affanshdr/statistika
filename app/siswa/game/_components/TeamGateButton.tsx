@@ -49,6 +49,7 @@ export default function TeamGateButton({
   readyVotes,
   label,
   labelVoted,
+  onComplete,
   onVote,
   onVoteSuccess,
   disabled = false,

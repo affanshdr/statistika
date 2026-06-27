@@ -59,7 +59,7 @@ export async function GET(req: NextRequest) {
             data: {
               status: 'WAITING',
               currentStep: 0,
-              histogramState: null,
+              histogramState: [],
               verdictAnswer: '',
               isCorrect: false,
               gamePhase: 'cutscene_comments',

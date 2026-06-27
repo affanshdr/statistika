@@ -409,6 +409,9 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
     return () => window.removeEventListener('resize', check)
   }, [])
 
+  const [mazeMax, setMazeMax] = useState<number | null>(null)
+  const [mazeMin, setMazeMin] = useState<number | null>(null)
+
   // Multiplayer gate/sync state
   const [myVotedGates, setMyVotedGates] = useState<Set<string>>(new Set())
   const [gateVotes, setGateVotes] = useState<Record<string, string[]>>({})
@@ -508,8 +511,6 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
   // Keep a ref so intervals/effects always read latest position without re-running
   useEffect(() => { charPosRef.current = charPos }, [charPos])
 
-  const [mazeMax, setMazeMax] = useState<number | null>(null)
-  const [mazeMin, setMazeMin] = useState<number | null>(null)
   const [nearNode, setNearNode] = useState<number | null>(null)
   const [assignPopup, setAssignPopup] = useState<number | null>(null)
   const [wrongSelectedValue, setWrongSelectedValue] = useState<number | null>(null)

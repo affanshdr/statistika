@@ -58,15 +58,6 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
   const chatEndRef = useRef<HTMLDivElement | null>(null)
   const sessionActiveRef = useRef(false)
 
-  // ── Supabase Realtime: presence across game steps ────────────────────────
-  const { broadcastStep, broadcastSyncTrigger } = useGameRealtime(
-    teamId,
-    studentId,
-    studentName,
-    undefined,
-    fetchTeamState // triggers immediate sync on WebSocket message
-  )
-
   useEffect(() => { sessionActiveRef.current = true }, [])
 
   // Auto-scroll chat to bottom
@@ -151,6 +142,15 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
       setSyncLoading(false)
     }
   }, [teamId, step, placedIndices])
+
+  // ── Supabase Realtime: presence across game steps ────────────────────────
+  const { broadcastStep, broadcastSyncTrigger } = useGameRealtime(
+    teamId,
+    studentId,
+    studentName,
+    undefined,
+    fetchTeamState // triggers immediate sync on WebSocket message
+  )
 
   useEffect(() => {
     if (!teamId) {

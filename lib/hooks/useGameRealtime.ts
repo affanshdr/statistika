@@ -37,6 +37,10 @@ type PresenceMap = Record<string, PlayerPresence>
  *   const { players, broadcastPos, broadcastSub, broadcastStep } =
  *     useGameRealtime(teamId, studentId, studentName)
  */
+export function useGameRealtime(
+  teamId: string | null | undefined,
+  studentId: string | undefined,
+  studentName: string | undefined,
   onPlayersChange?: (players: PresenceMap) => void,
   onSyncTrigger?: () => void,
 ) {
