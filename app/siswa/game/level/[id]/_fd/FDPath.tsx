@@ -8,6 +8,7 @@ import DiRA from '../../../_components/DiRA'
 import BadgeUnlock from '../../../_components/BadgeUnlock'
 import MythBustedStamp from '../../../_components/MythBustedStamp'
 import VerdictScreen from '../../../_components/VerdictScreen'
+import TeamGateButton from '../../../_components/TeamGateButton'
 import { BADGES, STATS } from '../../../_data/level1'
 import { useRouter } from 'next/navigation'
 import { useGameRealtime } from '@/lib/hooks/useGameRealtime'
@@ -51,6 +52,8 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
   const [chatInput, setChatInput] = useState('')
   const [teamMembers, setTeamMembers] = useState<Member[]>([])
   const [syncLoading, setSyncLoading] = useState(true)
+  const [histogramCorrect, setHistogramCorrect] = useState(false) // true setelah histogram benar disubmit
+  const [teamReadyVotes, setTeamReadyVotes] = useState<Record<string, string[]>>({}) // votes dari polling
 
   const chatEndRef = useRef<HTMLDivElement | null>(null)
   const sessionActiveRef = useRef(false)
@@ -123,7 +126,12 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
         setChatMessages(data.chatMessages)
       }
 
-      // 5. Sync completion (verdict answered correctly)
+      // 5. Sync ready votes (for TeamGateButton UI)
+      if (data.readyVotes) {
+        setTeamReadyVotes(data.readyVotes as Record<string, string[]>)
+      }
+
+      // 6. Sync completion (verdict answered correctly)
       if (data.status === 'COMPLETED' || data.isCorrect) {
         if (data.verdictAnswer) {
           useGameStore.getState().setVerdict(data.verdictAnswer)
@@ -176,26 +184,31 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
   const handleHistogramSubmit = async (isCorrect: boolean) => {
     if (isCorrect) {
       addXP(25, 'Menyusun histogram terbimbing dengan benar', 0)
-      setDiraMsg('Luar biasa! Kamu berhasil menyusun histogram dengan benar. 📊\nSekarang, yuk kita amati statistik dasar dari data tersebut di Tahap B ini!')
-      setShowDira(true)
+      setHistogramCorrect(true)
 
-      if (teamId) {
+      if (teamId && studentId) {
+        // Team mode: cast gate vote — advance when 2/3 have submitted correctly
+        setDiraMsg('Histogram benar! 🎉 Kamu sudah vote untuk lanjut. Tunggu konfirmasi tim — minimal 1 anggota lagi harus setuju!')
+        setShowDira(true)
         try {
           await fetch('/api/game/team/sync', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               teamId,
-              currentStep: 1,
               histogramState: placedIndices,
+              castVote: { gate: 'gate_step0_done', studentId },
             }),
           })
-        } catch (e) {
-          console.error(e)
-        }
+        } catch (e) { console.error(e) }
+        // Step advance is handled by polling when server sets currentStep = 1
+      } else {
+        // Solo/FI mode: advance immediately
+        setDiraMsg('Luar biasa! Kamu berhasil menyusun histogram dengan benar. 📊\nSekarang, yuk kita amati statistik dasar dari data tersebut di Tahap B ini!')
+        setShowDira(true)
+        broadcastStep(1)
+        setTimeout(() => setStep(1), 400)
       }
-      broadcastStep(1) // real-time: tell teammates I moved to step 1
-      setStep(1)
     } else {
       // FD: hanya red flash, tanpa life lost — eksplorasi mandiri
       setFlashWrong(true)
@@ -206,31 +219,19 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
   }
 
   // ── STEP 1: Analisis selesai → ke Verifikasi Berita ──
+  // Hanya dipakai di solo/FI mode. Team mode pakai TeamGateButton gate_step1_done.
   const handleProceedToVerification = async () => {
     if (submitting) return
     setSubmitting(true)
     addXP(20, 'Analisis distribusi FD tepat', 1)
     setShowDira(false)
-
-    if (teamId) {
-      try {
-        await fetch('/api/game/team/sync', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ teamId, currentStep: 1.5 }),
-        })
-      } catch (e) {
-        console.error(e)
-      }
-    }
-
     setTimeout(() => {
       setStep(1.5)
       setSubmitting(false)
     }, 300)
   }
 
-  // ── STEP 1.5: Verifikasi benar → ke MythBusted ──
+  // ── STEP 1.5: Verifikasi benar → cast vote gate_verdict_done ──
   const handleVerificationCorrect = async () => {
     addXP(15, 'Verifikasi berita benar', 1)
     awardBadge(BADGES.DETECTIVE)
@@ -242,24 +243,23 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
 
     awardBadge(BADGES.MYTHBUST)
 
-    if (teamId) {
+    if (teamId && studentId) {
+      // Team mode: cast gate vote — server advances all when 2/3 answer correctly
       try {
         await fetch('/api/game/team/sync', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             teamId,
-            currentStep: 2,
-            verdictAnswer: 'MISLEADING',
-            isCorrect: true,
+            castVote: { gate: 'gate_verdict_done', studentId },
           }),
         })
-      } catch (e) {
-        console.error(e)
-      }
+      } catch (e) { console.error(e) }
+      // Step advance is handled by polling when server sets currentStep = 2
+    } else {
+      // Solo/FI mode: advance immediately
+      setTimeout(() => setStep(2), 400)
     }
-
-    setTimeout(() => setStep(2), 400)
   }
 
   // ── STEP 1.5: Verifikasi salah → hint dari DiRA ──
@@ -421,14 +421,28 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
                     </div>
                   </div>
 
-                  <button
-                    className="game-btn game-btn-primary"
-                    onClick={handleProceedToVerification}
-                    disabled={submitting}
-                    style={{ width: '100%', marginTop: '8px' }}
-                  >
-                    Lanjut: Verifikasi Berita →
-                  </button>
+                  {/* Tombol lanjut — TeamGateButton untuk FD team, biasa untuk FI solo */}
+                  {teamId ? (
+                    <TeamGateButton
+                      gate="gate_step1_done"
+                      teamId={teamId}
+                      studentId={studentId}
+                      members={teamMembers}
+                      readyVotes={teamReadyVotes}
+                      label="Lanjut: Verifikasi Berita →"
+                      onVote={() => { addXP(20, 'Analisis distribusi FD tepat', 1); setShowDira(false) }}
+                      onComplete={() => setStep(1.5)}
+                    />
+                  ) : (
+                    <button
+                      className="game-btn game-btn-primary"
+                      onClick={handleProceedToVerification}
+                      disabled={submitting}
+                      style={{ width: '100%', marginTop: '8px' }}
+                    >
+                      Lanjut: Verifikasi Berita →
+                    </button>
+                  )}
                 </div>
               </motion.div>
             )}

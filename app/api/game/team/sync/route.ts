@@ -7,6 +7,14 @@ const GATE_PHASE_MAP: Record<string, string> = {
   gate_cutscene_start: 'formula',
   gate_formula_done: 'lobby',
 }
+
+// ── Gate → currentStep advancement map (in-game step gates) ─────────────────
+const GATE_STEP_MAP: Record<string, Record<string, unknown>> = {
+  gate_step0_done:   { currentStep: 1 },
+  gate_step1_done:   { currentStep: 1.5 },
+  gate_verdict_done: { currentStep: 2, verdictAnswer: 'MISLEADING', isCorrect: true },
+}
+
 const READY_THRESHOLD = 2
 
 export async function GET(req: NextRequest) {
@@ -130,13 +138,17 @@ export async function POST(req: NextRequest) {
           // Keep lobby_ready votes intact so UI can display who is ready during countdown
           updateData.status = 'PLAYING'
         } else if (GATE_PHASE_MAP[gate]) {
+          // Phase gates (cutscene, formula, lobby) — advance gamePhase
           updateData.gamePhase = GATE_PHASE_MAP[gate]
-          // Clear gate votes after advancing (non-lobby gates only)
           votes[gate] = []
           updateData.readyVotes = votes
-        }
-        if (gate === 'gate_step1_done') {
-          updateData.currentStep = 1.5
+        } else if (GATE_STEP_MAP[gate]) {
+          // Step gates (in-game) — advance currentStep (and optionally isCorrect/verdictAnswer)
+          const stepData = GATE_STEP_MAP[gate]
+          Object.assign(updateData, stepData)
+          if (stepData.isCorrect) updateData.status = 'COMPLETED'
+          votes[gate] = []
+          updateData.readyVotes = votes
         }
       }
     }
