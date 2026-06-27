@@ -1,11 +1,15 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useGameRealtime } from '@/lib/hooks/useGameRealtime'
 
 interface CutsceneProps {
   onComplete: () => void
   onPhaseChange?: (phase: 'comments' | 'mentor') => void
+  teamId?: string | null
+  studentId?: string
+  teamMembers?: { id: string; name: string }[]
 }
 
 const NARASI = [
@@ -83,17 +87,87 @@ function TypewriterText({ text, onDone }: { text: string; onDone: () => void }) 
   )
 }
 
-export default function Cutscene({ onComplete, onPhaseChange }: CutsceneProps) {
+export default function Cutscene({ onComplete, onPhaseChange, teamId, studentId, teamMembers }: CutsceneProps) {
   const [phase, setPhase] = useState<'comments' | 'mentor'>('comments')
   const [visibleComments, setVisibleComments] = useState(1)
   const [isMuted, setIsMuted] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const [mentorTypingDone, setMentorTypingDone] = useState(false)
 
+  // Ready-vote state (FD multiplayer)
+  const [myVotedGates, setMyVotedGates] = useState<Set<string>>(new Set())
+  const [gateVotes, setGateVotes] = useState<Record<string, string[]>>({})
+  const [isVoting, setIsVoting] = useState(false)
+  const onCompleteRef = useRef(onComplete)
+  onCompleteRef.current = onComplete
+
   // Notify parent of phase changes
   useEffect(() => {
     onPhaseChange?.(phase)
   }, [phase, onPhaseChange])
+
+  // Move poll to useCallback so it's stable and can be triggered by realtime WebSocket
+  const poll = useCallback(async () => {
+    if (!teamId) return
+    try {
+      const res = await fetch(`/api/game/team/sync?teamId=${teamId}${studentId ? `&studentId=${studentId}` : ''}`)
+      if (!res.ok) return
+      const data = await res.json()
+      const serverPhase: string = data.gamePhase ?? 'cutscene_comments'
+      setGateVotes(data.readyVotes ?? {})
+
+      if (serverPhase === 'cutscene_mentor' && phase === 'comments') {
+        setPhase('mentor')
+      } else if (serverPhase === 'formula' || serverPhase === 'lobby' || serverPhase === 'game') {
+        onCompleteRef.current()
+      }
+    } catch { /* ignore */ }
+  }, [teamId, phase])
+
+  // ── Supabase Realtime for instant synchronization ────────────────────────
+  const { broadcastSyncTrigger } = useGameRealtime(
+    teamId,
+    studentId,
+    teamMembers?.find(m => m.id === studentId)?.name ?? 'Detektif',
+    undefined,
+    poll // triggers immediate fetch when someone else broadcasts sync_trigger
+  )
+
+  // ── Multiplayer: Poll gamePhase every 1s ─────────────────────────────────
+  const castVote = useCallback(async (gate: string) => {
+    if (!teamId || !studentId || isVoting) return
+    setIsVoting(true)
+    setMyVotedGates(prev => new Set(prev).add(gate))
+    try {
+      const res = await fetch('/api/game/team/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ teamId, castVote: { gate, studentId } }),
+      })
+      if (res.ok) {
+        const data = await res.json()
+        if (data.team) {
+          setGateVotes(data.team.readyVotes ?? {})
+          broadcastSyncTrigger() // Tell other group members to fetch immediately!
+          const serverPhase = data.team.gamePhase ?? 'cutscene_comments'
+          if (serverPhase === 'cutscene_mentor' && phase === 'comments') {
+            setPhase('mentor')
+          } else if (serverPhase === 'formula' || serverPhase === 'lobby' || serverPhase === 'game') {
+            onCompleteRef.current()
+          }
+        }
+      }
+    } catch { /* ignore */ } finally {
+      setIsVoting(false)
+    }
+  }, [teamId, studentId, isVoting, phase, broadcastSyncTrigger])
+
+  useEffect(() => {
+    if (!teamId) return
+    poll()
+    const interval = setInterval(poll, 1000)
+    return () => clearInterval(interval)
+  }, [teamId, poll])
 
   const commentsEndRef = useRef<HTMLDivElement | null>(null)
 
@@ -465,7 +539,25 @@ export default function Cutscene({ onComplete, onPhaseChange }: CutsceneProps) {
           </div>
 
           {/* Selanjutnya Button */}
-          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px' }}>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px', flexDirection: 'column', alignItems: 'flex-end', gap: '10px' }}>
+            {/* Ready indicator (FD only) */}
+            {teamId && teamMembers && myVotedGates.has('gate_cutscene_next') && (
+              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                {teamMembers.map(m => {
+                  const voted = (gateVotes['gate_cutscene_next'] ?? []).includes(m.id) || (m.id === studentId && myVotedGates.has('gate_cutscene_next'))
+                  return (
+                    <span key={m.id} style={{
+                      fontSize: '10px', fontWeight: 700, padding: '3px 8px', borderRadius: '50px',
+                      background: voted ? 'rgba(16,185,129,0.12)' : 'rgba(180,140,80,0.08)',
+                      border: `1px solid ${voted ? 'rgba(16,185,129,0.3)' : 'rgba(180,140,80,0.15)'}`,
+                      color: voted ? '#10B981' : '#78716C',
+                    }}>
+                      {voted ? '✅' : '⏳'} {m.name.split(' ')[0]}
+                    </span>
+                  )
+                })}
+              </div>
+            )}
             <button
               className="game-btn game-btn-primary"
               style={{
@@ -474,11 +566,21 @@ export default function Cutscene({ onComplete, onPhaseChange }: CutsceneProps) {
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px',
+                opacity: (teamId && myVotedGates.has('gate_cutscene_next')) ? 0.6 : 1,
               }}
-              onClick={() => setPhase('mentor')}
+              onClick={() => {
+                if (teamId && studentId) {
+                  castVote('gate_cutscene_next')
+                } else {
+                  setPhase('mentor')
+                }
+              }}
             >
-              Selanjutnya
-              <span>→</span>
+              {teamId && myVotedGates.has('gate_cutscene_next')
+                ? `Menunggu ${Math.max(0, 2 - (gateVotes['gate_cutscene_next']?.length ?? 1))} lagi...`
+                : 'Selanjutnya'
+              }
+              {!myVotedGates.has('gate_cutscene_next') && <span>→</span>}
             </button>
           </div>
         </motion.div>
@@ -666,9 +768,19 @@ export default function Cutscene({ onComplete, onPhaseChange }: CutsceneProps) {
                       opacity: mentorTypingDone ? 1 : 0.5,
                       boxShadow: mentorTypingDone ? 'var(--accent-glow)' : 'none',
                     }}
-                    onClick={onComplete}
+                    onClick={() => {
+                      if (!mentorTypingDone) return
+                      if (teamId && studentId) {
+                        castVote('gate_cutscene_start')
+                      } else {
+                        onComplete()
+                      }
+                    }}
                   >
-                    MULAI INVESTIGASI
+                    {teamId && myVotedGates.has('gate_cutscene_start')
+                      ? `Menunggu ${Math.max(0, 2 - (gateVotes['gate_cutscene_start']?.length ?? 1))} lagi...`
+                      : 'MULAI INVESTIGASI'
+                    }
                   </button>
                 </div>
               </div>

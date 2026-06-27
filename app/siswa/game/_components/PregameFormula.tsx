@@ -6,6 +6,7 @@ import { screenTimeData, STATS } from '../_data/level1'
 import { useGameStore } from '@/lib/store/gameStore'
 import DiraPopup, { DiraPopupStep } from './DiraPopup'
 import NPath from './NPath'
+import { useGameRealtime, type PlayerPresence } from '@/lib/hooks/useGameRealtime'
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 const CORRECT_MAX = Math.max(...screenTimeData)  // 18
@@ -70,7 +71,15 @@ function isRentangWalkable(sx: number, sy: number): boolean {
 
 type SubScreen = 'intro' | 'rentang' | 'banyak-kelas' | 'panjang-kelas'
 type SlotKey = 'terbesar' | 'terkecil'
-interface Props { onComplete: () => void }
+interface Props {
+  onComplete: () => void
+  teamId?: string | null
+  studentId?: string
+  teamMembers?: { id: string; name: string }[]
+}
+
+// Colors for team members on the maze
+const PLAYER_COLORS = ['#D97706', '#3B82F6', '#10B981']
 
 // ─── Agent Sidebar (left panel for step 2 & 3) ──────────────────────────────
 function AgentSidebar({ message }: { message: string }) {
@@ -385,7 +394,7 @@ function IntroTypewriter({ onDone }: { onDone: () => void }) {
 }
 
 // ─── Main component ───────────────────────────────────────────────────────────
-export default function PregameFormula({ onComplete }: Props) {
+export default function PregameFormula({ onComplete, teamId, studentId, teamMembers }: Props) {
   const cognitiveStyle = useGameStore(s => s.cognitiveStyle)
   const isFD = cognitiveStyle === 'FD'
 
@@ -400,6 +409,75 @@ export default function PregameFormula({ onComplete }: Props) {
     return () => window.removeEventListener('resize', check)
   }, [])
 
+  const [mazeMax, setMazeMax] = useState<number | null>(null)
+  const [mazeMin, setMazeMin] = useState<number | null>(null)
+
+  // Multiplayer gate/sync state
+  const [myVotedGates, setMyVotedGates] = useState<Set<string>>(new Set())
+  const [gateVotes, setGateVotes] = useState<Record<string, string[]>>({})
+  // Real-time presence from Supabase Broadcast (replaces polling-based positions)
+  const [rtPlayers, setRtPlayers] = useState<Record<string, PlayerPresence>>({})
+  const onCompleteRef = useRef(onComplete)
+  onCompleteRef.current = onComplete
+  const charPosRef = useRef({ x: RENTANG_CX(1), y: RENTANG_CY(1) })
+
+  // My display name from teamMembers
+  const myName = teamMembers?.find(m => m.id === studentId)?.name
+
+  // ── Multiplayer: poll team sync (stable callback) ─────────────────────────
+  const mazeMaxRef = useRef<number | null>(null)
+  const mazeMinRef = useRef<number | null>(null)
+  const subRef = useRef<SubScreen>('intro')
+  mazeMaxRef.current = mazeMax
+  mazeMinRef.current = mazeMin
+  subRef.current = sub
+
+  const poll = useCallback(async () => {
+    if (!teamId) return
+    try {
+      const res = await fetch(`/api/game/team/sync?teamId=${teamId}${studentId ? `&studentId=${studentId}` : ''}`)
+      if (!res.ok) return
+      const data = await res.json()
+      const fs = (data.formulaState ?? {}) as Record<string, any>
+      setGateVotes(data.readyVotes ?? {})
+
+      // Sync found maze values (once found by anyone, fill everyone)
+      if (fs.mazeMax !== null && fs.mazeMax !== undefined && mazeMaxRef.current !== fs.mazeMax) {
+        setMazeMax(fs.mazeMax)
+      }
+      if (fs.mazeMin !== null && fs.mazeMin !== undefined && mazeMinRef.current !== fs.mazeMin) {
+        setMazeMin(fs.mazeMin)
+      }
+
+      // Sync current sub-screen
+      if (fs.sub && fs.sub !== subRef.current) {
+        setSub(fs.sub as SubScreen)
+      }
+
+      // Detect formula_done gate cleared (server auto-advanced gamePhase)
+      const serverPhase: string = data.gamePhase ?? ''
+      if (serverPhase === 'lobby' || serverPhase === 'game') {
+        onCompleteRef.current()
+      }
+    } catch { /* ignore */ }
+  }, [teamId])
+
+  // ── Supabase Realtime: positions + presence across all sub-screens ──────────
+  const { broadcastPos, broadcastSub, broadcastSyncTrigger } = useGameRealtime(
+    isFD ? teamId : null,
+    studentId,
+    myName,
+    (players) => setRtPlayers(players),
+    poll // triggers immediate fetch when someone else broadcasts sync_trigger
+  )
+
+  // Teammate maze positions — only entries that have x,y set
+  const teammatePositions: Record<string, { x: number; y: number }> = Object.fromEntries(
+    Object.entries(rtPlayers)
+      .filter(([, p]) => p.x !== undefined && p.y !== undefined)
+      .map(([id, p]) => [id, { x: p.x!, y: p.y! }])
+  )
+
   // ── DiRA Popup state ─────────────────────────────────────────────────────
   const [diraPopupStep, setDiraPopupStep] = useState<DiraPopupStep | null>(null)
   const [showFDIntroPopup, setShowFDIntroPopup] = useState(false)
@@ -409,6 +487,7 @@ export default function PregameFormula({ onComplete }: Props) {
 
   const navigateTo = useCallback((next: SubScreen) => {
     setSub(next)
+    broadcastSub(next) // tell teammates which sub-screen I'm on (real-time)
     if (!shownSteps.current.has(next)) {
       shownSteps.current.add(next)
       // Small delay so the screen transition plays first
@@ -418,7 +497,7 @@ export default function PregameFormula({ onComplete }: Props) {
         setTimeout(() => setDiraPopupStep(next as DiraPopupStep), 350)
       }
     }
-  }, [isFD])
+  }, [isFD, broadcastSub])
 
   // ── Flash overlay (FI error) ─────────────────────────────────────────────
   const [flashScreen, setFlashScreen] = useState(false)
@@ -429,8 +508,9 @@ export default function PregameFormula({ onComplete }: Props) {
 
   // ── Maze / Labirin state (Rentang step) ──────────────────────────────────
   const [charPos, setCharPos] = useState({ x: RENTANG_CX(1), y: RENTANG_CY(1) })
-  const [mazeMax, setMazeMax] = useState<number | null>(null)
-  const [mazeMin, setMazeMin] = useState<number | null>(null)
+  // Keep a ref so intervals/effects always read latest position without re-running
+  useEffect(() => { charPosRef.current = charPos }, [charPos])
+
   const [nearNode, setNearNode] = useState<number | null>(null)
   const [assignPopup, setAssignPopup] = useState<number | null>(null)
   const [wrongSelectedValue, setWrongSelectedValue] = useState<number | null>(null)
@@ -573,11 +653,16 @@ export default function PregameFormula({ onComplete }: Props) {
       (type === 'terbesar' && val === CORRECT_MAX) ||
       (type === 'terkecil' && val === CORRECT_MIN)
     if (!correct) {
-      // Re-show the tutorial popup as feedback; reset both slots
+      // Show feedback popup; ONLY reset the specific slot that was wrong.
+      // Use functional form to protect a slot that was already correctly found
+      // (e.g., if mazeMax=18 is already correct, a wrong 'terbesar' attempt must NOT clear it).
       setWrongSelectedValue(val)
       setWrongAssignType(type)
-      setMazeMax(null)
-      setMazeMin(null)
+      if (type === 'terbesar') {
+        setMazeMax(prev => prev === CORRECT_MAX ? prev : null)
+      } else {
+        setMazeMin(prev => prev === CORRECT_MIN ? prev : null)
+      }
       setShowFDIntroPopup(true)
     } else {
       if (type === 'terbesar') setMazeMax(val)
@@ -591,6 +676,78 @@ export default function PregameFormula({ onComplete }: Props) {
   const handleConfirmRentang = useCallback(() => {
     if (mazeMax !== null && mazeMin !== null) setRentangDone(true)
   }, [mazeMax, mazeMin])
+
+  useEffect(() => {
+    if (!teamId) return
+    poll()
+    const interval = setInterval(poll, 1000) // Kurangi polling interval dari 2s ke 1s
+    return () => clearInterval(interval)
+  }, [teamId, poll])
+
+  // ── Broadcast position via Supabase Realtime every 50ms (replaces 2s DB push) ──
+  useEffect(() => {
+    if (!teamId || !studentId || sub !== 'rentang') return
+    // Broadcast immediately on entering maze
+    broadcastPos(charPosRef.current.x, charPosRef.current.y)
+    // Then broadcast at 20fps (50ms) — Supabase allows 20 events/s per client
+    const interval = setInterval(() => {
+      broadcastPos(charPosRef.current.x, charPosRef.current.y)
+    }, 50)
+    return () => clearInterval(interval)
+  }, [teamId, studentId, sub, broadcastPos])
+
+  // ── Sync mazeMax/mazeMin when found ─────────────────────────────────────
+  useEffect(() => {
+    if (!teamId || mazeMax === null) return
+    fetch('/api/game/team/sync', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ teamId, formulaStateUpdate: { mazeMax } }),
+    }).catch(() => {})
+  }, [teamId, mazeMax])
+
+  useEffect(() => {
+    if (!teamId || mazeMin === null) return
+    fetch('/api/game/team/sync', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ teamId, formulaStateUpdate: { mazeMin } }),
+    }).catch(() => {})
+  }, [teamId, mazeMin])
+
+  // ── Sync sub-screen when navigating ─────────────────────────────────────
+  useEffect(() => {
+    if (!teamId || sub === 'intro') return
+    fetch('/api/game/team/sync', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ teamId, formulaStateUpdate: { sub } }),
+    }).catch(() => {})
+  }, [teamId, sub])
+
+  // ── Cast gate_formula_done vote ──────────────────────────────────────────
+  const castFormulaDoneVote = useCallback(async () => {
+    if (!teamId || !studentId) { onCompleteRef.current(); return }
+    setMyVotedGates(prev => new Set(prev).add('gate_formula_done'))
+    try {
+      const res = await fetch('/api/game/team/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ teamId, castVote: { gate: 'gate_formula_done', studentId } }),
+      })
+      if (res.ok) {
+        const data = await res.json()
+        if (data.team) {
+          setGateVotes(data.team.readyVotes ?? {})
+          broadcastSyncTrigger() // tell other team members to sync instantly!
+          const serverPhase = data.team.gamePhase ?? ''
+          if (serverPhase === 'lobby' || serverPhase === 'game') {
+            onCompleteRef.current()
+          }
+        }
+      }
+    } catch { /* ignore */ }
+  }, [teamId, studentId, broadcastSyncTrigger])
 
   // ── Banyak kelas state ───────────────────────────────────────────────────
   const [nVal, setNVal] = useState('')
@@ -1303,7 +1460,7 @@ export default function PregameFormula({ onComplete }: Props) {
                         )
                       })}
 
-                      {/* Player character */}
+                      {/* Player character (self) */}
                       <defs>
                         <radialGradient id="cg-rentang" cx="35%" cy="35%" r="65%">
                           <stop offset="0%" stopColor="#ffffff" />
@@ -1316,6 +1473,33 @@ export default function PregameFormula({ onComplete }: Props) {
                         </filter>
                       </defs>
                       <circle cx={charPos.x} cy={charPos.y} r={2.5} fill="url(#cg-rentang)" filter="url(#glow-rentang)" />
+                      <text x={charPos.x} y={charPos.y - 4} textAnchor="middle" fontSize={2.5} fill="rgba(255,255,255,0.7)" fontFamily="var(--font-data)">Kamu</text>
+
+                      {/* Teammate characters — one per member, colored distinctly */}
+                      {teamMembers && teamMembers.filter(m => m.id !== studentId).map((m, idx) => {
+                        const pos = teammatePositions[m.id]
+                        if (!pos) return null
+                        const color = PLAYER_COLORS[(idx + 1) % PLAYER_COLORS.length]
+                        return (
+                          <g key={m.id}>
+                            <defs>
+                              <radialGradient id={`cg-tm-${m.id}`} cx="35%" cy="35%" r="65%">
+                                <stop offset="0%" stopColor="#ffffff" />
+                                <stop offset="60%" stopColor={color} />
+                                <stop offset="100%" stopColor={color} />
+                              </radialGradient>
+                              <filter id={`glow-tm-${m.id}`} x="-80%" y="-80%" width="260%" height="260%">
+                                <feGaussianBlur stdDeviation="1.0" result="b" />
+                                <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+                              </filter>
+                            </defs>
+                            <circle cx={pos.x} cy={pos.y} r={2.2} fill={`url(#cg-tm-${m.id})`} filter={`url(#glow-tm-${m.id})`} opacity={0.85} />
+                            <text x={pos.x} y={pos.y - 4} textAnchor="middle" fontSize={2.4} fill={color} fontFamily="var(--font-data)" opacity={0.9}>
+                              {m.name.split(' ')[0]}
+                            </text>
+                          </g>
+                        )
+                      })}
 
                       {/* Start marker */}
                       {charPos.x === RENTANG_CX(1) && charPos.y === RENTANG_CY(1) && (
@@ -1482,6 +1666,19 @@ export default function PregameFormula({ onComplete }: Props) {
           {sub === 'banyak-kelas' && (
             <>
               <StepHeader step={2} title="Mencari Nilai n" subtitle="Langkah 2 dari 3 — Eksplorasi Ruangan" />
+              {/* Real-time teammate presence */}
+              {isFD && Object.values(rtPlayers).length > 0 && (
+                <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '4px' }}>
+                  {Object.values(rtPlayers).map(p => (
+                    <span key={p.studentId} style={{
+                      fontSize: '10px', fontWeight: 700, padding: '2px 8px', borderRadius: '50px',
+                      background: `${p.color}20`, border: `1px solid ${p.color}50`, color: p.color,
+                    }}>
+                      👤 {p.name.split(' ')[0]} · {p.sub === 'banyak-kelas' ? '📍 Halaman ini' : `📌 ${p.sub ?? '...'}`}
+                    </span>
+                  ))}
+                </div>
+              )}
 
               {/* NPath game fills remaining space */}
               <div style={{
@@ -1506,6 +1703,19 @@ export default function PregameFormula({ onComplete }: Props) {
           {sub === 'panjang-kelas' && (
             <>
               <StepHeader step={3} title="Panjang Kelas (P)" subtitle="Langkah 3 dari 3" />
+              {/* Real-time teammate presence */}
+              {isFD && Object.values(rtPlayers).length > 0 && (
+                <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '4px' }}>
+                  {Object.values(rtPlayers).map(p => (
+                    <span key={p.studentId} style={{
+                      fontSize: '10px', fontWeight: 700, padding: '2px 8px', borderRadius: '50px',
+                      background: `${p.color}20`, border: `1px solid ${p.color}50`, color: p.color,
+                    }}>
+                      👤 {p.name.split(' ')[0]} · {p.sub === 'panjang-kelas' ? '📍 Halaman ini' : `📌 ${p.sub ?? '...'}`}
+                    </span>
+                  ))}
+                </div>
+              )}
 
               {/* Two-column layout: agent left, formula right */}
               <div style={{
@@ -1652,13 +1862,37 @@ export default function PregameFormula({ onComplete }: Props) {
 
               {/* Action */}
               {pkDone ? (
-                <button
-                  className="game-btn game-btn-primary"
-                  onClick={onComplete}
-                  style={{ flexShrink: 0, width: '100%', padding: '11px 16px', fontSize: '14px', fontWeight: 800, boxShadow: 'var(--accent-glow)' }}
-                >
-                  🎯 Lanjut: Cari Nilai Min & Max →
-                </button>
+                <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {/* Ready indicator (FD only) */}
+                  {teamId && teamMembers && myVotedGates.has('gate_formula_done') && (
+                    <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', justifyContent: 'center' }}>
+                      {teamMembers.map(m => {
+                        const voted = (gateVotes['gate_formula_done'] ?? []).includes(m.id) || (m.id === studentId && myVotedGates.has('gate_formula_done'))
+                        return (
+                          <span key={m.id} style={{
+                            fontSize: '11px', fontWeight: 700, padding: '4px 10px', borderRadius: '50px',
+                            background: voted ? 'rgba(16,185,129,0.12)' : 'rgba(180,140,80,0.08)',
+                            border: `1px solid ${voted ? 'rgba(16,185,129,0.3)' : 'rgba(180,140,80,0.15)'}`,
+                            color: voted ? '#10B981' : '#78716C',
+                          }}>
+                            {voted ? '✅' : '⏳'} {m.name.split(' ')[0]}
+                          </span>
+                        )
+                      })}
+                    </div>
+                  )}
+                  <button
+                    className="game-btn game-btn-primary"
+                    onClick={castFormulaDoneVote}
+                    style={{ width: '100%', padding: '11px 16px', fontSize: '14px', fontWeight: 800, boxShadow: 'var(--accent-glow)', opacity: (teamId && myVotedGates.has('gate_formula_done')) ? 0.6 : 1 }}
+                  >
+                    {teamId && myVotedGates.has('gate_formula_done')
+                      ? `⏳ Menunggu ${Math.max(0, 2 - (gateVotes['gate_formula_done']?.length ?? 1))} anggota lagi...`
+                      : '🎯 Selesai — Mulai Investigasi →'
+                    }
+                  </button>
+                </div>
+
               ) : (
                 <button
                   className="game-btn game-btn-primary"
