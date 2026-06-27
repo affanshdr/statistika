@@ -21,6 +21,7 @@ model Classroom {
   major String // "MIPA", "IPS"
 
   students Student[]
+  teams    Team[]
 
   @@map("classrooms")
 }
@@ -38,6 +39,8 @@ model Student {
   geftResult   GeftResult?
   gameSessions GameSession[]
   leaderboard  Leaderboard?
+  teamMembers  TeamMember[]
+  teamMessages TeamMessage[]
 
   classroom Classroom @relation(fields: [classroomId], references: [id])
 
@@ -100,4 +103,53 @@ model ChatbotKnowledge {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("chatbot_knowledge")
+}
+
+model Team {
+  id             String   @id @default(uuid())
+  classroomId    String   @map("classroom_id")
+  levelId        Int      @map("level_id")
+  status         String   @default("WAITING") // "WAITING" | "PLAYING" | "COMPLETED"
+  currentStep    Int      @default(0) @map("current_step")
+  histogramState Json?    @map("histogram_state")
+  verdictAnswer  String   @default("") @map("verdict_answer")
+  isCorrect      Boolean  @default(false) @map("is_correct")
+  gamePhase      String   @default("cutscene_comments") @map("game_phase")
+  readyVotes     Json?    @map("ready_votes")
+  formulaState   Json?    @map("formula_state")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  members      TeamMember[]
+  chatMessages TeamMessage[]
+  classroom    Classroom     @relation(fields: [classroomId], references: [id])
+
+  @@map("teams")
+}
+
+model TeamMember {
+  id        String   @id @default(uuid())
+  teamId    String   @map("team_id")
+  studentId String   @map("student_id")
+  joinedAt  DateTime @default(now()) @map("joined_at")
+
+  team    Team    @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, studentId])
+  @@map("team_members")
+}
+
+model TeamMessage {
+  id         String   @id @default(uuid())
+  teamId     String   @map("team_id")
+  studentId  String   @map("student_id")
+  senderName String   @map("sender_name")
+  content    String
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  team    Team    @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@map("team_messages")
 }

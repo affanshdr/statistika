@@ -10,6 +10,7 @@ import FIPath from './_fi/FIPath'
 import FDPath from './_fd/FDPath'
 import OrientationGuard from '../../_components/OrientationGuard'
 import PregameFormula from '../../_components/PregameFormula'
+import TeamLobby from '../../_components/TeamLobby'
 import '../../game.css'
 
 export default function LevelPage({
@@ -19,12 +20,14 @@ export default function LevelPage({
 }) {
   const { id } = use(params)
   const router = useRouter()
-  const { cognitiveStyle, resetLevel } = useGameStore()
-  const [phase, setPhase] = useState<'cutscene' | 'formula' | 'game'>('cutscene')
+  const { cognitiveStyle, resetLevel, teamId, setTeamId } = useGameStore()
+  const [phase, setPhase] = useState<'cutscene' | 'formula' | 'lobby' | 'game'>('cutscene')
   const [cutscenePhase, setCutscenePhase] = useState<'comments' | 'mentor'>('comments')
   const [timerRunning, setTimerRunning] = useState(false)
   // Track whether we've finished waiting for Zustand hydration
   const [hydrated, setHydrated] = useState(false)
+  const [teamMembers, setTeamMembers] = useState<{ id: string; name: string }[]>([])
+  const [studentInfo, setStudentInfo] = useState<{ id: string; name: string } | null>(null)
   const didResetRef = useRef(false)
 
   // Wait one tick for Zustand persist to rehydrate from localStorage.
@@ -36,6 +39,17 @@ export default function LevelPage({
       didResetRef.current = true
     }
     setHydrated(true)
+
+    // Load student info from localStorage
+    if (typeof window !== 'undefined') {
+      try {
+        const raw = localStorage.getItem('student')
+        if (raw) {
+          const s = JSON.parse(raw)
+          setStudentInfo({ id: s.id, name: s.name })
+        }
+      } catch { /* ignore */ }
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -103,6 +117,9 @@ export default function LevelPage({
             {phase === 'cutscene' && (
               <Cutscene
                 onPhaseChange={setCutscenePhase}
+                teamId={resolvedStyle === 'FD' ? teamId : null}
+                studentId={studentInfo?.id}
+                teamMembers={teamMembers.length > 0 ? teamMembers : undefined}
                 onComplete={() => {
                   setPhase('formula')
                 }}
@@ -129,11 +146,63 @@ export default function LevelPage({
             >
 
 
-              {/* Formula Component — langsung ke game setelah selesai */}
-              <PregameFormula onComplete={() => {
-                setPhase('game')
-                setTimerRunning(true)
+              {/* Formula Component — FD: gate-voted, FI: langsung ke game */}
+              <PregameFormula
+                teamId={resolvedStyle === 'FD' ? teamId : null}
+                studentId={studentInfo?.id}
+                teamMembers={teamMembers.length > 0 ? teamMembers : undefined}
+                onComplete={async () => {
+                if (resolvedStyle === 'FD' && studentInfo) {
+                  // teamId should already be set from matchmaking in siswa/page.
+                  // Fall back to calling match here only if it wasn't set (e.g. direct navigation).
+                  if (!teamId) {
+                    try {
+                      const res = await fetch('/api/game/team/match', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ studentId: studentInfo.id, levelId: 1 }),
+                      })
+                      if (res.ok) {
+                        const data = await res.json()
+                        setTeamId(data.teamId)
+                      }
+                    } catch { /* ignore */ }
+                  }
+                  setPhase('lobby')
+                } else {
+                  setPhase('game')
+                  setTimerRunning(true)
+                }
               }} />
+            </motion.div>
+          )}
+
+          {/* Phase 1.8: Team Lobby (FD Only) */}
+          {phase === 'lobby' && resolvedStyle === 'FD' && studentInfo && teamId && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              style={{
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                background: '#FAF6EE',
+                height: '100%',
+                overflow: 'auto',
+              }}
+            >
+              <TeamLobby
+                studentId={studentInfo.id}
+                studentName={studentInfo.name}
+                teamId={teamId}
+                onComplete={(members) => {
+                  setTeamMembers(members)
+                  setPhase('game')
+                  setTimerRunning(true)
+                }}
+                onBack={() => router.push('/siswa')}
+              />
             </motion.div>
           )}
 
@@ -145,7 +214,11 @@ export default function LevelPage({
               transition={{ duration: 0.5 }}
               style={{ flex: 1, display: 'flex', flexDirection: 'column' }}
             >
-              {resolvedStyle === 'FI' ? <FIPath /> : <FDPath />}
+              {resolvedStyle === 'FI' ? (
+                <FIPath />
+              ) : (
+                <FDPath teamId={teamId} studentId={studentInfo?.id} studentName={studentInfo?.name} />
+              )}
             </motion.div>
           )}
         </div>

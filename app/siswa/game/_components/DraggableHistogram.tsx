@@ -19,6 +19,8 @@ interface DraggableHistogramProps {
   onSubmit?: (isCorrect: boolean) => void
   readOnly?: boolean
   forceStack?: boolean
+  placedIndices?: number[]
+  onPlacedChange?: (indices: number[]) => void
 }
 
 // Scattered positions — percentage-based so they adapt to container size
@@ -65,6 +67,7 @@ function initDataPoints(mode: Mode, readOnly: boolean): DataPoint[] {
 
 export default function DraggableHistogram({
   mode, onSubmit, readOnly = false, forceStack = false,
+  placedIndices, onPlacedChange,
 }: DraggableHistogramProps) {
   const [isNarrow, setIsNarrow] = useState(false)
   const [isShortViewport, setIsShortViewport] = useState(false)
@@ -90,6 +93,18 @@ export default function DraggableHistogram({
   const isUltraCompact = !isNarrow && isShortViewport && !forceStack
 
   const [dataPoints, setDataPoints] = useState<DataPoint[]>(() => initDataPoints(mode, readOnly))
+
+  useEffect(() => {
+    if (placedIndices) {
+      setDataPoints(prev =>
+        prev.map(item => ({
+          ...item,
+          placed: placedIndices.includes(item.originalIdx) || PREPLACED_INDICES.has(item.originalIdx) || readOnly
+        }))
+      )
+    }
+  }, [placedIndices, readOnly])
+
   const [selectedPoint, setSelectedPoint] = useState<DataPoint | null>(null)
   const [flashError, setFlashError] = useState<number | null>(null)
   const [flashHint, setFlashHint] = useState<string | null>(null)
@@ -142,9 +157,14 @@ export default function DraggableHistogram({
         const slotIdx = parseInt(slotEl.getAttribute('data-slot-idx') ?? '-1')
         if (slotIdx !== -1) {
           if (dp.classIdx === slotIdx) {
-            setDataPoints(prev =>
-              prev.map(item => item.id === dp.id ? { ...item, placed: true } : item),
-            )
+            setDataPoints(prev => {
+              const updated = prev.map(item => item.id === dp.id ? { ...item, placed: true } : item)
+              if (onPlacedChange) {
+                const placedIdxs = updated.filter(item => item.placed).map(item => item.originalIdx)
+                onPlacedChange(placedIdxs)
+              }
+              return updated
+            })
           } else {
             triggerError(slotIdx, `💡 Angka ${dp.val} seharusnya masuk ke kelas ${CLASS_LABELS[dp.classIdx]}!`)
           }
@@ -162,14 +182,19 @@ export default function DraggableHistogram({
   const onTapSlot = useCallback((slotIdx: number) => {
     if (!selectedPoint) return
     if (selectedPoint.classIdx === slotIdx) {
-      setDataPoints(prev =>
-        prev.map(dp => dp.id === selectedPoint.id ? { ...dp, placed: true } : dp),
-      )
+      setDataPoints(prev => {
+        const updated = prev.map(dp => dp.id === selectedPoint.id ? { ...dp, placed: true } : dp)
+        if (onPlacedChange) {
+          const placedIdxs = updated.filter(item => item.placed).map(item => item.originalIdx)
+          onPlacedChange(placedIdxs)
+        }
+        return updated
+      })
       setSelectedPoint(null)
     } else {
       triggerError(slotIdx, `💡 Angka ${selectedPoint.val} seharusnya masuk ke kelas ${CLASS_LABELS[selectedPoint.classIdx]}.`)
     }
-  }, [selectedPoint])
+  }, [selectedPoint, onPlacedChange])
 
   const handleSubmit = () => {
     if (!dataPoints.every(dp => dp.placed)) return

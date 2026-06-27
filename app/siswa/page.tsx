@@ -20,6 +20,14 @@ type Student = {
   }
 }
 
+type ActiveTeam = {
+  teamId: string
+  levelId: number
+  status: 'WAITING' | 'PLAYING'
+  classroomName: string
+  members: { id: string; name: string }[]
+}
+
 const COGNITIVE_INFO = {
   FI: {
     label: 'Field Independent (FI)',
@@ -100,8 +108,13 @@ export default function SiswaPage() {
   const [gatingLevelId, setGatingLevelId] = useState<number | null>(null)
   const [gatingStep, setGatingStep] = useState<1 | 2>(1)
   
+  // FD Team state
+  const [activeTeam, setActiveTeam] = useState<ActiveTeam | null>(null)
+  const [teamLoading, setTeamLoading] = useState(false)
+  const [teamRefreshing, setTeamRefreshing] = useState(false)
+
   // Game store variables
-  const { cognitiveStyle, setCognitiveStyle, startLevel, resetLevel, completedLevels } = useGameStore()
+  const { cognitiveStyle, setCognitiveStyle, startLevel, resetLevel, completedLevels, setTeamId } = useGameStore()
 
   useEffect(() => {
     const data = localStorage.getItem('student')
@@ -130,6 +143,81 @@ export default function SiswaPage() {
     }
   }, [router, setCognitiveStyle])
 
+  // Fetch active FD team on mount & whenever studentId changes
+  const fetchActiveTeam = async (studentId: string, quiet = false) => {
+    if (!quiet) setTeamLoading(true)
+    else setTeamRefreshing(true)
+    try {
+      const res = await fetch(`/api/game/team/my-team?studentId=${studentId}`)
+      if (res.ok) {
+        const data = await res.json()
+        setActiveTeam(data.team ?? null)
+      }
+    } catch { /* silently ignore */ } finally {
+      setTeamLoading(false)
+      setTeamRefreshing(false)
+    }
+  }
+
+  // Auto-group FD students on page load:
+  // Fetch their active team first; if none exists, immediately call matchmaking
+  // so they're grouped with classmates as soon as they open the dashboard.
+  useEffect(() => {
+    const resolvedStudent = student
+    const isFDStudent = resolvedStudent?.geftResult?.cognitiveStyle === 'FD'
+    if (!resolvedStudent || !isFDStudent) return
+
+    const initTeam = async () => {
+      // 1. Check if already in a team
+      setTeamLoading(true)
+      try {
+        const res = await fetch(`/api/game/team/my-team?studentId=${resolvedStudent.id}`)
+        if (res.ok) {
+          const data = await res.json()
+          if (data.team) {
+            setActiveTeam(data.team)
+            if (data.team.teamId) setTeamId(data.team.teamId)
+            setTeamLoading(false)
+            return // already in a team, nothing to do
+          }
+        }
+      } catch { /* ignore */ }
+
+      // 2. No active team → auto-match into one
+      try {
+        const matchRes = await fetch('/api/game/team/match', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ studentId: resolvedStudent.id, levelId: 1 }),
+        })
+        if (matchRes.ok) {
+          const matchData = await matchRes.json()
+          setTeamId(matchData.teamId)
+          // Fetch fresh team info to populate the widget
+          const teamRes = await fetch(`/api/game/team/my-team?studentId=${resolvedStudent.id}`)
+          if (teamRes.ok) {
+            const teamData = await teamRes.json()
+            setActiveTeam(teamData.team ?? null)
+          }
+        }
+      } catch { /* ignore */ } finally {
+        setTeamLoading(false)
+      }
+    }
+
+    initTeam()
+
+    // Poll every 10s while WAITING to pick up new members joining
+    const interval = setInterval(() => {
+      if (activeTeam?.status === 'WAITING' || activeTeam === null) {
+        fetchActiveTeam(resolvedStudent.id, true)
+      }
+    }, 10000)
+
+    return () => clearInterval(interval)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [student])
+
   // Detect mobile/portrait orientation
   useEffect(() => {
     const checkMobile = () => {
@@ -148,13 +236,31 @@ export default function SiswaPage() {
     </main>
   )
 
-  const proceedToGame = (levelId: number, activeStyle: 'FI' | 'FD') => {
+  const proceedToGame = (levelId: number, activeStyle: 'FI' | 'FD', resolvedTeamId?: string) => {
     resetLevel()
     startLevel(levelId, activeStyle)
+    if (resolvedTeamId) setTeamId(resolvedTeamId)
     router.push(`/siswa/game/level/${levelId}`)
   }
 
-  const handlePlayLevel = (levelId: number) => {
+  const matchFDTeam = async (studentId: string, levelId: number): Promise<string | null> => {
+    try {
+      const res = await fetch('/api/game/team/match', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ studentId, levelId }),
+      })
+      if (res.ok) {
+        const data = await res.json()
+        // Refresh the team widget on the dashboard
+        fetchActiveTeam(studentId, true)
+        return data.teamId as string
+      }
+    } catch { /* silently ignore */ }
+    return null
+  }
+
+  const handlePlayLevel = async (levelId: number) => {
     if (student?.diagnosticLevel) {
       const activeStyle = student.geftResult?.cognitiveStyle || cognitiveStyle || 'FI'
       
@@ -163,7 +269,7 @@ export default function SiswaPage() {
         const hasRead = localStorage.getItem('has_read_booklet') === 'true'
         if (!hasRead) {
           setGatingLevelId(levelId)
-          setGatingStep(1) // Start at step 1
+          setGatingStep(1)
           setShowGatingModal(true)
           return
         }
@@ -171,36 +277,54 @@ export default function SiswaPage() {
         const hasWatched = localStorage.getItem('has_watched_video') === 'true'
         if (!hasWatched) {
           setGatingLevelId(levelId)
-          setGatingStep(1) // Start at step 1
+          setGatingStep(1)
           setShowGatingModal(true)
           return
         }
       }
-      
-      proceedToGame(levelId, activeStyle)
+
+      // FD: match into a team BEFORE entering the game so the dashboard widget
+      // reflects the team immediately and teamId is available from the start.
+      let resolvedTeamId: string | undefined = undefined
+      if (activeStyle === 'FD' && student.id) {
+        const matched = await matchFDTeam(student.id, levelId)
+        if (matched) resolvedTeamId = matched
+      }
+
+      proceedToGame(levelId, activeStyle, resolvedTeamId)
     } else {
       router.push(`/siswa/diagnostik?level=${levelId}`)
     }
   }
 
-  const handleBookletComplete = () => {
+  const handleBookletComplete = async () => {
     localStorage.setItem('has_read_booklet', 'true')
     setShowBookletModal(false)
     if (gatingLevelId) {
       setShowGatingModal(false)
       const activeStyle = student?.geftResult?.cognitiveStyle || cognitiveStyle || 'FI'
-      proceedToGame(gatingLevelId, activeStyle)
+      let resolvedTeamId: string | undefined = undefined
+      if (activeStyle === 'FD' && student?.id) {
+        const matched = await matchFDTeam(student.id, gatingLevelId)
+        if (matched) resolvedTeamId = matched
+      }
+      proceedToGame(gatingLevelId, activeStyle, resolvedTeamId)
       setGatingLevelId(null)
     }
   }
 
-  const handleVideoComplete = () => {
+  const handleVideoComplete = async () => {
     localStorage.setItem('has_watched_video', 'true')
     setShowVideoModal(false)
     if (gatingLevelId) {
       setShowGatingModal(false)
       const activeStyle = student?.geftResult?.cognitiveStyle || cognitiveStyle || 'FI'
-      proceedToGame(gatingLevelId, activeStyle)
+      let resolvedTeamId: string | undefined = undefined
+      if (activeStyle === 'FD' && student?.id) {
+        const matched = await matchFDTeam(student.id, gatingLevelId)
+        if (matched) resolvedTeamId = matched
+      }
+      proceedToGame(gatingLevelId, activeStyle, resolvedTeamId)
       setGatingLevelId(null)
     }
   }
@@ -684,6 +808,213 @@ export default function SiswaPage() {
         </div>
       </div>
 
+      {/* ── FD: Tim Investigasi Saya Widget ── */}
+      {!isFI && student?.geftResult?.cognitiveStyle === 'FD' && (
+        <div id="team-widget" style={{
+          width: '100%',
+          maxWidth: '1440px',
+          margin: '0 auto',
+          padding: isMobile ? '0 16px 32px' : '0 32px 40px',
+        }}>
+          <div style={{
+            borderRadius: '20px',
+            border: '1.5px solid rgba(6,182,212,0.25)',
+            background: 'linear-gradient(135deg, rgba(6,182,212,0.04) 0%, rgba(255,255,255,0.8) 100%)',
+            backdropFilter: 'blur(10px)',
+            padding: '24px',
+            boxShadow: '0 4px 20px rgba(6,182,212,0.08)',
+          }}>
+            {/* Widget Header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <span style={{ fontSize: '22px' }}>👥</span>
+                <div>
+                  <div style={{ fontSize: '11px', color: '#0e7490', fontWeight: 800, letterSpacing: '1.5px', marginBottom: '2px' }}>TIM INVESTIGASI SAYA</div>
+                  <div style={{ fontSize: '13px', fontWeight: 700, color: '#1C1917' }}>
+                    {activeTeam ? `Level ${activeTeam.levelId} · ${activeTeam.classroomName}` : 'Kelompok Kelas Saya'}
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={() => student && fetchActiveTeam(student.id, true)}
+                disabled={teamRefreshing || teamLoading}
+                title="Refresh status tim"
+                style={{
+                  width: '34px', height: '34px',
+                  borderRadius: '10px',
+                  border: '1px solid rgba(6,182,212,0.25)',
+                  background: 'rgba(6,182,212,0.06)',
+                  color: '#0e7490',
+                  fontSize: '14px',
+                  cursor: teamRefreshing ? 'not-allowed' : 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  transition: 'all 0.2s',
+                  opacity: teamRefreshing ? 0.5 : 1,
+                }}
+                onMouseEnter={e => { if (!teamRefreshing) e.currentTarget.style.background = 'rgba(6,182,212,0.12)' }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(6,182,212,0.06)' }}
+              >
+                {teamRefreshing ? '⏳' : '🔄'}
+              </button>
+            </div>
+
+            {teamLoading ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#78716C', fontSize: '13px', padding: '12px 0' }}>
+                <span style={{ animation: 'spin 1s linear infinite', display: 'inline-block' }}>⚙️</span>
+                Memuat data tim...
+              </div>
+            ) : activeTeam ? (
+              <>
+                {/* Status Badge */}
+                <div style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '6px',
+                  padding: '4px 12px', borderRadius: '50px',
+                  fontSize: '11px', fontWeight: 700, marginBottom: '16px',
+                  background: activeTeam.status === 'PLAYING' ? 'rgba(16,185,129,0.1)' : 'rgba(245,158,11,0.1)',
+                  border: `1px solid ${activeTeam.status === 'PLAYING' ? 'rgba(16,185,129,0.3)' : 'rgba(245,158,11,0.3)'}`,
+                  color: activeTeam.status === 'PLAYING' ? '#059669' : '#D97706',
+                }}>
+                  <span style={{
+                    width: '6px', height: '6px', borderRadius: '50%',
+                    background: activeTeam.status === 'PLAYING' ? '#10B981' : '#F59E0B',
+                    display: 'inline-block',
+                    animation: activeTeam.status === 'WAITING' ? 'teamPulse 1.5s infinite alternate' : 'none',
+                  }} />
+                  {activeTeam.status === 'PLAYING' ? '🎮 Tim Sedang Bermain' : '⏳ Mencari Anggota...'}
+                </div>
+
+                {/* Member Slots */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
+                  {[0, 1, 2].map((idx) => {
+                    const member = activeTeam.members[idx]
+                    const isMe = member?.id === student?.id
+                    return (
+                      <div
+                        key={idx}
+                        style={{
+                          display: 'flex', alignItems: 'center',
+                          justifyContent: 'space-between',
+                          padding: '10px 14px',
+                          borderRadius: '12px',
+                          background: member
+                            ? isMe ? 'rgba(6,182,212,0.08)' : 'rgba(255,255,255,0.6)'
+                            : 'transparent',
+                          border: member
+                            ? `1px solid ${isMe ? 'rgba(6,182,212,0.3)' : 'rgba(180,140,80,0.15)'}` 
+                            : '1px dashed rgba(180,140,80,0.2)',
+                          transition: 'all 0.2s',
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                          <span style={{ fontSize: '18px' }}>{member ? '🕵️' : '❓'}</span>
+                          <div>
+                            <div style={{ fontSize: '13px', fontWeight: 700, color: member ? '#1C1917' : '#A8A29E' }}>
+                              {member ? member.name : `Menunggu Agen ${idx + 1}...`}
+                            </div>
+                            {member && (
+                              <div style={{ fontSize: '10px', color: isMe ? '#0e7490' : '#78716C', fontWeight: 600 }}>
+                                {isMe ? 'Anda (Agen Aktif)' : 'Agen Partner'}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        {member && (
+                          <span style={{
+                            fontSize: '10px', fontWeight: 700,
+                            color: '#10B981',
+                            background: 'rgba(16,185,129,0.1)',
+                            border: '1px solid rgba(16,185,129,0.2)',
+                            padding: '2px 8px', borderRadius: '50px',
+                          }}>Siap</span>
+                        )}
+                        {!member && (
+                          <span style={{
+                            fontSize: '10px', fontWeight: 600,
+                            color: '#A8A29E',
+                            animation: 'teamPulse 1.5s infinite alternate',
+                          }}>Bergabung...</span>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+
+                {/* Progress bar */}
+                <div style={{ marginBottom: '16px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                    <span style={{ fontSize: '11px', color: '#78716C', fontWeight: 600 }}>Anggota Bergabung</span>
+                    <span style={{ fontSize: '11px', fontWeight: 800, color: '#0e7490' }}>{activeTeam.members.length} / 3</span>
+                  </div>
+                  <div style={{ height: '6px', borderRadius: '3px', background: 'rgba(6,182,212,0.12)', overflow: 'hidden' }}>
+                    <div style={{
+                      height: '100%',
+                      borderRadius: '3px',
+                      background: 'linear-gradient(90deg, #0891b2, #06b6d4)',
+                      width: `${(activeTeam.members.length / 3) * 100}%`,
+                      transition: 'width 0.6s ease',
+                      boxShadow: '0 0 8px rgba(6,182,212,0.4)',
+                    }} />
+                  </div>
+                </div>
+
+                {/* Resume button (PLAYING) or waiting hint (WAITING) */}
+                {activeTeam.status === 'PLAYING' ? (
+                  <button
+                    onClick={() => handlePlayLevel(activeTeam.levelId)}
+                    style={{
+                      width: '100%', padding: '12px',
+                      borderRadius: '12px', border: 'none',
+                      background: 'linear-gradient(90deg, #0891b2, #06b6d4)',
+                      color: '#fff', fontSize: '13px', fontWeight: 800,
+                      cursor: 'pointer',
+                      boxShadow: '0 4px 15px rgba(6,182,212,0.3)',
+                      transition: 'all 0.2s',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.filter = 'brightness(1.1)'}
+                    onMouseLeave={e => e.currentTarget.style.filter = 'none'}
+                  >
+                    <span>🎮 Lanjutkan Permainan</span>
+                    <span>→</span>
+                  </button>
+                ) : (
+                  <div style={{
+                    textAlign: 'center', fontSize: '12px',
+                    color: '#78716C', padding: '8px',
+                    background: 'rgba(245,158,11,0.04)',
+                    borderRadius: '10px',
+                    border: '1px dashed rgba(245,158,11,0.2)',
+                  }}>
+                    ⏳ Menunggu {3 - activeTeam.members.length} anggota lagi untuk memulai permainan...
+                  </div>
+                )}
+              </>
+            ) : (
+              /* No active team */
+              <div style={{
+                textAlign: 'center', padding: '20px',
+                color: '#78716C', fontSize: '13px', lineHeight: 1.6,
+              }}>
+                <div style={{ fontSize: '32px', marginBottom: '10px' }}>🔍</div>
+                <div style={{ fontWeight: 700, marginBottom: '4px', color: '#1C1917' }}>Belum Ada Tim Aktif</div>
+                <div style={{ fontSize: '12px' }}>
+                  Klik <strong>Mulai Penyelidikan</strong> pada Level 1 di atas untuk bergabung ke kelompok kelas kamu secara otomatis.
+                </div>
+              </div>
+            )}
+          </div>
+          <style>{`
+            @keyframes teamPulse {
+              from { opacity: 0.5; }
+              to { opacity: 1; }
+            }
+            @keyframes spin {
+              to { transform: rotate(360deg); }
+            }
+          `}</style>
+        </div>
+      )}
+
       {/* Exit Confirmation Modal */}
       {showExitConfirm && (
         <div style={{
@@ -1112,6 +1443,44 @@ export default function SiswaPage() {
                     <div style={{ fontSize: '11px', color: '#A8A29E', marginTop: '2px' }}>Penjelasan Audio-Visual</div>
                   </div>
                 </button>
+
+                {/* Tim Saya — hanya untuk FD */}
+                {!isFI && student?.geftResult?.cognitiveStyle === 'FD' && (
+                  <button
+                    onClick={() => {
+                      setIsSidebarOpen(false)
+                      setTimeout(() => {
+                        const el = document.getElementById('team-widget')
+                        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                      }, 200)
+                    }}
+                    className="sidebar-btn"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '16px',
+                      padding: '16px',
+                      borderRadius: '16px',
+                      background: 'rgba(6,182,212,0.06)',
+                      border: '1px solid rgba(6,182,212,0.2)',
+                      color: '#1C1917',
+                      textAlign: 'left',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                      outline: 'none',
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(6,182,212,0.12)' }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'rgba(6,182,212,0.06)' }}
+                  >
+                    <span style={{ fontSize: '24px' }}>👥</span>
+                    <div>
+                      <div style={{ fontWeight: 800, fontSize: '14px', color: '#0e7490' }}>Tim Investigasi Saya</div>
+                      <div style={{ fontSize: '11px', color: '#A8A29E', marginTop: '2px' }}>
+                        {activeTeam ? `${activeTeam.members.length}/3 anggota · ${activeTeam.status === 'PLAYING' ? 'Sedang Bermain' : 'Menunggu'}` : 'Lihat status tim kamu'}
+                      </div>
+                    </div>
+                  </button>
+                )}
               </div>
 
               {/* Sidebar Footer */}

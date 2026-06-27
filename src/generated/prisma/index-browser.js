@@ -179,9 +179,46 @@ exports.Prisma.ChatbotKnowledgeScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.TeamScalarFieldEnum = {
+  id: 'id',
+  classroomId: 'classroomId',
+  levelId: 'levelId',
+  status: 'status',
+  currentStep: 'currentStep',
+  histogramState: 'histogramState',
+  verdictAnswer: 'verdictAnswer',
+  isCorrect: 'isCorrect',
+  gamePhase: 'gamePhase',
+  readyVotes: 'readyVotes',
+  formulaState: 'formulaState',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.TeamMemberScalarFieldEnum = {
+  id: 'id',
+  teamId: 'teamId',
+  studentId: 'studentId',
+  joinedAt: 'joinedAt'
+};
+
+exports.Prisma.TeamMessageScalarFieldEnum = {
+  id: 'id',
+  teamId: 'teamId',
+  studentId: 'studentId',
+  senderName: 'senderName',
+  content: 'content',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
+};
+
+exports.Prisma.NullableJsonNullValueInput = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull
 };
 
 exports.Prisma.QueryMode = {
@@ -192,6 +229,12 @@ exports.Prisma.QueryMode = {
 exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
+};
+
+exports.Prisma.JsonNullValueFilter = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull,
+  AnyNull: Prisma.AnyNull
 };
 exports.GeftStatus = exports.$Enums.GeftStatus = {
   not_taken: 'not_taken',
@@ -209,7 +252,10 @@ exports.Prisma.ModelName = {
   GeftResult: 'GeftResult',
   GameSession: 'GameSession',
   Leaderboard: 'Leaderboard',
-  ChatbotKnowledge: 'ChatbotKnowledge'
+  ChatbotKnowledge: 'ChatbotKnowledge',
+  Team: 'Team',
+  TeamMember: 'TeamMember',
+  TeamMessage: 'TeamMessage'
 };
 
 /**

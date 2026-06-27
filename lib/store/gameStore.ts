@@ -20,6 +20,9 @@ export interface GameStore {
   lives: number
   badges: string[]
 
+  // FD Team matching (set when student clicks Mulai Penyelidikan)
+  teamId: string | null
+
   // Level-specific state (reset between levels)
   currentStep: number
   answers: Record<string, unknown>
@@ -32,6 +35,7 @@ export interface GameStore {
 
   // Actions
   setCognitiveStyle: (style: 'FI' | 'FD') => void
+  setTeamId: (id: string | null) => void
   addXP: (amount: number, label?: string, step?: number) => void
   loseLife: () => void
   setStep: (step: number) => void
@@ -50,6 +54,7 @@ export const useGameStore = create<GameStore>()(
     (set, get) => ({
       // Initial state
       cognitiveStyle: null,
+      teamId: null,
       currentLevel: 0,
       completedLevels: [],
       xp: 0,
@@ -66,6 +71,8 @@ export const useGameStore = create<GameStore>()(
 
       // Actions
       setCognitiveStyle: (style) => set({ cognitiveStyle: style }),
+
+      setTeamId: (id) => set({ teamId: id }),
 
       addXP: (amount, label = '', step = 0) =>
         set((state) => ({
@@ -127,6 +134,7 @@ export const useGameStore = create<GameStore>()(
         set({
           currentLevel: levelId,
           cognitiveStyle,
+          teamId: null, // cleared here; set again by matchmaking in siswa/page
           currentStep: 0,
           answers: {},
           lives: isFD ? 4 : 3,
@@ -143,6 +151,7 @@ export const useGameStore = create<GameStore>()(
       name: 'ar-cognistats-game',
       partialize: (state) => ({
         cognitiveStyle: state.cognitiveStyle,
+        teamId: state.teamId,
         xp: state.xp,
         badges: state.badges,
         currentLevel: state.currentLevel,
