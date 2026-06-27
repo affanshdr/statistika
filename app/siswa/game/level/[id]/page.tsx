@@ -112,6 +112,10 @@ export default function LevelPage({
         if (!syncRes.ok) { setInitializing(false); return }
         const data = await syncRes.json()
 
+        if (data.members) {
+          setTeamMembers(data.members)
+        }
+
         // ── Jump to the phase the team is currently on ────────────────────────
         if (data.status === 'PLAYING') {
           // Team is in-game (histogram, etc.) — skip all pre-game phases
