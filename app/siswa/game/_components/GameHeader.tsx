@@ -53,10 +53,10 @@ export default function GameHeader({ timerRunning = true, isBlurred = false }: G
           <button
             onClick={() => setShowExitConfirm(true)}
             style={{
-              background: 'rgba(217, 119, 6, 0.06)',
-              border: '1px solid rgba(180, 140, 80, 0.2)',
+              background: 'rgba(14, 131, 136, 0.08)',
+              border: '1px solid rgba(14, 131, 136, 0.25)',
               borderRadius: '8px',
-              color: '#78716C',
+              color: '#94A3B8',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
@@ -68,12 +68,14 @@ export default function GameHeader({ timerRunning = true, isBlurred = false }: G
               transition: 'all 0.2s',
             }}
             onMouseEnter={e => {
-              e.currentTarget.style.background = 'rgba(217, 119, 6, 0.12)'
-              e.currentTarget.style.color = '#1C1917'
+              e.currentTarget.style.background = 'rgba(14, 131, 136, 0.18)'
+              e.currentTarget.style.borderColor = 'var(--game-border-accent)'
+              e.currentTarget.style.color = '#F8FAFC'
             }}
             onMouseLeave={e => {
-              e.currentTarget.style.background = 'rgba(217, 119, 6, 0.06)'
-              e.currentTarget.style.color = '#78716C'
+              e.currentTarget.style.background = 'rgba(14, 131, 136, 0.08)'
+              e.currentTarget.style.borderColor = 'rgba(14, 131, 136, 0.25)'
+              e.currentTarget.style.color = '#94A3B8'
             }}
           >
             <span>←</span>
@@ -105,7 +107,7 @@ export default function GameHeader({ timerRunning = true, isBlurred = false }: G
         <div style={{
           position: 'fixed',
           inset: 0,
-          background: 'rgba(250,246,238, 0.85)',
+          background: 'rgba(11, 30, 44, 0.85)',
           backdropFilter: 'blur(8px)',
           display: 'flex',
           alignItems: 'center',
@@ -116,21 +118,21 @@ export default function GameHeader({ timerRunning = true, isBlurred = false }: G
           <div style={{
             maxWidth: '380px',
             width: '100%',
-            background: '#FFFFFF',
-            border: '1px solid rgba(180,140,80,0.15)',
-            boxShadow: '0 20px 40px rgba(180,120,40,0.08)',
+            background: '#0F2338',
+            border: '1px solid rgba(14, 131, 136, 0.25)',
+            boxShadow: '0 20px 40px rgba(0, 0, 0, 0.5), var(--accent-glow)',
             borderRadius: '24px',
             padding: '28px',
             textAlign: 'center',
-            color: '#1C1917',
+            color: '#F8FAFC',
             fontFamily: 'var(--font-sans), sans-serif',
           }}>
             <div style={{ fontSize: '40px', marginBottom: '12px' }}>⚠️</div>
             <div>
-              <h3 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: 800, color: '#DC2626', fontFamily: 'var(--font-heading), sans-serif' }}>
+              <h3 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: 800, color: 'var(--danger)', fontFamily: 'var(--font-heading), sans-serif' }}>
                 Keluar dari Level?
               </h3>
-              <p style={{ margin: 0, fontSize: '13.5px', color: '#78716C', lineHeight: 1.55 }}>
+              <p style={{ margin: 0, fontSize: '13.5px', color: '#94A3B8', lineHeight: 1.55 }}>
                 Apakah kamu yakin ingin kembali ke halaman pilih level? Progres pengerjaan level ini akan di-reset dari awal.
               </p>
             </div>
@@ -141,21 +143,23 @@ export default function GameHeader({ timerRunning = true, isBlurred = false }: G
                   flex: 1,
                   padding: '12px',
                   borderRadius: '12px',
-                  border: '1px solid rgba(180,140,80,0.2)',
+                  border: '1px solid rgba(14, 131, 136, 0.25)',
                   background: 'transparent',
-                  color: '#78716C',
+                  color: '#94A3B8',
                   fontSize: '13px',
                   fontWeight: 700,
                   cursor: 'pointer',
                   transition: 'all 0.2s'
                 }}
                 onMouseEnter={e => {
-                  e.currentTarget.style.background = 'rgba(217,119,6,0.06)'
-                  e.currentTarget.style.borderColor = 'rgba(217,119,6,0.3)'
+                  e.currentTarget.style.background = 'rgba(14, 131, 136, 0.1)'
+                  e.currentTarget.style.borderColor = 'var(--game-border-accent)'
+                  e.currentTarget.style.color = '#FFFFFF'
                 }}
                 onMouseLeave={e => {
                   e.currentTarget.style.background = 'transparent'
-                  e.currentTarget.style.borderColor = 'rgba(180,140,80,0.2)'
+                  e.currentTarget.style.borderColor = 'rgba(14, 131, 136, 0.25)'
+                  e.currentTarget.style.color = '#94A3B8'
                 }}
               >
                 Batal

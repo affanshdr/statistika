@@ -418,35 +418,35 @@ export default function NPath({ onComplete, isFD = true }: { onComplete: () => v
             <line x1={520} y1={30} x2={520} y2={180} stroke="rgba(255, 255, 255, 0.15)" strokeWidth={1.5} />
 
             {/* Start & Exit Pads */}
-            <circle cx={400} cy={310} r={13} fill="rgba(14, 131, 136, 0.08)" stroke="rgba(14, 131, 136, 0.3)" strokeWidth={1} />
-            <text x={400} y={312.5} textAnchor="middle" fill="#00ADB5" fontSize={6} fontWeight="900" fontFamily="monospace">MULAI</text>
+            <circle cx={400} cy={310} r={20} fill="rgba(14, 131, 136, 0.08)" stroke="rgba(14, 131, 136, 0.3)" strokeWidth={1} />
+            <text x={400} y={313.5} textAnchor="middle" fill="#00ADB5" fontSize={9.5} fontWeight="900" fontFamily="monospace">MULAI</text>
 
-            <circle cx={400} cy={50} r={13} fill="rgba(129, 140, 248, 0.08)" stroke="rgba(129, 140, 248, 0.3)" strokeWidth={1} />
-            <text x={400} y={52.5} textAnchor="middle" fill="#818cf8" fontSize={6} fontWeight="900" fontFamily="monospace">SELESAI</text>
+            <circle cx={400} cy={50} r={20} fill="rgba(129, 140, 248, 0.08)" stroke="rgba(129, 140, 248, 0.3)" strokeWidth={1} />
+            <text x={400} y={53.5} textAnchor="middle" fill="#818cf8" fontSize={9.5} fontWeight="900" fontFamily="monospace">SELESAI</text>
 
             {/* Room Labels */}
             {/* Ruang A (Kiri) */}
-            <text x={145} y={65} textAnchor="middle" fill={unlocked.has('A') ? '#818cf8' : 'rgba(255,255,255,0.2)'} fontSize={8} fontFamily="monospace" fontWeight="bold">RUANG A (n=9)</text>
+            <text x={145} y={85} textAnchor="middle" fill={unlocked.has('A') ? '#818cf8' : 'rgba(255,255,255,0.45)'} fontSize={18} fontFamily="monospace" fontWeight="bold">RUANG A (n=9)</text>
             {/* Ruang B (Tengah) */}
-            <text x={400} y={75} textAnchor="middle" fill={unlocked.has('B') ? '#00ADB5' : 'rgba(255,255,255,0.2)'} fontSize={8} fontFamily="monospace" fontWeight="bold">RUANG B (n=15)</text>
+            <text x={400} y={105} textAnchor="middle" fill={unlocked.has('B') ? '#00ADB5' : 'rgba(255,255,255,0.45)'} fontSize={18} fontFamily="monospace" fontWeight="bold">RUANG B (n=15)</text>
             {/* Ruang C (Kanan) */}
-            <text x={655} y={65} textAnchor="middle" fill={unlocked.has('C') ? '#f472b6' : 'rgba(255,255,255,0.2)'} fontSize={8} fontFamily="monospace" fontWeight="bold">RUANG C (n=11)</text>
+            <text x={655} y={85} textAnchor="middle" fill={unlocked.has('C') ? '#f472b6' : 'rgba(255,255,255,0.45)'} fontSize={18} fontFamily="monospace" fontWeight="bold">RUANG C (n=11)</text>
 
             {/* Connecting doors */}
             {DOORS.map(door => {
               const open = unlocked.has(door.id)
               const near = nearDoor?.id === door.id && !open
-              const rx = door.x - 15
-              const ry = door.y - 9
+              const rx = door.x - 21
+              const ry = door.y - 13
 
               return (
                 <g key={door.id} style={{ cursor: open ? 'default' : 'pointer' }}
                   onClick={e => { e.stopPropagation(); if (!open && !activeDoor) setActiveDoor(door) }}>
-                  {near && <circle cx={door.x} cy={door.y} r={14} fill={`${door.color}15`} stroke={`${door.color}44`} strokeWidth={0.6} />}
-                  <rect x={rx} y={ry} width={30} height={18} rx={4}
+                  {near && <circle cx={door.x} cy={door.y} r={22} fill={`${door.color}15`} stroke={`${door.color}44`} strokeWidth={0.6} />}
+                  <rect x={rx} y={ry} width={42} height={26} rx={6}
                     fill={open ? `${door.color}25` : '#111827'} stroke={near ? '#FFFFFF' : door.color} strokeWidth={1} />
-                  <text x={door.x} y={door.y + 1} textAnchor="middle" dominantBaseline="middle" fontSize={9.5}>{open ? '🔓' : '🔒'}</text>
-                  <text x={door.x} y={door.y - 14} textAnchor="middle" fontSize={6.5} fontWeight="bold" fill={door.color} fontFamily="monospace">{door.label}</text>
+                  <text x={door.x} y={door.y + 1.5} textAnchor="middle" dominantBaseline="middle" fontSize={16}>{open ? '🔓' : '🔒'}</text>
+                  <text x={door.x} y={door.y - 20} textAnchor="middle" fontSize={11.5} fontWeight="bold" fill={door.color} fontFamily="monospace">{door.label}</text>
                 </g>
               )
             })}
@@ -486,14 +486,15 @@ export default function NPath({ onComplete, isFD = true }: { onComplete: () => v
                 <stop offset="100%" stopColor="#1e1b4b" />
               </radialGradient>
               <filter id="char-glow" x="-80%" y="-80%" width="260%" height="260%">
-                <feGaussianBlur stdDeviation="1.6" result="blur" />
+                <feGaussianBlur stdDeviation="2.5" result="blur" />
                 <feMerge>
                   <feMergeNode in="blur" />
                   <feMergeNode in="SourceGraphic" />
                 </feMerge>
               </filter>
             </defs>
-            <circle cx={charPos.x} cy={charPos.y} r={3.6} fill="url(#char-grad)" filter="url(#char-glow)" />
+            <circle cx={charPos.x} cy={charPos.y} r={7.0} fill="url(#char-grad)" filter="url(#char-glow)" />
+            <text x={charPos.x} y={charPos.y - 10} textAnchor="middle" fontSize={8} fontWeight="bold" fill="rgba(255,255,255,0.85)" fontFamily="monospace">Kamu</text>
 
           </svg>
 

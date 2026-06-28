@@ -86,7 +86,7 @@ export default function LobbyPage() {
       {/* Header */}
       <header style={{
         position: 'sticky', top: 0, zIndex: 100,
-        background: 'rgba(250,246,238,0.85)', backdropFilter: 'blur(20px)',
+        background: 'rgba(11, 30, 44, 0.9)', backdropFilter: 'blur(20px)',
         borderBottom: '1px solid var(--game-border)',
         padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         gap: '8px',
@@ -123,7 +123,7 @@ export default function LobbyPage() {
               ? 'linear-gradient(135deg, #3B82F6, #8B5CF6)'
               : 'linear-gradient(135deg, #EA580C, #D97706)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: '22px', fontWeight: 800, color: '#1C1917',
+            fontSize: '22px', fontWeight: 800, color: '#FFFFFF',
             boxShadow: isFI ? '0 0 20px rgba(59,130,246,0.4)' : '0 0 20px rgba(217,119,6,0.4)'
           }}>
             {student?.name?.charAt(0).toUpperCase()}

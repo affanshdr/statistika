@@ -75,7 +75,7 @@ function SlideData({ step }: { step: number }) {
           }}
         >
           <div style={{ fontSize: '8px', color: '#78716C', fontWeight: 700 }}>s{i + 1}</div>
-          <div style={{ fontSize: '14px', fontWeight: 800, color: '#1C1917', fontFamily: 'var(--font-data)' }}>{val}</div>
+          <div style={{ fontSize: '14px', fontWeight: 800, color: '#FFFFFF', fontFamily: 'var(--font-data)' }}>{val}</div>
           <div style={{ fontSize: '8px', color: '#78716C' }}>jam</div>
         </motion.div>
       ))}
@@ -235,10 +235,10 @@ function SlideMean() {
         }}
       >
         <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: '6px', fontWeight: 600 }}>PERHITUNGAN:</div>
-        <div style={{ fontFamily: 'var(--font-data)', fontSize: '13px', color: '#57534E', marginBottom: '6px' }}>
+        <div style={{ fontFamily: 'var(--font-data)', fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '6px' }}>
           ({screenTimeData.join(' + ')})
         </div>
-        <div style={{ fontFamily: 'var(--font-data)', fontSize: '13px', color: '#57534E', marginBottom: '8px' }}>
+        <div style={{ fontFamily: 'var(--font-data)', fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '8px' }}>
           = {total.toFixed(1)} ÷ {STATS.n}
         </div>
         <motion.div
@@ -261,7 +261,7 @@ function SlideMean() {
           borderRadius: '10px',
           padding: '10px 16px',
           fontSize: '13px',
-          color: '#44403C',
+          color: 'var(--text-primary)',
           width: '100%',
           textAlign: 'center',
         }}
@@ -298,7 +298,7 @@ function SlideKritis() {
           }}
         >
           <span style={{ fontSize: '20px' }}>{p.icon}</span>
-          <span style={{ fontSize: '13px', color: '#44403C', lineHeight: 1.5 }}>{p.text}</span>
+          <span style={{ fontSize: '13px', color: 'var(--text-primary)', lineHeight: 1.5 }}>{p.text}</span>
         </motion.div>
       ))}
       <motion.div
@@ -527,7 +527,7 @@ export default function TutorialPhase({ mode, onComplete }: TutorialPhaseProps) 
               }}
             >
               <img src="/dira-avatar.png" alt="Dira" style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
-              <div style={{ fontSize: '13px', color: '#44403C', lineHeight: 1.6 }}>
+              <div style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
                 <strong style={{ color: 'var(--accent)' }}>Dira:</strong>{' '}
                 {slideIndex === 0 && 'Hei! Sebelum kita mulai investigasi, aku mau ajarin kamu beberapa hal penting dulu. Siap? 😊'}
                 {slideIndex === 1 && 'Keren! Sekarang kamu udah tau apa itu data. Yuk lanjut ke langkah berikutnya — mengelompokkan data! 📦'}

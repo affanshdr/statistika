@@ -379,7 +379,7 @@ export default function SiswaPage() {
           </div>
           <div style={{ minWidth: 0 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <h2 style={{ fontSize: isMobile ? '14px' : '16px', fontWeight: 800, margin: 0, color: '#1C1917', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              <h2 style={{ fontSize: isMobile ? '14px' : '16px', fontWeight: 800, margin: 0, color: '#F8FAFC', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {student.name}
               </h2>
               {/* 👋 Greeting wave button beside the name */}
@@ -405,8 +405,8 @@ export default function SiswaPage() {
                 </button>
               )}
             </div>
-            <span style={{ fontSize: '11px', color: 'rgba(87,83,78,0.6)', display: 'block', marginTop: '2px' }}>
-              Kelas: <strong style={{ color: '#1C1917' }}>{student.classroom?.name}</strong> • Detektif Aktif
+            <span style={{ fontSize: '11px', color: 'var(--text-secondary)', display: 'block', marginTop: '2px' }}>
+              Kelas: <strong style={{ color: '#F8FAFC' }}>{student.classroom?.name}</strong> • Detektif Aktif
             </span>
           </div>
         </div>
@@ -1009,7 +1009,7 @@ export default function SiswaPage() {
         <div style={{
           position: 'fixed',
           inset: 0,
-          background: 'rgba(250,246,238, 0.75)',
+          background: 'rgba(11, 30, 44, 0.85)',
           backdropFilter: 'blur(8px)',
           display: 'flex',
           alignItems: 'center',
@@ -1021,8 +1021,8 @@ export default function SiswaPage() {
             animate={{ scale: 1, opacity: 1 }}
             className="modal-scrollbar"
             style={{
-              background: '#FFFFFF',
-              border: '1px solid rgba(180,140,80,0.15)',
+              background: '#0F2338',
+              border: '1px solid rgba(14, 131, 136, 0.25)',
               borderRadius: '24px',
               padding: '28px',
               width: '380px',
@@ -1030,14 +1030,15 @@ export default function SiswaPage() {
               overflowY: 'auto',
               display: 'flex',
               flexDirection: 'column',
-              gap: '20px'
+              gap: '20px',
+              boxShadow: '0 20px 40px rgba(0, 0, 0, 0.5), var(--accent-glow)'
             }}
           >
             <div>
-              <h3 style={{ margin: 0, fontSize: '17px', fontWeight: 800, color: '#DC2626', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <h3 style={{ margin: 0, fontSize: '17px', fontWeight: 800, color: '#ef4444', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 ⚠️ Konfirmasi Keluar
               </h3>
-              <p style={{ margin: '10px 0 0 0', fontSize: '13px', color: '#78716C', lineHeight: 1.55 }}>
+              <p style={{ margin: '10px 0 0 0', fontSize: '13px', color: '#94A3B8', lineHeight: 1.55 }}>
                 Apakah Anda yakin ingin mengakhiri sesi belajar statistika ini? Progress pengerjaan Anda akan tetap tersimpan dengan aman.
               </p>
             </div>
@@ -1048,21 +1049,23 @@ export default function SiswaPage() {
                   flex: 1,
                   padding: '12px',
                   borderRadius: '12px',
-                  border: '1px solid rgba(180,140,80,0.2)',
+                  border: '1px solid rgba(14, 131, 136, 0.25)',
                   background: 'transparent',
-                  color: '#78716C',
+                  color: '#94A3B8',
                   fontSize: '13px',
                   fontWeight: 700,
                   cursor: 'pointer',
                   transition: 'all 0.2s'
                 }}
                 onMouseEnter={e => {
-                  e.currentTarget.style.background = 'rgba(217,119,6,0.06)'
-                  e.currentTarget.style.borderColor = 'rgba(217,119,6,0.3)'
+                  e.currentTarget.style.background = 'rgba(14, 131, 136, 0.1)'
+                  e.currentTarget.style.borderColor = 'var(--game-border-accent)'
+                  e.currentTarget.style.color = '#FFFFFF'
                 }}
                 onMouseLeave={e => {
                   e.currentTarget.style.background = 'transparent'
-                  e.currentTarget.style.borderColor = 'rgba(180,140,80,0.2)'
+                  e.currentTarget.style.borderColor = 'rgba(14, 131, 136, 0.25)'
+                  e.currentTarget.style.color = '#94A3B8'
                 }}
               >
                 Batal
@@ -1292,7 +1295,7 @@ export default function SiswaPage() {
               style={{
                 position: 'fixed',
                 inset: 0,
-                background: 'rgba(250,246,238, 0.6)',
+                background: 'rgba(11, 30, 44, 0.7)',
                 backdropFilter: 'blur(8px)',
                 zIndex: 150,
               }}
@@ -1635,7 +1638,7 @@ export default function SiswaPage() {
         <div style={{
           position: 'fixed',
           inset: 0,
-          background: 'rgba(250,246,238, 0.85)',
+          background: 'rgba(11, 30, 44, 0.85)',
           backdropFilter: 'blur(12px)',
           display: 'flex',
           alignItems: 'center',
@@ -1647,22 +1650,22 @@ export default function SiswaPage() {
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             style={{
-              background: 'rgba(255,255,255, 0.95)',
+              background: '#0F2338',
               border: `1.5px solid ${resolvedStyle === 'FI' ? '#3b82f6' : '#D97706'}`,
               borderRadius: '24px',
               padding: '32px',
               width: '100%',
               maxWidth: '460px',
               position: 'relative',
-              boxShadow: `0 8px 30px rgba(180,120,40,0.1)`,
+              boxShadow: `0 20px 40px rgba(0, 0, 0, 0.6), var(--accent-glow)`,
               display: 'flex',
               flexDirection: 'column',
               gap: '24px',
-              color: '#1C1917',
+              color: '#F8FAFC',
             }}
           >
             {/* Gating Header */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', borderBottom: '1px solid rgba(180,140,80,0.12)', paddingBottom: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', borderBottom: '1px solid rgba(14, 131, 136, 0.15)', paddingBottom: '16px' }}>
               <div style={{ position: 'relative', width: '40px', height: '40px', flexShrink: 0 }}>
                 <img
                   src="/dira-avatar.png"
@@ -1680,7 +1683,7 @@ export default function SiswaPage() {
                 }}>
                   ARAHAN TUTOR DiRA • LANGKAH {gatingStep} DARI 2
                 </span>
-                <h3 style={{ margin: '2px 0 0 0', fontSize: '18px', fontWeight: 900, color: '#1C1917' }}>
+                <h3 style={{ margin: '2px 0 0 0', fontSize: '18px', fontWeight: 900, color: '#F8FAFC' }}>
                   🕵️‍♂️ Persiapan Misi
                 </h3>
               </div>
@@ -1690,8 +1693,8 @@ export default function SiswaPage() {
             {gatingStep === 1 && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 <div style={{
-                  background: 'rgba(217,119,6,0.03)',
-                  border: '1px solid rgba(255,255,255,0.05)',
+                  background: 'rgba(14, 131, 136, 0.04)',
+                  border: '1px solid rgba(14, 131, 136, 0.25)',
                   borderRadius: '16px',
                   padding: '20px',
                   fontSize: '14px',
@@ -1736,8 +1739,8 @@ export default function SiswaPage() {
             {gatingStep === 2 && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 <div style={{
-                  background: 'rgba(217,119,6,0.03)',
-                  border: '1px solid rgba(255,255,255,0.05)',
+                  background: 'rgba(14, 131, 136, 0.04)',
+                  border: '1px solid rgba(14, 131, 136, 0.25)',
                   borderRadius: '16px',
                   padding: '20px',
                   fontSize: '14px',

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useRef, useEffect } from 'react'
+import { useState, useCallback, useRef, useEffect, memo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { screenTimeData, STATS } from '../_data/level1'
 import { useGameStore } from '@/lib/store/gameStore'
@@ -192,7 +192,7 @@ function StepHeader({
         fontSize: 'clamp(14px, 2.2vh, 18px)', fontWeight: 900, color: '#a5b4fc',
       }}>{step}</div>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 'clamp(16px, 2.8vh, 22px)', fontWeight: 800, color: '#1C1917' }}>{title}</div>
+        <div style={{ fontSize: 'clamp(16px, 2.8vh, 22px)', fontWeight: 800, color: 'var(--text-primary)' }}>{title}</div>
         <div style={{ fontSize: 'clamp(11px, 1.8vh, 14px)', color: '#A8A29E', letterSpacing: '1px', textTransform: 'uppercase', fontWeight: 600 }}>{subtitle}</div>
       </div>
       <ProgressDots step={step} />
@@ -392,6 +392,33 @@ function IntroTypewriter({ onDone }: { onDone: () => void }) {
     </span>
   )
 }
+
+// Memoized static background component to prevent lag during movement updates
+const MazeBackground = memo(() => {
+  return (
+    <>
+      {/* Background (walls) */}
+      <rect width={RENTANG_VW} height={RENTANG_VH} fill="#060709" />
+
+      {/* Floor tiles */}
+      {RENTANG_MAZE.flatMap((row, r) => row.map((cell, c) => {
+        if (cell === 1) return null
+        return (
+          <rect
+            key={`f${r}-${c}`}
+            x={c * RENTANG_CELL + 0.5}
+            y={r * RENTANG_CELL + 0.5}
+            width={RENTANG_CELL - 1}
+            height={RENTANG_CELL - 1}
+            fill="#0f1122"
+            rx={0.4}
+          />
+        )
+      }))}
+    </>
+  )
+})
+MazeBackground.displayName = 'MazeBackground'
 
 // ─── Main component ───────────────────────────────────────────────────────────
 export default function PregameFormula({ onComplete, teamId, studentId, teamMembers, initialSub = 'intro' }: Props) {
@@ -814,9 +841,18 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
     const slotEl = slotRRef.current
     if (!slotEl) return
     const rect = slotEl.getBoundingClientRect()
-    const px = info.point.x
-    const py = info.point.y
-    if (px >= rect.left && px <= rect.right && py >= rect.top && py <= rect.bottom) {
+    let clientX: number, clientY: number
+    if (event && 'changedTouches' in event && event.changedTouches && event.changedTouches.length > 0) {
+      clientX = event.changedTouches[0].clientX
+      clientY = event.changedTouches[0].clientY
+    } else if (event && 'clientX' in event) {
+      clientX = event.clientX
+      clientY = event.clientY
+    } else {
+      clientX = info.point.x
+      clientY = info.point.y
+    }
+    if (clientX >= rect.left && clientX <= rect.right && clientY >= rect.top && clientY <= rect.bottom) {
       setPkR(String(CORRECT_R))
     }
   }
@@ -825,9 +861,18 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
     const slotEl = slotKRef.current
     if (!slotEl) return
     const rect = slotEl.getBoundingClientRect()
-    const px = info.point.x
-    const py = info.point.y
-    if (px >= rect.left && px <= rect.right && py >= rect.top && py <= rect.bottom) {
+    let clientX: number, clientY: number
+    if (event && 'changedTouches' in event && event.changedTouches && event.changedTouches.length > 0) {
+      clientX = event.changedTouches[0].clientX
+      clientY = event.changedTouches[0].clientY
+    } else if (event && 'clientX' in event) {
+      clientX = event.clientX
+      clientY = event.clientY
+    } else {
+      clientX = info.point.x
+      clientY = info.point.y
+    }
+    if (clientX >= rect.left && clientX <= rect.right && clientY >= rect.top && clientY <= rect.bottom) {
       setPkK(String(CORRECT_K))
     }
   }
@@ -1384,14 +1429,8 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                 >
                   <div style={{ width: '100%', maxHeight: '100%', aspectRatio: `${RENTANG_VW}/${RENTANG_VH}`, position: 'relative' }}>
                     <svg viewBox={`0 0 ${RENTANG_VW} ${RENTANG_VH}`} preserveAspectRatio="xMidYMid meet" style={{ width: '100%', height: '100%', display: 'block' }}>
-                      {/* Background (walls) */}
-                      <rect width={RENTANG_VW} height={RENTANG_VH} fill="#060709" />
-
-                      {/* Floor tiles */}
-                      {RENTANG_MAZE.flatMap((row, r) => row.map((cell, c) => {
-                        if (cell === 1) return null
-                        return <rect key={`f${r}-${c}`} x={c * RENTANG_CELL + 0.5} y={r * RENTANG_CELL + 0.5} width={RENTANG_CELL - 1} height={RENTANG_CELL - 1} fill="#0f1122" rx={0.4} />
-                      }))}
+                      {/* Static Maze Background */}
+                      <MazeBackground />
 
                       {/* Subtle grid overlay */}
                       <defs>
@@ -1867,9 +1906,9 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                       {!pkR ? (
                         <motion.div
                           drag
-                          dragElastic={0.6}
+                          dragSnapToOrigin
                           dragMomentum={false}
-                          dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
+                          dragElastic={0.08}
                           onDragEnd={handleDragEndR}
                           style={{
                             width: '130px', height: '60px', borderRadius: '10px',
@@ -1891,9 +1930,9 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                       {!pkK ? (
                         <motion.div
                           drag
-                          dragElastic={0.6}
+                          dragSnapToOrigin
                           dragMomentum={false}
-                          dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
+                          dragElastic={0.08}
                           onDragEnd={handleDragEndK}
                           style={{
                             width: '130px', height: '60px', borderRadius: '10px',

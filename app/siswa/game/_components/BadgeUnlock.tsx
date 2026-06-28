@@ -44,7 +44,7 @@ export default function BadgeUnlock({ icon, name, desc, onDone }: BadgeUnlockPro
           <div className="badge-icon">{icon}</div>
 
           <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '20px', fontWeight: 800, color: '#1C1917', marginBottom: '6px' }}>
+            <div style={{ fontSize: '20px', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '6px' }}>
               {name}
             </div>
             <div style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
