@@ -17,8 +17,6 @@ const GATE_STEP_MAP: Record<string, Record<string, unknown>> = {
 
 const READY_THRESHOLD = 2
 
-// Map memori global untuk mencatat timestamp keaktifan siswa (studentId -> timestamp)
-const lastActiveMap = new Map<string, number>()
 const INACTIVE_THRESHOLD_MS = 15000 // 15 detik tanpa polling = tidak aktif
 
 export async function GET(req: NextRequest) {
@@ -32,23 +30,38 @@ export async function GET(req: NextRequest) {
     }
 
     if (studentId) {
-      // 1. Cari tim dan anggota-anggotanya terlebih dahulu
+      // 1. Catat keaktifan siswa ini sekarang di database
+      try {
+        await prisma.student.update({
+          where: { id: studentId },
+          data: { lastSeenAt: new Date() },
+        })
+      } catch (err) {
+        console.error('Failed to update student lastSeenAt:', err)
+      }
+
+      // 2. Cari tim dan anggota-anggotanya terlebih dahulu
       const checkTeam = await prisma.team.findUnique({
         where: { id: teamId },
         select: {
           members: {
-            select: { studentId: true }
+            select: {
+              student: {
+                select: {
+                  id: true,
+                  lastSeenAt: true,
+                }
+              }
+            }
           }
         }
       })
 
       if (checkTeam) {
-        const memberIds = checkTeam.members.map(m => m.studentId)
         // Periksa apakah ada anggota tim LAIN yang masih aktif dalam 15 detik terakhir
-        const hasActiveMembers = memberIds.some(id => {
-          if (id === studentId) return false // Jangan hitung diri sendiri yang baru masuk
-          const lastActive = lastActiveMap.get(id)
-          return lastActive && (Date.now() - lastActive < INACTIVE_THRESHOLD_MS)
+        const hasActiveMembers = checkTeam.members.some(({ student }) => {
+          if (student.id === studentId) return false // Jangan hitung diri sendiri yang baru masuk
+          return student.lastSeenAt && (Date.now() - new Date(student.lastSeenAt).getTime() < INACTIVE_THRESHOLD_MS)
         })
 
         // Jika tidak ada satu pun anggota yang aktif (semua sudah keluar/offline), reset progress tim
@@ -67,13 +80,8 @@ export async function GET(req: NextRequest) {
               formulaState: {}
             }
           })
-          // Hapus sisa-sisa map aktif lama untuk members ini agar bersih
-          memberIds.forEach(id => lastActiveMap.delete(id))
         }
       }
-
-      // Catat keaktifan siswa ini sekarang
-      lastActiveMap.set(studentId, Date.now())
     }
 
     const team = await prisma.team.findUnique({
