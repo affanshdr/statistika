@@ -278,15 +278,8 @@ export default function SiswaPage() {
         }
       }
 
-      // FD: match into a team BEFORE entering the game so the dashboard widget
-      // reflects the team immediately and teamId is available from the start.
-      let resolvedTeamId: string | undefined = undefined
-      if (activeStyle === 'FD' && student.id) {
-        const matched = await matchFDTeam(student.id, levelId)
-        if (matched) resolvedTeamId = matched
-      }
-
-      proceedToGame(levelId, activeStyle, resolvedTeamId)
+      // FD matching bypassed to run as single-player
+      proceedToGame(levelId, activeStyle)
     } else {
       router.push(`/siswa/diagnostik?level=${levelId}`)
     }
@@ -298,12 +291,8 @@ export default function SiswaPage() {
     if (gatingLevelId) {
       setShowGatingModal(false)
       const activeStyle = student?.geftResult?.cognitiveStyle || cognitiveStyle || 'FI'
-      let resolvedTeamId: string | undefined = undefined
-      if (activeStyle === 'FD' && student?.id) {
-        const matched = await matchFDTeam(student.id, gatingLevelId)
-        if (matched) resolvedTeamId = matched
-      }
-      proceedToGame(gatingLevelId, activeStyle, resolvedTeamId)
+      // FD matching bypassed to run as single-player
+      proceedToGame(gatingLevelId, activeStyle)
       setGatingLevelId(null)
     }
   }
@@ -314,12 +303,8 @@ export default function SiswaPage() {
     if (gatingLevelId) {
       setShowGatingModal(false)
       const activeStyle = student?.geftResult?.cognitiveStyle || cognitiveStyle || 'FI'
-      let resolvedTeamId: string | undefined = undefined
-      if (activeStyle === 'FD' && student?.id) {
-        const matched = await matchFDTeam(student.id, gatingLevelId)
-        if (matched) resolvedTeamId = matched
-      }
-      proceedToGame(gatingLevelId, activeStyle, resolvedTeamId)
+      // FD matching bypassed to run as single-player
+      proceedToGame(gatingLevelId, activeStyle)
       setGatingLevelId(null)
     }
   }
@@ -803,7 +788,7 @@ export default function SiswaPage() {
         </div>
       </div>
 
-      {/* ── FD: Tim Investigasi Saya Widget ── */}
+      {/* ── FD: Tim Investigasi Saya Widget (Hidden for single-player fallback) ──
       {!isFI && student?.geftResult?.cognitiveStyle === 'FD' && (
         <div id="team-widget" style={{
           width: '100%',
@@ -819,8 +804,7 @@ export default function SiswaPage() {
             padding: '24px',
             boxShadow: '0 4px 20px rgba(6,182,212,0.08)',
           }}>
-            {/* Widget Header */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+            <div style={{ display: 'flex', justifyStyle: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <span style={{ fontSize: '22px' }}>👥</span>
                 <div>
@@ -860,7 +844,6 @@ export default function SiswaPage() {
               </div>
             ) : activeTeam ? (
               <>
-                {/* Status Badge */}
                 <div style={{
                   display: 'inline-flex', alignItems: 'center', gap: '6px',
                   padding: '4px 12px', borderRadius: '50px',
@@ -881,7 +864,6 @@ export default function SiswaPage() {
                   }
                 </div>
 
-                {/* Member Slots */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
                   {[0, 1, 2].map((idx) => {
                     const member = activeTeam.members[idx]
@@ -904,7 +886,6 @@ export default function SiswaPage() {
                         }}
                       >
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                          {/* Avatar with online dot */}
                           <div style={{ position: 'relative', flexShrink: 0 }}>
                             <span style={{ fontSize: '18px' }}>{member ? '🕵️' : '❓'}</span>
                             {member && (
@@ -948,9 +929,8 @@ export default function SiswaPage() {
                   })}
                 </div>
 
-                {/* Progress bar */}
                 <div style={{ marginBottom: '16px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                  <div style={{ display: 'flex', justifyStyle: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
                     <span style={{ fontSize: '11px', color: '#78716C', fontWeight: 600 }}>Anggota Bergabung</span>
                     <span style={{ fontSize: '11px', fontWeight: 800, color: '#0e7490' }}>{activeTeam.members.length} / 3</span>
                   </div>
@@ -966,7 +946,6 @@ export default function SiswaPage() {
                   </div>
                 </div>
 
-                {/* Resume button (PLAYING or 3 members in lobby) or waiting hint (WAITING) */}
                 {activeTeam.status === 'PLAYING' || activeTeam.members.length === 3 ? (
                   <button
                     onClick={() => handlePlayLevel(activeTeam.levelId)}
@@ -999,7 +978,6 @@ export default function SiswaPage() {
                 )}
               </>
             ) : (
-              /* No active team */
               <div style={{
                 textAlign: 'center', padding: '20px',
                 color: '#78716C', fontSize: '13px', lineHeight: 1.6,
@@ -1023,6 +1001,8 @@ export default function SiswaPage() {
           `}</style>
         </div>
       )}
+      */
+      }
 
       {/* Exit Confirmation Modal */}
       {showExitConfirm && (

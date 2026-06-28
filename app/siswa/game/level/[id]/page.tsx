@@ -73,74 +73,10 @@ export default function LevelPage({
     }
   }, [hydrated, resolvedStyle, router])
 
-  // ── Rejoin check (FD only) ──────────────────────────────────────────────────
-  // After store hydrates + studentInfo is ready, fetch team's current state
-  // and jump directly to the right phase so "back" → "mulai" doesn't restart.
+  // ── Rejoin check (Bypassed for single-player) ───────────────────────────────
   useEffect(() => {
     if (!hydrated || !studentInfo) return
-
-    if (resolvedStyle !== 'FD') {
-      // FI: solo player, always starts from cutscene
-      setInitializing(false)
-      return
-    }
-
-    const checkRejoin = async () => {
-      try {
-        let currentTeamId = teamId
-
-        // If teamId not in store, try fetching from my-team API
-        if (!currentTeamId) {
-          const res = await fetch(`/api/game/team/my-team?studentId=${studentInfo.id}`)
-          if (res.ok) {
-            const data = await res.json()
-            if (data.team?.teamId) {
-              currentTeamId = data.team.teamId
-              setTeamId(currentTeamId)
-            }
-          }
-        }
-
-        if (!currentTeamId) {
-          // No team yet — start from cutscene
-          setInitializing(false)
-          return
-        }
-
-        // Fetch team's current synced state
-        const syncRes = await fetch(`/api/game/team/sync?teamId=${currentTeamId}${studentInfo?.id ? `&studentId=${studentInfo.id}` : ''}`)
-        if (!syncRes.ok) { setInitializing(false); return }
-        const data = await syncRes.json()
-
-        if (data.members) {
-          setTeamMembers(data.members)
-        }
-
-        // ── Jump to the phase the team is currently on ────────────────────────
-        if (data.status === 'PLAYING') {
-          // Team is in-game (histogram, etc.) — skip all pre-game phases
-          setTeamMembers(data.members || [])
-          setPhase('game')
-          setTimerRunning(true)
-        } else if (data.gamePhase === 'lobby') {
-          // Team finished formula — waiting for ready votes in lobby
-          setPhase('lobby')
-        } else if (data.gamePhase === 'formula') {
-          // Team is working through the formula step
-          setPhase('formula')
-        } else if (data.gamePhase === 'cutscene_mentor') {
-          // Team is on the second cutscene screen
-          setCutscenePhase('mentor')
-          setPhase('cutscene')
-        }
-        // else: cutscene_comments / undefined → stay at cutscene start (default)
-      } catch { /* network error → fall through to cutscene start */ }
-
-      setInitializing(false)
-    }
-
-    checkRejoin()
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    setInitializing(false)
   }, [hydrated, studentInfo])
 
   // Show spinner while store is hydrating OR rejoin check is running
@@ -188,9 +124,9 @@ export default function LevelPage({
             {phase === 'cutscene' && (
               <Cutscene
                 onPhaseChange={setCutscenePhase}
-                teamId={resolvedStyle === 'FD' ? teamId : null}
+                teamId={null}
                 studentId={studentInfo?.id}
-                teamMembers={teamMembers.length > 0 ? teamMembers : undefined}
+                teamMembers={undefined}
                 onComplete={() => setPhase('formula')}
               />
             )}
@@ -209,55 +145,13 @@ export default function LevelPage({
               }}
             >
               <PregameFormula
-                teamId={resolvedStyle === 'FD' ? teamId : null}
+                teamId={null}
                 studentId={studentInfo?.id}
-                teamMembers={teamMembers.length > 0 ? teamMembers : undefined}
+                teamMembers={undefined}
                 onComplete={async () => {
-                  if (resolvedStyle === 'FD' && studentInfo) {
-                    if (!teamId) {
-                      try {
-                        const res = await fetch('/api/game/team/match', {
-                          method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ studentId: studentInfo.id, levelId: 1 }),
-                        })
-                        if (res.ok) {
-                          const data = await res.json()
-                          setTeamId(data.teamId)
-                        }
-                      } catch { /* ignore */ }
-                    }
-                    setPhase('lobby')
-                  } else {
-                    setPhase('game')
-                    setTimerRunning(true)
-                  }
-                }}
-              />
-            </motion.div>
-          )}
-
-          {/* Phase 1.8: Team Lobby (FD Only) */}
-          {phase === 'lobby' && resolvedStyle === 'FD' && studentInfo && teamId && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              style={{
-                flex: 1, display: 'flex', flexDirection: 'column',
-                background: '#FAF6EE', height: '100%', overflow: 'auto',
-              }}
-            >
-              <TeamLobby
-                studentId={studentInfo.id}
-                studentName={studentInfo.name}
-                teamId={teamId}
-                onComplete={(members) => {
-                  setTeamMembers(members)
                   setPhase('game')
                   setTimerRunning(true)
                 }}
-                onBack={() => router.push('/siswa')}
               />
             </motion.div>
           )}
@@ -273,7 +167,7 @@ export default function LevelPage({
               {resolvedStyle === 'FI' ? (
                 <FIPath />
               ) : (
-                <FDPath teamId={teamId} studentId={studentInfo?.id} studentName={studentInfo?.name} />
+                <FDPath teamId={null} studentId={studentInfo?.id} studentName={studentInfo?.name} />
               )}
             </motion.div>
           )}
