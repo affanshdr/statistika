@@ -151,8 +151,8 @@ export default function Modul2Page() {
 
   if (loading || !student) {
     return (
-      <main style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#FAF6EE' }}>
-        <p style={{ color: '#1C1917' }}>Memuat Modul Adaptif...</p>
+      <main style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0B1E2C' }}>
+        <p style={{ color: '#94A3B8' }}>Memuat Modul Adaptif...</p>
       </main>
     )
   }
@@ -218,9 +218,9 @@ export default function Modul2Page() {
       {/* Layout styling */}
       <style>{`
         .modul-navbar {
-          background: rgba(250,246,238, 0.65);
+          background: rgba(11, 30, 44, 0.85);
           backdrop-filter: blur(16px);
-          border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+          border-bottom: 1px solid rgba(14, 131, 136, 0.1);
           position: sticky;
           top: 0;
           z-index: 50;
@@ -296,13 +296,13 @@ export default function Modul2Page() {
         <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span style={{ fontSize: '22px' }}>🔬</span>
-            <span style={{ fontFamily: 'var(--font-heading), sans-serif', fontWeight: 800, fontSize: '16px', letterSpacing: '0.5px', background: 'linear-gradient(90deg, #3b82f6, #EA580C)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>AR-COGNISTATS</span>
+            <span style={{ fontFamily: 'var(--font-heading), sans-serif', fontWeight: 800, fontSize: '16px', letterSpacing: '0.5px', background: 'linear-gradient(90deg, #00ADB5, #0E8388)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>AR-COGNISTATS</span>
           </div>
           <button 
             onClick={() => router.push('/siswa')}
-            style={{ padding: '8px 18px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.15)', background: 'rgba(217,119,6,0.04)', color: '#44403C', fontSize: '13px', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s' }}
-            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(180,140,80,0.15)' }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(217,119,6,0.04)' }}
+            style={{ padding: '8px 18px', borderRadius: '10px', border: '1px solid rgba(14, 131, 136, 0.25)', background: 'rgba(14, 131, 136, 0.06)', color: '#94A3B8', fontSize: '13px', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s' }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(14, 131, 136, 0.12)'; e.currentTarget.style.color = '#FFFFFF'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(14, 131, 136, 0.06)'; e.currentTarget.style.color = '#94A3B8'; }}
           >
             ← Dashboard
           </button>

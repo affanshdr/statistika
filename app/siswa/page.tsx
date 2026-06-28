@@ -226,8 +226,8 @@ export default function SiswaPage() {
   }, [])
 
   if (!student) return (
-    <main style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#FAF6EE' }}>
-      <p style={{ color: '#1C1917' }}>Loading...</p>
+    <main style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0B1E2C' }}>
+      <p style={{ color: '#F8FAFC' }}>Loading...</p>
     </main>
   )
 
@@ -333,8 +333,8 @@ export default function SiswaPage() {
       width: '100%',
       minHeight: '100vh',
       position: 'relative',
-      background: '#FAF6EE',
-      color: '#1C1917',
+      background: '#0B1E2C',
+      color: '#F8FAFC',
       fontFamily: 'var(--font-sans), sans-serif',
       display: 'flex',
       flexDirection: 'column',
@@ -343,9 +343,9 @@ export default function SiswaPage() {
       {/* Header Bar */}
       <header style={{
         width: '100%',
-        background: 'rgba(250,246,238,0.92)',
+        background: 'rgba(11, 30, 44, 0.92)',
         backdropFilter: 'blur(20px)',
-        borderBottom: '1px solid rgba(180,140,80,0.18)',
+        borderBottom: '1px solid rgba(14, 131, 136, 0.18)',
         padding: isMobile ? '12px 16px' : '16px 32px',
         display: 'flex',
         flexDirection: isMobile ? 'column' : 'row',
@@ -355,7 +355,7 @@ export default function SiswaPage() {
         zIndex: 100,
         position: 'sticky',
         top: 0,
-        boxShadow: '0 1px 8px rgba(180,140,80,0.08)',
+        boxShadow: '0 1px 8px rgba(14, 131, 136, 0.08)',
       }}>
         {/* Left: Brand / Title and Profile info */}
         <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
@@ -365,14 +365,14 @@ export default function SiswaPage() {
             borderRadius: '50%',
             background: isFI
               ? 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)'
-              : 'linear-gradient(135deg, #EA580C 0%, #D97706 100%)',
+              : 'linear-gradient(135deg, #0E8388 0%, #00ADB5 100%)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             fontSize: isMobile ? '14px' : '18px',
             fontWeight: 800,
-            color: '#1C1917',
-            boxShadow: isFI ? '0 0 14px rgba(59,130,246,0.4)' : '0 0 14px rgba(217,119,6,0.3)',
+            color: '#FFFFFF',
+            boxShadow: isFI ? '0 0 14px rgba(59,130,246,0.4)' : '0 0 14px rgba(14, 131, 136, 0.4)',
             flexShrink: 0,
           }}>
             {student.name.charAt(0).toUpperCase()}
@@ -425,9 +425,9 @@ export default function SiswaPage() {
               width: '38px',
               height: '38px',
               borderRadius: '10px',
-              border: '1px solid rgba(180,140,80,0.2)',
-              background: 'rgba(217,119,6,0.06)',
-              color: '#1C1917',
+              border: '1px solid rgba(14, 131, 136, 0.2)',
+              background: 'rgba(14, 131, 136, 0.06)',
+              color: '#F8FAFC',
               fontSize: '18px',
               cursor: 'pointer',
               display: 'flex',
@@ -437,12 +437,12 @@ export default function SiswaPage() {
               marginRight: '4px',
             }}
             onMouseEnter={e => {
-              e.currentTarget.style.background = 'rgba(217,119,6,0.12)'
-              e.currentTarget.style.borderColor = isFI ? 'rgba(59,130,246,0.4)' : 'rgba(217,119,6,0.4)'
+              e.currentTarget.style.background = 'rgba(14, 131, 136, 0.12)'
+              e.currentTarget.style.borderColor = isFI ? 'rgba(59,130,246,0.4)' : 'rgba(14, 131, 136, 0.4)'
             }}
             onMouseLeave={e => {
-              e.currentTarget.style.background = 'rgba(217,119,6,0.06)'
-              e.currentTarget.style.borderColor = 'rgba(180,140,80,0.2)'
+              e.currentTarget.style.background = 'rgba(14, 131, 136, 0.06)'
+              e.currentTarget.style.borderColor = 'rgba(14, 131, 136, 0.2)'
             }}
             title="Buka Menu"
           >
@@ -456,10 +456,10 @@ export default function SiswaPage() {
               style={{
                 padding: '8px 14px',
                 borderRadius: '10px',
-                background: isFI ? 'rgba(59,130,246,0.12)' : 'rgba(6,182,212,0.12)',
-                border: `1px solid ${isFI ? 'rgba(59,130,246,0.25)' : 'rgba(6,182,212,0.25)'}`,
+                background: isFI ? 'rgba(59,130,246,0.15)' : 'rgba(14, 131, 136, 0.15)',
+                border: `1px solid ${isFI ? 'rgba(59,130,246,0.3)' : 'rgba(14, 131, 136, 0.3)'}`,
                 fontSize: '11px',
-                color: isFI ? '#1e40af' : '#0e7490',
+                color: isFI ? '#60A5FA' : '#00ADB5',
                 fontWeight: 700,
                 cursor: 'pointer',
                 display: 'flex',
@@ -523,19 +523,19 @@ export default function SiswaPage() {
         }}>
           <div style={{
             fontSize: '10px',
-            color: '#D97706',
+            color: '#00ADB5',
             fontWeight: 800,
             letterSpacing: '3px',
             textTransform: 'uppercase',
             marginBottom: '8px',
-            textShadow: '0 0 10px rgba(217,119,6,0.2)',
+            textShadow: '0 0 10px rgba(0,173,181,0.2)',
           }}>
             Misi Investigasi
           </div>
           <h1 style={{
             fontSize: isMobile ? '24px' : '36px',
             fontWeight: 900,
-            color: '#1C1917',
+            color: '#FFFFFF',
             margin: 0,
             letterSpacing: '-0.5px',
           }}>
@@ -543,7 +543,7 @@ export default function SiswaPage() {
           </h1>
           <p style={{
             fontSize: isMobile ? '13px' : '14.5px',
-            color: '#78716C',
+            color: '#94A3B8',
             marginTop: '10px',
             lineHeight: 1.6,
           }}>
@@ -581,20 +581,20 @@ export default function SiswaPage() {
                     maxWidth: isMobile ? '400px' : 'none',
                     margin: isMobile ? '0 auto' : '0',
                     background: isUnlocked 
-                      ? 'linear-gradient(135deg, #FFFFFF 0%, #FFFBF5 100%)'
-                      : 'rgba(245,240,232,0.6)',
+                      ? 'linear-gradient(135deg, #0F2338 0%, #142C44 100%)'
+                      : 'linear-gradient(135deg, rgba(15, 32, 54, 0.3) 0%, rgba(9, 22, 34, 0.3) 100%)',
                     backdropFilter: 'blur(16px)',
                     border: isUnlocked 
-                      ? '1.5px solid rgba(217,119,6,0.3)' 
-                      : '1.5px solid rgba(180,140,80,0.12)',
+                      ? '1.5px solid rgba(14, 131, 136, 0.4)' 
+                      : '1.5px solid rgba(14, 131, 136, 0.12)',
                     borderRadius: '20px',
                     padding: '24px',
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'space-between',
                     boxShadow: isUnlocked 
-                      ? '0 8px 24px rgba(217,119,6,0.1)' 
-                      : '0 2px 8px rgba(180,140,80,0.06)',
+                      ? '0 8px 24px rgba(0, 173, 181, 0.15)' 
+                      : 'none',
                     position: 'relative',
                     minHeight: '380px',
                   }}
@@ -611,7 +611,7 @@ export default function SiswaPage() {
                         fontSize: '11px',
                         fontWeight: 900,
                         fontFamily: 'monospace',
-                        color: isUnlocked ? '#D97706' : 'rgba(87,83,78,0.4)',
+                        color: isUnlocked ? '#00ADB5' : 'rgba(148,163,184,0.4)',
                         letterSpacing: '1px',
                       }}>
                         LEVEL 0{level.id}
@@ -619,9 +619,9 @@ export default function SiswaPage() {
                       <span style={{
                         fontSize: isUnlocked ? '11px' : '9px',
                         fontWeight: 700,
-                        color: isUnlocked ? '#D97706' : '#DC2626',
-                        background: isUnlocked ? 'rgba(217,119,6,0.08)' : 'rgba(220,38,38,0.08)',
-                        border: isUnlocked ? '1px solid rgba(217,119,6,0.2)' : '1px solid rgba(220,38,38,0.2)',
+                        color: isUnlocked ? '#00ADB5' : '#EF4444',
+                        background: isUnlocked ? 'rgba(14, 131, 136, 0.08)' : 'rgba(239, 68, 68, 0.08)',
+                        border: isUnlocked ? '1px solid rgba(14, 131, 136, 0.2)' : '1px solid rgba(239, 68, 68, 0.2)',
                         padding: '2px 8px',
                         borderRadius: '6px',
                         textTransform: 'uppercase',
@@ -644,7 +644,7 @@ export default function SiswaPage() {
                           <div style={{
                             position: 'absolute',
                             width: '64px', height: '64px', borderRadius: '50%',
-                            background: 'rgba(217,119,6,0.12)',
+                            background: 'rgba(14, 131, 136, 0.12)',
                             animation: 'ripple 2.2s infinite',
                             pointerEvents: 'none'
                           }} />
@@ -656,15 +656,15 @@ export default function SiswaPage() {
                         height: '64px',
                         borderRadius: '50%',
                         background: isUnlocked
-                          ? 'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,251,245,0.8) 100%)'
-                          : 'rgba(180,140,80,0.05)',
-                        border: `1.5px solid ${isUnlocked ? 'rgba(217,119,6,0.4)' : 'rgba(180,140,80,0.1)'}`,
+                          ? 'linear-gradient(135deg, #0F2338 0%, #142C44 100%)'
+                          : 'rgba(14, 131, 136, 0.05)',
+                        border: `1.5px solid ${isUnlocked ? 'rgba(14, 131, 136, 0.4)' : 'rgba(14, 131, 136, 0.1)'}`,
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         fontSize: '28px',
                         zIndex: 2,
-                        boxShadow: isUnlocked ? '0 0 15px rgba(217,119,6,0.08)' : 'none',
+                        boxShadow: isUnlocked ? '0 0 15px rgba(0, 173, 181, 0.1)' : 'none',
                       }}>
                         {level.icon}
                       </div>
@@ -675,7 +675,7 @@ export default function SiswaPage() {
                       <span style={{
                         fontSize: '12px',
                         fontWeight: 700,
-                        color: isUnlocked ? '#78350F' : 'rgba(87,83,78,0.4)',
+                        color: isUnlocked ? '#00ADB5' : 'rgba(148,163,184,0.4)',
                         letterSpacing: '0.4px',
                         display: 'block',
                         marginBottom: '4px',
@@ -685,7 +685,7 @@ export default function SiswaPage() {
                       <h3 style={{
                         fontSize: '16px',
                         fontWeight: 800,
-                        color: '#1C1917',
+                        color: '#FFFFFF',
                         margin: '0 0 8px 0',
                         lineHeight: '1.35',
                       }}>
@@ -693,7 +693,7 @@ export default function SiswaPage() {
                       </h3>
                       <p style={{
                         fontSize: '12px',
-                        color: '#78716C',
+                        color: '#94A3B8',
                         margin: 0,
                         lineHeight: '1.5',
                       }}>
@@ -715,11 +715,11 @@ export default function SiswaPage() {
                             key={tag}
                             style={{
                               fontSize: '9px',
-                              background: 'rgba(217,119,6,0.06)',
-                              border: '1px solid rgba(217,119,6,0.15)',
+                              background: 'rgba(14, 131, 136, 0.08)',
+                              border: '1px solid rgba(14, 131, 136, 0.2)',
                               borderRadius: '6px',
                               padding: '3px 8px',
-                              color: '#92400E',
+                              color: '#00ADB5',
                             }}
                           >
                             {tag}
@@ -742,12 +742,12 @@ export default function SiswaPage() {
                           padding: '12px',
                           borderRadius: '12px',
                           border: 'none',
-                          background: '#D97706',
+                          background: '#0E8388',
                           color: '#FFFFFF',
                           fontSize: '13px',
                           fontWeight: 800,
                           cursor: 'pointer',
-                          boxShadow: '0 4px 15px rgba(217,119,6,0.25)',
+                          boxShadow: '0 4px 15px rgba(0, 173, 181, 0.25)',
                           transition: 'all 0.2s',
                           display: 'flex',
                           alignItems: 'center',
@@ -765,9 +765,9 @@ export default function SiswaPage() {
                         width: '100%',
                         padding: '12px',
                         borderRadius: '12px',
-                        background: 'rgba(180,140,80,0.05)',
-                        border: '1px solid rgba(180,140,80,0.1)',
-                        color: 'rgba(87,83,78,0.4)',
+                        background: 'rgba(14, 131, 136, 0.05)',
+                        border: '1px solid rgba(14, 131, 136, 0.1)',
+                        color: 'rgba(148, 163, 184, 0.4)',
                         fontSize: '13px',
                         fontWeight: 700,
                         textAlign: 'center',
@@ -1107,7 +1107,7 @@ export default function SiswaPage() {
             onClick={() => setShowCognitiveModal(false)}
             style={{
               position: 'fixed', inset: 0, zIndex: 300,
-              background: 'rgba(250,246,238,0.85)', backdropFilter: 'blur(12px)',
+              background: 'rgba(11, 30, 44, 0.85)', backdropFilter: 'blur(12px)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               padding: '20px',
             }}
@@ -1118,14 +1118,14 @@ export default function SiswaPage() {
               onClick={e => e.stopPropagation()}
               className="modal-scrollbar"
               style={{
-                background: 'rgba(255,255,255,0.95)',
+                background: 'rgba(15, 35, 56, 0.95)',
                 border: `1px solid ${info.border}`,
                 borderRadius: '24px', padding: '32px 28px',
                 width: '100%', maxWidth: '440px',
                 maxHeight: 'calc(100vh - 40px)',
                 overflowY: 'auto',
-                boxShadow: `0 8px 30px rgba(180,120,40,0.1)`,
-                color: '#1C1917',
+                boxShadow: `0 8px 30px rgba(14, 131, 136, 0.1)`,
+                color: '#F8FAFC',
               }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
@@ -1155,14 +1155,14 @@ export default function SiswaPage() {
                     style={{
                       display: 'flex', gap: '12px', alignItems: 'flex-start',
                       padding: '12px 14px', borderRadius: '12px',
-                      background: 'rgba(217,119,6,0.04)',
-                      border: '1px solid rgba(180,140,80,0.1)',
+                      background: 'rgba(14, 131, 136, 0.04)',
+                      border: '1px solid rgba(14, 131, 136, 0.1)',
                     }}
                   >
                     <span style={{ fontSize: '20px', flexShrink: 0 }}>{t.icon}</span>
                     <div>
                       <div style={{ fontSize: '13px', fontWeight: 800, marginBottom: '3px' }}>{t.title}</div>
-                      <div style={{ fontSize: '12px', color: '#78716C', lineHeight: 1.5 }}>{t.desc}</div>
+                      <div style={{ fontSize: '12px', color: '#94A3B8', lineHeight: 1.5 }}>{t.desc}</div>
                     </div>
                   </motion.div>
                 ))}
@@ -1171,7 +1171,7 @@ export default function SiswaPage() {
               <div style={{
                 padding: '14px 16px', borderRadius: '14px',
                 background: info.bg, border: `1px solid ${info.border}`,
-                fontSize: '13px', color: '#44403C', lineHeight: 1.6,
+                fontSize: '13px', color: '#E2E8F0', lineHeight: 1.6,
               }}>
                 <strong style={{ color: info.color }}>🎮 Di Game: </strong>{info.gameStyle}
               </div>
@@ -1204,7 +1204,7 @@ export default function SiswaPage() {
           onClick={() => setShowGreeting(false)}
           style={{
             position: 'fixed', inset: 0, zIndex: 300,
-            background: 'rgba(250,246,238,0.85)', backdropFilter: 'blur(12px)',
+            background: 'rgba(11, 30, 44, 0.85)', backdropFilter: 'blur(12px)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             padding: '20px',
           }}
@@ -1215,19 +1215,19 @@ export default function SiswaPage() {
             onClick={e => e.stopPropagation()}
             className="modal-scrollbar"
             style={{
-              background: 'rgba(255,255,255,0.95)',
-              border: '1px solid rgba(217,119,6, 0.25)',
+              background: 'rgba(15, 35, 56, 0.95)',
+              border: '1px solid rgba(14, 131, 136, 0.25)',
               borderRadius: '24px', padding: '32px 28px',
               width: '100%', maxWidth: '440px',
               maxHeight: 'calc(100vh - 40px)',
               overflowY: 'auto',
-              boxShadow: '0 8px 30px rgba(180,120,40,0.1)',
-              color: '#1C1917',
+              boxShadow: '0 8px 30px rgba(14, 131, 136, 0.1)',
+              color: '#F8FAFC',
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
               <div>
-                <div style={{ fontSize: '11px', color: '#D97706', fontWeight: 800, letterSpacing: '1.5px', marginBottom: '6px' }}>
+                <div style={{ fontSize: '11px', color: '#00ADB5', fontWeight: 800, letterSpacing: '1.5px', marginBottom: '6px' }}>
                   LAPORAN MASUK
                 </div>
                 <h3 style={{ margin: 0, fontSize: '20px', fontWeight: 900 }}>
@@ -1245,8 +1245,8 @@ export default function SiswaPage() {
             <div style={{
               padding: '16px',
               borderRadius: '16px',
-              background: 'rgba(217,119,6, 0.04)',
-              border: '1px solid rgba(217,119,6, 0.15)',
+              background: 'rgba(14, 131, 136, 0.04)',
+              border: '1px solid rgba(14, 131, 136, 0.15)',
               fontSize: '13.5px',
               lineHeight: 1.6,
               color: 'rgba(255, 255, 255, 0.85)',
@@ -1264,10 +1264,10 @@ export default function SiswaPage() {
               onClick={handleCloseGreeting}
               style={{
                 width: '100%', padding: '12px', borderRadius: '12px', border: 'none',
-                background: isFI ? '#2563eb' : '#D97706',
+                background: isFI ? '#2563eb' : '#0E8388',
                 color: '#FFFFFF',
                 fontSize: '14px', fontWeight: 800, cursor: 'pointer',
-                boxShadow: isFI ? '0 4px 15px rgba(37,99,235,0.3)' : '0 4px 15px rgba(16,185,129,0.3)',
+                boxShadow: isFI ? '0 4px 15px rgba(37,99,235,0.3)' : '0 4px 15px rgba(0,173,181,0.3)',
                 transition: 'all 0.2s'
               }}
               onMouseEnter={e => e.currentTarget.style.filter = 'brightness(1.15)'}
@@ -1309,9 +1309,9 @@ export default function SiswaPage() {
                 right: 0,
                 bottom: 0,
                 width: '320px',
-                background: 'rgba(255,255,255, 0.95)',
+                background: 'rgba(15, 35, 56, 0.95)',
                 backdropFilter: 'blur(20px)',
-                borderLeft: `1px solid ${isFI ? 'rgba(59,130,246,0.3)' : 'rgba(217,119,6, 0.25)'}`,
+                borderLeft: `1px solid ${isFI ? 'rgba(59,130,246,0.3)' : 'rgba(14, 131, 136, 0.25)'}`,
                 boxShadow: '-10px 0 30px rgba(0,0,0,0.5)',
                 padding: '24px',
                 display: 'flex',
@@ -1324,7 +1324,7 @@ export default function SiswaPage() {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '16px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <span style={{ fontSize: '20px' }}>☰</span>
-                  <span style={{ fontWeight: 800, fontSize: '16px', color: '#1C1917' }}>Menu Navigasi</span>
+                  <span style={{ fontWeight: 800, fontSize: '16px', color: '#F8FAFC' }}>Menu Navigasi</span>
                 </div>
                 <button
                   onClick={() => setIsSidebarOpen(false)}
@@ -1359,9 +1359,9 @@ export default function SiswaPage() {
                     gap: '16px',
                     padding: '16px',
                     borderRadius: '16px',
-                    background: 'rgba(217,119,6,0.03)',
+                    background: 'rgba(14, 131, 136, 0.03)',
                     border: '1px solid rgba(255,255,255,0.06)',
-                    color: '#1C1917',
+                    color: '#F8FAFC',
                     textAlign: 'left',
                     cursor: 'pointer',
                     transition: 'all 0.2s',
@@ -1371,7 +1371,7 @@ export default function SiswaPage() {
                   <span style={{ fontSize: '24px' }}>💬</span>
                   <div>
                     <div style={{ fontWeight: 800, fontSize: '14px' }}>Tanya DiRA</div>
-                    <div style={{ fontSize: '11px', color: '#A8A29E', marginTop: '2px' }}>Chatbot AI Asisten Belajar</div>
+                    <div style={{ fontSize: '11px', color: '#94A3B8', marginTop: '2px' }}>Chatbot AI Asisten Belajar</div>
                   </div>
                 </button>
 
@@ -1388,9 +1388,9 @@ export default function SiswaPage() {
                     gap: '16px',
                     padding: '16px',
                     borderRadius: '16px',
-                    background: 'rgba(217,119,6,0.03)',
+                    background: 'rgba(14, 131, 136, 0.03)',
                     border: '1px solid rgba(255,255,255,0.06)',
-                    color: '#1C1917',
+                    color: '#F8FAFC',
                     textAlign: 'left',
                     cursor: 'pointer',
                     transition: 'all 0.2s',
@@ -1400,7 +1400,7 @@ export default function SiswaPage() {
                   <span style={{ fontSize: '24px' }}>📖</span>
                   <div>
                     <div style={{ fontWeight: 800, fontSize: '14px' }}>Buku Saku Detektif</div>
-                    <div style={{ fontSize: '11px', color: '#A8A29E', marginTop: '2px' }}>Ringkasan Materi & Teori</div>
+                    <div style={{ fontSize: '11px', color: '#94A3B8', marginTop: '2px' }}>Ringkasan Materi & Teori</div>
                   </div>
                 </button>
 
@@ -1417,9 +1417,9 @@ export default function SiswaPage() {
                     gap: '16px',
                     padding: '16px',
                     borderRadius: '16px',
-                    background: 'rgba(217,119,6,0.03)',
+                    background: 'rgba(14, 131, 136, 0.03)',
                     border: '1px solid rgba(255,255,255,0.06)',
-                    color: '#1C1917',
+                    color: '#F8FAFC',
                     textAlign: 'left',
                     cursor: 'pointer',
                     transition: 'all 0.2s',
@@ -1429,12 +1429,12 @@ export default function SiswaPage() {
                   <span style={{ fontSize: '24px' }}>🎥</span>
                   <div>
                     <div style={{ fontWeight: 800, fontSize: '14px' }}>Video Pembelajaran</div>
-                    <div style={{ fontSize: '11px', color: '#A8A29E', marginTop: '2px' }}>Penjelasan Audio-Visual</div>
+                    <div style={{ fontSize: '11px', color: '#94A3B8', marginTop: '2px' }}>Penjelasan Audio-Visual</div>
                   </div>
                 </button>
 
                 {/* Tim Saya — hanya untuk FD */}
-                {!isFI && student?.geftResult?.cognitiveStyle === 'FD' && (
+                {false && !isFI && student?.geftResult?.cognitiveStyle === 'FD' && (
                   <button
                     onClick={() => {
                       setIsSidebarOpen(false)
@@ -1450,22 +1450,22 @@ export default function SiswaPage() {
                       gap: '16px',
                       padding: '16px',
                       borderRadius: '16px',
-                      background: 'rgba(6,182,212,0.06)',
-                      border: '1px solid rgba(6,182,212,0.2)',
-                      color: '#1C1917',
+                      background: 'rgba(14,131,136,0.06)',
+                      border: '1px solid rgba(14,131,136,0.2)',
+                      color: '#F8FAFC',
                       textAlign: 'left',
                       cursor: 'pointer',
                       transition: 'all 0.2s',
                       outline: 'none',
                     }}
-                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(6,182,212,0.12)' }}
-                    onMouseLeave={e => { e.currentTarget.style.background = 'rgba(6,182,212,0.06)' }}
+                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(14,131,136,0.12)' }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'rgba(14,131,136,0.06)' }}
                   >
                     <span style={{ fontSize: '24px' }}>👥</span>
                     <div>
-                      <div style={{ fontWeight: 800, fontSize: '14px', color: '#0e7490' }}>Tim Investigasi Saya</div>
-                      <div style={{ fontSize: '11px', color: '#A8A29E', marginTop: '2px' }}>
-                        {activeTeam ? `${activeTeam.members.length}/3 anggota · ${activeTeam.status === 'PLAYING' ? 'Sedang Bermain' : 'Menunggu'}` : 'Lihat status tim kamu'}
+                      <div style={{ fontWeight: 800, fontSize: '14px', color: '#00ADB5' }}>Tim Investigasi Saya</div>
+                      <div style={{ fontSize: '11px', color: '#94A3B8', marginTop: '2px' }}>
+                        {activeTeam ? `${activeTeam?.members?.length ?? 0}/3 anggota · ${activeTeam?.status === 'PLAYING' ? 'Sedang Bermain' : 'Menunggu'}` : 'Lihat status tim kamu'}
                       </div>
                     </div>
                   </button>
@@ -1473,7 +1473,7 @@ export default function SiswaPage() {
               </div>
 
               {/* Sidebar Footer */}
-              <div style={{ fontSize: '11px', color: '#A8A29E', textAlign: 'center', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '16px' }}>
+              <div style={{ fontSize: '11px', color: '#94A3B8', textAlign: 'center', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '16px' }}>
                 Skeptikos v1.0.0
               </div>
             </motion.div>

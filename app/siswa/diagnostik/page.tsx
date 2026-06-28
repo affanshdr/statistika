@@ -195,9 +195,9 @@ export default function DiagnostikPage() {
   const renderNavbar = () => (
     <header style={{
       width: '100%',
-      background: 'rgba(250,246,238, 0.85)',
+      background: 'rgba(11, 30, 44, 0.85)',
       backdropFilter: 'blur(16px)',
-      borderBottom: '1px solid rgba(217,119,6, 0.08)',
+      borderBottom: '1px solid rgba(14, 131, 136, 0.08)',
       margin: '-24px -16px 24px -16px',
       position: 'sticky',
       top: 0,
@@ -222,7 +222,7 @@ export default function DiagnostikPage() {
           style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
         >
           <motion.div
-            animate={{ filter: ['drop-shadow(0 0 6px #D97706)', 'drop-shadow(0 0 14px #D97706)', 'drop-shadow(0 0 6px #D97706)'] }}
+            animate={{ filter: ['drop-shadow(0 0 6px #00ADB5)', 'drop-shadow(0 0 14px #00ADB5)', 'drop-shadow(0 0 6px #00ADB5)'] }}
             transition={{ duration: 2.5, repeat: Infinity }}
             style={{ fontSize: '24px', lineHeight: 1 }}
           >
@@ -231,7 +231,7 @@ export default function DiagnostikPage() {
           <div>
             <div style={{
               fontWeight: 900, fontSize: '16px', letterSpacing: '0.5px',
-              background: 'linear-gradient(90deg, #D97706, #EA580C)',
+              background: 'linear-gradient(90deg, #00ADB5, #0E8388)',
               WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
               whiteSpace: 'nowrap',
               fontFamily: 'var(--font-heading), sans-serif',
@@ -250,7 +250,7 @@ export default function DiagnostikPage() {
   return (
     <main style={{
       minHeight: '100vh',
-      background: '#FAF6EE',
+      background: '#0B1E2C',
       display: 'flex',
       flexDirection: 'column',
       padding: '24px 16px',
@@ -259,9 +259,9 @@ export default function DiagnostikPage() {
       fontFamily: 'var(--font-sans, sans-serif)',
     }}>
       {/* Background grid + glow */}
-      <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', backgroundImage: 'linear-gradient(rgba(217,119,6,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(217,119,6,0.03) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+      <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', backgroundImage: 'linear-gradient(rgba(14,131,136,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(14,131,136,0.03) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
       <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
-        <div style={{ position: 'absolute', top: '-10%', left: '-10%', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(217,119,6,0.06) 0%, transparent 70%)', filter: 'blur(60px)' }} />
+        <div style={{ position: 'absolute', top: '-10%', left: '-10%', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(14,131,136,0.06) 0%, transparent 70%)', filter: 'blur(60px)' }} />
         <div style={{ position: 'absolute', bottom: '-10%', right: '-10%', width: '400px', height: '400px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(6,182,212,0.06) 0%, transparent 70%)', filter: 'blur(50px)' }} />
       </div>
 
@@ -284,14 +284,14 @@ export default function DiagnostikPage() {
               exit={{ opacity: 0, y: -30 }}
               style={{
                 width: '100%', maxWidth: '560px',
-                background: 'rgba(217,119,6,0.03)',
+                background: 'rgba(15, 35, 56, 0.95)',
                 backdropFilter: 'blur(20px)',
-                border: '1px solid rgba(180,140,80,0.12)',
+                border: '1px solid rgba(14,131,136,0.25)',
                 borderRadius: '24px',
                 padding: 'clamp(24px, 5vw, 40px) clamp(20px, 5vw, 36px)',
                 zIndex: 10,
                 textAlign: 'center',
-                color: '#1C1917',
+                color: '#F8FAFC',
               }}
             >
               <motion.div
@@ -302,14 +302,14 @@ export default function DiagnostikPage() {
               >
                 🕵️
               </motion.div>
-              <div style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '2px', color: '#D97706', marginBottom: '12px' }}>
+              <div style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '2px', color: '#00ADB5', marginBottom: '12px' }}>
                 TES DIAGNOSTIK LEVEL {targetLevel}
               </div>
               <h1 style={{ fontSize: '26px', fontWeight: 800, margin: '0 0 16px', lineHeight: 1.2 }}>
                 Ukur Kemampuan Statistika Awalmu!
               </h1>
-              <p style={{ fontSize: '14px', color: '#78716C', lineHeight: 1.7, margin: '0 0 28px' }}>
-                Sebelum memulai petualangan sebagai Detektif Data di Level {targetLevel}, kami perlu mengetahui kemampuan awal statistika kamu. Jawab <strong style={{ color: '#D97706' }}>{QUESTIONS.length} pertanyaan</strong> singkat dengan jujur — tidak ada yang benar atau salah!
+              <p style={{ fontSize: '14px', color: '#94A3B8', lineHeight: 1.7, margin: '0 0 28px' }}>
+                Sebelum memulai petualangan sebagai Detektif Data di Level {targetLevel}, kami perlu mengetahui kemampuan awal statistika kamu. Jawab <strong style={{ color: '#00ADB5' }}>{QUESTIONS.length} pertanyaan</strong> singkat dengan jujur — tidak ada yang benar atau salah!
               </p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '28px', textAlign: 'left' }}>
                 {[
@@ -317,9 +317,9 @@ export default function DiagnostikPage() {
                   { icon: '📊', text: 'Hasil menentukan tingkat pemahaman awalmu' },
                   { icon: '🔒', text: 'Tes ini wajib dikerjakan sebelum memulai level' },
                 ].map((item, i) => (
-                  <div key={i} style={{ display: 'flex', gap: '12px', alignItems: 'center', padding: '10px 14px', background: 'rgba(217,119,6,0.04)', borderRadius: '12px', border: '1px solid rgba(217,119,6,0.12)' }}>
+                  <div key={i} style={{ display: 'flex', gap: '12px', alignItems: 'center', padding: '10px 14px', background: 'rgba(14,131,136,0.04)', borderRadius: '12px', border: '1px solid rgba(14,131,136,0.15)' }}>
                     <span style={{ fontSize: '20px' }}>{item.icon}</span>
-                    <span style={{ fontSize: '13px', color: '#57534E' }}>{item.text}</span>
+                    <span style={{ fontSize: '13px', color: '#E2E8F0' }}>{item.text}</span>
                   </div>
                 ))}
               </div>
@@ -327,10 +327,10 @@ export default function DiagnostikPage() {
                 onClick={() => setPhase('test')}
                 style={{
                   width: '100%', padding: '16px', borderRadius: '14px', border: 'none',
-                  background: 'linear-gradient(90deg, #D97706, #EA580C)',
+                  background: 'linear-gradient(90deg, #0E8388, #00ADB5)',
                   color: '#fff', fontSize: '15px', fontWeight: 800,
                   cursor: 'pointer', letterSpacing: '0.5px',
-                  boxShadow: '0 4px 20px rgba(217,119,6,0.35)',
+                  boxShadow: '0 4px 20px rgba(0, 173, 181, 0.35)',
                   transition: 'all 0.2s',
                 }}
                 onMouseEnter={e => e.currentTarget.style.filter = 'brightness(1.1)'}
@@ -356,28 +356,28 @@ export default function DiagnostikPage() {
             >
               {/* Progress */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                <div style={{ flex: 1, height: '6px', background: 'rgba(180,140,80,0.15)', borderRadius: '3px', overflow: 'hidden' }}>
+                <div style={{ flex: 1, height: '6px', background: 'rgba(14, 131, 136, 0.15)', borderRadius: '3px', overflow: 'hidden' }}>
                   <motion.div
-                    style={{ height: '100%', background: 'linear-gradient(90deg, #D97706, #00cc6a)', borderRadius: '3px', boxShadow: '0 0 8px rgba(217,119,6,0.4)' }}
+                    style={{ height: '100%', background: 'linear-gradient(90deg, #0E8388, #00cc6a)', borderRadius: '3px', boxShadow: '0 0 8px rgba(0, 173, 181, 0.4)' }}
                     animate={{ width: `${((currentQ + 1) / QUESTIONS.length) * 100}%` }}
                     transition={{ duration: 0.4 }}
                   />
                 </div>
-                <span style={{ fontSize: '12px', fontWeight: 800, color: '#78716C', whiteSpace: 'nowrap' }}>
+                <span style={{ fontSize: '12px', fontWeight: 800, color: '#94A3B8', whiteSpace: 'nowrap' }}>
                   {currentQ + 1} / {QUESTIONS.length}
                 </span>
               </div>
 
               {/* Question card */}
               <div style={{
-                background: 'rgba(217,119,6,0.03)',
+                background: 'rgba(15, 35, 56, 0.95)',
                 backdropFilter: 'blur(20px)',
-                border: '1px solid rgba(180,140,80,0.12)',
+                border: '1px solid rgba(14, 131, 136, 0.25)',
                 borderRadius: '24px',
                 padding: 'clamp(20px, 4vw, 32px) clamp(16px, 4vw, 28px)',
-                color: '#1C1917',
+                color: '#F8FAFC',
               }}>
-                <div style={{ fontSize: '10px', fontWeight: 800, letterSpacing: '2px', color: '#D97706', marginBottom: '14px' }}>
+                <div style={{ fontSize: '10px', fontWeight: 800, letterSpacing: '2px', color: '#00ADB5', marginBottom: '14px' }}>
                   SOAL {currentQ + 1} / {QUESTIONS.length}
                 </div>
                 <p style={{ fontSize: '16px', lineHeight: 1.7, margin: '0 0 24px', fontWeight: 600 }}>
@@ -387,28 +387,28 @@ export default function DiagnostikPage() {
                   {q.options.map((opt, i) => {
                     const isSelected = selected === i
                     
-                    let bg = 'rgba(217,119,6,0.04)'
-                    let border = '1px solid rgba(180,140,80,0.12)'
-                    let color = '#44403C'
+                    let bg = 'rgba(14, 131, 136, 0.04)'
+                    let border = '1px solid rgba(14, 131, 136, 0.15)'
+                    let color = '#E2E8F0'
                     let boxShadow = 'none'
                     let showIcon: 'correct' | 'wrong' | 'check' | null = null
 
                     if (!submitted) {
                       if (isSelected) {
-                        bg = 'rgba(217,119,6, 0.12)'
-                        border = '2px solid #D97706'
-                        color = '#1C1917'
-                        boxShadow = '0 0 16px rgba(217,119,6, 0.35)'
+                        bg = 'rgba(14, 131, 136, 0.12)'
+                        border = '2px solid #00ADB5'
+                        color = '#FFFFFF'
+                        boxShadow = '0 0 16px rgba(0, 173, 181, 0.35)'
                       }
                     } else {
                       const isCorrectAnswer = i === q.correct
                       if (isSelected) {
                         if (isCorrectAnswer) {
-                          bg = 'rgba(217,119,6, 0.18)'
-                          border = '2px solid #D97706'
-                          color = '#D97706'
+                          bg = 'rgba(14, 131, 136, 0.18)'
+                          border = '2px solid #00ADB5'
+                          color = '#00ADB5'
                           showIcon = 'correct'
-                          boxShadow = '0 0 16px rgba(217,119,6, 0.25)'
+                          boxShadow = '0 0 16px rgba(0, 173, 181, 0.25)'
                         } else {
                           bg = 'rgba(255, 51, 102, 0.18)'
                           border = '2px solid #FF3366'
@@ -417,14 +417,14 @@ export default function DiagnostikPage() {
                           boxShadow = '0 0 16px rgba(255, 51, 102, 0.25)'
                         }
                       } else if (isCorrectAnswer) {
-                        bg = 'rgba(217,119,6, 0.08)'
-                        border = '1px dashed #D97706'
+                        bg = 'rgba(14, 131, 136, 0.08)'
+                        border = '1px dashed #00ADB5'
                         color = '#6ee7b7'
                         showIcon = 'check'
                       } else {
-                        bg = 'rgba(180,140,80,0.04)'
-                        border = '1px solid rgba(180,140,80,0.08)'
-                        color = '#A8A29E'
+                        bg = 'rgba(14, 131, 136, 0.04)'
+                        border = '1px solid rgba(14, 131, 136, 0.08)'
+                        color = '#94A3B8'
                       }
                     }
 
@@ -447,15 +447,13 @@ export default function DiagnostikPage() {
                         <span style={{
                           minWidth: '26px', height: '26px', borderRadius: '50%',
                           background: isSelected && !submitted
-                            ? '#D97706'
+                            ? '#00ADB5'
                             : submitted && isSelected && i === q.correct
-                              ? '#D97706'
+                              ? '#00ADB5'
                               : submitted && isSelected && i !== q.correct
                                 ? '#FF3366'
-                                : 'rgba(180,140,80,0.12)',
-                          color: (isSelected && !submitted) || (submitted && isSelected)
-                            ? '#000'
-                            : 'inherit',
+                                : 'rgba(14, 131, 136, 0.12)',
+                          color: '#FFFFFF',
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
                           fontSize: '12px', fontWeight: 800, flexShrink: 0,
                           transition: 'all 0.2s'
@@ -477,10 +475,10 @@ export default function DiagnostikPage() {
                     onClick={() => setSubmitted(true)}
                     style={{
                       width: '100%', marginTop: '20px', padding: '14px', borderRadius: '14px',
-                      border: 'none', background: selected === null ? 'rgba(180,140,80,0.1)' : 'linear-gradient(90deg, #D97706, #EA580C)',
-                      color: selected === null ? '#A8A29E' : '#fff',
+                      border: 'none', background: selected === null ? 'rgba(14, 131, 136, 0.1)' : 'linear-gradient(90deg, #0E8388, #00ADB5)',
+                      color: selected === null ? '#94A3B8' : '#fff',
                       fontSize: '14px', fontWeight: 800, cursor: selected === null ? 'not-allowed' : 'pointer',
-                      transition: 'all 0.2s', boxShadow: selected === null ? 'none' : '0 4px 20px rgba(217,119,6,0.3)',
+                      transition: 'all 0.2s', boxShadow: selected === null ? 'none' : '0 4px 20px rgba(0, 173, 181, 0.3)',
                     }}
                   >
                     Submit Jawaban
@@ -492,9 +490,9 @@ export default function DiagnostikPage() {
                     onClick={handleNext}
                     style={{
                       width: '100%', marginTop: '20px', padding: '14px', borderRadius: '14px',
-                      border: 'none', background: 'linear-gradient(90deg, #D97706, #EA580C)',
+                      border: 'none', background: 'linear-gradient(90deg, #0E8388, #00ADB5)',
                       color: '#fff', fontSize: '14px', fontWeight: 800, cursor: 'pointer',
-                      transition: 'all 0.2s', boxShadow: '0 4px 20px rgba(217,119,6,0.3)',
+                      transition: 'all 0.2s', boxShadow: '0 4px 20px rgba(0, 173, 181, 0.3)',
                     }}
                     onMouseEnter={e => e.currentTarget.style.filter = 'brightness(1.1)'}
                     onMouseLeave={e => e.currentTarget.style.filter = 'none'}
@@ -515,12 +513,12 @@ export default function DiagnostikPage() {
               transition={{ type: 'spring', stiffness: 200 }}
               style={{
                 width: '100%', maxWidth: '560px', zIndex: 10,
-                background: 'rgba(217,119,6,0.03)',
+                background: 'rgba(15, 35, 56, 0.95)',
                 backdropFilter: 'blur(20px)',
-                border: '1px solid rgba(180,140,80,0.15)',
+                border: '1px solid rgba(14, 131, 136, 0.25)',
                 borderRadius: '28px',
                 padding: 'clamp(24px, 5vw, 40px) clamp(20px, 5vw, 36px)',
-                textAlign: 'center', color: '#1C1917',
+                textAlign: 'center', color: '#F8FAFC',
               }}
             >
               <motion.div
@@ -531,7 +529,7 @@ export default function DiagnostikPage() {
               >
                 🎉
               </motion.div>
-              <div style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '2px', color: '#D97706', marginBottom: '10px' }}>
+              <div style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '2px', color: '#00ADB5', marginBottom: '10px' }}>
                 TES DIAGNOSTIK SELESAI
               </div>
               <h2 style={{ fontSize: '24px', fontWeight: 800, margin: '0 0 8px' }}>
@@ -546,17 +544,17 @@ export default function DiagnostikPage() {
                   margin: '20px 0',
                   padding: '16px 20px',
                   borderRadius: '16px',
-                  background: 'rgba(217,119,6,0.06)',
-                  border: '1px solid rgba(217,119,6,0.2)',
+                  background: 'rgba(14, 131, 136, 0.06)',
+                  border: '1px solid rgba(14, 131, 136, 0.2)',
                 }}
               >
                 <div style={{ fontSize: '20px', marginBottom: '10px' }}>🕵️</div>
-                <p style={{ margin: 0, fontSize: '14px', color: '#44403C', lineHeight: 1.7 }}>
-                  Jawabanmu sudah direkam dan akan digunakan untuk menyesuaikan <strong style={{ color: '#D97706' }}>pengalaman belajarmu</strong> secara personal. Setiap detektif punya kekuatan yang berbeda — dan kamu punya potensimu sendiri!
+                <p style={{ margin: 0, fontSize: '14px', color: '#E2E8F0', lineHeight: 1.7 }}>
+                  Jawabanmu sudah direkam dan akan digunakan untuk menyesuaikan <strong style={{ color: '#00ADB5' }}>pengalaman belajarmu</strong> secara personal. Setiap detektif punya kekuatan yang berbeda — dan kamu punya potensimu sendiri!
                 </p>
               </motion.div>
 
-              <p style={{ fontSize: '13px', color: '#78716C', margin: '0 0 24px', lineHeight: 1.6 }}>
+              <p style={{ fontSize: '13px', color: '#94A3B8', margin: '0 0 24px', lineHeight: 1.6 }}>
                 Persiapan selesai! Klik tombol di bawah ini untuk memulai misi penyelidikan detektif data.
               </p>
 
@@ -579,10 +577,10 @@ export default function DiagnostikPage() {
                 disabled={saving}
                 style={{
                   width: '100%', padding: '16px', borderRadius: '14px', border: 'none',
-                  background: saving ? 'rgba(217,119,6,0.3)' : 'linear-gradient(90deg, #D97706, #EA580C)',
+                  background: saving ? 'rgba(14, 131, 136, 0.3)' : 'linear-gradient(90deg, #0E8388, #00ADB5)',
                   color: '#fff', fontSize: '15px', fontWeight: 800,
                   cursor: saving ? 'wait' : 'pointer',
-                  boxShadow: '0 4px 20px rgba(217,119,6,0.3)',
+                  boxShadow: '0 4px 20px rgba(0, 173, 181, 0.3)',
                   transition: 'all 0.2s',
                 }}
               >
@@ -602,7 +600,7 @@ export default function DiagnostikPage() {
             style={{
               position: 'fixed',
               inset: 0,
-              background: 'rgba(250,246,238,0.85)',
+              background: 'rgba(11, 30, 44, 0.85)',
               backdropFilter: 'blur(12px)',
               display: 'flex',
               alignItems: 'center',
@@ -619,18 +617,18 @@ export default function DiagnostikPage() {
               style={{
                 width: '100%',
                 maxWidth: '400px',
-                background: '#FFFFFF',
-                border: '1px solid rgba(180,140,80,0.15)',
-                boxShadow: '0 8px 30px rgba(180,120,40,0.1)',
+                background: 'rgba(15, 35, 56, 0.95)',
+                border: '1px solid rgba(14, 131, 136, 0.25)',
+                boxShadow: '0 8px 30px rgba(14, 131, 136, 0.1)',
                 borderRadius: '24px',
                 padding: '32px 24px',
                 textAlign: 'center',
-                color: '#1C1917',
+                color: '#F8FAFC',
               }}
             >
               <div style={{ fontSize: '48px', marginBottom: '16px' }}>📊</div>
               <h3 style={{ margin: '0 0 8px', fontSize: '20px', fontWeight: 800 }}>Hasil Tes Diagnostik</h3>
-              <p style={{ margin: '0 0 24px', fontSize: '13px', color: '#78716C' }}>
+              <p style={{ margin: '0 0 24px', fontSize: '13px', color: '#94A3B8' }}>
                 Berikut adalah rangkuman hasil pengerjaan tes diagnostik awal Anda:
               </p>
 
@@ -642,13 +640,13 @@ export default function DiagnostikPage() {
                 marginBottom: '28px'
               }}>
                 <div style={{
-                  background: 'rgba(217,119,6, 0.05)',
-                  border: '1px solid rgba(217,119,6, 0.15)',
+                  background: 'rgba(14, 131, 136, 0.05)',
+                  border: '1px solid rgba(14, 131, 136, 0.15)',
                   borderRadius: '16px',
                   padding: '16px',
                 }}>
-                  <div style={{ fontSize: '11px', color: '#78716C', fontWeight: 700, marginBottom: '4px' }}>BENAR</div>
-                  <div style={{ fontSize: '28px', fontWeight: 900, color: '#D97706', fontFamily: 'var(--font-data)' }}>
+                  <div style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 700, marginBottom: '4px' }}>BENAR</div>
+                  <div style={{ fontSize: '28px', fontWeight: 900, color: '#00ADB5', fontFamily: 'var(--font-data)' }}>
                     {scoreStats.correct}
                   </div>
                 </div>
@@ -658,7 +656,7 @@ export default function DiagnostikPage() {
                   borderRadius: '16px',
                   padding: '16px',
                 }}>
-                  <div style={{ fontSize: '11px', color: '#78716C', fontWeight: 700, marginBottom: '4px' }}>SALAH</div>
+                  <div style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 700, marginBottom: '4px' }}>SALAH</div>
                   <div style={{ fontSize: '28px', fontWeight: 900, color: '#FF3366', fontFamily: 'var(--font-data)' }}>
                     {scoreStats.wrong}
                   </div>
@@ -672,12 +670,12 @@ export default function DiagnostikPage() {
                   padding: '14px',
                   borderRadius: '12px',
                   border: 'none',
-                  background: 'linear-gradient(90deg, #D97706, #EA580C)',
+                  background: 'linear-gradient(90deg, #0E8388, #00ADB5)',
                   color: '#fff',
                   fontSize: '14px',
                   fontWeight: 800,
                   cursor: 'pointer',
-                  boxShadow: '0 4px 15px rgba(217,119,6,0.3)',
+                  boxShadow: '0 4px 15px rgba(0, 173, 181, 0.3)',
                   transition: 'all 0.2s',
                 }}
               >
@@ -693,7 +691,7 @@ export default function DiagnostikPage() {
         <div style={{
           position: 'fixed',
           inset: 0,
-          background: 'rgba(250,246,238, 0.85)',
+          background: 'rgba(11, 30, 44, 0.85)',
           backdropFilter: 'blur(8px)',
           display: 'flex',
           alignItems: 'center',
@@ -705,8 +703,8 @@ export default function DiagnostikPage() {
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             style={{
-              background: '#FFFFFF',
-              border: '1px solid rgba(180,140,80,0.15)',
+              background: 'rgba(15, 35, 56, 0.95)',
+              border: '1px solid rgba(14, 131, 136, 0.25)',
               borderRadius: '24px',
               padding: '28px',
               width: '380px',
@@ -714,15 +712,15 @@ export default function DiagnostikPage() {
               display: 'flex',
               flexDirection: 'column',
               gap: '20px',
-              boxShadow: '0 20px 40px rgba(180,120,40,0.08)',
-              color: '#1C1917',
+              boxShadow: '0 20px 40px rgba(14, 131, 136, 0.08)',
+              color: '#F8FAFC',
             }}
           >
             <div>
               <h3 style={{ margin: 0, fontSize: '17px', fontWeight: 800, color: '#DC2626', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 ⚠️ Konfirmasi Keluar
               </h3>
-              <p style={{ margin: '10px 0 0 0', fontSize: '13px', color: '#78716C', lineHeight: 1.55, textAlign: 'left' }}>
+              <p style={{ margin: '10px 0 0 0', fontSize: '13px', color: '#94A3B8', lineHeight: 1.55, textAlign: 'left' }}>
                 Apakah Anda yakin ingin keluar dari tes? Kemajuan Anda saat ini tidak akan disimpan.
               </p>
             </div>
@@ -733,21 +731,21 @@ export default function DiagnostikPage() {
                   flex: 1,
                   padding: '12px',
                   borderRadius: '12px',
-                  border: '1px solid rgba(180,140,80,0.2)',
+                  border: '1px solid rgba(14, 131, 136, 0.2)',
                   background: 'transparent',
-                  color: '#78716C',
+                  color: '#94A3B8',
                   fontSize: '13px',
                   fontWeight: 700,
                   cursor: 'pointer',
                   transition: 'all 0.2s'
                 }}
                 onMouseEnter={e => {
-                  e.currentTarget.style.background = 'rgba(217,119,6,0.06)'
-                  e.currentTarget.style.borderColor = 'rgba(217,119,6,0.3)'
+                  e.currentTarget.style.background = 'rgba(14, 131, 136, 0.06)'
+                  e.currentTarget.style.borderColor = 'rgba(14, 131, 136, 0.3)'
                 }}
                 onMouseLeave={e => {
                   e.currentTarget.style.background = 'transparent'
-                  e.currentTarget.style.borderColor = 'rgba(180,140,80,0.2)'
+                  e.currentTarget.style.borderColor = 'rgba(14, 131, 136, 0.2)'
                 }}
               >
                 Batal

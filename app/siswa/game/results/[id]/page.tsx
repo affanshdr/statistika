@@ -108,13 +108,13 @@ export default function ResultsPage({
       {/* Header */}
       <header style={{
         padding: '16px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        borderBottom: '1px solid var(--game-border)', background: 'rgba(250,246,238,0.8)', backdropFilter: 'blur(20px)',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.08)', background: 'rgba(11, 30, 44, 0.95)', backdropFilter: 'blur(20px)',
         position: 'sticky', top: 0, zIndex: 100,
+        color: '#F8FAFC',
       }}>
         <div style={{ fontWeight: 800, fontSize: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
           <motion.img
-            src="https://tmdbqikqflbeqaqllxge.supabase.co/storage/v1/object/public/Asset/Agent.png"
-            onError={(e) => { e.currentTarget.src = '/dira-avatar.png' }}
+            src="/dira-avatar.png"
             alt="DiRA"
             style={{ height: '32px', objectFit: 'contain' }}
             initial={{ opacity: 0, x: -10 }}
@@ -210,8 +210,8 @@ export default function ResultsPage({
                   🔍 ANALISIS VERDICT
                 </div>
                 {/* Apa itu verdict */}
-                <p style={{ margin: '0 0 16px', fontSize: '12px', color: '#A8A29E', lineHeight: 1.5 }}>
-                  <strong style={{ color: '#78716C' }}>Verdict</strong> adalah kesimpulan akhir dari analisis data — apakah klaim berita bisa dipercaya, menyesatkan, atau hoaks berdasarkan bukti statistik yang kamu temukan.
+                <p style={{ margin: '0 0 16px', fontSize: '12px', color: '#94A3B8', lineHeight: 1.5 }}>
+                  <strong style={{ color: '#CBD5E1' }}>Verdict</strong> adalah kesimpulan akhir dari analisis data — apakah klaim berita bisa dipercaya, menyesatkan, atau hoaks berdasarkan bukti statistik yang kamu temukan.
                 </p>
 
                 <div style={{ display: 'flex', gap: '10px', marginBottom: '14px', flexWrap: 'wrap' }}>
@@ -240,9 +240,9 @@ export default function ResultsPage({
                 </div>
 
                 <div style={{
-                  padding: '14px', background: 'rgba(217,119,6,0.04)',
+                  padding: '14px', background: 'rgba(217,119,6,0.06)',
                   border: '1px solid var(--game-border-accent)', borderRadius: '10px',
-                  fontSize: '13px', lineHeight: 1.7, color: '#44403C',
+                  fontSize: '13px', lineHeight: 1.7, color: '#F8FAFC',
                 }}
                   dangerouslySetInnerHTML={{ __html: `<strong>Penjelasan:</strong> ${VERDICT_EXPLANATION}` }}
                 />
@@ -258,15 +258,15 @@ export default function ResultsPage({
                 <div style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 800, letterSpacing: '1.5px', marginBottom: '12px' }}>
                   📌 RINGKASAN INVESTIGASI
                 </div>
-                <p style={{ margin: '0 0 10px', fontSize: '13px', lineHeight: 1.75, color: '#44403C' }}>
+                <p style={{ margin: '0 0 10px', fontSize: '13px', lineHeight: 1.75, color: '#F1F5F9' }}>
                   Dalam investigasi ini, kamu menganalisis data <em>screen time</em> dari <strong>35 siswa</strong> untuk memverifikasi klaim viral:{' '}
                   <em>&quot;Remaja Indonesia rata-rata habiskan &gt;8 jam/hari di medsos.&quot;</em>
                 </p>
-                <p style={{ margin: '0 0 10px', fontSize: '13px', lineHeight: 1.75, color: '#44403C' }}>
+                <p style={{ margin: '0 0 10px', fontSize: '13px', lineHeight: 1.75, color: '#F1F5F9' }}>
                   Setelah menyusun <strong>histogram distribusi frekuensi</strong> dan menghitung statistik dasar, ditemukan bahwa nilai mean sebenarnya jauh di bawah 8 jam. Klaim tersebut terbukti{' '}
                   <strong style={{ color: 'var(--warning)' }}>MISLEADING</strong> — angka yang digunakan dalam berita distorsi oleh data ekstrem (outlier).
                 </p>
-                <p style={{ margin: 0, fontSize: '13px', lineHeight: 1.75, color: '#44403C' }}>
+                <p style={{ margin: 0, fontSize: '13px', lineHeight: 1.75, color: '#F1F5F9' }}>
                   Ini adalah contoh nyata <strong>sampling bias</strong> dan manipulasi statistik dalam berita viral. Kemampuan membaca data seperti ini adalah senjata utama seorang detektif literasi digital!
                 </p>
               </motion.div>
@@ -287,7 +287,7 @@ export default function ResultsPage({
                     <div style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 800, letterSpacing: '1.5px', marginBottom: '6px' }}>
                       📖 BUKU SAKU DETEKTIF
                     </div>
-                    <p style={{ margin: 0, fontSize: '13px', color: '#57534E', lineHeight: 1.5 }}>
+                    <p style={{ margin: 0, fontSize: '13px', color: '#94A3B8', lineHeight: 1.5 }}>
                       Simpan rangkuman konsep statistika, rumus kunci, dan tips membaca data sebagai referensimu!
                     </p>
                   </div>

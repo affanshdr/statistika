@@ -121,9 +121,9 @@ export default function DiRA({ message, onDismiss, showAvatar = true }: DiRAProp
             <div style={{
               alignSelf: 'flex-start',
               background: 'rgba(10, 20, 15, 0.95)',
-              borderTop: '2px solid rgba(217,119,6, 0.3)',
-              borderLeft: '2px solid rgba(217,119,6, 0.3)',
-              borderRight: '2px solid rgba(217,119,6, 0.3)',
+              borderTop: '2px solid rgba(14, 131, 136, 0.3)',
+              borderLeft: '2px solid rgba(14, 131, 136, 0.3)',
+              borderRight: '2px solid rgba(14, 131, 136, 0.3)',
               borderBottom: 'none',
               borderRadius: '6px 14px 0 0',
               padding: '4px 16px',
@@ -146,10 +146,10 @@ export default function DiRA({ message, onDismiss, showAvatar = true }: DiRAProp
             {/* Dialog text box */}
             <div style={{
               background: 'rgba(10, 20, 18, 0.95)',
-              border: '2px solid rgba(217,119,6, 0.4)',
+              border: '2px solid rgba(14, 131, 136, 0.4)',
               borderRadius: '0px 14px 14px 14px',
               padding: isMobile ? '14px 18px' : '20px 24px',
-              boxShadow: '0 10px 25px rgba(217,119,6, 0.1), inset 0 0 20px rgba(217,119,6, 0.03)',
+              boxShadow: '0 10px 25px rgba(14, 131, 136, 0.15), inset 0 0 20px rgba(14, 131, 136, 0.03)',
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'space-between',
@@ -173,45 +173,18 @@ export default function DiRA({ message, onDismiss, showAvatar = true }: DiRAProp
                   initial={{ opacity: 0, y: 50 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ type: 'spring', stiffness: 100, damping: 15 }}
-                  src="https://tmdbqikqflbeqaqllxge.supabase.co/storage/v1/object/public/Asset/Agent.png"
-                  onError={(e) => { e.currentTarget.src = '/dira-avatar.png' }}
+                  src="/dira-avatar.png"
                   alt="Agent DIRA"
                   style={{ height: '100%', objectFit: 'contain' }}
                 />
-
-                {/* "Go!" speech bubble */}
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ delay: 0.5, type: 'spring' }}
-                  style={{
-                    position: 'absolute',
-                    top: '8%',
-                    right: isMobile ? '-22px' : '-32px',
-                    background: 'rgba(10, 20, 15, 0.95)',
-                    border: '2px solid var(--accent)',
-                    borderRadius: '50%',
-                    padding: isMobile ? '3px 8px' : '5px 11px',
-                    fontWeight: 900,
-                    fontSize: isMobile ? '11px' : '14px',
-                    color: 'var(--accent)',
-                    transform: 'rotate(12deg)',
-                    boxShadow: '3px 3px 0px rgba(217,119,6, 0.3)',
-                    fontFamily: '"Impact", "Arial Black", sans-serif',
-                    letterSpacing: '0.5px',
-                    zIndex: 6,
-                    animation: 'dira-pulse-go 1s infinite alternate',
-                  }}
-                >
-                  Go!
-                </motion.div>
+                {/* "Go!" speech bubble removed */}
               </div>
 
               {/* Dialog text */}
               <p style={{
                 margin: 0,
                 fontSize: isMobile ? '13px' : '15px',
-                color: '#1C1917',
+                color: '#F8FAFC',
                 fontWeight: 600,
                 lineHeight: 1.65,
                 paddingRight: isMobile ? '110px' : '160px',
@@ -225,10 +198,10 @@ export default function DiRA({ message, onDismiss, showAvatar = true }: DiRAProp
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 marginTop: '12px',
-                borderTop: '1px solid rgba(180,140,80,0.12)',
+                borderTop: '1px solid rgba(14, 131, 136, 0.12)',
                 paddingTop: '10px',
               }}>
-                <span style={{ fontSize: isMobile ? '10px' : '12px', color: '#A8A29E', fontWeight: 600 }}>
+                <span style={{ fontSize: isMobile ? '10px' : '12px', color: '#94A3B8', fontWeight: 600 }}>
                   Level 1 — Analisis Berita
                 </span>
                 <motion.button
@@ -249,8 +222,8 @@ export default function DiRA({ message, onDismiss, showAvatar = true }: DiRAProp
                     boxShadow: typewriterDone ? 'var(--accent-glow)' : 'none',
                     cursor: typewriterDone ? 'pointer' : 'not-allowed',
                     border: 'none',
-                    background: typewriterDone ? 'var(--accent)' : 'rgba(217,119,6,0.1)',
-                    color: typewriterDone ? '#000' : '#A8A29E',
+                    background: typewriterDone ? 'var(--accent)' : 'rgba(14, 131, 136, 0.1)',
+                    color: typewriterDone ? '#000' : '#94A3B8',
                   }}
                 >
                   Paham, lanjut! →

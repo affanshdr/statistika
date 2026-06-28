@@ -78,9 +78,9 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
   // Initial DiRA Message
   useEffect(() => {
     if (teamId) {
-      setDiraMsg('Halo Detektif! Kamu sekarang terhubung dengan timmu. Kamu bisa berdiskusi di chat sebelah kanan dan menyusun histogram ini bersama-sama! Tarik 26 data tersisa ke kolom yang sesuai ya! 😉')
+      setDiraMsg('Halo Detektif! Lo sekarang udah join bareng tim lo nih. Bisa langsung mabar diskusikan di chat kanan buat susun histogram bareng! Drag 26 data sisa ke kolom yang valid ya! 😉')
     } else {
-      setDiraMsg('Yuk pindahkan data screen time 35 siswa ke histogram! Aku sudah bantu masukkan beberapa data dari tiap kelas sebagai contoh. Tinggal drag 26 data tersisa ke kelas yang sesuai ya! 😉')
+      setDiraMsg('Yuk pindahin data screen time 35 siswa ke histogram! Gue udah bantu masukin beberapa data di kelas-kelasnya sebagai contoh. Tinggal drag 26 data sisa ke kelas yang pas ya! 😉')
     }
     setShowDira(true)
   }, [teamId])
@@ -97,7 +97,7 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
         setStep(data.currentStep as GameStep)
         // Show DiRA hint for new steps
         if (data.currentStep === 1) {
-          setDiraMsg('Luar biasa! Tim berhasil menyusun histogram dengan benar. 📊\nSekarang, yuk kita amati statistik dasar dari data tersebut bersama-sama!')
+          setDiraMsg('Mantap banget! Tim lo sukses bikin histogramnya valid 100%. 📊\nSekarang, yuk kita spill bareng statistik dasarnya!')
           setShowDira(true)
         } else if (data.currentStep === 1.5) {
           setShowDira(false)
@@ -193,7 +193,7 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
 
       if (teamId && studentId) {
         // Team mode: cast gate vote — advance when 2/3 have submitted correctly
-        setDiraMsg('Histogram benar! 🎉 Kamu sudah vote untuk lanjut. Tunggu konfirmasi tim — minimal 1 anggota lagi harus setuju!')
+        setDiraMsg('Histogram valid! 🎉 Lo udah vote buat lanjut. Tunggu konfirmasi tim lo ya — minimal 1 member lagi wajib setuju!')
         setShowDira(true)
         try {
           const res = await fetch('/api/game/team/sync', {
@@ -219,7 +219,7 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
         // Step advance is handled by polling/instant response when server sets currentStep = 1
       } else {
         // Solo/FI mode: advance immediately
-        setDiraMsg('Luar biasa! Kamu berhasil menyusun histogram dengan benar. 📊\nSekarang, yuk kita amati statistik dasar dari data tersebut di Tahap B ini!')
+        setDiraMsg('Gokil! Lo sukses bikin histogramnya bener semua. 📊\nSekarang, yuk kita spill bareng statistik dasarnya di Tahap B ini!')
         setShowDira(true)
         broadcastStep(1)
         setTimeout(() => setStep(1), 400)
@@ -228,7 +228,7 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
       // FD: hanya red flash, tanpa life lost — eksplorasi mandiri
       setFlashWrong(true)
       setTimeout(() => setFlashWrong(false), 600)
-      setDiraMsg('Oops, ada data yang masuk ke kelas yang salah nih! Coba periksa lagi — ingat interval: 1-4, 5-8, 9-12, 13-16, 17-20 jam. Angka yang terlalu besar atau terlalu kecil berarti harus masuk ke kelas yang berbeda. Semangat! 💪')
+      setDiraMsg('Oops, ada data yang nyasar masuk ke kelas yang salah nih! Coba recheck lagi — inget intervalnya: 1-4, 5-8, 9-12, 13-16, 17-20 jam. Angka yang kegedean atau kekecilan musti ditaruh di kelas yang beda ya. Semangat lo pasti bisa! 💪')
       setShowDira(true)
     }
   }
@@ -290,7 +290,7 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
   // ── STEP 1.5: Verifikasi salah → hint dari DiRA ──
   const handleVerificationWrong = () => {
     incrementMistake()
-    setDiraMsg(`Hmm, perhatikan mean = ${STATS.mean} jam. Apakah itu lebih dari 8 jam? 🤔`)
+    setDiraMsg(`Hmm, coba perhatiin deh, mean = ${STATS.mean} jam. Masa itu lebih dari 8 jam? Gak riil kan? 🤔`)
     setShowDira(true)
   }
 

@@ -26,7 +26,7 @@ export default function MythBustedStamp({ onComplete }: MythBustedStampProps) {
         position: 'fixed', inset: 0, zIndex: 999,
         display: 'flex', alignItems: 'flex-start', justifyContent: 'center',
         flexDirection: 'column',
-        background: 'rgba(250,246,238,0.92)',
+        background: 'rgba(11, 30, 44, 0.92)',
         backdropFilter: 'blur(8px)',
         overflowY: 'auto',
         padding: '0',
@@ -58,13 +58,13 @@ export default function MythBustedStamp({ onComplete }: MythBustedStampProps) {
               transition={{ delay: 0.1, duration: 0.4 }}
               style={{
                 position: 'relative',
-                background: 'rgba(217,119,6,0.06)',
-                border: '1px solid rgba(180,140,80,0.1)',
+                background: 'rgba(14, 131, 136, 0.06)',
+                border: '1px solid rgba(14, 131, 136, 0.15)',
                 borderRadius: '16px',
                 padding: '20px 24px',
                 maxWidth: '400px',
                 textAlign: 'center',
-                color: '#78716C',
+                color: '#94A3B8',
                 fontSize: '14px',
                 lineHeight: 1.5,
               }}
@@ -88,30 +88,30 @@ export default function MythBustedStamp({ onComplete }: MythBustedStampProps) {
                   top: '50%', left: '50%',
                   transform: 'translate(-50%, -50%) rotate(-18deg)',
                   width: '220px', height: '80px',
-                  border: '5px solid #D97706',
+                  border: '5px solid #00ADB5',
                   borderRadius: '8px',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   flexDirection: 'column',
                   background: 'transparent',
-                  boxShadow: '0 0 30px rgba(217,119,6,0.6), inset 0 0 20px rgba(217,119,6,0.1)',
+                  boxShadow: '0 0 30px rgba(14, 131, 136, 0.6), inset 0 0 20px rgba(14, 131, 136, 0.1)',
                   overflow: 'hidden',
                 }}
               >
                 <div style={{
-                  fontWeight: 900, fontSize: '26px', color: '#D97706',
+                  fontWeight: 900, fontSize: '26px', color: '#00ADB5',
                   letterSpacing: '2px', lineHeight: 1,
-                  textShadow: '0 0 20px rgba(217,119,6,0.8)',
+                  textShadow: '0 0 20px rgba(14, 131, 136, 0.8)',
                   fontFamily: 'Impact, Arial Black, sans-serif',
                 }}>
                   MYTH BUSTED!
                 </div>
-                <div style={{ fontSize: '11px', color: '#D97706', fontWeight: 800, letterSpacing: '3px', opacity: 0.8 }}>
+                <div style={{ fontSize: '11px', color: '#00ADB5', fontWeight: 800, letterSpacing: '3px', opacity: 0.8 }}>
                   DATA BERBICARA
                 </div>
                 {/* Scanline effect */}
                 <div style={{
                   position: 'absolute', inset: 0,
-                  background: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(217,119,6,0.04) 2px, rgba(217,119,6,0.04) 4px)',
+                  background: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(14, 131, 136, 0.04) 2px, rgba(14, 131, 136, 0.04) 4px)',
                   pointerEvents: 'none',
                 }} />
               </motion.div>
@@ -125,12 +125,12 @@ export default function MythBustedStamp({ onComplete }: MythBustedStampProps) {
               style={{ textAlign: 'center' }}
             >
               <div style={{ fontSize: '48px', marginBottom: '12px' }}>🎉</div>
-              <h2 style={{ margin: '0 0 8px', fontSize: '22px', fontWeight: 800, color: '#D97706' }}>
+              <h2 style={{ margin: '0 0 8px', fontSize: '22px', fontWeight: 800, color: '#00ADB5' }}>
                 Luar Biasa, Detektif!
               </h2>
-              <p style={{ margin: 0, fontSize: '14px', color: '#78716C', lineHeight: 1.6, maxWidth: '380px' }}>
+              <p style={{ margin: 0, fontSize: '14px', color: '#94A3B8', lineHeight: 1.6, maxWidth: '380px' }}>
                 Kamu baru saja menyelamatkan linimasa dari hoaks! Analisismu membuktikan bahwa klaim viral tersebut{' '}
-                <strong style={{ color: '#1C1917' }}>TIDAK DIDUKUNG DATA</strong>.
+                <strong style={{ color: '#FFFFFF' }}>TIDAK DIDUKUNG DATA</strong>.
               </p>
             </motion.div>
 
@@ -151,7 +151,7 @@ export default function MythBustedStamp({ onComplete }: MythBustedStampProps) {
                   top: '50%', left: '50%',
                   width: '8px', height: '8px',
                   borderRadius: '50%',
-                  background: ['#D97706', '#3B82F6', '#F59E0B', '#EF4444', '#8B5CF6', '#EA580C', '#10B981', '#F97316'][i],
+                  background: ['#00ADB5', '#3B82F6', '#0E8388', '#EF4444', '#8B5CF6', '#22D3EE', '#10B981', '#F97316'][i],
                   pointerEvents: 'none',
                 }}
               />
@@ -161,7 +161,7 @@ export default function MythBustedStamp({ onComplete }: MythBustedStampProps) {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 2.2 }}
-              style={{ fontSize: '12px', color: '#A8A29E', margin: 0 }}
+              style={{ fontSize: '12px', color: '#94A3B8', margin: 0 }}
             >
               DiRA sedang menyiapkan pesannya...
             </motion.p>
@@ -193,12 +193,11 @@ export default function MythBustedStamp({ onComplete }: MythBustedStampProps) {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ type: 'spring', stiffness: 120, damping: 14, delay: 0.15 }}
-                src="https://tmdbqikqflbeqaqllxge.supabase.co/storage/v1/object/public/Asset/Agent.png"
-                onError={(e) => { e.currentTarget.src = '/dira-avatar.png' }}
+                src="/dira-avatar.png"
                 alt="Agent DiRA"
-                style={{ height: '80px', objectFit: 'contain', filter: 'drop-shadow(0 0 16px rgba(217,119,6,0.4))' }}
+                style={{ height: '80px', objectFit: 'contain', filter: 'drop-shadow(0 0 16px rgba(14, 131, 136,0.4))' }}
               />
-              <div style={{ fontSize: '11px', color: '#D97706', fontWeight: 800, letterSpacing: '2px' }}>
+              <div style={{ fontSize: '11px', color: '#00ADB5', fontWeight: 800, letterSpacing: '2px' }}>
                 PESAN DARI DIRA
               </div>
             </motion.div>
@@ -209,26 +208,26 @@ export default function MythBustedStamp({ onComplete }: MythBustedStampProps) {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.3 }}
               style={{
-                background: 'rgba(217,119,6,0.04)',
-                border: '1px solid rgba(217,119,6,0.25)',
+                background: 'rgba(14, 131, 136, 0.04)',
+                border: '1px solid rgba(14, 131, 136, 0.25)',
                 borderRadius: '20px',
                 padding: '16px 20px',
                 width: '100%',
               }}
             >
-              <p style={{ margin: '0 0 8px', fontSize: '14px', fontWeight: 800, color: '#D97706' }}>
+              <p style={{ margin: '0 0 8px', fontSize: '14px', fontWeight: 800, color: '#00ADB5' }}>
                 🎉 &quot;Luar biasa, Detektif!
               </p>
-              <p style={{ margin: '0 0 8px', fontSize: '13px', color: '#44403C', lineHeight: 1.6 }}>
+              <p style={{ margin: '0 0 8px', fontSize: '13px', color: '#94A3B8', lineHeight: 1.6 }}>
                 Kamu baru saja menyelamatkan linimasa dari hoaks! Analisismu membuktikan bahwa mata kita sering ditipu oleh angka rata-rata yang dimanipulasi oleh data ekstrem (outlier).
               </p>
-              <p style={{ margin: '0 0 8px', fontSize: '13px', color: '#44403C', lineHeight: 1.6 }}>
-                Tapi, tahukah kamu apa <strong style={{ color: '#1C1917' }}>nama ilmiah</strong> dari bentuk grafik yang kamu buat tadi? Dan bagaimana outlier bisa{' '}
-                <strong style={{ color: '#1C1917' }}>merusak nilai rata-rata (mean)</strong> secara matematis?
+              <p style={{ margin: '0 0 8px', fontSize: '13px', color: '#94A3B8', lineHeight: 1.6 }}>
+                Tapi, tahukah kamu apa <strong style={{ color: '#FFFFFF' }}>nama ilmiah</strong> dari bentuk grafik yang kamu buat tadi? Dan bagaimana outlier bisa{' '}
+                <strong style={{ color: '#FFFFFF' }}>merusak nilai rata-rata (mean)</strong> secara matematis?
               </p>
-              <p style={{ margin: 0, fontSize: '13px', color: '#44403C', lineHeight: 1.6 }}>
+              <p style={{ margin: 0, fontSize: '13px', color: '#94A3B8', lineHeight: 1.6 }}>
                 Sebelum kita lanjut ke Kasus Level 2, kamu wajib membuka{' '}
-                <strong style={{ color: '#D97706' }}>&apos;Buku Saku Detektif&apos;</strong> di bawah ini untuk memperkuat senjata analisismu!&quot;
+                <strong style={{ color: '#00ADB5' }}>&apos;Buku Saku Detektif&apos;</strong> di bawah ini untuk memperkuat senjata analisismu!&quot;
               </p>
             </motion.div>
 
@@ -244,12 +243,12 @@ export default function MythBustedStamp({ onComplete }: MythBustedStampProps) {
                 padding: '16px 40px',
                 borderRadius: '14px',
                 border: 'none',
-                background: 'linear-gradient(90deg, #D97706, #EA580C)',
+                background: 'linear-gradient(90deg, #0E8388, #00ADB5)',
                 color: '#fff',
                 fontSize: '15px',
                 fontWeight: 800,
                 cursor: 'pointer',
-                boxShadow: '0 4px 24px rgba(217,119,6,0.45)',
+                boxShadow: '0 4px 24px rgba(14, 131, 136, 0.45)',
                 letterSpacing: '0.5px',
               }}
             >

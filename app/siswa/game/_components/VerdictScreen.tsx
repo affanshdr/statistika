@@ -28,7 +28,7 @@ export default function VerificationScreen({ onCorrect, onWrong, guidedMode }: V
   const [isMobile, setIsMobile] = useState(false)
   const [showDira, setShowDira] = useState(true)
   const [diraMsg, setDiraMsg] = useState(
-    'Kamu sudah melihat datanya. Sekarang, ingat postingan viral di awal tadi? Berdasarkan analisis statistikmu — apakah klaim tersebut benar atau hoaks?'
+    'Nah, lo udah liat kan datanya? Sekarang coba inget postingan viral tadi. Menurut data valid hasil analisis lo, klaim itu riil (benar) atau hoaks (misleading)? Spill jawabannya dong!'
   )
 
   useEffect(() => {
@@ -48,8 +48,8 @@ export default function VerificationScreen({ onCorrect, onWrong, guidedMode }: V
       setIsWrong(true)
       setDiraMsg(
         guidedMode
-          ? `Hmm, perhatikan mean = ${STATS.mean} jam. Apakah itu lebih dari 8 jam? 🤔`
-          : 'Perhatikan mean yang sudah kamu hitung. Apakah mayoritas siswa benar-benar menghabiskan >8 jam?'
+          ? `Hmm, coba deh lo liat mean = ${STATS.mean} jam. Masa iya itu di atas 8 jam? Gak riil banget kan? 🤔`
+          : 'Coba liat lagi mean yang lo dapet. Apa mayoritas siswa emang beneran habisin >8 jam? Gak kan?'
       )
       setShowDira(true)
     }
@@ -96,11 +96,11 @@ export default function VerificationScreen({ onCorrect, onWrong, guidedMode }: V
             className="instagram-card"
             style={{
               width: '100%',
-              background: '#FAF6EE',
-              border: '1px solid rgba(255, 255, 255, 0.12)',
+              background: 'var(--game-card)',
+              border: '1px solid var(--game-border)',
               borderRadius: '16px',
               boxShadow: '0 20px 40px rgba(0, 0, 0, 0.6)',
-              color: '#1C1917',
+              color: 'var(--text-primary)',
               fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
               display: 'flex',
               flexDirection: 'column',
@@ -113,8 +113,8 @@ export default function VerificationScreen({ onCorrect, onWrong, guidedMode }: V
               alignItems: 'center',
               justifyContent: 'space-between',
               padding: '10px 12px',
-              borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-              background: '#FAF6EE',
+              borderBottom: '1px solid var(--game-border)',
+              background: 'var(--game-card)',
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <div style={{
@@ -143,13 +143,13 @@ export default function VerificationScreen({ onCorrect, onWrong, guidedMode }: V
                   </div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <span style={{ fontSize: '13px', fontWeight: 700, color: '#1C1917' }}>pinterpolitik</span>
+                  <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)' }}>pinterpolitik</span>
                   <svg viewBox="0 0 24 24" width="12" height="12" style={{ fill: '#3897f0', marginLeft: '4px', display: 'inline-block', verticalAlign: 'middle' }}>
                     <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
                   </svg>
                 </div>
               </div>
-              <div style={{ color: '#1C1917', cursor: 'pointer', fontSize: '18px', fontWeight: 'bold' }}>•••</div>
+              <div style={{ color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '18px', fontWeight: 'bold' }}>•••</div>
             </div>
 
             {/* Post Image Body */}
@@ -235,7 +235,7 @@ export default function VerificationScreen({ onCorrect, onWrong, guidedMode }: V
             }}>
               <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
                 <span style={{ cursor: 'pointer', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  ❤️ <span style={{ fontSize: '11px', fontWeight: 600, color: '#1C1917' }}>12,9rb</span>
+                  ❤️ <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-primary)' }}>12,9rb</span>
                 </span>
                 <span style={{
                   cursor: 'pointer',
@@ -244,10 +244,10 @@ export default function VerificationScreen({ onCorrect, onWrong, guidedMode }: V
                   alignItems: 'center',
                   gap: '4px',
                 }}>
-                  💬 <span style={{ fontSize: '11px', fontWeight: 600, color: '#1C1917' }}>1.134</span>
+                  💬 <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-primary)' }}>1.134</span>
                 </span>
                 <span style={{ cursor: 'pointer', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  ✈️ <span style={{ fontSize: '11px', fontWeight: 600, color: '#1C1917' }}>3.560</span>
+                  ✈️ <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-primary)' }}>3.560</span>
                 </span>
               </div>
               <span style={{ cursor: 'pointer', fontSize: '14px' }}>🔖</span>
@@ -258,13 +258,13 @@ export default function VerificationScreen({ onCorrect, onWrong, guidedMode }: V
               padding: '0 14px 12px',
               fontSize: '11px',
               lineHeight: 1.3,
-              color: '#1C1917',
+              color: 'var(--text-primary)',
             }}>
-              <div style={{ marginBottom: '4px', color: '#1C1917' }}>
+              <div style={{ marginBottom: '4px', color: 'var(--text-primary)' }}>
                 Disukai oleh <strong>edukasi.kompas</strong> dan <strong>lainnya</strong>
               </div>
               <div>
-                <strong>pinterpolitik</strong> Sebuah studi terbaru mengungkap fakta mencengangkan: remaja Indonesia rata-rata menghabiskan lebih dari 8 jam sehari di media sosial!... <span style={{ color: '#1C1917', cursor: 'pointer' }}>selengkapnya</span>
+                <strong>pinterpolitik</strong> Sebuah studi terbaru mengungkap fakta mencengangkan: remaja Indonesia rata-rata menghabiskan lebih dari 8 jam sehari di media sosial!... <span style={{ color: 'var(--text-primary)', cursor: 'pointer' }}>selengkapnya</span>
               </div>
             </div>
           </motion.div>
@@ -277,24 +277,24 @@ export default function VerificationScreen({ onCorrect, onWrong, guidedMode }: V
             style={{
               display: 'flex', gap: '10px', flexWrap: 'wrap',
               padding: 'clamp(8px, 1.4vh, 12px) clamp(12px, 2vw, 18px)',
-              background: 'rgba(217,119,6,0.05)',
-              border: '1px solid rgba(217,119,6,0.2)',
+              background: 'rgba(14, 131, 136, 0.05)',
+              border: '1px solid rgba(14, 131, 136, 0.2)',
               borderRadius: '12px',
               fontSize: 'clamp(10px, 1.7vh, 13px)',
             }}
           >
-            <span style={{ color: '#78716C', fontWeight: 700 }}>📊 Datamu:</span>
+            <span style={{ color: 'var(--text-secondary)', fontWeight: 700 }}>📊 Datamu:</span>
             <span style={{ color: 'var(--accent)', fontWeight: 800 }}>Mean = {STATS.mean} jam</span>
-            <span style={{ color: '#A8A29E' }}>·</span>
-            <span style={{ color: '#57534E', fontWeight: 700 }}>25/35 siswa ≤ 8 jam</span>
-            <span style={{ color: '#A8A29E' }}>·</span>
-            <span style={{ color: '#78716C', fontWeight: 600 }}>n = {STATS.n} siswa</span>
+            <span style={{ color: 'var(--text-muted)' }}>·</span>
+            <span style={{ color: 'var(--text-primary)', fontWeight: 700 }}>25/35 siswa ≤ 8 jam</span>
+            <span style={{ color: 'var(--text-muted)' }}>·</span>
+            <span style={{ color: 'var(--text-secondary)', fontWeight: 600 }}>n = {STATS.n} siswa</span>
           </motion.div>
         </div>
 
         {/* Right Column */}
         <div style={{ flex: 1.2, display: 'flex', flexDirection: 'column', gap: '14px', justifyContent: 'center', minWidth: 0 }}>
-          <h3 style={{ margin: 0, fontSize: 'clamp(14px, 2.5vh, 18px)', fontWeight: 800, color: '#1C1917', textAlign: isMobile ? 'center' : 'left' }}>
+          <h3 style={{ margin: 0, fontSize: 'clamp(14px, 2.5vh, 18px)', fontWeight: 800, color: 'var(--text-primary)', textAlign: isMobile ? 'center' : 'left' }}>
             Apakah klaim tersebut benar atau hoaks?
           </h3>
 
@@ -319,12 +319,12 @@ export default function VerificationScreen({ onCorrect, onWrong, guidedMode }: V
                     padding: 'clamp(12px, 2vh, 16px)',
                     borderRadius: '14px',
                     border: selected === 'benar'
-                      ? '2px solid #D97706'
+                      ? '2px solid var(--accent)'
                       : '2px solid rgba(255,255,255,0.12)',
                     background: selected === 'benar'
-                      ? 'rgba(217,119,6,0.1)'
-                      : 'rgba(217,119,6,0.04)',
-                    color: '#1C1917',
+                      ? 'var(--accent-dim)'
+                      : 'rgba(14, 131, 136, 0.04)',
+                    color: 'var(--text-primary)',
                     cursor: submitted ? 'default' : 'pointer',
                     display: 'flex',
                     alignItems: 'center', gap: '14px',
@@ -337,10 +337,10 @@ export default function VerificationScreen({ onCorrect, onWrong, guidedMode }: V
                     <span style={{
                       fontWeight: 900,
                       fontSize: '15px',
-                      color: selected === 'benar' ? '#D97706' : '#44403C',
+                      color: selected === 'benar' ? 'var(--accent)' : 'var(--text-muted)',
                       letterSpacing: '0.5px',
                     }}>BENAR</span>
-                    <span style={{ fontSize: '11px', color: '#78716C', fontWeight: 600 }}>
+                    <span style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 600 }}>
                       Klaim didukung data
                     </span>
                   </div>
@@ -356,12 +356,12 @@ export default function VerificationScreen({ onCorrect, onWrong, guidedMode }: V
                     padding: 'clamp(12px, 2vh, 16px)',
                     borderRadius: '14px',
                     border: selected === 'hoaks'
-                      ? '2px solid #FF3366'
+                      ? '2px solid var(--danger)'
                       : '2px solid rgba(255,255,255,0.12)',
                     background: selected === 'hoaks'
-                      ? 'rgba(255,51,102,0.1)'
-                      : 'rgba(217,119,6,0.04)',
-                    color: '#1C1917',
+                      ? 'var(--danger-dim)'
+                      : 'rgba(14, 131, 136, 0.04)',
+                    color: 'var(--text-primary)',
                     cursor: submitted ? 'default' : 'pointer',
                     display: 'flex',
                     alignItems: 'center', gap: '14px',
@@ -374,10 +374,10 @@ export default function VerificationScreen({ onCorrect, onWrong, guidedMode }: V
                     <span style={{
                       fontWeight: 900,
                       fontSize: '15px',
-                      color: selected === 'hoaks' ? '#FF3366' : '#44403C',
+                      color: selected === 'hoaks' ? 'var(--danger)' : 'var(--text-muted)',
                       letterSpacing: '0.5px',
                     }}>HOAKS / MISLEADING</span>
-                    <span style={{ fontSize: '11px', color: '#78716C', fontWeight: 600 }}>
+                    <span style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 600 }}>
                       Klaim tidak sesuai data
                     </span>
                   </div>
@@ -401,7 +401,7 @@ export default function VerificationScreen({ onCorrect, onWrong, guidedMode }: V
                 <div style={{ fontWeight: 800, color: '#FF5050', fontSize: '14px' }}>
                   🤔 Hmm, coba pikir lagi!
                 </div>
-                <p style={{ margin: 0, fontSize: '13px', color: '#57534E', lineHeight: 1.6 }}>
+                <p style={{ margin: 0, fontSize: '13px', color: 'var(--text-primary)', lineHeight: 1.6 }}>
                   {guidedMode
                     ? `Mean sebenarnya adalah ${STATS.mean} jam — bukan lebih dari 8 jam. Apakah klaim tersebut didukung data? 🔍`
                     : 'Perhatikan mean yang sudah kamu hitung. Apakah mayoritas siswa benar-benar menghabiskan >8 jam?'}

@@ -219,8 +219,8 @@ export default function DraggableHistogram({
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '12px 8px' }}>
         <div style={{
           display: 'flex', alignItems: 'flex-end', height: '160px', gap: '0px',
-          borderLeft: '2px solid rgba(180,140,80,0.15)',
-          borderBottom: '2px solid rgba(180,140,80,0.15)',
+          borderLeft: '2px solid rgba(14, 131, 136, 0.15)',
+          borderBottom: '2px solid rgba(14, 131, 136, 0.15)',
           paddingLeft: '0px', paddingBottom: '0px',
           position: 'relative',
         }}>
@@ -238,7 +238,7 @@ export default function DraggableHistogram({
                   boxShadow: `0 0 8px ${CLASS_COLORS[i]}44`,
                 }}
               >
-                <span style={{ fontSize: '11px', fontWeight: 800, color: '#1C1917' }}>f={row.f}</span>
+                <span style={{ fontSize: '11px', fontWeight: 800, color: '#000000' }}>f={row.f}</span>
               </motion.div>
             </div>
           ))}
@@ -289,7 +289,7 @@ export default function DraggableHistogram({
         minHeight: 0,
         borderRadius: '16px',
         background: 'rgba(255,255,255,0.012)',
-        border: '1px solid rgba(180,140,80,0.1)',
+        border: '1px solid rgba(14, 131, 136, 0.15)',
         // overflow: 'visible' during drag so the chip is not clipped when crossing
         // from the pool side into the histogram side.
         overflow: isDraggingAny ? 'visible' : 'hidden',
@@ -308,15 +308,15 @@ export default function DraggableHistogram({
           display: 'flex', flexDirection: 'column',
           padding: isUltraCompact ? '4px 6px 4px' : isCompact ? '6px 8px 6px' : '10px 12px 8px',
           position: 'relative',
-          borderRight: stackLayout ? 'none' : '1px solid rgba(180,140,80,0.08)',
-          borderBottom: stackLayout ? '1px solid rgba(180,140,80,0.08)' : 'none',
+          borderRight: stackLayout ? 'none' : '1px solid rgba(14, 131, 136, 0.08)',
+          borderBottom: stackLayout ? '1px solid rgba(14, 131, 136, 0.08)' : 'none',
         }}>
 
           {/* Pool header */}
           <div style={{ flexShrink: 0, marginBottom: '4px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div style={{
               fontSize: '9px', fontWeight: 800, letterSpacing: '1.5px', textTransform: 'uppercase',
-              color: allPlaced ? '#D97706' : '#A8A29E',
+              color: allPlaced ? '#00ADB5' : '#94A3B8',
               transition: 'color 0.3s',
             }}>
               {allPlaced ? '✅ Semua terkelompokkan' : `📍 Data — ${activePool.length} tersisa`}
@@ -353,19 +353,19 @@ export default function DraggableHistogram({
                     flex: isCompact ? '1 1 100%' : undefined,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     flexDirection: 'column', gap: '6px', textAlign: 'center',
-                    fontSize: '12px', color: '#D97706', fontWeight: 700,
+                    fontSize: '12px', color: '#00ADB5', fontWeight: 700,
                     minHeight: isCompact ? '40px' : undefined,
                   }}
                 >
                   <span style={{ fontSize: '22px' }}>🎯</span>
                   Semua data masuk!
                   <span style={{ fontSize: '10px', opacity: 0.6 }}>Klik Submit ↓</span>
-                </motion.div>
+				</motion.div>
               ) : isCompact ? (
                 // ── COMPACT MODE: flex-wrap chips ──────────────────────────────
                 // Each chip is a draggable pill in normal flow. No overlapping.
                 activePool.map(dp => {
-                  const col = CLASS_COLORS[dp.classIdx] ?? '#3B82F6'
+                  const col = '#00ADB5'
                   const isSelected = selectedPoint?.id === dp.id
                   const isThisDragging = draggingId === dp.id
 
@@ -431,7 +431,7 @@ export default function DraggableHistogram({
                 // ── DESKTOP MODE: absolute scatter ─────────────────────────────
                 activePool.map(dp => {
                   const pos = SCATTERED_POSITIONS[dp.originalIdx % SCATTERED_POSITIONS.length]
-                  const col = CLASS_COLORS[dp.classIdx] ?? '#3B82F6'
+                  const col = '#00ADB5'
                   const isSelected  = selectedPoint?.id === dp.id
                   const isThisDragging = draggingId === dp.id
 
@@ -546,8 +546,7 @@ export default function DraggableHistogram({
               const isError     = flashError === i
               const isTarget    = selectedPoint?.classIdx === i
               const col         = CLASS_COLORS[i]
-              // True when the chip being dragged belongs to THIS class
-              const isMatchDrag = draggingPoint !== null && draggingPoint.classIdx === i
+              const isMatchDrag = false
 
               return (
                 <motion.div
@@ -571,7 +570,7 @@ export default function DraggableHistogram({
                           ? `${col}12`
                           : isDraggingAny
                             // Non-matching: dim out so the correct column stands out
-                            ? 'rgba(217,119,6,0.03)'
+                            ? 'rgba(14, 131, 136, 0.03)'
                             : 'transparent',
                     outline: isMatchDrag && !isError
                       ? `2px dashed ${col}99`
@@ -584,39 +583,7 @@ export default function DraggableHistogram({
                     transform: isMatchDrag ? 'scaleY(1.018)' : 'scaleY(1)',
                   }}
                 >
-                  {/* "↓ Sini!" animated badge – appears on the matching column when dragging */}
-                  <AnimatePresence>
-                    {isMatchDrag && (
-                      <motion.div
-                        key="drop-here"
-                        initial={{ opacity: 0, y: 6, scale: 0.7 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 4, scale: 0.7 }}
-                        transition={{ type: 'spring', stiffness: 420, damping: 22 }}
-                        style={{
-                          position: 'absolute',
-                          top: isCompact ? '-17px' : '-22px',
-                          left: '50%',
-                          transform: 'translateX(-50%)',
-                          fontSize: isCompact ? '7px' : '8px',
-                          fontWeight: 900,
-                          color: col,
-                          background: `${col}22`,
-                          padding: isCompact ? '1px 6px' : '2px 8px',
-                          borderRadius: '6px',
-                          border: `1px solid ${col}77`,
-                          whiteSpace: 'nowrap',
-                          letterSpacing: '0.5px',
-                          textTransform: 'uppercase',
-                          zIndex: 20,
-                          pointerEvents: 'none',
-                          boxShadow: `0 0 8px ${col}55`,
-                        }}
-                      >
-                        ↓ Sini!
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+                  {/* No drag hint overlay badge */}
 
                   <div style={{
                     width: '100%',
@@ -631,7 +598,7 @@ export default function DraggableHistogram({
                       ? '2px solid #EF4444'
                       : isTarget || (isDraggingAny && !isError)
                         ? `2px solid ${col}${isTarget ? 'ff' : '55'}`
-                        : '2px solid rgba(180,140,80,0.1)',
+                        : '2px solid rgba(14, 131, 136, 0.1)',
                     transition: 'border-color 0.2s',
                   }}>
                     <AnimatePresence>
@@ -651,7 +618,7 @@ export default function DraggableHistogram({
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
                             fontSize: isUltraCompact ? '6.5px' : isCompact ? '7.5px' : '8px',
                             fontWeight: 800,
-                            color: '#1C1917',
+                            color: '#000000',
                           }}
                         >
                           {dp.val}
@@ -669,7 +636,7 @@ export default function DraggableHistogram({
                             ? `2px dashed ${col}`
                             : isDraggingAny
                               ? `1px dashed ${col}45`
-                              : '1px dashed rgba(180,140,80,0.12)',
+                              : '1px dashed rgba(14, 131, 136, 0.12)',
                         background: isTarget ? `${col}08` : 'transparent',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                         fontSize: '15px', color: 'rgba(255,255,255,0.12)',
@@ -705,7 +672,7 @@ export default function DraggableHistogram({
                 key={idx}
                 style={{
                   fontSize: '8px',
-                  color: '#78716C',
+                  color: '#94A3B8',
                   fontWeight: 700,
                   fontFamily: 'var(--font-data)',
                   transform: 'translateX(-50%)',
@@ -723,7 +690,7 @@ export default function DraggableHistogram({
           {/* X-axis title */}
           <div style={{
             textAlign: 'center', fontSize: '7.5px',
-            color: '#A8A29E', fontWeight: 800,
+            color: '#94A3B8', fontWeight: 800,
             letterSpacing: '1px', marginTop: '3px', flexShrink: 0,
           }}>
             SCREEN TIME (JAM/HARI)
@@ -744,7 +711,7 @@ export default function DraggableHistogram({
               padding: '7px 12px', borderRadius: '10px', fontSize: '12px',
               background: 'rgba(239,68,68,0.08)',
               border: '1px solid rgba(239,68,68,0.25)',
-              color: '#44403C', lineHeight: 1.4,
+              color: '#E2E8F0', lineHeight: 1.4,
             }}
           >
             {flashHint}

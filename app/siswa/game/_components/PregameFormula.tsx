@@ -13,9 +13,9 @@ const CORRECT_MAX = Math.max(...screenTimeData)  // 18
 const CORRECT_MIN = Math.min(...screenTimeData)  // 1
 const CORRECT_R = CORRECT_MAX - CORRECT_MIN   // 17
 const CORRECT_N = STATS.n                     // 35
-const CORRECT_K = 6                           // 1 + 3.3 * log10(35) ≈ 6.09 → 6
+const CORRECT_K = 6                           // 1 + 3.3 * log10(35) lock to 6
 const ACC = '#6366F1'
-const GREEN = '#D97706'
+const GREEN = '#00ADB5'
 const RED = '#EF4444'
 const MAZE_SPEED = 0.22 // SVG units per frame
 
@@ -76,10 +76,11 @@ interface Props {
   teamId?: string | null
   studentId?: string
   teamMembers?: { id: string; name: string }[]
+  initialSub?: SubScreen
 }
 
 // Colors for team members on the maze
-const PLAYER_COLORS = ['#D97706', '#3B82F6', '#10B981']
+const PLAYER_COLORS = ['#00ADB5', '#3B82F6', '#10B981']
 
 // ─── Agent Sidebar (left panel for step 2 & 3) ──────────────────────────────
 function AgentSidebar({ message }: { message: string }) {
@@ -147,8 +148,7 @@ function AgentSidebar({ message }: { message: string }) {
         }}
       >
         <img
-          src="https://tmdbqikqflbeqaqllxge.supabase.co/storage/v1/object/public/Asset/Agent.png"
-          onError={(e) => { e.currentTarget.src = '/dira-avatar.png' }}
+          src="/dira-avatar.png"
           alt="Dira"
           style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
         />
@@ -330,7 +330,7 @@ function MazeJoystick({ onDir }: { onDir: (x: number, y: number) => void }) {
 }
 
 // ─── Intro typewriter ─────────────────────────────────────────────────────────
-const INTRO_TEXT = 'Sebelum membuat tabel frekuensi, kamu perlu menghitung 3 hal penting terlebih dahulu — Rentang, Banyak Kelas, dan Panjang Kelas. Kita selesaikan satu per satu, yuk! 🧮'
+const INTRO_TEXT = 'Jujurly, sebelum kita spill tabel frekuensinya, lo wajib banget nih ngitung 3 hal krusial dulu — Rentang, Banyak Kelas, sama Panjang Kelas. Gas kita beresin satu-satu, no cap! 🧮'
 
 const INTRO_HIGHLIGHTS: Record<string, string> = {
   'Rentang': 'var(--accent)',
@@ -394,11 +394,11 @@ function IntroTypewriter({ onDone }: { onDone: () => void }) {
 }
 
 // ─── Main component ───────────────────────────────────────────────────────────
-export default function PregameFormula({ onComplete, teamId, studentId, teamMembers }: Props) {
+export default function PregameFormula({ onComplete, teamId, studentId, teamMembers, initialSub = 'intro' }: Props) {
   const cognitiveStyle = useGameStore(s => s.cognitiveStyle)
   const isFD = cognitiveStyle === 'FD'
 
-  const [sub, setSub] = useState<SubScreen>('intro')
+  const [sub, setSub] = useState<SubScreen>(initialSub)
   const [introDone, setIntroDone] = useState(false)
 
   const [isMobile, setIsMobile] = useState(false)
@@ -525,6 +525,8 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
   const dirRef = useRef({ x: 0, y: 0 })
   const animRef = useRef<number | null>(null)
   const mapRef = useRef<HTMLDivElement>(null)
+  const slotRRef = useRef<HTMLDivElement>(null)
+  const slotKRef = useRef<HTMLDivElement>(null)
 
   const [popupSelection, setPopupSelection] = useState<'terbesar' | 'terkecil'>('terbesar')
   const popupSelectionRef = useRef<'terbesar' | 'terkecil'>('terbesar')
@@ -782,7 +784,7 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
   const [pkRErr, setPkRErr] = useState(false)   // only R input is wrong
   const [pkKErr, setPkKErr] = useState(false)   // only K input is wrong
 
-  const checkPK = () => {
+  const checkPK = useCallback(() => {
     const r = parseInt(pkR.trim(), 10)
     const k = parseInt(pkK.trim(), 10)
     const rOk = r === CORRECT_R
@@ -799,6 +801,34 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
       if (!kOk) parts.push(`Banyak Kelas K = ${CORRECT_K} (dari Langkah 2)`)
       setPkHint(`💡 Nilai yang benar: ${parts.join(' | ')}`)
       setTimeout(() => { setPkErr(false); setPkRErr(false); setPkKErr(false); setPkHint('') }, 4500)
+    }
+  }, [pkR, pkK, isFD, triggerFlash])
+
+  useEffect(() => {
+    if (pkR !== '' && pkK !== '' && !pkDone) {
+      checkPK()
+    }
+  }, [pkR, pkK, pkDone, checkPK])
+
+  const handleDragEndR = (event: any, info: any) => {
+    const slotEl = slotRRef.current
+    if (!slotEl) return
+    const rect = slotEl.getBoundingClientRect()
+    const px = info.point.x
+    const py = info.point.y
+    if (px >= rect.left && px <= rect.right && py >= rect.top && py <= rect.bottom) {
+      setPkR(String(CORRECT_R))
+    }
+  }
+
+  const handleDragEndK = (event: any, info: any) => {
+    const slotEl = slotKRef.current
+    if (!slotEl) return
+    const rect = slotEl.getBoundingClientRect()
+    const px = info.point.x
+    const py = info.point.y
+    if (px >= rect.left && px <= rect.right && py >= rect.top && py <= rect.bottom) {
+      setPkK(String(CORRECT_K))
     }
   }
 
@@ -823,7 +853,7 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
           <div style={{
             position: 'fixed',
             inset: 0,
-            background: 'rgba(250,246,238, 0.85)',
+            background: 'rgba(11, 30, 44, 0.85)',
             backdropFilter: 'blur(8px)',
             display: 'flex',
             alignItems: 'center',
@@ -839,11 +869,11 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
               style={isFD ? {
                 maxWidth: '700px',
                 width: '100%',
-                background: 'rgba(255,255,255, 0.98)',
+                background: 'var(--game-card)',
                 border: '2px solid var(--accent)',
                 borderRadius: '20px',
                 padding: 'clamp(12px, 2vh, 20px) clamp(12px, 2vw, 24px)',
-                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 0 30px rgba(217,119,6, 0.15)',
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 0 30px rgba(0, 173, 181, 0.15)',
                 display: 'flex',
                 flexDirection: 'column',
                 gap: 'clamp(10px, 1.8vh, 16px)',
@@ -851,7 +881,7 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
               } : {
                 maxWidth: '360px',
                 width: '90%',
-                background: 'rgba(255,255,255, 0.98)',
+                background: 'var(--game-card)',
                 border: '2px solid #ef4444',
                 borderRadius: '22px',
                 padding: '24px 20px',
@@ -885,7 +915,7 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                     }}>
                       Petunjuk Asisten Dira
                     </div>
-                    <h3 style={{ margin: '0 0 6px 0', fontSize: 'clamp(15px, 2.8vh, 20px)', fontWeight: 900, color: '#1C1917' }}>
+                    <h3 style={{ margin: '0 0 6px 0', fontSize: 'clamp(15px, 2.8vh, 20px)', fontWeight: 900, color: 'var(--text-primary)' }}>
                       Mencari Nilai Rentang (R) 📏
                     </h3>
                     <p style={{ margin: 0, fontSize: 'clamp(11px, 2vh, 13px)', color: 'rgba(255,255,255,0.75)', lineHeight: 1.5 }}>
@@ -922,7 +952,7 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                         textAlign: 'left',
                       }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <span style={{ fontSize: 'clamp(11px, 1.9vh, 13px)', fontWeight: 700, color: '#1C1917', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                          <span style={{ fontSize: 'clamp(11px, 1.9vh, 13px)', fontWeight: 700, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '5px' }}>
                             <span style={{ color: 'var(--accent)' }}>📈</span> Contoh 1: Mencari Nilai Terbesar
                           </span>
                           <span style={{ fontSize: 'clamp(9px, 1.6vh, 11px)', color: 'rgba(255, 255, 255, 0.5)' }}>(10 Angka)</span>
@@ -964,7 +994,7 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                         textAlign: 'left',
                       }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <span style={{ fontSize: 'clamp(11px, 1.9vh, 13px)', fontWeight: 700, color: '#1C1917', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                          <span style={{ fontSize: 'clamp(11px, 1.9vh, 13px)', fontWeight: 700, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '5px' }}>
                             <span style={{ color: '#D97706' }}>📉</span> Contoh 2: Mencari Nilai Terkecil
                           </span>
                           <span style={{ fontSize: 'clamp(9px, 1.6vh, 11px)', color: 'rgba(255, 255, 255, 0.5)' }}>(10 Angka)</span>
@@ -1018,8 +1048,7 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                         overflow: 'hidden',
                       }}>
                         <img
-                          src="https://tmdbqikqflbeqaqllxge.supabase.co/storage/v1/object/public/Asset/Agent.png"
-                          onError={(e) => { e.currentTarget.src = '/dira-avatar.png' }}
+                          src="/dira-avatar.png"
                           alt="Dira"
                           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                         />
@@ -1028,13 +1057,13 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                         textAlign: 'center',
                         fontSize: 'clamp(10px, 1.8vh, 12px)',
                         lineHeight: 1.55,
-                        color: '#1C1917',
+                        color: 'var(--text-primary)',
                         fontWeight: 600,
                       }}>
                         <p style={{ margin: '0 0 6px 0', color: 'var(--accent)', fontWeight: 800, fontSize: 'clamp(9px, 1.5vh, 11px)', letterSpacing: '0.5px' }}>
                           TIPS DARI DIRA
                         </p>
-                        "Urutkan atau scan data dari kiri ke kanan untuk menemukan nilai tertinggi dan terendah secara cepat!"
+                        "Biar nggak fomo dan salpok, coba deh lo scan datanya dari kiri ke kanan biar cepet dapet nilai tertinggi sama terendah! Vibenya dapet banget."
                       </div>
                     </div>
                   </div>
@@ -1067,17 +1096,16 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                     overflow: 'hidden',
                   }}>
                     <img
-                      src="https://tmdbqikqflbeqaqllxge.supabase.co/storage/v1/object/public/Asset/Agent.png"
-                      onError={(e) => { e.currentTarget.src = '/dira-avatar.png' }}
+                      src="/dira-avatar.png"
                       alt="Dira"
                       style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     />
                   </div>
-                  <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 900, color: '#1C1917' }}>
+                  <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 900, color: 'var(--text-primary)' }}>
                     Nilai Tidak Sesuai!
                   </h3>
                   <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.78)', lineHeight: 1.6 }}>
-                    Waduh! Nilai <strong style={{ color: '#ef4444', fontSize: '15px' }}>{wrongSelectedValue}</strong> yang kamu ambil bukan merupakan nilai <strong style={{ color: '#ef4444' }}>{wrongAssignType || 'terkecil atau terbesar'}</strong> dari data yang ada di labirin. Coba periksa kembali data dengan teliti! 🔍
+                    Waduh riil no cap! Nilai <strong style={{ color: '#ef4444', fontSize: '15px' }}>{wrongSelectedValue}</strong> yang lo pick bukan nilai <strong style={{ color: '#ef4444' }}>{wrongAssignType || 'terkecil atau terbesar'}</strong> dari data yang ada di labirin. Coba lebih teliti lagi, jangan salpok ya! 🔍
                   </p>
                   <button
                     className="game-btn game-btn-primary"
@@ -1169,9 +1197,9 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                 <div style={{
                   alignSelf: 'flex-start',
                   background: 'rgba(10, 20, 15, 0.95)',
-                  borderTop: '2px solid rgba(217,119,6, 0.3)',
-                  borderLeft: '2px solid rgba(217,119,6, 0.3)',
-                  borderRight: '2px solid rgba(217,119,6, 0.3)',
+                  borderTop: '2px solid rgba(0, 173, 181, 0.3)',
+                  borderLeft: '2px solid rgba(0, 173, 181, 0.3)',
+                  borderRight: '2px solid rgba(0, 173, 181, 0.3)',
                   borderBottom: 'none',
                   borderRadius: '6px 14px 0 0',
                   padding: '4px 16px',
@@ -1189,10 +1217,10 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                 {/* Dialog text box */}
                 <div style={{
                   background: 'rgba(10, 20, 18, 0.95)',
-                  border: '2px solid rgba(217,119,6, 0.4)',
+                  border: '2px solid rgba(0, 173, 181, 0.4)',
                   borderRadius: '0px 14px 14px 14px',
                   padding: 'clamp(14px, 2.5vh, 20px) clamp(16px, 3vw, 24px) clamp(12px, 2vh, 18px)',
-                  boxShadow: '0 10px 25px rgba(217,119,6, 0.1), inset 0 0 20px rgba(217,119,6, 0.03)',
+                  boxShadow: '0 10px 25px rgba(0, 173, 181, 0.1), inset 0 0 20px rgba(0, 173, 181, 0.03)',
                   display: 'flex', flexDirection: 'column', gap: '12px',
                   boxSizing: 'border-box', position: 'relative',
                   minHeight: 'clamp(95px, 18vh, 130px)',
@@ -1212,44 +1240,18 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                       initial={{ opacity: 0, y: 50 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ type: 'spring', stiffness: 100, damping: 15, delay: 0.3 }}
-                      src="https://tmdbqikqflbeqaqllxge.supabase.co/storage/v1/object/public/Asset/Agent.png"
-                      onError={(e) => { e.currentTarget.src = '/dira-avatar.png' }}
+                      src="/dira-avatar.png"
                       alt="Agent DIRA"
                       style={{ height: '100%', objectFit: 'contain' }}
                     />
-                    {/* "Go!" speech bubble */}
-                    <motion.div
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      transition={{ delay: 0.9, type: 'spring' }}
-                      style={{
-                        position: 'absolute',
-                        top: '8%',
-                        right: 'clamp(-28px, -4vw, -38px)',
-                        background: 'rgba(10, 20, 15, 0.95)',
-                        border: '2px solid var(--accent)',
-                        borderRadius: '50%',
-                        padding: 'clamp(4px, 0.8vh, 6px) clamp(8px, 1.5vw, 12px)',
-                        fontWeight: 900,
-                        fontSize: 'clamp(11px, 1.8vh, 15px)',
-                        color: 'var(--accent)',
-                        transform: 'rotate(12deg)',
-                        boxShadow: '3px 3px 0px rgba(217,119,6, 0.3)',
-                        fontFamily: '"Impact", "Arial Black", sans-serif',
-                        letterSpacing: '0.5px',
-                        zIndex: 6,
-                        animation: 'pulse-go-pregame 1s infinite alternate',
-                      }}
-                    >
-                      Go!
-                    </motion.div>
+                    {/* "Go!" speech bubble removed */}
                   </div>
 
                   {/* Dialog text */}
                   <p style={{
                     margin: 0,
                     fontSize: 'clamp(12px, 2vh, 15px)',
-                    color: '#1C1917',
+                    color: '#F8FAFC',
                     fontWeight: 600,
                     lineHeight: 1.65,
                     paddingRight: 'clamp(80px, 15vw, 140px)',
@@ -1262,7 +1264,7 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                     display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                     borderTop: '1px solid rgba(180,140,80,0.12)', paddingTop: '10px',
                   }}>
-                    <span style={{ fontSize: 'clamp(10px, 1.6vh, 12px)', color: '#A8A29E', fontWeight: 600 }}>
+                    <span style={{ fontSize: 'clamp(10px, 1.6vh, 12px)', color: '#94A3B8', fontWeight: 600 }}>
                       Persiapan Statistik — Level 1
                     </span>
                     <motion.button
@@ -1306,7 +1308,7 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
               {/* ── Assign popup (terbesar / terkecil) ── */}
               <AnimatePresence>
                 {assignPopup !== null && (
-                  <div style={{ position: 'fixed', inset: 0, zIndex: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(250,246,238,0.75)', backdropFilter: 'blur(6px)' }}>
+                  <div style={{ position: 'fixed', inset: 0, zIndex: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(11, 30, 44, 0.8)', backdropFilter: 'blur(6px)' }}>
                     <motion.div
                       initial={{ scale: 0.88, opacity: 0, y: 16 }}
                       animate={{ scale: 1, opacity: 1, y: 0 }}
@@ -1315,7 +1317,7 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                       style={{ background: 'rgba(10,10,22,0.98)', border: '2px solid var(--accent)', borderRadius: '22px', padding: '28px 24px', maxWidth: '320px', width: '90%', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '18px', boxShadow: '0 25px 50px rgba(0,0,0,0.6), 0 0 30px rgba(99,102,241,0.15)' }}
                     >
                       <div style={{ fontSize: '32px' }}>🎯</div>
-                      <div style={{ fontSize: '15px', fontWeight: 700, color: '#1C1917' }}>
+                      <div style={{ fontSize: '15px', fontWeight: 700, color: '#F8FAFC' }}>
                         Jadikan nilai{' '}
                         <span style={{ color: 'var(--accent)', fontSize: '24px', fontWeight: 900, fontFamily: 'var(--font-data)' }}>{assignPopup}</span>{' '}
                         sebagai...
@@ -1635,7 +1637,13 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                   {rentangDone ? (
                     <button
                       className="game-btn game-btn-primary"
-                      onClick={() => navigateTo('banyak-kelas')}
+                      onClick={() => {
+                        if (initialSub === 'intro') {
+                          onComplete()
+                        } else {
+                          navigateTo('banyak-kelas')
+                        }
+                      }}
                       style={{ width: '100%', padding: '10px 14px', fontSize: '13px', fontWeight: 800, boxShadow: 'var(--accent-glow)', marginTop: '4px' }}
                     >
                       Lanjut →
@@ -1745,54 +1753,82 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                       P = Rentang (R) ÷ Banyak Kelas (K)
                     </div>
 
-                    {/* Input row */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                    {/* Input row with drag slots */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px', justifyContent: 'center', flexWrap: 'wrap' }}>
                       <span style={{ fontSize: 'clamp(16px, 2.8vh, 22px)', fontWeight: 900, color: '#a5b4fc', fontFamily: 'var(--font-data)' }}>P =</span>
 
-                      <motion.div
-                        key={`pkR-${pkShake}`}
-                        animate={!isFD && pkShake > 0 ? { x: [-6, 6, -5, 5, 0], transition: { duration: 0.4 } } : {}}
-                      >
-                        <input
-                          type="number"
-                          value={pkR}
-                          onChange={e => setPkR(e.target.value)}
-                          onKeyDown={e => e.key === 'Enter' && !pkDone && checkPK()}
-                          disabled={pkDone}
-                          placeholder="R"
+                      {/* Slot R (Rentang) */}
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                        <div
+                          ref={slotRRef}
                           style={{
-                            width: 'clamp(68px, 9vw, 100px)', padding: 'clamp(8px, 1.2vh, 12px) 8px', borderRadius: '10px', textAlign: 'center',
-                            background: pkRErr ? 'rgba(239,68,68,0.12)' : pkDone ? `${GREEN}12` : 'rgba(180,140,80,0.12)',
-                            border: pkRErr ? `1.5px solid ${RED}` : pkDone ? `1.5px solid ${GREEN}55` : `1.5px solid rgba(255,255,255,0.18)`,
-                            color: pkDone ? GREEN : '#fff', fontFamily: 'var(--font-data)', fontSize: 'clamp(18px, 3vh, 24px)', fontWeight: 800,
-                            outline: 'none', transition: 'border 0.2s, background 0.2s',
+                            width: 'clamp(72px, 10vw, 106px)',
+                            height: '52px',
+                            borderRadius: '12px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            background: pkDone ? `${GREEN}12` : pkR ? 'rgba(14, 131, 136, 0.12)' : 'rgba(255,255,255,0.03)',
+                            border: pkDone ? `1.5px solid ${GREEN}55` : pkR ? `1.5px solid var(--accent)` : '2px dashed rgba(255,255,255,0.18)',
+                            color: pkDone ? GREEN : pkR ? '#fff' : 'rgba(255,255,255,0.22)',
+                            fontFamily: 'var(--font-data)',
+                            fontSize: '24px',
+                            fontWeight: 800,
+                            boxShadow: pkR && !pkDone ? '0 0 10px rgba(0, 173, 181, 0.2)' : 'none',
+                            transition: 'all 0.2s',
                           }}
-                        />
-                      </motion.div>
+                        >
+                          {pkR || 'R'}
+                        </div>
+                        <span style={{ fontSize: '9px', fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Rentang</span>
+                      </div>
 
                       <span style={{ fontSize: 'clamp(22px, 3.8vh, 32px)', color: '#78716C', fontFamily: 'var(--font-data)' }}>÷</span>
 
-                      <motion.div
-                        key={`pkK-${pkShake}`}
-                        animate={!isFD && pkShake > 0 ? { x: [-6, 6, -5, 5, 0], transition: { duration: 0.4 } } : {}}
-                      >
-                        <input
-                          type="number"
-                          value={pkK}
-                          onChange={e => setPkK(e.target.value)}
-                          onKeyDown={e => e.key === 'Enter' && !pkDone && checkPK()}
-                          disabled={pkDone}
-                          placeholder="K"
+                      {/* Slot K (Banyak Kelas) */}
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                        <div
+                          ref={slotKRef}
                           style={{
-                            width: 'clamp(68px, 9vw, 100px)', padding: 'clamp(8px, 1.2vh, 12px) 8px', borderRadius: '10px', textAlign: 'center',
-                            background: pkKErr ? 'rgba(239,68,68,0.12)' : pkDone ? `${GREEN}12` : 'rgba(180,140,80,0.12)',
-                            border: pkKErr ? `1.5px solid ${RED}` : pkDone ? `1.5px solid ${GREEN}55` : `1.5px solid rgba(255,255,255,0.18)`,
-                            color: pkDone ? GREEN : '#fff', fontFamily: 'var(--font-data)', fontSize: 'clamp(18px, 3vh, 24px)', fontWeight: 800,
-                            outline: 'none', transition: 'border 0.2s, background 0.2s',
+                            width: 'clamp(72px, 10vw, 106px)',
+                            height: '52px',
+                            borderRadius: '12px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            background: pkDone ? `${GREEN}12` : pkK ? 'rgba(129, 140, 248, 0.12)' : 'rgba(255,255,255,0.03)',
+                            border: pkDone ? `1.5px solid ${GREEN}55` : pkK ? `1.5px solid #818cf8` : '2px dashed rgba(255,255,255,0.18)',
+                            color: pkDone ? GREEN : pkK ? '#fff' : 'rgba(255,255,255,0.22)',
+                            fontFamily: 'var(--font-data)',
+                            fontSize: '24px',
+                            fontWeight: 800,
+                            boxShadow: pkK && !pkDone ? '0 0 10px rgba(129, 140, 248, 0.2)' : 'none',
+                            transition: 'all 0.2s',
                           }}
-                        />
-                      </motion.div>
+                        >
+                          {pkK || 'K'}
+                        </div>
+                        <span style={{ fontSize: '9px', fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Banyak Kelas</span>
+                      </div>
                     </div>
+
+                    {/* Explanatory notes of R and K values */}
+                    {!pkDone && (
+                      <div style={{
+                        fontSize: '11px', color: '#94A3B8', textAlign: 'left',
+                        background: 'rgba(255,255,255,0.015)', border: '1px solid rgba(255,255,255,0.05)',
+                        borderRadius: '10px', padding: '10px', display: 'flex', flexDirection: 'column', gap: '5px'
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <span>📏</span>
+                          <span><strong>R = {CORRECT_R}</strong>: Rentang (didapat dari hasil Langkah 1)</span>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <span>📊</span>
+                          <span><strong>K = {CORRECT_K}</strong>: Banyak Kelas (didapat dari hasil Langkah 2)</span>
+                        </div>
+                      </div>
+                    )}
 
                     {/* Computed breakdown */}
                     {pkDone && (
@@ -1818,6 +1854,64 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                       </motion.div>
                     )}
                   </div>
+
+                  {/* Draggable source badges container */}
+                  {!pkDone && (
+                    <div style={{
+                      display: 'flex', gap: '16px', justifyContent: 'center',
+                      padding: '12px', background: 'rgba(255,255,255,0.02)', border: '1px dashed rgba(255,255,255,0.1)',
+                      borderRadius: '14px', width: '100%', maxWidth: '440px', boxSizing: 'border-box',
+                      touchAction: 'none'
+                    }}>
+                      {/* Draggable R card */}
+                      {!pkR ? (
+                        <motion.div
+                          drag
+                          dragElastic={0.6}
+                          dragMomentum={false}
+                          dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
+                          onDragEnd={handleDragEndR}
+                          style={{
+                            width: '130px', height: '60px', borderRadius: '10px',
+                            background: 'var(--accent)', color: '#fff',
+                            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                            cursor: 'grab', boxShadow: '0 4px 14px rgba(0, 173, 181, 0.25)', zIndex: 30
+                          }}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95, cursor: 'grabbing' }}
+                        >
+                          <span style={{ fontSize: '18px', fontWeight: 900 }}>{CORRECT_R}</span>
+                          <span style={{ fontSize: '9px', fontWeight: 700, textTransform: 'uppercase', opacity: 0.8 }}>Tarik Rentang (R)</span>
+                        </motion.div>
+                      ) : (
+                        <div style={{ width: '130px', height: '60px', borderRadius: '10px', border: '1px dashed rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.01)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', color: 'rgba(255,255,255,0.2)', fontWeight: 700 }}>R Terpasang</div>
+                      )}
+
+                      {/* Draggable K card */}
+                      {!pkK ? (
+                        <motion.div
+                          drag
+                          dragElastic={0.6}
+                          dragMomentum={false}
+                          dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
+                          onDragEnd={handleDragEndK}
+                          style={{
+                            width: '130px', height: '60px', borderRadius: '10px',
+                            background: '#818cf8', color: '#fff',
+                            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                            cursor: 'grab', boxShadow: '0 4px 14px rgba(129, 140, 248, 0.25)', zIndex: 30
+                          }}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95, cursor: 'grabbing' }}
+                        >
+                          <span style={{ fontSize: '18px', fontWeight: 900 }}>{CORRECT_K}</span>
+                          <span style={{ fontSize: '9px', fontWeight: 700, textTransform: 'uppercase', opacity: 0.8 }}>Tarik Banyak Kelas (K)</span>
+                        </motion.div>
+                      ) : (
+                        <div style={{ width: '130px', height: '60px', borderRadius: '10px', border: '1px dashed rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.01)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', color: 'rgba(255,255,255,0.2)', fontWeight: 700 }}>K Terpasang</div>
+                      )}
+                    </div>
+                  )}
 
                   {/* Result */}
                   {pkDone && (

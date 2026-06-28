@@ -216,7 +216,7 @@ export default function Cutscene({ onComplete, onPhaseChange, teamId, studentId,
         width: '100%',
         height: isMobile ? 'auto' : 'calc(100vh - 68px)',
         minHeight: isMobile ? 'calc(100vh - 68px)' : 'none',
-        background: '#FAF6EE',
+        background: 'var(--game-bg)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -272,11 +272,11 @@ export default function Cutscene({ onComplete, onPhaseChange, teamId, studentId,
             maxWidth: '320px',
             height: isMobile ? 'auto' : '100%',
             maxHeight: isMobile ? '360px' : '440px',
-            background: '#FAF6EE',
-            border: '1px solid rgba(255, 255, 255, 0.12)',
+            background: 'var(--game-card)',
+            border: '1px solid var(--game-border)',
             borderRadius: '16px',
             boxShadow: '0 20px 40px rgba(0, 0, 0, 0.6)',
-            color: '#1C1917',
+            color: 'var(--text-primary)',
             fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
             overflowY: 'auto',
             display: 'flex',
@@ -288,8 +288,8 @@ export default function Cutscene({ onComplete, onPhaseChange, teamId, studentId,
               alignItems: 'center',
               justifyContent: 'space-between',
               padding: '10px 12px',
-              borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-              background: '#FAF6EE',
+              borderBottom: '1px solid var(--game-border)',
+              background: 'var(--game-card)',
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <div style={{
@@ -318,13 +318,13 @@ export default function Cutscene({ onComplete, onPhaseChange, teamId, studentId,
                   </div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <span style={{ fontSize: '13px', fontWeight: 700, color: '#1C1917' }}>pinterpolitik</span>
+                  <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)' }}>pinterpolitik</span>
                   <svg viewBox="0 0 24 24" width="12" height="12" style={{ fill: '#3897f0', marginLeft: '4px', display: 'inline-block', verticalAlign: 'middle' }}>
                     <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
                   </svg>
                 </div>
               </div>
-              <div style={{ color: '#1C1917', cursor: 'pointer', fontSize: '18px', fontWeight: 'bold' }}>•••</div>
+              <div style={{ color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '18px', fontWeight: 'bold' }}>•••</div>
             </div>
 
             {/* Post Image Body */}
@@ -410,7 +410,7 @@ export default function Cutscene({ onComplete, onPhaseChange, teamId, studentId,
             }}>
               <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
                 <span style={{ cursor: 'pointer', fontSize: '16px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  ❤️ <span style={{ fontSize: '11px', fontWeight: 600, color: '#1C1917' }}>12,9rb</span>
+                  ❤️ <span style={{ fontSize: '11px', fontWeight: 600, color: '#F8FAFC' }}>12,9rb</span>
                 </span>
                 <span style={{
                   cursor: 'pointer',
@@ -419,10 +419,10 @@ export default function Cutscene({ onComplete, onPhaseChange, teamId, studentId,
                   alignItems: 'center',
                   gap: '4px',
                 }}>
-                  💬 <span style={{ fontSize: '11px', fontWeight: 600, color: '#1C1917' }}>1.134</span>
+                  💬 <span style={{ fontSize: '11px', fontWeight: 600, color: '#F8FAFC' }}>1.134</span>
                 </span>
                 <span style={{ cursor: 'pointer', fontSize: '16px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  ✈️ <span style={{ fontSize: '11px', fontWeight: 600, color: '#1C1917' }}>3.560</span>
+                  ✈️ <span style={{ fontSize: '11px', fontWeight: 600, color: '#F8FAFC' }}>3.560</span>
                 </span>
               </div>
               <span style={{ cursor: 'pointer', fontSize: '16px' }}>🔖</span>
@@ -433,13 +433,13 @@ export default function Cutscene({ onComplete, onPhaseChange, teamId, studentId,
               padding: '0 14px 14px',
               fontSize: '12px',
               lineHeight: 1.4,
-              color: '#1C1917',
+              color: '#F8FAFC',
             }}>
-              <div style={{ marginBottom: '6px', color: '#1C1917' }}>
+              <div style={{ marginBottom: '6px', color: '#F8FAFC' }}>
                 Disukai oleh <strong>edukasi.kompas</strong> dan <strong>lainnya</strong>
               </div>
               <div>
-                <strong>pinterpolitik</strong> Sebuah studi terbaru mengungkap fakta mencengangkan: remaja Indonesia rata-rata menghabiskan lebih dari 8 jam sehari di media sosial!... <span style={{ color: '#1C1917', cursor: 'pointer' }}>selengkapnya</span>
+                <strong>pinterpolitik</strong> Sebuah studi terbaru mengungkap fakta mencengangkan: remaja Indonesia rata-rata menghabiskan lebih dari 8 jam sehari di media sosial!... <span style={{ color: '#F8FAFC', cursor: 'pointer' }}>selengkapnya</span>
               </div>
             </div>
           </div>
@@ -457,20 +457,20 @@ export default function Cutscene({ onComplete, onPhaseChange, teamId, studentId,
             width: '100%',
             maxWidth: '440px',
             height: isMobile ? 'auto' : '100%',
-            background: '#FFFFFF',
-            border: '1px solid rgba(180, 140, 80, 0.15)',
+            background: 'var(--game-card)',
+            border: '1px solid var(--game-border)',
             borderRadius: '20px',
             padding: isMobile ? '16px 20px' : '20px 24px',
             backdropFilter: 'blur(10px)',
-            boxShadow: '0 8px 30px rgba(180, 120, 40, 0.06)',
+            boxShadow: '0 8px 30px rgba(0, 173, 181, 0.08)',
             justifyContent: 'space-between',
             boxSizing: 'border-box',
           }}
         >
           <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100% - 60px)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px', borderBottom: '1px solid rgba(180,140,80,0.12)', paddingBottom: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px', borderBottom: '1px solid var(--game-border)', paddingBottom: '12px' }}>
               <span style={{ fontSize: '20px' }}>💬</span>
-              <span style={{ fontSize: '16px', fontWeight: 700, color: '#1C1917', letterSpacing: '0.5px' }}>
+              <span style={{ fontSize: '16px', fontWeight: 700, color: '#F8FAFC', letterSpacing: '0.5px' }}>
                 Komentar Netizen
               </span>
               <span style={{
@@ -504,11 +504,11 @@ export default function Cutscene({ onComplete, onPhaseChange, teamId, studentId,
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   transition={{ duration: 0.4, ease: 'easeOut' }}
                   style={{
-                    background: 'rgba(217, 119, 6, 0.04)',
-                    border: '1px solid rgba(180, 140, 80, 0.12)',
+                    background: 'rgba(14, 131, 136, 0.04)',
+                    border: '1px solid rgba(14, 131, 136, 0.12)',
                     borderRadius: '14px',
                     padding: '12px 16px',
-                    boxShadow: '0 2px 8px rgba(180, 120, 40, 0.04)',
+                    boxShadow: 'none',
                     display: 'flex',
                     flexDirection: 'column',
                     gap: '4px',
@@ -531,7 +531,7 @@ export default function Cutscene({ onComplete, onPhaseChange, teamId, studentId,
                     </div>
                     <span style={{ color: '#3897f0', fontWeight: 700, fontSize: '12px' }}>{c.user}</span>
                   </div>
-                  <span style={{ color: '#44403C', fontSize: '13px', lineHeight: 1.4 }}>{c.text}</span>
+                  <span style={{ color: '#E2E8F0', fontSize: '13px', lineHeight: 1.4 }}>{c.text}</span>
                 </motion.div>
               ))}
               <div ref={commentsEndRef} />
@@ -625,9 +625,9 @@ export default function Cutscene({ onComplete, onPhaseChange, teamId, studentId,
               <div style={{
                 alignSelf: 'flex-start',
                 background: 'rgba(10, 20, 15, 0.95)',
-                borderTop: '2px solid rgba(217,119,6, 0.3)',
-                borderLeft: '2px solid rgba(217,119,6, 0.3)',
-                borderRight: '2px solid rgba(217,119,6, 0.3)',
+                borderTop: '2px solid rgba(0, 173, 181, 0.3)',
+                borderLeft: '2px solid rgba(0, 173, 181, 0.3)',
+                borderRight: '2px solid rgba(0, 173, 181, 0.3)',
                 borderBottom: 'none',
                 borderRadius: '6px 14px 0 0',
                 padding: '4px 16px',
@@ -646,10 +646,10 @@ export default function Cutscene({ onComplete, onPhaseChange, teamId, studentId,
               {/* Dialog Text Box */}
               <div style={{
                 background: 'rgba(10, 20, 18, 0.95)',
-                border: '2px solid rgba(217,119,6, 0.4)',
+                border: '2px solid rgba(0, 173, 181, 0.4)',
                 borderRadius: '0px 14px 14px 14px',
                 padding: isMobile ? '14px 18px' : '20px 24px',
-                boxShadow: '0 10px 25px rgba(217,119,6, 0.1), inset 0 0 20px rgba(217,119,6, 0.03)',
+                boxShadow: '0 10px 25px rgba(0, 173, 181, 0.1), inset 0 0 20px rgba(0, 173, 181, 0.03)',
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'space-between',
@@ -673,10 +673,7 @@ export default function Cutscene({ onComplete, onPhaseChange, teamId, studentId,
                     initial={{ opacity: 0, y: 50 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ type: 'spring', stiffness: 100, damping: 15 }}
-                    src="https://tmdbqikqflbeqaqllxge.supabase.co/storage/v1/object/public/Asset/Agent.png"
-                    onError={(e) => {
-                      e.currentTarget.src = "/dira-avatar.png"
-                    }}
+                    src="/dira-avatar.png"
                     alt="Agent"
                     style={{
                       height: '100%',
@@ -684,32 +681,7 @@ export default function Cutscene({ onComplete, onPhaseChange, teamId, studentId,
                     }}
                   />
 
-                  {/* Go! Action Speech Bubble */}
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ delay: 0.5, type: 'spring' }}
-                    style={{
-                      position: 'absolute',
-                      top: '5%',
-                      right: isMobile ? '-25px' : '-35px',
-                      background: 'rgba(10, 20, 15, 0.95)',
-                      border: '2px solid var(--accent)',
-                      borderRadius: '50%',
-                      padding: isMobile ? '4px 8px' : '6px 12px',
-                      fontWeight: 900,
-                      fontSize: isMobile ? '12px' : '15px',
-                      color: 'var(--accent)',
-                      transform: 'rotate(12deg)',
-                      boxShadow: '3px 3px 0px rgba(217,119,6, 0.3)',
-                      fontFamily: '"Impact", "Arial Black", sans-serif',
-                      letterSpacing: '0.5px',
-                      zIndex: 6,
-                      animation: 'pulse-go 1s infinite alternate',
-                    }}
-                  >
-                    Go!
-                  </motion.div>
+                  {/* Go! Action Speech Bubble removed */}
                 </div>
                 <p style={{
                   margin: 0,
@@ -720,7 +692,7 @@ export default function Cutscene({ onComplete, onPhaseChange, teamId, studentId,
                   fontFamily: 'var(--font-ui)',
                 }}>
                   <TypewriterText
-                    text="Tunggu dulu... Benar nggak sih klaim ini? Jangan langsung kemakan emosi netizen. Kita punya data screen time dari sampel 35 siswa acak. Yuk, kita uji validitasnya!"
+                    text="Wait a minute... Benar nggak sih klaim viral ini? Jangan langsung kemakan emosi netizen di komen deh. Kita ada data riil screen time dari 35 siswa acak. Yuk, kita uji biar valid no cap!"
                     onDone={() => setMentorTypingDone(true)}
                   />
                 </p>
@@ -731,7 +703,7 @@ export default function Cutscene({ onComplete, onPhaseChange, teamId, studentId,
                   justifyContent: 'space-between',
                   alignItems: 'center',
                   marginTop: '12px',
-                  borderTop: '1px solid rgba(180,140,80,0.12)',
+                  borderTop: '1px solid rgba(0, 173, 181, 0.15)',
                   paddingTop: '8px',
                 }}>
                   <button

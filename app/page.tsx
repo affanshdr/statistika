@@ -21,8 +21,8 @@ function Particle({ x, y, delay }: { x: string; y: string; delay: number }) {
       style={{
         position: 'absolute', top: y, left: x,
         width: '5px', height: '5px', borderRadius: '50%',
-        background: '#D97706',
-        boxShadow: '0 0 8px rgba(217,119,6,0.5)',
+        background: '#00ADB5',
+        boxShadow: '0 0 8px rgba(0, 173, 181, 0.5)',
         pointerEvents: 'none',
       }}
     />
@@ -157,26 +157,26 @@ export default function HomePage() {
   return (
     <main style={{
       minHeight: '100vh',
-      background: '#FAF6EE',
-      color: '#1C1917',
+      background: '#0B1E2C',
+      color: '#F8FAFC',
       position: 'relative',
       fontFamily: "'Outfit', 'Inter', sans-serif",
     }}>
 
       {/* Overflow wrapper untuk background decorations — terpisah dari main agar sticky bekerja */}
       <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', overflow: 'hidden' }}>
-        {/* ── Warm dot pattern background ── */}
+        {/* ── Teal dot pattern background ── */}
         <div style={{
           position: 'absolute', inset: 0,
           backgroundImage:
-            'radial-gradient(circle, rgba(180,140,80,0.12) 1px, transparent 1px)',
+            'radial-gradient(circle, rgba(14, 131, 136, 0.15) 1px, transparent 1px)',
           backgroundSize: '28px 28px',
         }} />
 
-        {/* Warm glow blobs */}
-        <div style={{ position: 'absolute', top: '-5%', left: '-8%', width: '600px', height: '600px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(251,191,36,0.08) 0%, transparent 70%)', filter: 'blur(60px)' }} />
-        <div style={{ position: 'absolute', bottom: '5%', right: '-8%', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(234,88,12,0.06) 0%, transparent 70%)', filter: 'blur(50px)' }} />
-        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: '800px', height: '800px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(217,119,6,0.04) 0%, transparent 60%)', filter: 'blur(80px)' }} />
+        {/* Cyber teal glow blobs */}
+        <div style={{ position: 'absolute', top: '-5%', left: '-8%', width: '600px', height: '600px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(0, 173, 181, 0.08) 0%, transparent 70%)', filter: 'blur(60px)' }} />
+        <div style={{ position: 'absolute', bottom: '5%', right: '-8%', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(14, 131, 136, 0.06) 0%, transparent 70%)', filter: 'blur(50px)' }} />
+        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: '800px', height: '800px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(0, 240, 255, 0.04) 0%, transparent 60%)', filter: 'blur(80px)' }} />
 
         {/* Floating particles */}
         {PARTICLES.map((p, i) => <Particle key={i} {...p} />)}
@@ -185,10 +185,10 @@ export default function HomePage() {
       {/* ── Navbar — sticky ── */}
       <header style={{
         position: 'sticky', top: 0, zIndex: 50,
-        background: scrolled ? 'rgba(250,246,238,0.98)' : 'rgba(250,246,238,0.8)',
+        background: scrolled ? 'rgba(6, 21, 32, 0.98)' : 'rgba(6, 21, 32, 0.8)',
         backdropFilter: 'blur(24px)',
-        borderBottom: scrolled ? '1px solid rgba(180,140,80,0.2)' : '1px solid rgba(180,140,80,0.08)',
-        boxShadow: scrolled ? '0 4px 24px rgba(180,120,40,0.08)' : 'none',
+        borderBottom: scrolled ? '1px solid rgba(14, 131, 136, 0.2)' : '1px solid rgba(14, 131, 136, 0.08)',
+        boxShadow: scrolled ? '0 4px 24px rgba(14, 131, 136, 0.08)' : 'none',
         transition: 'background 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease',
       }}>
         <style>{`
@@ -216,7 +216,7 @@ export default function HomePage() {
             style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
           >
             <motion.div
-              animate={{ filter: ['drop-shadow(0 0 4px rgba(217,119,6,0.5))', 'drop-shadow(0 0 10px rgba(217,119,6,0.8))', 'drop-shadow(0 0 4px rgba(217,119,6,0.5))'] }}
+              animate={{ filter: ['drop-shadow(0 0 4px rgba(0,173,181,0.5))', 'drop-shadow(0 0 10px rgba(0,173,181,0.8))', 'drop-shadow(0 0 4px rgba(0,173,181,0.5))'] }}
               transition={{ duration: 2.5, repeat: Infinity }}
               style={{ fontSize: '24px', lineHeight: 1 }}
             >
@@ -225,13 +225,13 @@ export default function HomePage() {
             <div>
               <div style={{
                 fontWeight: 900, fontSize: '16px', letterSpacing: '0.5px',
-                background: 'linear-gradient(90deg, #D97706, #EA580C)',
+                background: 'linear-gradient(90deg, #00ADB5, #00F0FF)',
                 WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
                 whiteSpace: 'nowrap',
               }}>
                 Skeptikos
               </div>
-              <div className="nav-subtitle" style={{ fontSize: '9px', color: 'rgba(87,83,78,0.5)', letterSpacing: '2px', fontWeight: 700, marginTop: '1px' }}>
+              <div className="nav-subtitle" style={{ fontSize: '9px', color: 'rgba(0,173,181,0.5)', letterSpacing: '2px', fontWeight: 700, marginTop: '1px' }}>
                 INVESTIGASI DATA
               </div>
             </div>
@@ -241,24 +241,24 @@ export default function HomePage() {
             {/* Status badge — desktop only */}
             <div className="nav-badge" style={{
               padding: '4px 10px', borderRadius: '50px', fontSize: '11px', fontWeight: 700,
-              border: '1px solid rgba(217,119,6,0.25)', background: 'rgba(217,119,6,0.08)',
-              color: '#D97706', letterSpacing: '0.5px', alignItems: 'center', gap: '6px',
+              border: '1px solid rgba(14,131,136,0.25)', background: 'rgba(14,131,136,0.08)',
+              color: '#00ADB5', letterSpacing: '0.5px', alignItems: 'center', gap: '6px',
             }}>
-              <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#D97706', display: 'inline-block', animation: 'blink 1.5s infinite' }} />
+              <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#00ADB5', display: 'inline-block', animation: 'blink 1.5s infinite' }} />
               ONLINE
             </div>
             <button
               onClick={() => router.push('/guru')}
               style={{
                 padding: '7px 14px', borderRadius: '10px',
-                border: '1px solid rgba(180,140,80,0.2)',
-                background: 'rgba(217,119,6,0.06)',
-                color: '#78716C', fontSize: '13px',
+                border: '1px solid rgba(14,131,136,0.2)',
+                background: 'rgba(14,131,136,0.06)',
+                color: '#E2E8F0', fontSize: '13px',
                 fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s',
                 whiteSpace: 'nowrap',
               }}
-              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(217,119,6,0.12)'; e.currentTarget.style.color = '#1C1917' }}
-              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(217,119,6,0.06)'; e.currentTarget.style.color = '#78716C' }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(14,131,136,0.12)'; e.currentTarget.style.color = '#FFF' }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(14,131,136,0.06)'; e.currentTarget.style.color = '#E2E8F0' }}
             >
               <span className="nav-btn-full">🧑‍🏫 Portal Guru</span>
               <span className="nav-btn-short">Portal Guru</span>
@@ -283,9 +283,9 @@ export default function HomePage() {
                 display: 'inline-flex', alignSelf: 'flex-start',
                 alignItems: 'center', gap: '8px',
                 padding: '7px 16px', borderRadius: '50px',
-                border: '1px solid rgba(217,119,6,0.3)',
-                background: 'rgba(217,119,6,0.08)',
-                fontSize: '11px', fontWeight: 800, color: '#D97706', letterSpacing: '2px',
+                border: '1px solid rgba(14, 131, 136, 0.3)',
+                background: 'rgba(14, 131, 136, 0.08)',
+                fontSize: '11px', fontWeight: 800, color: '#00ADB5', letterSpacing: '2px',
               }}
             >
               <span style={{ fontSize: '16px' }}>🏆</span>
@@ -300,21 +300,21 @@ export default function HomePage() {
               transition={{ delay: 0.1, duration: 0.6 }}
               style={{ margin: 0, fontWeight: 900, lineHeight: 1.1, letterSpacing: '-0.5px' }}
             >
-              <span style={{ display: 'block', fontSize: 'clamp(32px, 5vw, 54px)', color: '#1C1917' }}>
+              <span style={{ display: 'block', fontSize: 'clamp(32px, 5vw, 54px)', color: '#FFFFFF' }}>
                 Jadi Detektif Data,
               </span>
-              <span style={{ display: 'block', fontSize: 'clamp(32px, 5vw, 54px)', color: '#1C1917' }}>
+              <span style={{ display: 'block', fontSize: 'clamp(32px, 5vw, 54px)', color: '#FFFFFF' }}>
                 Ungkap Klaim{' '}
                 <span style={{
-                  background: 'linear-gradient(90deg, #D97706 0%, #EA580C 100%)',
+                  background: 'linear-gradient(90deg, #00ADB5 0%, #00F0FF 100%)',
                   WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
                 }}>
                   Viral
                 </span>{' '}dengan
               </span>
-              <span style={{ display: 'block', fontSize: 'clamp(32px, 5vw, 54px)', color: '#1C1917' }}>
+              <span style={{ display: 'block', fontSize: 'clamp(32px, 5vw, 54px)', color: '#FFFFFF' }}>
                 <span style={{
-                  background: 'linear-gradient(90deg, #D97706 0%, #EA580C 100%)',
+                  background: 'linear-gradient(90deg, #00ADB5 0%, #00F0FF 100%)',
                   WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
                 }}>
                   Statistika!
@@ -327,9 +327,9 @@ export default function HomePage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.25 }}
-              style={{ margin: 0, fontSize: '16px', color: '#78716C', lineHeight: 1.7, maxWidth: '480px' }}
+              style={{ margin: 0, fontSize: '16px', color: '#94A3B8', lineHeight: 1.7, maxWidth: '480px' }}
             >
-              Platform game edukasi adaptif yang menggabungkan profil kognitif <strong style={{ color: '#D97706' }}>FI/FD</strong>, investigasi data nyata, dan visualisasi histogram interaktif untuk pembelajaran statistika SMA yang menyenangkan.
+              Platform game edukasi adaptif yang menggabungkan profil kognitif <strong style={{ color: '#00ADB5' }}>FI/FD</strong>, investigasi data nyata, dan visualisasi histogram interaktif untuk pembelajaran statistika SMA yang menyenangkan.
             </motion.p>
 
             {/* Features grid */}
@@ -347,16 +347,16 @@ export default function HomePage() {
                   transition={{ delay: 0.4 + i * 0.08 }}
                   style={{
                     padding: '14px 16px', borderRadius: '14px',
-                    background: '#FFFFFF',
-                    border: '1px solid rgba(180,140,80,0.15)',
-                    boxShadow: '0 2px 8px rgba(180,120,40,0.06)',
+                    background: 'rgba(13, 27, 42, 0.7)',
+                    border: '1px solid rgba(14, 131, 136, 0.2)',
+                    boxShadow: '0 2px 8px rgba(14, 131, 136, 0.06)',
                     transition: 'all 0.2s', cursor: 'default',
                   }}
-                  whileHover={{ borderColor: 'rgba(217,119,6,0.35)', background: '#FFF8F0', boxShadow: '0 4px 16px rgba(217,119,6,0.1)' }}
+                  whileHover={{ borderColor: 'rgba(0,173,181,0.5)', background: 'rgba(13, 27, 42, 0.9)', boxShadow: '0 4px 16px rgba(0,173,181,0.15)' }}
                 >
                   <div style={{ fontSize: '22px', marginBottom: '6px' }}>{f.icon}</div>
-                  <div style={{ fontSize: '13px', fontWeight: 800, color: '#1C1917', marginBottom: '4px' }}>{f.label}</div>
-                  <div style={{ fontSize: '11px', color: '#78716C', lineHeight: 1.5 }}>{f.desc}</div>
+                  <div style={{ fontSize: '13px', fontWeight: 800, color: '#FFFFFF', marginBottom: '4px' }}>{f.label}</div>
+                  <div style={{ fontSize: '11px', color: '#94A3B8', lineHeight: 1.5 }}>{f.desc}</div>
                 </motion.div>
               ))}
             </motion.div>
@@ -366,7 +366,7 @@ export default function HomePage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.7 }}
-              style={{ display: 'flex', gap: '28px', paddingTop: '8px', borderTop: '1px solid rgba(180,140,80,0.15)' }}
+              style={{ display: 'flex', gap: '28px', paddingTop: '8px', borderTop: '1px solid rgba(14, 131, 136, 0.15)' }}
             >
               {[
                 { val: 15, suffix: ' soal', label: 'Tes Diagnostik' },
@@ -374,10 +374,10 @@ export default function HomePage() {
                 { val: 3, suffix: ' materi', label: 'Buku Saku' },
               ].map(({ val, suffix, label }) => (
                 <div key={label}>
-                  <div style={{ fontSize: '24px', fontWeight: 900, color: '#D97706', fontFamily: "'Geist Mono', monospace" }}>
+                  <div style={{ fontSize: '24px', fontWeight: 900, color: '#00ADB5', fontFamily: "'Geist Mono', monospace" }}>
                     <CountUp target={val} suffix={suffix} />
                   </div>
-                  <div style={{ fontSize: '11px', color: '#78716C', fontWeight: 700, marginTop: '2px' }}>{label}</div>
+                  <div style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 700, marginTop: '2px' }}>{label}</div>
                 </div>
               ))}
             </motion.div>
@@ -396,9 +396,9 @@ export default function HomePage() {
             >
               {/* Glow border ring */}
               <div style={{
-                background: 'linear-gradient(135deg, rgba(217,119,6,0.4) 0%, rgba(234,88,12,0.2) 50%, rgba(251,191,36,0.15) 100%)',
+                background: 'linear-gradient(135deg, rgba(14,131,136,0.4) 0%, rgba(0,173,181,0.2) 50%, rgba(0,240,255,0.15) 100%)',
                 padding: '1px', borderRadius: '28px',
-                boxShadow: '0 4px 24px rgba(217,119,6,0.12)',
+                boxShadow: '0 4px 24px rgba(14,131,136,0.12)',
               }}>
                 <div style={{
                   background: '#FFFFFF',
@@ -412,17 +412,17 @@ export default function HomePage() {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '14px' }}>
                       <div style={{
                         width: '44px', height: '44px', borderRadius: '12px',
-                        background: 'rgba(217,119,6,0.1)', border: '1px solid rgba(217,119,6,0.25)',
+                        background: 'rgba(14,131,136,0.1)', border: '1px solid rgba(14,131,136,0.25)',
                         display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px',
-                        boxShadow: '0 0 16px rgba(217,119,6,0.12)',
+                        boxShadow: '0 0 16px rgba(14,131,136,0.12)',
                       }}>
                         🔐
                       </div>
                       <div>
-                        <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 900, color: '#1C1917' }}>
+                        <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 900, color: '#104f55' }}>
                           Masuk ke Markas
                         </h2>
-                        <p style={{ margin: '3px 0 0', fontSize: '12px', color: '#78716C', fontWeight: 600 }}>
+                        <p style={{ margin: '3px 0 0', fontSize: '12px', color: '#557A82', fontWeight: 600 }}>
                           Identifikasi dirimu, Detektif!
                         </p>
                       </div>
@@ -431,8 +431,8 @@ export default function HomePage() {
                     {/* Mission briefing ticker */}
                     <div style={{
                       padding: '8px 12px', borderRadius: '10px',
-                      background: 'rgba(217,119,6,0.06)', border: '1px solid rgba(217,119,6,0.2)',
-                      fontSize: '11px', color: '#D97706', fontWeight: 700, letterSpacing: '0.5px',
+                      background: 'rgba(14,131,136,0.06)', border: '1px solid rgba(14,131,136,0.2)',
+                      fontSize: '11px', color: '#0F4C5C', fontWeight: 700, letterSpacing: '0.5px',
                       display: 'flex', alignItems: 'center', gap: '8px',
                     }}>
                       <span style={{ animation: 'blink 1.2s infinite' }}>📡</span>
@@ -445,7 +445,7 @@ export default function HomePage() {
 
                     {/* Nama */}
                     <div>
-                      <label style={{ display: 'block', fontSize: '10px', fontWeight: 800, color: '#A8A29E', letterSpacing: '2px', marginBottom: '8px' }}>
+                      <label style={{ display: 'block', fontSize: '10px', fontWeight: 800, color: '#557A82', letterSpacing: '2px', marginBottom: '8px' }}>
                         NAMA DETEKTIF
                       </label>
                       <div style={{ position: 'relative' }}>
@@ -461,11 +461,11 @@ export default function HomePage() {
                           style={{
                             width: '100%', boxSizing: 'border-box',
                             padding: '14px 16px', borderRadius: '12px',
-                            background: nameFocus ? '#FFFDF8' : '#FAFAF5',
-                            border: `1px solid ${nameFocus ? 'rgba(217,119,6,0.5)' : 'rgba(180,140,80,0.2)'}`,
+                            background: nameFocus ? '#FFFFFF' : '#FAFCFC',
+                            border: `1px solid ${nameFocus ? 'rgba(14,131,136,0.5)' : 'rgba(14,131,136,0.25)'}`,
                             color: '#1C1917', fontSize: '14px', outline: 'none',
                             transition: 'all 0.2s', fontFamily: 'inherit',
-                            boxShadow: nameFocus ? '0 0 0 3px rgba(217,119,6,0.1)' : 'none',
+                            boxShadow: nameFocus ? '0 0 0 3px rgba(14,131,136,0.1)' : 'none',
                           }}
                         />
                       </div>
@@ -474,20 +474,20 @@ export default function HomePage() {
                     {/* Kelas */}
                     {loadingClass ? (
                       <div>
-                        <label style={{ display: 'block', fontSize: '10px', fontWeight: 800, color: '#78716C', letterSpacing: '2px', marginBottom: '8px' }}>
+                        <label style={{ display: 'block', fontSize: '10px', fontWeight: 800, color: '#557A82', letterSpacing: '2px', marginBottom: '8px' }}>
                           UNIT / KELAS
                         </label>
                         <div style={{
                           padding: '14px 16px', borderRadius: '12px',
-                          background: '#FAFAF5',
-                          border: '1px solid rgba(180,140,80,0.2)',
+                          background: '#FAFCFC',
+                          border: '1px solid rgba(14,131,136,0.25)',
                           display: 'flex', alignItems: 'center', gap: '10px',
                           position: 'relative',
                         }}>
                           <motion.span
                             animate={{ opacity: [0.4, 1, 0.4] }}
                             transition={{ duration: 1.2, repeat: Infinity }}
-                            style={{ fontSize: '13px', color: '#78716C' }}
+                            style={{ fontSize: '13px', color: '#557A82' }}
                           >
                             Memuat daftar kelas...
                           </motion.span>
@@ -495,7 +495,7 @@ export default function HomePage() {
                       </div>
                     ) : classrooms.length > 1 ? (
                       <div>
-                        <label style={{ display: 'block', fontSize: '10px', fontWeight: 800, color: '#78716C', letterSpacing: '2px', marginBottom: '8px' }}>
+                        <label style={{ display: 'block', fontSize: '10px', fontWeight: 800, color: '#557A82', letterSpacing: '2px', marginBottom: '8px' }}>
                           UNIT / KELAS
                         </label>
                         <div style={{ position: 'relative' }}>
@@ -506,23 +506,23 @@ export default function HomePage() {
                             style={{
                               width: '100%', boxSizing: 'border-box',
                               padding: '14px 16px', borderRadius: '12px',
-                              background: '#FAFAF5',
-                              border: '1px solid rgba(180,140,80,0.2)',
+                              background: '#FAFCFC',
+                              border: '1px solid rgba(14,131,136,0.25)',
                               color: classroomId ? '#1C1917' : '#78716C',
                               fontSize: '14px', outline: 'none', cursor: 'pointer',
                               appearance: 'none', transition: 'all 0.2s',
                             }}
-                            onFocus={e => e.target.style.borderColor = 'rgba(217,119,6,0.5)'}
-                            onBlur={e => e.target.style.borderColor = 'rgba(180,140,80,0.2)'}
+                            onFocus={e => e.target.style.borderColor = 'rgba(14,131,136,0.5)'}
+                            onBlur={e => e.target.style.borderColor = 'rgba(14,131,136,0.25)'}
                           >
                             <option value="">— Pilih Unit —</option>
                             {classrooms.map(c => (
-                              <option key={c.id} value={c.id} style={{ background: '#FAFAF5', color: '#1C1917' }}>
+                              <option key={c.id} value={c.id} style={{ background: '#FAFCFC', color: '#1C1917' }}>
                                 {c.name}
                               </option>
                             ))}
                           </select>
-                          <span style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', color: '#A8A29E', fontSize: '12px', pointerEvents: 'none' }}>
+                          <span style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', color: '#557A82', fontSize: '12px', pointerEvents: 'none' }}>
                             ▼
                           </span>
                         </div>
@@ -531,8 +531,8 @@ export default function HomePage() {
                       <div style={{
                         padding: '12px 16px',
                         borderRadius: '12px',
-                        background: 'rgba(217,119,6,0.06)',
-                        border: '1px solid rgba(217,119,6,0.2)',
+                        background: 'rgba(14,131,136,0.06)',
+                        border: '1px solid rgba(14,131,136,0.2)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'space-between',
@@ -540,11 +540,11 @@ export default function HomePage() {
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                           <span style={{ fontSize: '18px' }}>🏛️</span>
                           <div style={{ display: 'flex', flexDirection: 'column' }}>
-                            <span style={{ fontSize: '9px', fontWeight: 800, color: '#78716C', letterSpacing: '1px' }}>UNIT / KELAS</span>
+                            <span style={{ fontSize: '9px', fontWeight: 800, color: '#557A82', letterSpacing: '1px' }}>UNIT / KELAS</span>
                             <span style={{ fontSize: '14px', fontWeight: 700, color: '#1C1917' }}>{classrooms[0].name}</span>
                           </div>
                         </div>
-                        <span style={{ fontSize: '11px', color: '#D97706', fontWeight: 800 }}>AUTO-SELECT</span>
+                        <span style={{ fontSize: '11px', color: '#0F4C5C', fontWeight: 800 }}>AUTO-SELECT</span>
                       </div>
                     ) : (
                       <div style={{
@@ -580,18 +580,18 @@ export default function HomePage() {
                     <motion.button
                       onClick={handleMulaiBelajar}
                       disabled={loading || loadingClass}
-                      whileHover={!loading && !loadingClass ? { scale: 1.02, boxShadow: '0 4px 24px rgba(217,119,6,0.35)' } : {}}
+                      whileHover={!loading && !loadingClass ? { scale: 1.02, boxShadow: '0 4px 24px rgba(14,131,136,0.35)' } : {}}
                       whileTap={!loading && !loadingClass ? { scale: 0.98 } : {}}
                       style={{
                         width: '100%', padding: '16px',
                         borderRadius: '14px', border: 'none',
                         background: loading || loadingClass
-                          ? 'rgba(217,119,6,0.3)'
-                          : 'linear-gradient(90deg, #D97706 0%, #EA580C 100%)',
+                          ? 'rgba(14, 131, 136, 0.3)'
+                          : 'linear-gradient(90deg, #0E8388 0%, #00ADB5 100%)',
                         color: '#ffffff', fontSize: '15px', fontWeight: 900,
                         cursor: loading || loadingClass ? 'not-allowed' : 'pointer',
                         letterSpacing: '0.5px',
-                        boxShadow: loading || loadingClass ? 'none' : '0 4px 20px rgba(217,119,6,0.3)',
+                        boxShadow: loading || loadingClass ? 'none' : '0 4px 20px rgba(14,131,136,0.3)',
                         transition: 'background 0.2s',
                         marginTop: '4px',
                         display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
@@ -609,8 +609,8 @@ export default function HomePage() {
                   </div>
 
                   {/* Flow steps hint */}
-                  <div style={{ marginTop: '24px', paddingTop: '20px', borderTop: '1px solid rgba(180,140,80,0.12)' }}>
-                    <div style={{ fontSize: '10px', color: '#78716C', fontWeight: 700, letterSpacing: '1.5px', marginBottom: '12px' }}>
+                  <div style={{ marginTop: '24px', paddingTop: '20px', borderTop: '1px solid rgba(14,131,136,0.12)' }}>
+                    <div style={{ fontSize: '10px', color: '#557A82', fontWeight: 700, letterSpacing: '1.5px', marginBottom: '12px' }}>
                       ALUR MISI
                     </div>
                     <div style={{ display: 'flex', gap: '0', alignItems: 'center' }}>
@@ -619,20 +619,20 @@ export default function HomePage() {
                           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', flexShrink: 0 }}>
                             <div style={{
                               width: '28px', height: '28px', borderRadius: '50%',
-                              background: i === 0 ? 'rgba(217,119,6,0.15)' : 'rgba(180,140,80,0.07)',
-                              border: `1px solid ${i === 0 ? 'rgba(217,119,6,0.5)' : 'rgba(180,140,80,0.15)'}`,
+                              background: i === 0 ? 'rgba(14,131,136,0.15)' : 'rgba(14,131,136,0.07)',
+                              border: `1px solid ${i === 0 ? 'rgba(14,131,136,0.5)' : 'rgba(14,131,136,0.15)'}`,
                               display: 'flex', alignItems: 'center', justifyContent: 'center',
                               fontSize: '12px', fontWeight: 800,
-                              color: i === 0 ? '#D97706' : '#78716C',
+                              color: i === 0 ? '#0E8388' : '#78716C',
                             }}>
                               {i + 1}
                             </div>
-                            <span style={{ fontSize: '9px', color: i === 0 ? '#D97706' : '#78716C', fontWeight: 700, whiteSpace: 'nowrap' }}>
+                            <span style={{ fontSize: '9px', color: i === 0 ? '#0E8388' : '#557A82', fontWeight: 700, whiteSpace: 'nowrap' }}>
                               {step}
                             </span>
                           </div>
                           {i < arr.length - 1 && (
-                            <div style={{ flex: 1, height: '1px', background: 'rgba(180,140,80,0.15)', margin: '0 4px', marginBottom: '14px' }} />
+                            <div style={{ flex: 1, height: '1px', background: 'rgba(14,131,136,0.15)', margin: '0 4px', marginBottom: '14px' }} />
                           )}
                         </div>
                       ))}

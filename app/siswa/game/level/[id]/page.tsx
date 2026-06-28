@@ -10,6 +10,7 @@ import FIPath from './_fi/FIPath'
 import FDPath from './_fd/FDPath'
 import OrientationGuard from '../../_components/OrientationGuard'
 import PregameFormula from '../../_components/PregameFormula'
+import NPath from '../../_components/NPath'
 import TeamLobby from '../../_components/TeamLobby'
 import '../../game.css'
 
@@ -22,6 +23,7 @@ export default function LevelPage({
   const router = useRouter()
   const { cognitiveStyle, resetLevel, teamId, setTeamId } = useGameStore()
   const [phase, setPhase] = useState<'cutscene' | 'formula' | 'lobby' | 'game'>('cutscene')
+  const [pregameStep, setPregameStep] = useState<'minmax' | 'exploration' | 'panjangkelas'>('minmax')
   const [cutscenePhase, setCutscenePhase] = useState<'comments' | 'mentor'>('comments')
   const [timerRunning, setTimerRunning] = useState(false)
   const [hydrated, setHydrated] = useState(false)
@@ -88,7 +90,7 @@ export default function LevelPage({
           transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
           style={{ fontSize: '40px' }}
         >⚙️</motion.div>
-        <p style={{ color: '#78716C', fontSize: '13px', fontWeight: 600 }}>
+        <p style={{ color: 'var(--text-secondary)', fontSize: '13px', fontWeight: 600 }}>
           Memuat sesi tim...
         </p>
       </div>
@@ -140,19 +142,39 @@ export default function LevelPage({
               exit={{ opacity: 0 }}
               style={{
                 flex: 1, display: 'flex', flexDirection: 'column',
-                background: '#FAF6EE', color: '#1C1917',
-                padding: '16px 20px', height: '100%', overflow: 'auto',
+                background: 'var(--game-bg)', color: 'var(--text-primary)',
+                padding: '16px 20px', height: '100%', overflow: pregameStep === 'exploration' ? 'hidden' : 'auto',
               }}
             >
-              <PregameFormula
-                teamId={null}
-                studentId={studentInfo?.id}
-                teamMembers={undefined}
-                onComplete={async () => {
-                  setPhase('game')
-                  setTimerRunning(true)
-                }}
-              />
+              {pregameStep === 'minmax' && (
+                <PregameFormula
+                  teamId={null}
+                  studentId={studentInfo?.id}
+                  teamMembers={undefined}
+                  initialSub="intro"
+                  onComplete={() => setPregameStep('exploration')}
+                />
+              )}
+
+              {pregameStep === 'exploration' && (
+                <NPath
+                  isFD={resolvedStyle === 'FD'}
+                  onComplete={() => setPregameStep('panjangkelas')}
+                />
+              )}
+
+              {pregameStep === 'panjangkelas' && (
+                <PregameFormula
+                  teamId={null}
+                  studentId={studentInfo?.id}
+                  teamMembers={undefined}
+                  initialSub="panjang-kelas"
+                  onComplete={async () => {
+                    setPhase('game')
+                    setTimerRunning(true)
+                  }}
+                />
+              )}
             </motion.div>
           )}
 

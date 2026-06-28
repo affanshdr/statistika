@@ -19,26 +19,26 @@ const DIRA_MESSAGES: Record<DiraPopupStep, { emoji: string; title: string; body:
   intro: {
     emoji: '👋',
     title: 'Halo! Aku DiRA!',
-    body: 'Sebelum kamu bisa membuat tabel frekuensi, kita perlu menghitung 3 nilai kunci dulu — Rentang, Banyak Kelas, dan Panjang Kelas. Aku akan menemanimu tiap langkah! 🧮',
-    cta: 'Siap, DiRA!',
+    body: 'Jujurly, sebelum kita spill tabel frekuensinya, lo wajib banget nih ngitung 3 hal krusial dulu — Rentang, Banyak Kelas, sama Panjang Kelas. Tenang aja, gue temenin kok! 🧮',
+    cta: 'Gas, DiRA!',
   },
   rentang: {
     emoji: '📏',
     title: 'Langkah 1: Rentang (R)',
-    body: 'Rentang = data terbesar − data terkecil. Cari kedua nilai itu dari kumpulan data screen time, lalu seret atau ketuk ke kotak formula ya! 💡',
-    cta: 'Paham, lanjut!',
+    body: 'Rumusnya simpel banget: Rentang = data terbesar − data terkecil. Cari dua nilai itu dari data screen time lo, terus seret atau tap ke kotak formula. Riil gampang no cap! 💡',
+    cta: 'Paham, gas!',
   },
   'banyak-kelas': {
     emoji: '📊',
     title: 'Langkah 2: Banyak Kelas (K)',
-    body: 'Gunakan rumus Sturges: K = 1 + 3,3 × log n. Di sini, n adalah jumlah seluruh data yang kamu punya. Hitung dulu berapa banyak datanya! 🔢',
-    cta: 'Oke, aku coba!',
+    body: 'Pakai rumus Sturges: K = 1 + 3,3 × log n. Nah, n itu total semua data yang lo punya. Coba itung dulu berapa datanya biar valid! 🔢',
+    cta: 'Oke, gue coba!',
   },
   'panjang-kelas': {
     emoji: '📐',
     title: 'Langkah 3: Panjang Kelas (P)',
-    body: 'Tinggal satu langkah lagi! P = R ÷ K. Masukkan nilai R dan K yang sudah kamu hitung sebelumnya. Hampir selesai! 🎯',
-    cta: 'Yuk selesaikan!',
+    body: 'Satu langkah lagi menuju puncak! P = R ÷ K. Tinggal masukin nilai R sama K yang tadi udah lo dapet. Vibes-nya bentar lagi kelar nih! 🎯',
+    cta: 'Gas beresin!',
   },
 }
 
@@ -256,9 +256,9 @@ export default function DiraPopup({ step, autoDismissMs = 7000, onDismiss }: Dir
             <div style={{
               alignSelf: 'flex-start',
               background: 'rgba(10, 20, 15, 0.95)',
-              borderTop: '2px solid rgba(217,119,6, 0.3)',
-              borderLeft: '2px solid rgba(217,119,6, 0.3)',
-              borderRight: '2px solid rgba(217,119,6, 0.3)',
+              borderTop: '2px solid rgba(14, 131, 136, 0.3)',
+              borderLeft: '2px solid rgba(14, 131, 136, 0.3)',
+              borderRight: '2px solid rgba(14, 131, 136, 0.3)',
               borderBottom: 'none',
               borderRadius: '6px 14px 0 0',
               padding: '4px 16px',
@@ -280,9 +280,9 @@ export default function DiraPopup({ step, autoDismissMs = 7000, onDismiss }: Dir
                 fontSize: '8px',
                 padding: '1px 6px',
                 borderRadius: '50px',
-                background: 'rgba(217,119,6, 0.1)',
-                border: '1px solid rgba(217,119,6, 0.3)',
-                color: '#D97706',
+                background: 'rgba(14, 131, 136, 0.1)',
+                border: '1px solid rgba(14, 131, 136, 0.3)',
+                color: '#00ADB5',
                 fontWeight: 700,
                 marginLeft: '8px',
               }}>
@@ -293,10 +293,10 @@ export default function DiraPopup({ step, autoDismissMs = 7000, onDismiss }: Dir
             {/* Dialog text box */}
             <div style={{
               background: 'rgba(10, 20, 18, 0.95)',
-              border: '2px solid rgba(217,119,6, 0.4)',
+              border: '2px solid rgba(14, 131, 136, 0.4)',
               borderRadius: '0px 14px 14px 14px',
               padding: 'clamp(14px, 2.5vh, 20px) clamp(16px, 3vw, 24px) clamp(12px, 2vh, 18px)',
-              boxShadow: '0 10px 25px rgba(217,119,6, 0.1), inset 0 0 20px rgba(217,119,6, 0.03)',
+              boxShadow: '0 10px 25px rgba(14, 131, 136, 0.15), inset 0 0 20px rgba(14, 131, 136, 0.03)',
               display: 'flex',
               flexDirection: 'column',
               gap: '12px',
@@ -308,7 +308,7 @@ export default function DiraPopup({ step, autoDismissMs = 7000, onDismiss }: Dir
               {autoDismissMs > 0 && typewriterDone && (
                 <div style={{
                   height: '3px',
-                  background: 'rgba(180,140,80,0.12)',
+                  background: 'rgba(14, 131, 136, 0.12)',
                   position: 'absolute',
                   top: 0,
                   left: 0,
@@ -322,7 +322,7 @@ export default function DiraPopup({ step, autoDismissMs = 7000, onDismiss }: Dir
                       left: 0,
                       top: 0,
                       height: '100%',
-                      background: 'rgba(217,119,6, 0.5)',
+                      background: 'rgba(14, 131, 136, 0.5)',
                       width: `${100 - progress}%`,
                       transition: 'width 0.05s linear',
                     }}
@@ -346,44 +346,18 @@ export default function DiraPopup({ step, autoDismissMs = 7000, onDismiss }: Dir
                   initial={{ opacity: 0, y: 50 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ type: 'spring', stiffness: 100, damping: 15, delay: 0.1 }}
-                  src="https://tmdbqikqflbeqaqllxge.supabase.co/storage/v1/object/public/Asset/Agent.png"
-                  onError={(e) => { e.currentTarget.src = '/dira-avatar.png' }}
+                  src="/dira-avatar.png"
                   alt="Agent DIRA"
                   style={{ height: '100%', objectFit: 'contain' }}
                 />
-                {/* "Go!" speech bubble */}
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ delay: 0.6, type: 'spring' }}
-                  style={{
-                    position: 'absolute',
-                    top: '8%',
-                    right: isMobile ? '-22px' : '-32px',
-                    background: 'rgba(10, 20, 15, 0.95)',
-                    border: '2px solid var(--accent)',
-                    borderRadius: '50%',
-                    padding: isMobile ? '3px 8px' : '5px 11px',
-                    fontWeight: 900,
-                    fontSize: isMobile ? '11px' : '14px',
-                    color: 'var(--accent)',
-                    transform: 'rotate(12deg)',
-                    boxShadow: '3px 3px 0px rgba(217,119,6, 0.3)',
-                    fontFamily: '"Impact", "Arial Black", sans-serif',
-                    letterSpacing: '0.5px',
-                    zIndex: 6,
-                    animation: 'pulse-go-pregame 1s infinite alternate',
-                  }}
-                >
-                  Go!
-                </motion.div>
+                {/* "Go!" speech bubble removed */}
               </div>
 
               {/* Dialog text */}
               <p style={{
                 margin: 0,
                 fontSize: isMobile ? '13px' : '15px',
-                color: '#1C1917',
+                color: '#F8FAFC',
                 fontWeight: 600,
                 lineHeight: 1.65,
                 paddingRight: isMobile ? '110px' : '160px',
@@ -397,11 +371,11 @@ export default function DiraPopup({ step, autoDismissMs = 7000, onDismiss }: Dir
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                borderTop: '1px solid rgba(180,140,80,0.12)',
+                borderTop: '1px solid rgba(14, 131, 136, 0.12)',
                 paddingTop: '10px',
                 marginTop: '12px',
               }}>
-                <span style={{ fontSize: isMobile ? '10px' : '12px', color: '#A8A29E', fontWeight: 600 }}>
+                <span style={{ fontSize: isMobile ? '10px' : '12px', color: '#94A3B8', fontWeight: 600 }}>
                   Persiapan Statistik — {msg.title}
                 </span>
                 <motion.button
@@ -422,8 +396,8 @@ export default function DiraPopup({ step, autoDismissMs = 7000, onDismiss }: Dir
                     boxShadow: typewriterDone ? 'var(--accent-glow)' : 'none',
                     cursor: typewriterDone ? 'pointer' : 'not-allowed',
                     border: 'none',
-                    background: typewriterDone ? 'var(--accent)' : 'rgba(217,119,6,0.1)',
-                    color: typewriterDone ? '#000' : '#A8A29E',
+                    background: typewriterDone ? 'var(--accent)' : 'rgba(14, 131, 136, 0.1)',
+                    color: typewriterDone ? '#000' : '#94A3B8',
                   }}
                 >
                   {msg.cta} →

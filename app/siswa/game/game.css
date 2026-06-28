@@ -4,25 +4,25 @@
    ============================================================ */
 
 :root {
-  --game-bg: #FAF6EE;
-  --game-card: #FFFFFF;
-  --game-card-hover: #FFF8F0;
-  --game-border: rgba(180,140,80,0.15);
-  --game-border-accent: rgba(180,100,30,0.3);
+  --game-bg: #0B1E2C;
+  --game-card: #0F2338;
+  --game-card-hover: #142C44;
+  --game-border: rgba(14, 131, 136, 0.18);
+  --game-border-accent: rgba(0, 173, 181, 0.4);
 
-  --accent: #D97706;
-  --accent-dim: rgba(217,119,6,0.1);
-  --accent-glow: 0 4px 16px rgba(217,119,6,0.25);
+  --accent: #0E8388;
+  --accent-dim: rgba(14, 131, 136, 0.1);
+  --accent-glow: 0 4px 16px rgba(0, 173, 181, 0.3);
 
-  --warning: #EA580C;
-  --warning-dim: rgba(234,88,12,0.1);
-  --danger: #DC2626;
-  --danger-dim: rgba(220,38,38,0.08);
-  --info: #2563EB;
+  --warning: #00ADB5;
+  --warning-dim: rgba(0, 173, 181, 0.1);
+  --danger: #EF4444;
+  --danger-dim: rgba(239, 68, 68, 0.08);
+  --info: #00F0FF;
 
-  --text-primary: #1C1917;
-  --text-secondary: #78716C;
-  --text-muted: rgba(87,83,78,0.55);
+  --text-primary: #F8FAFC;
+  --text-secondary: #94A3B8;
+  --text-muted: rgba(148, 163, 184, 0.6);
 
   --font-data: 'Geist Mono', 'Fira Code', monospace;
   --font-ui: 'Outfit', 'Inter', sans-serif;
@@ -51,7 +51,7 @@
   position: fixed;
   inset: 0;
   background-image:
-    radial-gradient(circle, rgba(180,140,80,0.12) 1px, transparent 1px);
+    radial-gradient(circle, rgba(14, 131, 136, 0.15) 1px, transparent 1px);
   background-size: 28px 28px;
   pointer-events: none;
   z-index: 0;
@@ -67,7 +67,7 @@
 
 .game-card-accent {
   border-color: var(--game-border-accent);
-  box-shadow: 0 0 30px rgba(217,119,6,0.06);
+  box-shadow: 0 0 30px rgba(0, 173, 181, 0.08);
 }
 
 /* ── Buttons ── */
@@ -89,10 +89,10 @@
   box-shadow: var(--accent-glow);
 }
 .game-btn-primary:hover { 
-  background: #B45309;
+  background: #0D7A80;
   color: #fff;
   transform: translateY(-1px);
-  box-shadow: 0 0 30px rgba(217,119,6,0.6);
+  box-shadow: 0 0 30px rgba(0, 173, 181, 0.6);
 }
 
 .game-btn-secondary {
@@ -117,7 +117,7 @@
   position: sticky;
   top: 0;
   z-index: 100;
-  background: rgba(250,246,238,0.9);
+  background: rgba(11, 30, 44, 0.9);
   backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--game-border);
   padding: 12px 24px;
@@ -125,7 +125,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  box-shadow: 0 1px 8px rgba(180,140,80,0.1);
+  box-shadow: 0 1px 8px rgba(14, 131, 136, 0.1);
 }
 
 .game-header-xp {
@@ -189,7 +189,7 @@
   position: relative;
   width: 100%;
   min-height: calc(100vh - 68px);
-  background: #FAF6EE;
+  background: var(--game-bg);
   z-index: 90;
   display: flex;
   flex-direction: column;
@@ -427,7 +427,7 @@
 .badge-unlock-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(250,246,238,0.85);
+  background: rgba(11, 30, 44, 0.85);
   z-index: 300;
   display: flex;
   align-items: center;
@@ -610,7 +610,7 @@
 .game-over-screen {
   position: fixed;
   inset: 0;
-  background: rgba(250,246,238,0.96);
+  background: rgba(11, 30, 44, 0.96);
   z-index: 400;
   display: flex;
   flex-direction: column;

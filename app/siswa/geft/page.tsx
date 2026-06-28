@@ -544,7 +544,7 @@ export default function GeftPage() {
           style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
         >
           <motion.div
-            animate={{ filter: ['drop-shadow(0 0 6px #D97706)', 'drop-shadow(0 0 14px #D97706)', 'drop-shadow(0 0 6px #D97706)'] }}
+            animate={{ filter: ['drop-shadow(0 0 6px #00ADB5)', 'drop-shadow(0 0 14px #00ADB5)', 'drop-shadow(0 0 6px #00ADB5)'] }}
             transition={{ duration: 2.5, repeat: Infinity }}
             style={{ fontSize: '24px', lineHeight: 1 }}
           >
@@ -553,7 +553,7 @@ export default function GeftPage() {
           <div>
             <div style={{
               fontWeight: 900, fontSize: '16px', letterSpacing: '0.5px',
-              background: 'linear-gradient(90deg, #D97706, #EA580C)',
+              background: 'linear-gradient(90deg, #00ADB5, #0E8388)',
               WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
               whiteSpace: 'nowrap',
               fontFamily: 'var(--font-heading), sans-serif',
@@ -577,10 +577,10 @@ export default function GeftPage() {
             }}
             defaultValue=""
             style={{
-              background: 'rgba(217,119,6,0.06)',
-              border: '1px solid rgba(217,119,6,0.25)',
+              background: 'rgba(14, 131, 136, 0.06)',
+              border: '1px solid rgba(14, 131, 136, 0.25)',
               borderRadius: '6px',
-              color: '#D97706',
+              color: '#00ADB5',
               fontSize: '10px',
               fontWeight: 700,
               padding: '4px 8px',
@@ -588,9 +588,9 @@ export default function GeftPage() {
               outline: 'none',
             }}
           >
-            <option value="" disabled style={{ background: '#FAFAF5', color: '#1C1917' }}>⚡ DEV BYPASS</option>
-            <option value="FI" style={{ background: '#FAFAF5', color: '#1C1917' }}>Bypass ke FI (Skor 6)</option>
-            <option value="FD" style={{ background: '#FAFAF5', color: '#1C1917' }}>Bypass ke FD (Skor 0)</option>
+            <option value="" disabled style={{ background: '#091622', color: '#FFFFFF' }}>⚡ DEV BYPASS</option>
+            <option value="FI" style={{ background: '#091622', color: '#FFFFFF' }}>Bypass ke FI (Skor 6)</option>
+            <option value="FD" style={{ background: '#091622', color: '#FFFFFF' }}>Bypass ke FD (Skor 0)</option>
           </select>
         </div>
       </div>
@@ -1350,22 +1350,22 @@ export default function GeftPage() {
           width: fit-content;
         }
         .geft-tut-reveal-btn:hover {
-          background: rgba(217,119,6,0.12);
-          color: #1C1917;
+          background: rgba(14, 131, 136, 0.12);
+          color: #FFFFFF;
           transform: translateY(-1px);
         }
         .geft-tut-reveal-btn.active {
-          border-color: rgba(217,119,6,0.5);
-          background: rgba(217,119,6,0.08);
-          color: #D97706;
+          border-color: rgba(14, 131, 136, 0.5);
+          background: rgba(14, 131, 136, 0.08);
+          color: #00ADB5;
         }
         /* Tip */
         .geft-tut-tip {
           font-size: 12.5px;
-          color: #78716C;
+          color: #94A3B8;
           line-height: 1.55;
-          background: rgba(217,119,6,0.04);
-          border: 1px solid rgba(180,140,80,0.15);
+          background: rgba(14, 131, 136, 0.04);
+          border: 1px solid rgba(14, 131, 136, 0.25);
           border-radius: 10px;
           padding: 10px 14px;
         }
