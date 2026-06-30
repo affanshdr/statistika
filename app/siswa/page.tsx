@@ -64,11 +64,11 @@ const LEVELS = [
     id: 1,
     icon: '📊',
     title: 'Level 1 (The Viral Myth)',
-    desc: 'Topik Materi: Statistika Deskriptif (Histogram, Distribusi Data, Outlier, & Ukuran Pemusatan Data)',
+    desc: '',
     tags: ['Distribusi Frekuensi', 'Histogram', 'Analisis Kritis'],
     locked: false,
-    xpMax: 75,
-    locationName: 'Sekolah Harapan',
+    xpMax: 0,
+    locationName: '',
   },
   {
     id: 2,
@@ -616,19 +616,21 @@ export default function SiswaPage() {
                       }}>
                         LEVEL 0{level.id}
                       </span>
-                      <span style={{
-                        fontSize: isUnlocked ? '11px' : '9px',
-                        fontWeight: 700,
-                        color: isUnlocked ? '#00ADB5' : '#EF4444',
-                        background: isUnlocked ? 'rgba(14, 131, 136, 0.08)' : 'rgba(239, 68, 68, 0.08)',
-                        border: isUnlocked ? '1px solid rgba(14, 131, 136, 0.2)' : '1px solid rgba(239, 68, 68, 0.2)',
-                        padding: '2px 8px',
-                        borderRadius: '6px',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.5px',
-                      }}>
-                        {isUnlocked ? `🎁 +${level.xpMax} XP` : '⏳ COMING SOON'}
-                      </span>
+                      {!isUnlocked && (
+                        <span style={{
+                          fontSize: '9px',
+                          fontWeight: 700,
+                          color: '#EF4444',
+                          background: 'rgba(239, 68, 68, 0.08)',
+                          border: '1px solid rgba(239, 68, 68, 0.2)',
+                          padding: '2px 8px',
+                          borderRadius: '6px',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.5px',
+                        }}>
+                          ⏳ COMING SOON
+                        </span>
+                      )}
                     </div>
 
                     {/* Emoji representation icon */}
@@ -672,16 +674,18 @@ export default function SiswaPage() {
 
                     {/* Case Details */}
                     <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-                      <span style={{
-                        fontSize: '12px',
-                        fontWeight: 700,
-                        color: isUnlocked ? '#00ADB5' : 'rgba(148,163,184,0.4)',
-                        letterSpacing: '0.4px',
-                        display: 'block',
-                        marginBottom: '4px',
-                      }}>
-                        {level.locationName}
-                      </span>
+                      {level.locationName && (
+                        <span style={{
+                          fontSize: '12px',
+                          fontWeight: 700,
+                          color: isUnlocked ? '#00ADB5' : 'rgba(148,163,184,0.4)',
+                          letterSpacing: '0.4px',
+                          display: 'block',
+                          marginBottom: '4px',
+                        }}>
+                          {level.locationName}
+                        </span>
+                      )}
                       <h3 style={{
                         fontSize: '16px',
                         fontWeight: 800,
@@ -691,14 +695,16 @@ export default function SiswaPage() {
                       }}>
                         {level.title}
                       </h3>
-                      <p style={{
-                        fontSize: '12px',
-                        color: '#94A3B8',
-                        margin: 0,
-                        lineHeight: '1.5',
-                      }}>
-                        {level.desc}
-                      </p>
+                      {level.desc && (
+                        <p style={{
+                          fontSize: '12px',
+                          color: '#94A3B8',
+                          margin: 0,
+                          lineHeight: '1.5',
+                        }}>
+                          {level.desc}
+                        </p>
+                      )}
                     </div>
 
                     {/* Case Tags (if unlocked) */}
@@ -708,7 +714,7 @@ export default function SiswaPage() {
                         gap: '6px',
                         flexWrap: 'wrap',
                         justifyContent: 'center',
-                        marginBottom: '24px',
+                        marginBottom: '16px',
                       }}>
                         {level.tags.map(tag => (
                           <span
@@ -726,6 +732,71 @@ export default function SiswaPage() {
                           </span>
                         ))}
                       </div>
+                    )}
+
+                    {/* Infinite Scrolling Preview Marquee for Level 1 */}
+                    {isUnlocked && level.id === 1 && (
+                      <>
+                        <style>{`
+                          @keyframes marquee-scroll {
+                            0% { transform: translateX(0); }
+                            100% { transform: translateX(-50%); }
+                          }
+                          .level-marquee-track {
+                            animation: marquee-scroll 16s linear infinite;
+                          }
+                        `}</style>
+                        <div style={{
+                          width: '100%',
+                          overflow: 'hidden',
+                          position: 'relative',
+                          margin: '0px 0 16px',
+                          background: 'rgba(4, 7, 10, 0.3)',
+                          border: '1px solid rgba(14, 131, 136, 0.12)',
+                          borderRadius: '10px',
+                          padding: '6px 0',
+                          userSelect: 'none',
+                        }}>
+                          <div 
+                            className="level-marquee-track"
+                            style={{
+                              display: 'flex',
+                              width: 'max-content',
+                              gap: '8px',
+                              paddingLeft: '8px',
+                            }}
+                          >
+                            {[
+                              '/thumbnails/exploration.webp',
+                              '/thumbnails/rentang.webp',
+                              '/thumbnails/interval.webp',
+                              '/thumbnails/histogram.webp',
+                              '/thumbnails/exploration.webp',
+                              '/thumbnails/rentang.webp',
+                              '/thumbnails/interval.webp',
+                              '/thumbnails/histogram.webp',
+                            ].map((src, i) => (
+                              <img
+                                key={i}
+                                src={src}
+                                alt=""
+                                onError={(e) => {
+                                  // Fallback: if script hasn't been run yet, show visual mock placeholder
+                                  e.currentTarget.style.opacity = '0.35';
+                                }}
+                                style={{
+                                  width: '80px',
+                                  height: '45px',
+                                  borderRadius: '6px',
+                                  objectFit: 'cover',
+                                  border: '1px solid rgba(14, 131, 136, 0.2)',
+                                  flexShrink: 0,
+                                }}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      </>
                     )}
                   </div>
 
@@ -1831,29 +1902,29 @@ export default function SiswaPage() {
           0% {
             transform: scale(0.8);
             opacity: 0.7;
-            box-shadow: 0 0 0 0 rgba(217,119,6, 0.35);
+            box-shadow: 0 0 0 0 rgba(14, 131, 136, 0.35);
           }
           70% {
             transform: scale(1.8);
             opacity: 0.2;
-            box-shadow: 0 0 0 12px rgba(217,119,6, 0);
+            box-shadow: 0 0 0 12px rgba(14, 131, 136, 0);
           }
           100% {
             transform: scale(2.2);
             opacity: 0;
-            box-shadow: 0 0 0 0 rgba(217,119,6, 0);
+            box-shadow: 0 0 0 0 rgba(14, 131, 136, 0);
           }
         }
 
         @keyframes buttonPulse {
           0% {
-            box-shadow: 0 0 0 0 rgba(217,119,6, 0.4);
+            box-shadow: 0 0 0 0 rgba(14, 131, 136, 0.4);
           }
           70% {
-            box-shadow: 0 0 0 12px rgba(217,119,6, 0);
+            box-shadow: 0 0 0 12px rgba(14, 131, 136, 0);
           }
           100% {
-            box-shadow: 0 0 0 0 rgba(217,119,6, 0);
+            box-shadow: 0 0 0 0 rgba(14, 131, 136, 0);
           }
         }
 
@@ -1885,11 +1956,11 @@ export default function SiswaPage() {
           border-radius: 10px;
         }
         .cards-scroll-container::-webkit-scrollbar-thumb {
-          background: rgba(217,119,6, 0.25);
+          background: rgba(14, 131, 136, 0.25);
           border-radius: 10px;
         }
         .cards-scroll-container::-webkit-scrollbar-thumb:hover {
-          background: rgba(217,119,6, 0.45);
+          background: rgba(14, 131, 136, 0.45);
         }
 
         .modal-scrollbar::-webkit-scrollbar {
@@ -1912,8 +1983,8 @@ export default function SiswaPage() {
         }
         .level-card.unlocked:hover {
           transform: translateY(-8px) scale(1.02);
-          border-color: rgba(217,119,6, 0.65) !important;
-          box-shadow: 0 12px 30px rgba(217,119,6, 0.18), 0 0 20px rgba(217,119,6, 0.08) !important;
+          border-color: rgba(14, 131, 136, 0.65) !important;
+          box-shadow: 0 12px 30px rgba(14, 131, 136, 0.18), 0 0 20px rgba(14, 131, 136, 0.08) !important;
         }
         .level-card.locked {
           opacity: 0.65;

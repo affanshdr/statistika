@@ -20,10 +20,10 @@ const LEVELS = [
     id: 1,
     icon: '🎬',
     title: 'Level 1 (The Viral Myth)',
-    desc: 'Topik Materi: Statistika Deskriptif (Histogram, Distribusi Data, Outlier, & Ukuran Pemusatan Data)',
+    desc: '',
     tags: ['Distribusi Frekuensi', 'Histogram', 'Analisis Kritis'],
     locked: false,
-    xpMax: 75,
+    xpMax: 0,
   },
   { id: 2, icon: '📈', title: 'Kasus: Polling Pilkada', desc: 'Segera hadir', tags: [], locked: true, xpMax: 0 },
   { id: 3, icon: '🌡️', title: 'Kasus: Anomali Cuaca', desc: 'Segera hadir', tags: [], locked: true, xpMax: 0 },
@@ -160,14 +160,16 @@ export default function LobbyPage() {
                   <div style={{ flex: 1 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px', marginBottom: '6px' }}>
                       <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '1px' }}>LEVEL {level.id}</div>
-                      {!level.locked && <div style={{ fontSize: '12px', color: 'var(--accent)', fontWeight: 700 }}>Max {level.xpMax} XP</div>}
+                      {!level.locked && level.xpMax > 0 && <div style={{ fontSize: '12px', color: 'var(--accent)', fontWeight: 700 }}>Max {level.xpMax} XP</div>}
                     </div>
                     <h4 style={{ margin: '0 0 6px', fontSize: '15px', fontWeight: 800, color: level.locked ? 'var(--text-muted)' : '#fff' }}>
                       {level.title}
                     </h4>
-                    <p style={{ margin: '0 0 10px', fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-                      {level.desc}
-                    </p>
+                    {level.desc && (
+                      <p style={{ margin: '0 0 10px', fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                        {level.desc}
+                      </p>
+                    )}
                     {level.tags.length > 0 && (
                       <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                         {level.tags.map(tag => (

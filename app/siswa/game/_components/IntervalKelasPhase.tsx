@@ -44,6 +44,7 @@ interface IntervalKelasPhaseProps {
   hasVotedInterval?: boolean
   teamMembers?: { id: string; name: string }[]
   teamReadyVotes?: Record<string, string[]>
+  demoMode?: boolean
 }
 
 interface PoolItem {
@@ -59,34 +60,48 @@ export default function IntervalKelasPhase({
   onSubmit,
   hasVotedInterval = false,
   teamMembers = [],
-  teamReadyVotes = {}
+  teamReadyVotes = {},
+  demoMode = false
 }: IntervalKelasPhaseProps) {
   const { setAnswer, addXP, incrementMistake } = useGameStore()
   
   // Game state
-  const [stage, setStage] = useState<1 | 2>(1)
-  const [isOpened, setIsOpened] = useState(false)
-  const [animationFinished, setAnimationFinished] = useState(false)
+  const [stage, setStage] = useState<1 | 2>(demoMode ? 2 : 1)
+  const [isOpened, setIsOpened] = useState(demoMode ? true : false)
+  const [animationFinished, setAnimationFinished] = useState(demoMode ? true : false)
   const [showDiraExpl, setShowDiraExpl] = useState(false)
   const [diraExplMessage, setDiraExplMessage] = useState('')
 
   // Drag and drop states
   const [pool, setPool] = useState<PoolItem[]>([])
-  const [filledSlots, setFilledSlots] = useState<(number | null)[]>(Array(12).fill(null))
+  const [filledSlots, setFilledSlots] = useState<(number | null)[]>(
+    demoMode
+      ? [0.5, 3.5, 3.5, 6.5, 6.5, 9.5, null, null, null, null, null, null]
+      : Array(12).fill(null)
+  )
   const [shakeSlotIdx, setShakeSlotIdx] = useState<number | null>(null)
   const [toastMsg, setToastMsg] = useState<string | null>(null)
   const [draggingId, setDraggingId] = useState<string | null>(null)
 
   // Shuffle correct values and distractors for the pool
   useEffect(() => {
-    const initialItems: PoolItem[] = [
+    let initialItems: PoolItem[] = [
       ...CORRECT_POOL.map((v, i) => ({ id: `correct-${i}-${v}`, val: v })),
       ...DISTRACTORS.map((v, i) => ({ id: `distractor-${i}-${v}`, val: v }))
     ]
-    // Simple deterministic-ish shuffle
+    if (demoMode) {
+      const prefilled = [0.5, 3.5, 3.5, 6.5, 6.5, 9.5]
+      prefilled.forEach(val => {
+        const idx = initialItems.findIndex(item => item.val === val)
+        if (idx !== -1) {
+          initialItems.splice(idx, 1)
+        }
+      })
+    }
+    // Simple shuffle
     const shuffled = [...initialItems].sort(() => Math.random() - 0.5)
     setPool(shuffled)
-  }, [])
+  }, [demoMode])
 
   // Handle stage 1 separation click
   const handleSeparateClasses = () => {

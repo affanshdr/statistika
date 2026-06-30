@@ -18,11 +18,13 @@ type GameStep = 0 | 1 | 2 | 3 | 4
 
 interface PendingBadge { icon: string; name: string; desc: string; id: string }
 
-export default function FIPath() {
+export default function FIPath({ demoMode = false, demoStep = null }: { demoMode?: boolean; demoStep?: string | null }) {
   const router = useRouter()
   const { addXP, isCompleted, completeLevel, unlockBadge, incrementMistake, mistakeCount, sessionStartTime, xp } = useGameStore()
 
-  const [step, setStep] = useState<GameStep>(0)
+  const [step, setStep] = useState<GameStep>(
+    demoMode ? (demoStep === 'histogram' ? 1 : 0) : 0
+  )
   const [pendingBadges, setPendingBadges] = useState<PendingBadge[]>([])
   // Track if isCompleted came from this active session (not stale persist)
   const sessionActiveRef = useRef(false)
@@ -129,7 +131,7 @@ export default function FIPath() {
         {/* ── STEP 0: Menyusun Interval Kelas ── */}
         {step === 0 && (
           <motion.div key="step0" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }} style={{ width: '100%', flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
-            <IntervalKelasPhase isFD={false} onSubmit={handleIntervalSubmit} />
+            <IntervalKelasPhase isFD={false} onSubmit={handleIntervalSubmit} demoMode={demoMode} />
           </motion.div>
         )}
 

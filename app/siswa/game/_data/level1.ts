@@ -1,7 +1,7 @@
 export const LEVEL1_CONFIG = {
   id: 1,
   title: 'Level 1 (The Viral Myth)',
-  subtitle: 'Topik Materi: Statistika Deskriptif (Histogram, Distribusi Data, Outlier, & Ukuran Pemusatan Data)',
+  subtitle: '',
   description: 'Sebuah postingan viral mengklaim remaja Indonesia rata-rata >8 jam/hari di media sosial. Tugasmu: selidiki kebenarannya menggunakan statistika.',
 }
 

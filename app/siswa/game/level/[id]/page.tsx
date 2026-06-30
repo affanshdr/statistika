@@ -1,7 +1,7 @@
 'use client'
 
-import { use, useEffect, useState, useRef } from 'react'
-import { useRouter } from 'next/navigation'
+import { use, useEffect, useState, useRef, Suspense } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useGameStore } from '@/lib/store/gameStore'
 import GameHeader from '../../_components/GameHeader'
@@ -14,16 +14,24 @@ import NPath from '../../_components/NPath'
 import TeamLobby from '../../_components/TeamLobby'
 import '../../game.css'
 
-export default function LevelPage({
+function LevelPageInner({
   params,
 }: {
   params: Promise<{ id: string }>
 }) {
   const { id } = use(params)
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const demoMode = searchParams.get('demoMode') === 'true'
+  const demoStep = searchParams.get('demoStep')
+
   const { cognitiveStyle, resetLevel, teamId, setTeamId } = useGameStore()
-  const [phase, setPhase] = useState<'cutscene' | 'formula' | 'lobby' | 'game'>('cutscene')
-  const [pregameStep, setPregameStep] = useState<'minmax' | 'exploration' | 'panjangkelas'>('minmax')
+  const [phase, setPhase] = useState<'cutscene' | 'formula' | 'lobby' | 'game'>(
+    demoMode ? (demoStep === 'interval' || demoStep === 'histogram' ? 'game' : 'formula') : 'cutscene'
+  )
+  const [pregameStep, setPregameStep] = useState<'exploration' | 'minmax' | 'panjangkelas'>(
+    demoMode ? (demoStep === 'minmax' ? 'minmax' : 'exploration') : 'exploration'
+  )
   const [cutscenePhase, setCutscenePhase] = useState<'comments' | 'mentor'>('comments')
   const [timerRunning, setTimerRunning] = useState(false)
   const [hydrated, setHydrated] = useState(false)
@@ -55,6 +63,7 @@ export default function LevelPage({
 
   // Read cognitive style: prefer persisted Zustand, fall back to localStorage
   const resolvedStyle: 'FI' | 'FD' | null = (() => {
+    if (demoMode) return 'FI' // Force FI for screenshot capture stability
     if (cognitiveStyle) return cognitiveStyle
     if (typeof window !== 'undefined') {
       try {
@@ -75,11 +84,16 @@ export default function LevelPage({
     }
   }, [hydrated, resolvedStyle, router])
 
-  // ── Rejoin check (Bypassed for single-player) ───────────────────────────────
+  // ── Rejoin check (Bypassed for single-player & demo mode) ───────────────────────────────
   useEffect(() => {
-    if (!hydrated || !studentInfo) return
+    if (!hydrated) return
+    if (demoMode) {
+      setInitializing(false)
+      return
+    }
+    if (!studentInfo) return
     setInitializing(false)
-  }, [hydrated, studentInfo])
+  }, [hydrated, studentInfo, demoMode])
 
   // Show spinner while store is hydrating OR rejoin check is running
   if (!hydrated || initializing) {
@@ -146,19 +160,20 @@ export default function LevelPage({
                 padding: '16px 20px', height: '100%', overflow: pregameStep === 'exploration' ? 'hidden' : 'auto',
               }}
             >
+              {pregameStep === 'exploration' && (
+                <NPath
+                  isFD={resolvedStyle === 'FD'}
+                  onComplete={() => setPregameStep('minmax')}
+                  demoMode={demoMode}
+                />
+              )}
+
               {pregameStep === 'minmax' && (
                 <PregameFormula
                   teamId={null}
                   studentId={studentInfo?.id}
                   teamMembers={undefined}
-                  initialSub="intro"
-                  onComplete={() => setPregameStep('exploration')}
-                />
-              )}
-
-              {pregameStep === 'exploration' && (
-                <NPath
-                  isFD={resolvedStyle === 'FD'}
+                  initialSub={demoMode && demoStep === 'rentang' ? 'rentang' : 'intro'}
                   onComplete={() => setPregameStep('panjangkelas')}
                 />
               )}
@@ -187,7 +202,7 @@ export default function LevelPage({
               style={{ flex: 1, display: 'flex', flexDirection: 'column' }}
             >
               {resolvedStyle === 'FI' ? (
-                <FIPath />
+                <FIPath demoMode={demoMode} demoStep={demoStep} />
               ) : (
                 <FDPath teamId={null} studentId={studentInfo?.id} studentName={studentInfo?.name} />
               )}
@@ -196,5 +211,21 @@ export default function LevelPage({
         </div>
       </div>
     </OrientationGuard>
+  )
+}
+
+export default function LevelPage({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}) {
+  return (
+    <Suspense fallback={
+      <div className="game-root" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', flexDirection: 'column', gap: '12px' }}>
+        <p style={{ color: 'var(--text-secondary)', fontSize: '13px', fontWeight: 600 }}>Loading...</p>
+      </div>
+    }>
+      <LevelPageInner params={params} />
+    </Suspense>
   )
 }

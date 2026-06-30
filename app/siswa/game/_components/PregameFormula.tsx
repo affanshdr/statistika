@@ -508,7 +508,7 @@ function IntroTypewriter({ onDone }: { onDone: () => void }) {
 }
 
 // Memoized static background component to prevent lag during movement updates
-const MazeBackground = memo(() => {
+const MazeBackground = memo(({ visitedCells }: { visitedCells: Set<string> }) => {
   return (
     <>
       {/* Background (walls) */}
@@ -517,6 +517,7 @@ const MazeBackground = memo(() => {
       {/* Floor tiles */}
       {RENTANG_MAZE.flatMap((row, r) => row.map((cell, c) => {
         if (cell === 1) return null
+        const isVisited = visitedCells.has(`${r},${c}`)
         return (
           <rect
             key={`f${r}-${c}`}
@@ -524,8 +525,13 @@ const MazeBackground = memo(() => {
             y={r * RENTANG_CELL + 0.5}
             width={RENTANG_CELL - 1}
             height={RENTANG_CELL - 1}
-            fill="#0f1122"
-            rx={0.4}
+            fill={isVisited ? 'rgba(0, 173, 181, 0.22)' : 'rgba(23, 24, 43, 0.85)'}
+            stroke={isVisited ? 'rgba(0, 173, 181, 0.65)' : 'rgba(14, 131, 136, 0.22)'}
+            strokeWidth={0.5}
+            rx={0.5}
+            style={{
+              transition: 'fill 0.4s ease, stroke 0.4s ease'
+            }}
           />
         )
       }))}
@@ -656,6 +662,21 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
 
   // ── Maze / Labirin state (Rentang step) ──────────────────────────────────
   const [charPos, setCharPos] = useState({ x: RENTANG_CX(1), y: RENTANG_CY(1) })
+  const [visitedCells, setVisitedCells] = useState<Set<string>>(new Set(['1,1']))
+
+  useEffect(() => {
+    if (sub !== 'rentang') return
+    const col = Math.floor(charPos.x / RENTANG_CELL)
+    const row = Math.floor(charPos.y / RENTANG_CELL)
+    const cellKey = `${row},${col}`
+    
+    setVisitedCells(prev => {
+      if (prev.has(cellKey)) return prev
+      const next = new Set(prev)
+      next.add(cellKey)
+      return next
+    })
+  }, [charPos.x, charPos.y, sub])
 
 
   // Monster visual positions and feedback overlays
@@ -1539,7 +1560,7 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
           {/* ══ RENTANG — Maze Exploration ══════════════════════════════════ */}
           {sub === 'rentang' && (
             <>
-              <StepHeader step={1} title="Rentang (R)" subtitle="Langkah 1 dari 3" />
+              <StepHeader step={2} title="Rentang (R)" subtitle="Langkah 2 dari 3" />
 
               {/* ── Assign popup (terbesar / terkecil) ── */}
               <AnimatePresence>
@@ -1610,13 +1631,13 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
               </AnimatePresence>
 
 
-              {/* ── Main workspace: 4 : 1 split ── */}
-              <div style={{ flex: 1, minHeight: 0, display: 'flex', gap: '8px', borderRadius: '12px', border: '1px solid rgba(180,140,80,0.1)', overflow: 'hidden' }}>
+              {/* ── Main workspace: Responsive split ── */}
+              <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: '8px', borderRadius: '12px', border: '1px solid rgba(180,140,80,0.1)', overflow: 'hidden' }}>
 
-                {/* ─── LEFT: Maze canvas (flex 4) ─── */}
+                {/* ─── LEFT: Maze canvas ─── */}
                 <div
                   ref={mapRef}
-                  style={{ flex: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', borderRadius: 12, border: '1px solid rgba(180,140,80,0.08)', minHeight: 0, position: 'relative' }}
+                  style={{ flex: isMobile ? 'none' : 4, height: isMobile ? '230px' : '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', borderRadius: 12, border: '1px solid rgba(180,140,80,0.08)', minHeight: 0, position: 'relative' }}
                 >
                   {/* Collision Red Flash Overlay */}
                   <AnimatePresence>
@@ -1647,7 +1668,7 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                   >
                     <svg viewBox={`0 0 ${RENTANG_VW} ${RENTANG_VH}`} preserveAspectRatio="xMidYMid meet" style={{ width: '100%', height: '100%', display: 'block' }}>
                       {/* Static Maze Background */}
-                      <MazeBackground />
+                      <MazeBackground visitedCells={visitedCells} />
 
                       {/* Subtle grid overlay */}
                       <defs>
@@ -1656,6 +1677,17 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                         </pattern>
                       </defs>
                       <rect width={RENTANG_VW} height={RENTANG_VH} fill="url(#gp-rentang)" />
+
+                      {/* Avatar glow light overlay (Revisi 2) */}
+                      <defs>
+                        <radialGradient id="avatar-light" cx={charPos.x} cy={charPos.y} r={33} fx={charPos.x} fy={charPos.y} gradientUnits="userSpaceOnUse">
+                          <stop offset="0%" stopColor="#000000" stopOpacity="0" />
+                          <stop offset="35%" stopColor="#000000" stopOpacity="0.1" />
+                          <stop offset="70%" stopColor="#060709" stopOpacity="0.5" />
+                          <stop offset="100%" stopColor="#060709" stopOpacity="0.85" />
+                        </radialGradient>
+                      </defs>
+                      <rect width={RENTANG_VW} height={RENTANG_VH} fill="url(#avatar-light)" pointerEvents="none" />
 
                       {/* Data nodes */}
                       {RENTANG_MAZE_NODES.map(node => {
@@ -1686,8 +1718,24 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                               style={{ transition: 'all 0.25s' }}
                             />
 
-                            {/* Node text */}
-                            {!isTaken ? (
+                            {/* Node text / solved checkmark badge */}
+                            {isTaken ? (
+                              <g>
+                                <circle cx={nx} cy={ny} r={2.8} fill={isTakenMax ? ACC : GREEN} />
+                                <text
+                                  x={nx}
+                                  y={ny + 0.4}
+                                  textAnchor="middle"
+                                  dominantBaseline="middle"
+                                  fontSize={3.6}
+                                  fontWeight="900"
+                                  fill="#060709"
+                                  fontFamily="var(--font-data)"
+                                >
+                                  ✓
+                                </text>
+                              </g>
+                            ) : (
                               <text
                                 x={nx}
                                 y={ny + 0.4}
@@ -1699,19 +1747,6 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                                 fontFamily="var(--font-data)"
                               >
                                 {node.val}
-                              </text>
-                            ) : (
-                              <text
-                                x={nx}
-                                y={ny + 0.4}
-                                textAnchor="middle"
-                                dominantBaseline="middle"
-                                fontSize={3.2}
-                                fontWeight="bold"
-                                fill={isTakenMax ? ACC : GREEN}
-                                fontFamily="var(--font-data)"
-                              >
-                                ✓
                               </text>
                             )}
                           </g>
@@ -1829,29 +1864,59 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                   </motion.div>
                 </div>
 
-                {/* ─── RIGHT: Formula panel (flex 1) ─── */}
-                <div style={{ flex: 1.2, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '10px', padding: '12px', minWidth: 0 }}>
-                  <div style={{ fontSize: '12px', fontWeight: 800, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '1.5px' }}>
-                    📐 RUMUS RENTANG
-                  </div>
-
-                  <div style={{ background: `${ACC}0c`, border: `1px solid ${ACC}2a`, borderRadius: '14px', padding: '12px 10px', width: '100%', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                    <div style={{ fontSize: '13px', fontWeight: 800, color: '#a5b4fc', textAlign: 'center' }}>
-                      R = terbesar − terkecil
+                {/* ─── RIGHT: Formula panel ─── */}
+                <div style={{
+                  flex: isMobile ? 'none' : 1.2,
+                  width: '100%',
+                  display: 'flex',
+                  flexDirection: isMobile ? 'row' : 'column',
+                  alignItems: 'center',
+                  justifyContent: isMobile ? 'space-around' : 'center',
+                  gap: '10px',
+                  padding: '12px',
+                  minWidth: 0,
+                  background: isMobile ? 'rgba(10, 10, 22, 0.4)' : 'transparent',
+                  borderTop: isMobile ? '1px solid rgba(180,140,80,0.1)' : 'none'
+                }}>
+                  {!isMobile && (
+                    <div style={{ fontSize: '12px', fontWeight: 800, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '1.5px' }}>
+                      📐 RUMUS RENTANG
                     </div>
+                  )}
+
+                  <div style={{
+                    background: isMobile ? 'transparent' : `${ACC}0c`,
+                    border: isMobile ? 'none' : `1px solid ${ACC}2a`,
+                    borderRadius: '14px',
+                    padding: isMobile ? '0px' : '12px 10px',
+                    width: isMobile ? 'auto' : '100%',
+                    flex: isMobile ? 1 : 'none',
+                    display: 'flex',
+                    flexDirection: isMobile ? 'row' : 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: isMobile ? '12px' : '10px'
+                  }}>
+                    {!isMobile && (
+                      <div style={{ fontSize: '13px', fontWeight: 800, color: '#a5b4fc', textAlign: 'center' }}>
+                        R = terbesar − terkecil
+                      </div>
+                    )}
 
                     {/* Terbesar slot */}
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
-                      <div style={{ fontSize: '10px', fontWeight: 800, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.8px' }}>NILAI TERBESAR</div>
+                    <div style={{ display: 'flex', flexDirection: isMobile ? 'row' : 'column', alignItems: 'center', gap: '6px' }}>
+                      <div style={{ fontSize: '10px', fontWeight: 800, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.8px', whiteSpace: 'nowrap' }}>
+                        {isMobile ? 'MAX:' : 'NILAI TERBESAR'}
+                      </div>
                       <motion.div
                         animate={mazeMax !== null ? { scale: [1, 1.12, 1] } : {}}
                         transition={{ duration: 0.35 }}
                         style={{
-                          width: '100%', height: '42px', borderRadius: '10px',
+                          width: isMobile ? '48px' : '100%', height: isMobile ? '32px' : '42px', borderRadius: '10px',
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
                           background: mazeMax !== null ? `${ACC}1f` : 'rgba(217,119,6,0.06)',
                           border: mazeMax !== null ? `2.5px solid ${ACC}66` : '2px dashed rgba(255,255,255,0.14)',
-                          fontSize: 'clamp(18px, 3vh, 24px)', fontWeight: 900,
+                          fontSize: isMobile ? '16px' : 'clamp(18px, 3vh, 24px)', fontWeight: 900,
                           color: mazeMax !== null ? '#fff' : 'rgba(255,255,255,0.22)',
                           fontFamily: 'var(--font-data)',
                         }}
@@ -1860,20 +1925,22 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                       </motion.div>
                     </div>
 
-                    <div style={{ textAlign: 'center', fontSize: '16px', color: '#78716C', fontFamily: 'var(--font-data)', lineHeight: 1 }}>−</div>
+                    {!isMobile && <div style={{ textAlign: 'center', fontSize: '16px', color: '#78716C', fontFamily: 'var(--font-data)', lineHeight: 1 }}>−</div>}
 
                     {/* Terkecil slot */}
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
-                      <div style={{ fontSize: '10px', fontWeight: 800, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.8px' }}>NILAI TERKECIL</div>
+                    <div style={{ display: 'flex', flexDirection: isMobile ? 'row' : 'column', alignItems: 'center', gap: '6px' }}>
+                      <div style={{ fontSize: '10px', fontWeight: 800, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.8px', whiteSpace: 'nowrap' }}>
+                        {isMobile ? 'MIN:' : 'NILAI TERKECIL'}
+                      </div>
                       <motion.div
                         animate={mazeMin !== null ? { scale: [1, 1.12, 1] } : {}}
                         transition={{ duration: 0.35 }}
                         style={{
-                          width: '100%', height: '42px', borderRadius: '10px',
+                          width: isMobile ? '48px' : '100%', height: isMobile ? '32px' : '42px', borderRadius: '10px',
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
                           background: mazeMin !== null ? `${GREEN}18` : 'rgba(217,119,6,0.06)',
                           border: mazeMin !== null ? `2px solid ${GREEN}55` : '2px dashed rgba(255,255,255,0.14)',
-                          fontSize: 'clamp(18px, 3vh, 24px)', fontWeight: 900,
+                          fontSize: isMobile ? '16px' : 'clamp(18px, 3vh, 24px)', fontWeight: 900,
                           color: mazeMin !== null ? GREEN : 'rgba(255,255,255,0.22)',
                           fontFamily: 'var(--font-data)',
                         }}
@@ -1890,13 +1957,13 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                           animate={{ opacity: 1, scale: 1 }}
                           exit={{ opacity: 0, scale: 0.8 }}
                           transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-                          style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px' }}
+                          style={{ display: 'flex', flexDirection: isMobile ? 'row' : 'column', alignItems: 'center', gap: '4px' }}
                         >
                           <div style={{ fontSize: '14px', color: '#78716C', fontFamily: 'var(--font-data)' }}>=</div>
-                          <div style={{ fontSize: 'clamp(22px, 3.8vh, 32px)', fontWeight: 900, color: rentangDone ? GREEN : '#fff', fontFamily: 'var(--font-data)', textShadow: rentangDone ? `0 0 12px ${GREEN}` : 'none', transition: 'color 0.3s' }}>
-                            {mazeMax - mazeMin}
+                          <div style={{ fontSize: isMobile ? '18px' : 'clamp(22px, 3.8vh, 32px)', fontWeight: 900, color: rentangDone ? GREEN : '#fff', fontFamily: 'var(--font-data)', textShadow: rentangDone ? `0 0 12px ${GREEN}` : 'none', transition: 'color 0.3s' }}>
+                            {isMobile ? `R: ${mazeMax - mazeMin}` : (mazeMax - mazeMin)}
                           </div>
-                          {rentangDone && (
+                          {!isMobile && rentangDone && (
                             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ fontSize: '13px', color: GREEN, fontWeight: 800 }}>✅ R = {CORRECT_R}</motion.div>
                           )}
                         </motion.div>
@@ -1905,37 +1972,39 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                   </div>
 
                   {/* Action Button moved here */}
-                  {rentangDone ? (
-                    <button
-                      className="game-btn game-btn-primary"
-                      onClick={() => {
-                        if (initialSub === 'intro') {
-                          onComplete()
-                        } else {
-                          navigateTo('banyak-kelas')
-                        }
-                      }}
-                      style={{ width: '100%', padding: '10px 14px', fontSize: '13px', fontWeight: 800, boxShadow: 'var(--accent-glow)', marginTop: '4px' }}
-                    >
-                      Lanjut →
-                    </button>
-                  ) : (
-                    <button
-                      className="game-btn game-btn-primary"
-                      onClick={handleConfirmRentang}
-                      disabled={mazeMax === null || mazeMin === null}
-                      style={{
-                        width: '100%', padding: '10px 14px', fontSize: '13px', fontWeight: 800,
-                        opacity: mazeMax !== null && mazeMin !== null ? 1 : 0.45,
-                        cursor: mazeMax !== null && mazeMin !== null ? 'pointer' : 'not-allowed',
-                        marginTop: '4px'
-                      }}
-                    >
-                      {mazeMax !== null && mazeMin !== null
-                        ? 'Konfirmasi →'
-                        : 'Eksplorasi Labirin...'}
-                    </button>
-                  )}
+                  <div style={{ width: isMobile ? 'auto' : '100%', minWidth: isMobile ? '120px' : 'auto' }}>
+                    {rentangDone ? (
+                      <button
+                        className="game-btn game-btn-primary"
+                        onClick={() => {
+                          if (initialSub === 'intro') {
+                            onComplete()
+                          } else {
+                            navigateTo('banyak-kelas')
+                          }
+                        }}
+                        style={{ width: '100%', padding: '10px 14px', fontSize: '13px', fontWeight: 800, boxShadow: 'var(--accent-glow)', marginTop: isMobile ? 0 : '4px' }}
+                      >
+                        Lanjut →
+                      </button>
+                    ) : (
+                      <button
+                        className="game-btn game-btn-primary"
+                        onClick={handleConfirmRentang}
+                        disabled={mazeMax === null || mazeMin === null}
+                        style={{
+                          width: '100%', padding: '10px 14px', fontSize: '13px', fontWeight: 800,
+                          opacity: mazeMax !== null && mazeMin !== null ? 1 : 0.45,
+                          cursor: mazeMax !== null && mazeMin !== null ? 'pointer' : 'not-allowed',
+                          marginTop: isMobile ? 0 : '4px'
+                        }}
+                      >
+                        {mazeMax !== null && mazeMin !== null
+                          ? 'Konfirmasi →'
+                          : 'Eksplorasi...'}
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             </>
@@ -1944,7 +2013,7 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
           {/* ══ BANYAK KELAS — NPath Game ══════════════════════════════════════ */}
           {sub === 'banyak-kelas' && (
             <>
-              <StepHeader step={2} title="Mencari Nilai n" subtitle="Langkah 2 dari 3 — Eksplorasi Ruangan" />
+              <StepHeader step={1} title="Mencari Nilai n" subtitle="Langkah 1 dari 3 — Eksplorasi Ruangan" />
               {/* Real-time teammate presence */}
               {isFD && Object.values(rtPlayers).length > 0 && (
                 <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '4px' }}>
@@ -2092,11 +2161,11 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                       }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                           <span>📏</span>
-                          <span><strong>R = {CORRECT_R}</strong>: Rentang (didapat dari hasil Langkah 1)</span>
+                          <span><strong>R = {CORRECT_R}</strong>: Rentang (didapat dari hasil Langkah 2)</span>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                           <span>📊</span>
-                          <span><strong>K = {CORRECT_K}</strong>: Banyak Kelas (didapat dari hasil Langkah 2)</span>
+                          <span><strong>K = {CORRECT_K}</strong>: Banyak Kelas (didapat dari hasil Langkah 1)</span>
                         </div>
                       </div>
                     )}
