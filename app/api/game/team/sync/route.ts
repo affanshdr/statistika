@@ -10,9 +10,10 @@ const GATE_PHASE_MAP: Record<string, string> = {
 
 // ── Gate → currentStep advancement map (in-game step gates) ─────────────────
 const GATE_STEP_MAP: Record<string, Record<string, unknown>> = {
-  gate_step0_done:   { currentStep: 1 },
-  gate_step1_done:   { currentStep: 1.5 },
-  gate_verdict_done: { currentStep: 2, verdictAnswer: 'MISLEADING', isCorrect: true },
+  gate_interval_done: { currentStep: 1 },
+  gate_step0_done:   { currentStep: 2 },
+  gate_step1_done:   { currentStep: 3 },
+  gate_verdict_done: { currentStep: 4, verdictAnswer: 'MISLEADING', isCorrect: true },
 }
 
 const READY_THRESHOLD = 2

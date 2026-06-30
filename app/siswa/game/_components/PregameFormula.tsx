@@ -28,6 +28,58 @@ const RENTANG_VH = RENTANG_ROWS * RENTANG_CELL // 165
 const RENTANG_CX = (c: number) => c * RENTANG_CELL + RENTANG_CELL / 2
 const RENTANG_CY = (r: number) => r * RENTANG_CELL + RENTANG_CELL / 2
 
+// Synthesizes a digital crunch sound programmatically on collision
+const playGlitchSound = () => {
+  if (typeof window === 'undefined') return
+  try {
+    const AudioCtx = window.AudioContext || (window as any).webkitAudioContext
+    if (!AudioCtx) return
+    const ctx = new AudioCtx()
+
+    const osc = ctx.createOscillator()
+    const gain = ctx.createGain()
+    osc.type = 'sawtooth'
+    osc.frequency.setValueAtTime(140, ctx.currentTime)
+    osc.frequency.exponentialRampToValueAtTime(30, ctx.currentTime + 0.3)
+
+    gain.gain.setValueAtTime(0.25, ctx.currentTime)
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3)
+
+    osc.connect(gain)
+    gain.connect(ctx.destination)
+
+    osc.start()
+    osc.stop(ctx.currentTime + 0.35)
+
+    const bufferSize = ctx.sampleRate * 0.08
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate)
+    const data = buffer.getChannelData(0)
+    for (let i = 0; i < bufferSize; i++) {
+      data[i] = Math.random() * 2 - 1
+    }
+
+    const noise = ctx.createBufferSource()
+    noise.buffer = buffer
+
+    const filter = ctx.createBiquadFilter()
+    filter.type = 'bandpass'
+    filter.frequency.value = 800
+
+    const noiseGain = ctx.createGain()
+    noiseGain.gain.setValueAtTime(0.12, ctx.currentTime)
+    noiseGain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.12)
+
+    noise.connect(filter)
+    filter.connect(noiseGain)
+    noiseGain.connect(ctx.destination)
+
+    noise.start()
+    noise.stop(ctx.currentTime + 0.15)
+  } catch (e) {
+    console.error('AudioContext error:', e)
+  }
+}
+
 // 12 maze nodes — strategically placed, includes min=1 and max=18, using grid coordinates (col, row)
 const RENTANG_MAZE_NODES = [
   { val: 1, col: 3, row: 3 },
@@ -67,6 +119,68 @@ function isRentangWalkable(sx: number, sy: number): boolean {
   const row = Math.floor(sy / RENTANG_CELL)
   if (row < 0 || row >= RENTANG_ROWS || col < 0 || col >= RENTANG_COLS) return false
   return (RENTANG_MAZE[row]?.[col] ?? 1) === 0
+}
+
+function chooseMonsterDirection(m: { x: number; y: number; dirX: number; dirY: number; lastChange: number; moveInterval: number; recentCells: string[] }) {
+  const dirs = [
+    { x: 0, y: -1 }, // Up
+    { x: 0, y: 1 },  // Down
+    { x: -1, y: 0 }, // Left
+    { x: 1, y: 0 }   // Right
+  ]
+  const testStep = 6.0
+  const validDirs = dirs.filter(d => {
+    const nx = m.x + d.x * testStep
+    const ny = m.y + d.y * testStep
+    return isRentangWalkable(nx, ny)
+  })
+
+  if (validDirs.length === 0) {
+    m.dirX = 0
+    m.dirY = 0
+    m.lastChange = Date.now()
+    return
+  }
+
+  // 1. Exclude reverse direction from options unless it's the only valid way (dead-end)
+  let nonReverseDirs = validDirs.filter(d => {
+    if (m.dirX === 0 && m.dirY === 0) return true
+    const isMundur = d.x === -m.dirX && d.y === -m.dirY
+    return !isMundur
+  })
+
+  if (nonReverseDirs.length === 0) {
+    nonReverseDirs = validDirs
+  }
+
+  // 2. Anti-monoton: filter out options that lead to recently visited cells to prevent bouncing loops
+  let finalDirs = nonReverseDirs.filter(d => {
+    const nextCol = Math.floor((m.x + d.x * RENTANG_CELL) / RENTANG_CELL)
+    const nextRow = Math.floor((m.y + d.y * RENTANG_CELL) / RENTANG_CELL)
+    const nextCellKey = `${nextRow},${nextCol}`
+    return !m.recentCells || !m.recentCells.includes(nextCellKey)
+  })
+
+  if (finalDirs.length === 0) {
+    finalDirs = nonReverseDirs
+  }
+
+  // 3. Select randomly with equal weight from final prioritized options
+  const randIdx = Math.floor(Math.random() * finalDirs.length)
+  const selectedDir = finalDirs[randIdx]
+
+  const col = Math.floor(m.x / RENTANG_CELL)
+  const row = Math.floor(m.y / RENTANG_CELL)
+
+  if (selectedDir.y !== 0) {
+    m.x = RENTANG_CX(col)
+  } else if (selectedDir.x !== 0) {
+    m.y = RENTANG_CY(row)
+  }
+
+  m.dirX = selectedDir.x
+  m.dirY = selectedDir.y
+  m.lastChange = Date.now()
 }
 
 type SubScreen = 'intro' | 'rentang' | 'banyak-kelas' | 'panjang-kelas'
@@ -447,6 +561,13 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
   const onCompleteRef = useRef(onComplete)
   onCompleteRef.current = onComplete
   const charPosRef = useRef({ x: RENTANG_CX(1), y: RENTANG_CY(1) })
+  
+  // Glitch monsters patrol path definitions
+  const monstersRef = useRef([
+    { id: 'm1', x: RENTANG_CX(1), y: RENTANG_CY(11), dirX: 1, dirY: 0, lastChange: 0, moveInterval: 1800, recentCells: [] as string[] },
+    { id: 'm2', x: RENTANG_CX(19), y: RENTANG_CY(7), dirX: 1, dirY: 0, lastChange: 0, moveInterval: 1800, recentCells: [] as string[] },
+    { id: 'm3', x: RENTANG_CX(13), y: RENTANG_CY(1), dirX: 0, dirY: 1, lastChange: 0, moveInterval: 1800, recentCells: [] as string[] },
+  ])
 
   // My display name from teamMembers
   const myName = teamMembers?.find(m => m.id === studentId)?.name
@@ -535,8 +656,16 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
 
   // ── Maze / Labirin state (Rentang step) ──────────────────────────────────
   const [charPos, setCharPos] = useState({ x: RENTANG_CX(1), y: RENTANG_CY(1) })
-  // Keep a ref so intervals/effects always read latest position without re-running
-  useEffect(() => { charPosRef.current = charPos }, [charPos])
+
+
+  // Monster visual positions and feedback overlays
+  const [monsterPositions, setMonsterPositions] = useState([
+    { id: 'm1', x: RENTANG_CX(1), y: RENTANG_CY(11) },
+    { id: 'm2', x: RENTANG_CX(19), y: RENTANG_CY(7) },
+    { id: 'm3', x: RENTANG_CX(13), y: RENTANG_CY(1) },
+  ])
+  const [collisionFlash, setCollisionFlash] = useState(false)
+  const [isShaking, setIsShaking] = useState(false)
 
   const [nearNode, setNearNode] = useState<number | null>(null)
   const [assignPopup, setAssignPopup] = useState<number | null>(null)
@@ -573,19 +702,81 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
       return
     }
     const tick = () => {
-      const { x: dx, y: dy } = dirRef.current
-      if (dx !== 0 || dy !== 0) {
-        setCharPos(prev => {
-          const nx = Math.max(RENTANG_CELL * 0.5, Math.min(RENTANG_VW - RENTANG_CELL * 0.5, prev.x + dx * MAZE_SPEED))
-          const ny = Math.max(RENTANG_CELL * 0.5, Math.min(RENTANG_VH - RENTANG_CELL * 0.5, prev.y + dy * MAZE_SPEED))
-          // Coba gerak penuh
-          if (isRentangWalkable(nx, ny)) return { x: nx, y: ny }
-          // Coba hanya horizontal
-          if (isRentangWalkable(nx, prev.y)) return { x: nx, y: prev.y }
-          // Coba hanya vertikal
-          if (isRentangWalkable(prev.x, ny)) return { x: prev.x, y: ny }
-          return prev
-        })
+      // Update monster positions
+      const now = Date.now()
+      monstersRef.current.forEach(m => {
+        const speed = MAZE_SPEED * 0.75
+
+        // Track current cell coordinates to avoid bouncing in recent cells
+        const col = Math.floor(m.x / RENTANG_CELL)
+        const row = Math.floor(m.y / RENTANG_CELL)
+        const cellKey = `${row},${col}`
+
+        if (!m.recentCells) {
+          m.recentCells = []
+        }
+
+        if (m.recentCells.length === 0 || m.recentCells[m.recentCells.length - 1] !== cellKey) {
+          m.recentCells.push(cellKey)
+          if (m.recentCells.length > 4) {
+            m.recentCells.shift()
+          }
+        }
+
+        // Initialize direction if first frame
+        if (m.lastChange === 0) {
+          chooseMonsterDirection(m)
+        }
+
+        const testStep = 6.0
+        const isBlocked = (m.dirX === 0 && m.dirY === 0)
+          ? true
+          : !isRentangWalkable(m.x + m.dirX * testStep, m.y + m.dirY * testStep)
+
+        const isTimeElapsed = now - m.lastChange >= m.moveInterval
+
+        if (isBlocked || isTimeElapsed) {
+          chooseMonsterDirection(m)
+        }
+
+        m.x += m.dirX * speed
+        m.y += m.dirY * speed
+      })
+      setMonsterPositions(monstersRef.current.map(m => ({ id: m.id, x: m.x, y: m.y })))
+
+      // Check collision
+      let collided = false
+      const currentPos = charPosRef.current
+      monstersRef.current.forEach(m => {
+        const dx = Math.abs(m.x - currentPos.x)
+        const dy = Math.abs(m.y - currentPos.y)
+        if (dx < 8.5 && dy < 8.5) { // collision box blocks the entire RENTANG_CELL width of the hallway
+          collided = true
+        }
+      })
+
+      if (collided) {
+        playGlitchSound()
+        setCollisionFlash(true)
+        setIsShaking(true)
+        setTimeout(() => setCollisionFlash(false), 200)
+        setTimeout(() => setIsShaking(false), 450)
+        setCharPos({ x: RENTANG_CX(1), y: RENTANG_CY(1) })
+        charPosRef.current = { x: RENTANG_CX(1), y: RENTANG_CY(1) }
+      } else {
+        const { x: dx, y: dy } = dirRef.current
+        if (dx !== 0 || dy !== 0) {
+          setCharPos(prev => {
+            const nx = Math.max(RENTANG_CELL * 0.5, Math.min(RENTANG_VW - RENTANG_CELL * 0.5, prev.x + dx * MAZE_SPEED))
+            const ny = Math.max(RENTANG_CELL * 0.5, Math.min(RENTANG_VH - RENTANG_CELL * 0.5, prev.y + dy * MAZE_SPEED))
+            let nextPos = prev
+            if (isRentangWalkable(nx, ny)) nextPos = { x: nx, y: ny }
+            else if (isRentangWalkable(nx, prev.y)) nextPos = { x: nx, y: prev.y }
+            else if (isRentangWalkable(prev.x, ny)) nextPos = { x: prev.x, y: ny }
+            charPosRef.current = nextPos
+            return nextPos
+          })
+        }
       }
       animRef.current = requestAnimationFrame(tick)
     }
@@ -1427,7 +1618,33 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                   ref={mapRef}
                   style={{ flex: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', borderRadius: 12, border: '1px solid rgba(180,140,80,0.08)', minHeight: 0, position: 'relative' }}
                 >
-                  <div style={{ width: '100%', maxHeight: '100%', aspectRatio: `${RENTANG_VW}/${RENTANG_VH}`, position: 'relative' }}>
+                  {/* Collision Red Flash Overlay */}
+                  <AnimatePresence>
+                    {collisionFlash && (
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        style={{
+                          position: 'absolute',
+                          inset: 0,
+                          background: 'rgba(239, 68, 68, 0.25)',
+                          zIndex: 30,
+                          pointerEvents: 'none',
+                          borderRadius: 12,
+                        }}
+                      />
+                    )}
+                  </AnimatePresence>
+
+                  <motion.div
+                    animate={isShaking ? {
+                      x: [-4, 4, -3, 3, -1, 1, 0],
+                      y: [-2, 2, -1, 1, 0]
+                    } : {}}
+                    transition={{ duration: 0.35 }}
+                    style={{ width: '100%', maxHeight: '100%', aspectRatio: `${RENTANG_VW}/${RENTANG_VH}`, position: 'relative' }}
+                  >
                     <svg viewBox={`0 0 ${RENTANG_VW} ${RENTANG_VH}`} preserveAspectRatio="xMidYMid meet" style={{ width: '100%', height: '100%', display: 'block' }}>
                       {/* Static Maze Background */}
                       <MazeBackground />
@@ -1542,6 +1759,21 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                         )
                       })}
 
+                      {/* Monsters / Glitch obstacles */}
+                      {monsterPositions.map(m => (
+                        <g key={m.id}>
+                          {/* Outer glowing noise block */}
+                          <rect x={m.x - 4.8} y={m.y - 4.8} width={9.6} height={9.6} fill="#ff007f" opacity={0.3} />
+                          {/* Inner dark glitch core */}
+                          <rect x={m.x - 2.8} y={m.y - 2.8} width={5.6} height={5.6} fill="#ff0000" />
+                          {/* Central pixel spike */}
+                          <rect x={m.x - 1.5} y={m.y - 1.5} width={3} height={3} fill="#ffffff" />
+                          {/* Glitch noise particles */}
+                          <rect x={m.x - 5.5 + Math.sin(m.x * 2) * 0.5} y={m.y - 1.5} width={1} height={1} fill="#ff007f" />
+                          <rect x={m.x + 4.5 + Math.cos(m.x * 2) * 0.5} y={m.y + 1.5} width={1} height={1} fill="#ff0000" />
+                        </g>
+                      ))}
+
                       {/* Start marker */}
                       {charPos.x === RENTANG_CX(1) && charPos.y === RENTANG_CY(1) && (
                         <text x={RENTANG_CX(1)} y={RENTANG_CY(1) - 5} textAnchor="middle" fontSize={2.8} fill="rgba(255,255,255,0.4)" fontFamily="monospace">START</text>
@@ -1594,7 +1826,7 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                       <DPadBtn label="↓" onActivate={() => { dirRef.current = { x: 0, y: 1 } }} onRelease={() => { dirRef.current = { x: 0, y: 0 } }} />
                       <DPadBtn label="→" onActivate={() => { dirRef.current = { x: 1, y: 0 } }} onRelease={() => { dirRef.current = { x: 0, y: 0 } }} />
                     </div>
-                  </div>
+                  </motion.div>
                 </div>
 
                 {/* ─── RIGHT: Formula panel (flex 1) ─── */}

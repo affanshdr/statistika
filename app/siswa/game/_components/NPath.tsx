@@ -41,6 +41,8 @@ const DATA_CIRCLES = [
   { id: 'c10', d: 'C', x: 610, y: 200 }, { id: 'c11', d: 'C', x: 690, y: 200 }
 ]
 
+
+
 // Walkability: check if character is inside the vertical hallway or unlocked rooms
 function isWalkable(x: number, y: number, unlocked: Set<DoorId>): boolean {
   const R = 6.0 // player radius padding for landscape map
@@ -234,11 +236,18 @@ export default function NPath({ onComplete, isFD = true }: { onComplete: () => v
   const [collected, setCollected] = useState<Set<string>>(new Set())
   const [showCounter, setShowCounter] = useState(false)
 
+  const charPosRef = useRef({ x: 400, y: 310 })
+
   const dirRef = useRef({ x: 0, y: 0 })
   const animRef = useRef<number | null>(null)
   const unlockedR = useRef(unlocked); unlockedR.current = unlocked
   const activeDoorR = useRef(activeDoor); activeDoorR.current = activeDoor
   const nearDoorR = useRef(nearDoor); nearDoorR.current = nearDoor
+
+  // Sync charPosRef with charPos
+  useEffect(() => {
+    charPosRef.current = charPos
+  }, [charPos])
 
   // Proximity to doors (calculated smoothly from player position)
   useEffect(() => {
@@ -299,6 +308,7 @@ export default function NPath({ onComplete, isFD = true }: { onComplete: () => v
   useEffect(() => {
     const tick = () => {
       if (!activeDoor) {
+        // 1. Move Player
         const { x: dx, y: dy } = dirRef.current
         if (dx || dy) {
           setCharPos(p => {
@@ -493,6 +503,7 @@ export default function NPath({ onComplete, isFD = true }: { onComplete: () => v
                 </feMerge>
               </filter>
             </defs>
+
             <circle cx={charPos.x} cy={charPos.y} r={7.0} fill="url(#char-grad)" filter="url(#char-glow)" />
             <text x={charPos.x} y={charPos.y - 10} textAnchor="middle" fontSize={8} fontWeight="bold" fill="rgba(255,255,255,0.85)" fontFamily="monospace">Kamu</text>
 
