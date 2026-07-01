@@ -1,5 +1,4 @@
 import React from 'react'
-import ChatWidget from '@/components/ChatWidget'
 
 export default function SiswaLayout({
   children,
@@ -9,7 +8,6 @@ export default function SiswaLayout({
   return (
     <>
       {children}
-      <ChatWidget />
     </>
   )
 }

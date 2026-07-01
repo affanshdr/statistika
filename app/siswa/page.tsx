@@ -1353,7 +1353,7 @@ export default function SiswaPage() {
                 <button
                   onClick={() => {
                     setIsSidebarOpen(false)
-                    window.dispatchEvent(new Event('open-dira-chat'))
+                    router.push('/siswa/chat')
                   }}
                   className="sidebar-btn"
                   style={{
