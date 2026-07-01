@@ -87,6 +87,13 @@ const IconKelas = () => (
 const IconModul = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
 )
+const IconBot = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 8V4H8" />
+    <rect width="16" height="12" x="4" y="8" rx="2" />
+    <path d="M9 13h.01M15 13h.01M9 17h6" />
+  </svg>
+)
 const IconKeluar = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
 )
@@ -151,9 +158,26 @@ export default function GuruPage() {
   const [checkingAuth, setCheckingAuth] = useState(true)
 
   // Tabs
-  type Tab = 'dashboard' | 'manajemen-kelas' | 'modul-ajar' | 'analisis'
+  type Tab = 'dashboard' | 'manajemen-kelas' | 'modul-ajar' | 'chatbot-rag' | 'analisis'
   const [activeTab, setActiveTab] = useState<Tab>('dashboard')
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+
+  // Modul Ajar states
+  interface ModulAjarData {
+    id: string
+    title: string
+    subject: string
+    grade: string
+    topic: string
+    duration: string
+    session: string
+    content: string
+    createdAt: string
+    updatedAt: string
+  }
+  const [modulList, setModulList] = useState<ModulAjarData[]>([])
+  const [loadingModul, setLoadingModul] = useState(true)
+  const [selectedModul, setSelectedModul] = useState<ModulAjarData | null>(null)
 
   // Data
   const [students, setStudents] = useState<Student[]>([])
@@ -240,6 +264,14 @@ export default function GuruPage() {
     } catch (e) { console.error(e) } finally { setLoadingKnowledge(false) }
   }, [])
 
+  const fetchModulList = useCallback(async () => {
+    setLoadingModul(true)
+    try {
+      const res = await fetch('/api/guru/modul')
+      if (res.ok) setModulList(await res.json())
+    } catch (e) { console.error(e) } finally { setLoadingModul(false) }
+  }, [])
+
   const fetchClassStudents = useCallback(async (classId: string) => {
     setLoadingClassStudents(true)
     try {
@@ -277,9 +309,10 @@ export default function GuruPage() {
         fetchStudents()
         fetchClassrooms()
         fetchKnowledge()
+        fetchModulList()
       })
     }
-  }, [isAuthorized, fetchStudents, fetchClassrooms, fetchKnowledge])
+  }, [isAuthorized, fetchStudents, fetchClassrooms, fetchKnowledge, fetchModulList])
 
 
 
@@ -493,7 +526,8 @@ export default function GuruPage() {
     { key: 'dashboard', label: 'Dashboard', icon: <IconDashboard /> },
     { key: 'manajemen-kelas', label: 'Manajemen Kelas', icon: <IconKelas /> },
     { key: 'analisis', label: 'Analisis Belajar', icon: <IconAnalysis />, badge: stuckCount },
-    { key: 'modul-ajar', label: 'Modul Ajar (RAG)', icon: <IconModul /> },
+    { key: 'modul-ajar', label: 'Modul Ajar', icon: <IconModul /> },
+    { key: 'chatbot-rag', label: 'Basis Pengetahuan AI', icon: <IconBot /> },
   ]
 
   return (
@@ -624,13 +658,15 @@ export default function GuruPage() {
               {activeTab === 'dashboard' && 'Ringkasan Kelas'}
               {activeTab === 'manajemen-kelas' && 'Manajemen Kelas'}
               {activeTab === 'analisis' && 'Analisis Belajar'}
-              {activeTab === 'modul-ajar' && 'Modul Ajar (RAG)'}
+              {activeTab === 'modul-ajar' && 'Daftar Modul Ajar'}
+              {activeTab === 'chatbot-rag' && 'Basis Pengetahuan AI Chatbot'}
             </h1>
             <p style={{ margin: '4px 0 0', fontSize: '12px', color: '#78716C', fontWeight: 600 }}>
               {activeTab === 'dashboard' && 'Snapshot cepat kondisi kelas Anda saat ini'}
               {activeTab === 'manajemen-kelas' && 'Kelola kelas, daftar siswa, dan pindah kelas'}
               {activeTab === 'analisis' && 'Pre/Post learning gain · Pola kesalahan · Siswa macet'}
-              {activeTab === 'modul-ajar' && 'Kelola basis pengetahuan RAG untuk AI Chatbot'}
+              {activeTab === 'modul-ajar' && 'Pilih dan pelajari rancangan pelaksanaan pembelajaran'}
+              {activeTab === 'chatbot-rag' && 'Kelola basis pengetahuan RAG untuk AI Chatbot'}
             </p>
           </div>
           <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
@@ -974,9 +1010,357 @@ export default function GuruPage() {
         )}
 
         {/* ═══════════════════════════════════════
-            TAB: MODUL AJAR (RAG)
+            TAB: MODUL AJAR
         ═══════════════════════════════════════ */}
         {activeTab === 'modul-ajar' && (
+          <div className="guru-tab-content" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            {!selectedModul ? (
+              loadingModul ? (
+                <div style={{ textAlign: 'center', padding: '60px', color: '#78716C' }}>Memuat modul ajar...</div>
+              ) : (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '20px' }}>
+                  {modulList.map(modul => (
+                    <div key={modul.id} className="class-card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: '180px' }} onClick={() => setSelectedModul(modul)}>
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
+                          <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(56,123,126,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <IconModul />
+                          </div>
+                          <div>
+                            <div style={{ fontSize: '11px', color: '#387B7E', fontWeight: 800, textTransform: 'uppercase' }}>{modul.subject} · FASE {modul.grade}</div>
+                            <div style={{ fontSize: '15px', fontWeight: 800, color: '#1C1917', marginTop: '2px' }}>{modul.title}</div>
+                          </div>
+                        </div>
+                        <p style={{ fontSize: '12.5px', color: '#78716C', margin: '0 0 16px 0', lineHeight: 1.4 }}>
+                          Topik: {modul.topic}<br />
+                          Pertemuan: {modul.session}
+                        </p>
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '12px', borderTop: '1px solid rgba(85,183,180,0.1)' }}>
+                        <span style={{ fontSize: '11px', fontWeight: 700, color: '#A8A29E' }}>🕒 {modul.duration}</span>
+                        <span style={{ fontSize: '12px', fontWeight: 800, color: '#387B7E', display: 'flex', alignItems: 'center', gap: '4px' }}>Buka Modul →</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )
+            ) : (() => {
+              const content = typeof selectedModul.content === 'string' ? JSON.parse(selectedModul.content) : selectedModul.content
+              return (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                  {/* Top Bar for controls */}
+                  <div className="no-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+                    <button onClick={() => setSelectedModul(null)} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 14px', borderRadius: '10px', border: '1px solid rgba(85,183,180,0.3)', background: '#fff', color: '#387B7E', fontSize: '12px', fontWeight: 800, cursor: 'pointer', transition: 'all 0.2s' }} onMouseEnter={e => { e.currentTarget.style.background = '#E5F3F4'; e.currentTarget.style.borderColor = '#387B7E' }} onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = 'rgba(85,183,180,0.3)' }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                      Kembali ke Daftar Modul
+                    </button>
+                    <button onClick={() => window.print()} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', borderRadius: '10px', border: 'none', background: '#387B7E', color: '#fff', fontSize: '12px', fontWeight: 800, cursor: 'pointer', transition: 'background 0.2s' }} onMouseEnter={e => e.currentTarget.style.background = '#2E6669'} onMouseLeave={e => e.currentTarget.style.background = '#387B7E'}>
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                      Cetak / Simpan PDF 💾
+                    </button>
+                  </div>
+
+                  {/* Document container resembling a sheet of paper */}
+                  <div className="modul-print-document" style={{
+                    background: '#ffffff',
+                    border: '1px solid #A8A29E',
+                    borderRadius: '8px',
+                    boxShadow: '0 4px 30px rgba(0,0,0,0.05)',
+                    padding: '48px',
+                    margin: '0 auto',
+                    maxWidth: '850px',
+                    width: '100%',
+                    boxSizing: 'border-box',
+                    color: '#000000',
+                    fontFamily: '"Times New Roman", Times, serif',
+                    lineHeight: 1.5
+                  }}>
+                    <style>{`
+                      .doc-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                      .doc-table th, .doc-table td { border: 1px solid #000000; padding: 12px; vertical-align: top; font-size: 13.5px; }
+                      .doc-title { text-align: center; font-size: 20px; font-weight: bold; text-decoration: underline; margin-bottom: 24px; }
+                      .doc-meta { display: grid; grid-template-columns: auto 1fr; gap: 8px 16px; margin-bottom: 24px; font-size: 14px; font-weight: bold; }
+                      .doc-bullet { margin: 4px 0; padding-left: 20px; }
+                      @media print {
+                        body * { visibility: hidden; }
+                        .modul-print-document, .modul-print-document * { visibility: visible; }
+                        .modul-print-document { position: absolute; left: 0; top: 0; width: 100%; border: none !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; }
+                        .no-print { display: none !important; }
+                      }
+                    `}</style>
+
+                    <div className="doc-title">MODUL AJAR</div>
+
+                    <div className="doc-meta">
+                      <div>MATA PELAJARAN</div><div>: {selectedModul.subject}</div>
+                      <div>FASE/ KELAS</div><div>: {selectedModul.grade}</div>
+                      <div>TOPIK</div><div>: {selectedModul.topic}</div>
+                      <div>ALOKASI WAKTU</div><div>: {selectedModul.duration}</div>
+                      <div>PERTEMUAN</div><div>: {selectedModul.session}</div>
+                    </div>
+
+                    {/* Table 1: Identifikasi */}
+                    <table className="doc-table">
+                      <tbody>
+                        <tr>
+                          <td rowSpan={4} style={{ width: '120px', fontWeight: 'bold', textTransform: 'uppercase', textAlign: 'center', verticalAlign: 'middle' }}>
+                            IDENTIFIKASI
+                          </td>
+                          <td style={{ width: '140px', fontWeight: 'bold' }}>Peserta Didik</td>
+                          <td>
+                            <div>Berdasarkan hasil tes diagnostik siswa, kemampuan awal siswa terbagi menjadi:</div>
+                            <div className="doc-bullet"> Tinggi : {content.identifikasi.kemampuanAwal.tinggi}%</div>
+                            <div className="doc-bullet"> Sedang : {content.identifikasi.kemampuanAwal.sedang}%</div>
+                            <div className="doc-bullet"> Rendah : {content.identifikasi.kemampuanAwal.rendah}%</div>
+                            <div style={{ marginTop: '8px' }}>Berdasarkan hasil GEFT (Group Embedded Figures Test) siswa terbagi menjadi:</div>
+                            <div className="doc-bullet"> Field Independent (FI) : {content.identifikasi.geft.fi}%</div>
+                            <div className="doc-bullet"> Field Dependent (FD) : {content.identifikasi.geft.fd}%</div>
+                            <div style={{ marginTop: '8px' }}>{content.identifikasi.deskripsi}</div>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style={{ fontWeight: 'bold' }}>Materi Pelajaran</td>
+                          <td>
+                            <div>{content.materiPelajaran.definisi}</div>
+                            <div style={{ fontWeight: 'bold', marginTop: '10px' }}>Materi pokok : {content.materiPelajaran.materiPokok.judul}</div>
+                            <div>{content.materiPelajaran.materiPokok.deskripsi}</div>
+                            <div style={{ fontWeight: 'bold', marginTop: '8px' }}>Langkah-langkah membuat tabel distribusi frekuensi:</div>
+                            <ol style={{ margin: '4px 0 0 0', paddingLeft: '20px' }}>
+                              {content.materiPelajaran.materiPokok.langkah.map((step: string, idx: number) => (
+                                <li key={idx}>{step}</li>
+                              ))}
+                            </ol>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style={{ fontWeight: 'bold' }}>Histogram</td>
+                          <td>
+                            <div>{content.materiPelajaran.histogram.deskripsi}</div>
+                            <div style={{ fontWeight: 'bold', marginTop: '8px' }}>Sumber :</div>
+                            <ul style={{ margin: '4px 0 0 0', paddingLeft: '20px' }}>
+                              {content.materiPelajaran.sumber.map((s: { nama: string; url?: string }, idx: number) => (
+                                <li key={idx}>
+                                  {s.nama} {s.url && <a href={s.url} target="_blank" rel="noopener noreferrer" style={{ color: '#0056b3', textDecoration: 'underline' }}>{s.url}</a>}
+                                </li>
+                              ))}
+                            </ul>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style={{ fontWeight: 'bold' }}>Dimensi Profil Lulusan (DPL)</td>
+                          <td>
+                            <div style={{ fontStyle: 'italic', marginBottom: '8px' }}>Pilihlah dimensi profil lulusan yang akan dicapai dalam pembelajaran:</div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                              <div>[ ] DPL 1: Keimanan & Ketaqwaan</div>
+                              <div>[ ] DPL 2: Kewargaan</div>
+                              <div>[✓] DPL 3: Penalaran Kritis</div>
+                              <div>[✓] DPL 4: Kreativitas</div>
+                              <div>[✓] DPL 5: Kolaborasi</div>
+                              <div>[✓] DPL 6: Kemandirian</div>
+                              <div>[ ] DPL 7: Kesehatan</div>
+                              <div>[✓] DPL 8: Komunikasi</div>
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+
+                    {/* Table 2: Desain Pembelajaran */}
+                    <table className="doc-table">
+                      <tbody>
+                        <tr>
+                          <td rowSpan={8} style={{ width: '120px', fontWeight: 'bold', textTransform: 'uppercase', textAlign: 'center', verticalAlign: 'middle' }}>
+                            DESAIN PEMBELAJARAN
+                          </td>
+                          <td style={{ width: '140px', fontWeight: 'bold' }}>Capaian Pembelajaran</td>
+                          <td>{content.desainPembelajaran.capaian}</td>
+                        </tr>
+                        <tr>
+                          <td style={{ fontWeight: 'bold' }}>Lintas Disiplin Ilmu</td>
+                          <td>
+                            <div><strong>❖ IPA:</strong> {content.desainPembelajaran.lintasDisiplin.ipa}</div>
+                            <div style={{ marginTop: '4px' }}><strong>❖ IPS:</strong> {content.desainPembelajaran.lintasDisiplin.ips}</div>
+                            <div style={{ marginTop: '4px' }}><strong>❖ Informatika:</strong> {content.desainPembelajaran.lintasDisiplin.informatika}</div>
+                            <div style={{ marginTop: '4px' }}><strong>❖ Bahasa Indonesia:</strong> {content.desainPembelajaran.lintasDisiplin.bahasaIndonesia}</div>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style={{ fontWeight: 'bold' }}>Tujuan Pembelajaran</td>
+                          <td>
+                            <ol style={{ margin: 0, paddingLeft: '20px' }}>
+                              {content.desainPembelajaran.tujuan.map((t: string, idx: number) => (
+                                <li key={idx}>{t}</li>
+                              ))}
+                            </ol>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style={{ fontWeight: 'bold' }}>Topik Pembelajaran</td>
+                          <td>
+                            <ol style={{ margin: 0, paddingLeft: '20px' }}>
+                              {content.desainPembelajaran.topik.map((t: string, idx: number) => (
+                                <li key={idx}>{t}</li>
+                              ))}
+                            </ol>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style={{ fontWeight: 'bold' }}>Praktik Pedagogis</td>
+                          <td>
+                            <div>• <strong>Model pembelajaran:</strong> {content.desainPembelajaran.praktikPedagogis.model}</div>
+                            <div>• <strong>Pendekatan pembelajaran:</strong> {content.desainPembelajaran.praktikPedagogis.pendekatan}</div>
+                            <div>• <strong>Metode Pembelajaran:</strong> {content.desainPembelajaran.praktikPedagogis.metode}</div>
+                            <div style={{ marginTop: '4px' }}>• <strong>Pembelajaran Berkesadaran:</strong> {content.desainPembelajaran.praktikPedagogis.pembelajaranBerkesadaran}</div>
+                            <div style={{ marginTop: '4px' }}>• <strong>Pembelajaran Bermakna:</strong> {content.desainPembelajaran.praktikPedagogis.pembelajaranBermakna}</div>
+                            <div style={{ marginTop: '4px' }}>• <strong>Pembelajaran Menggembirakan:</strong> {content.desainPembelajaran.praktikPedagogis.pembelajaranMenggembirakan}</div>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style={{ fontWeight: 'bold' }}>Kemitraan Pembelajaran</td>
+                          <td>
+                            {content.desainPembelajaran.kemitraan.map((k: string, idx: number) => (
+                              <div key={idx}>• {k}</div>
+                            ))}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style={{ fontWeight: 'bold' }}>Lingkungan Pembelajaran</td>
+                          <td>
+                            <div>• <strong>Ruang Fisik:</strong> {content.desainPembelajaran.lingkungan.ruangFisik}</div>
+                            <div>• <strong>Ruang Virtual:</strong> {content.desainPembelajaran.lingkungan.ruangVirtual}</div>
+                            <div>• <strong>Budaya Belajar:</strong> {content.desainPembelajaran.lingkungan.budayaBelajar}</div>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style={{ fontWeight: 'bold' }}>Pemanfaatan Digital</td>
+                          <td>{content.desainPembelajaran.pemanfaatanDigital}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+
+                    {/* Table 3: Pengalaman Belajar */}
+                    <table className="doc-table">
+                      <tbody>
+                        <tr>
+                          <td rowSpan={3} style={{ width: '120px', fontWeight: 'bold', textTransform: 'uppercase', textAlign: 'center', verticalAlign: 'middle' }}>
+                            PENGALAMAN BELAJAR
+                          </td>
+                          <td style={{ width: '140px', fontWeight: 'bold' }}>AWAL<br/><span style={{ fontSize: '11px', fontWeight: 'normal', fontStyle: 'italic' }}>(berkesadaran, bermakna, Menggembirakan)</span></td>
+                          <td>
+                            <div style={{ fontWeight: 'bold' }}>Pembukaan (berkesadaran/Mindful Learning):</div>
+                            <ul style={{ margin: '4px 0 10px 0', paddingLeft: '20px' }}>
+                              {content.pengalamanBelajar.awal.pembukaan.map((p: string, idx: number) => (
+                                <li key={idx} style={{ marginBottom: '4px' }}>{p}</li>
+                              ))}
+                            </ul>
+                            <div style={{ fontWeight: 'bold' }}>Apersepisi (bermakna/Meaningful Learning):</div>
+                            <ul style={{ margin: '4px 0 10px 0', paddingLeft: '20px' }}>
+                              {content.pengalamanBelajar.awal.apersepsi.map((a: string, idx: number) => (
+                                <li key={idx} style={{ marginBottom: '4px' }}>{a}</li>
+                              ))}
+                            </ul>
+                            <div style={{ fontWeight: 'bold' }}>Motivasi (Menggembirakan/Joyful Learning):</div>
+                            <ul style={{ margin: '4px 0 10px 0', paddingLeft: '20px' }}>
+                              {content.pengalamanBelajar.awal.motivasi.map((m: string, idx: number) => (
+                                <li key={idx} style={{ marginBottom: '4px' }}>{m}</li>
+                              ))}
+                            </ul>
+                            <div style={{ fontWeight: 'bold' }}>Ice Breaking (opsional):</div>
+                            <ul style={{ margin: '4px 0 0 0', paddingLeft: '20px' }}>
+                              {content.pengalamanBelajar.awal.iceBreaking.map((i: string, idx: number) => (
+                                <li key={idx} style={{ marginBottom: '4px' }}>{i}</li>
+                              ))}
+                            </ul>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style={{ fontWeight: 'bold' }}>INTI<br/><span style={{ fontSize: '11px', fontWeight: 'normal', fontStyle: 'italic' }}>(kemandirian)</span></td>
+                          <td>
+                            <div style={{ fontWeight: 'bold', textDecoration: 'underline' }}>Memahami (Berkesadaran, Bermakna)</div>
+                            <div style={{ fontWeight: 'bold', marginTop: '6px' }}>{content.pengalamanBelajar.inti.memahami.sintaks1.judul}</div>
+                            <ul style={{ margin: '4px 0 0 0', paddingLeft: '20px' }}>
+                              {content.pengalamanBelajar.inti.memahami.sintaks1.langkah.map((l: string, idx: number) => (
+                                <li key={idx}>{l}</li>
+                              ))}
+                            </ul>
+                            <div style={{ margin: '6px 0 12px 20px', fontSize: '12px', fontStyle: 'italic' }}>
+                              Diferensiasi proses dan lingkungan:<br/>
+                              - FI: {content.pengalamanBelajar.inti.memahami.sintaks1.diferensiasi[0]}<br/>
+                              - FD: {content.pengalamanBelajar.inti.memahami.sintaks1.diferensiasi[1]}
+                            </div>
+
+                            <div style={{ fontWeight: 'bold', textDecoration: 'underline', marginTop: '14px' }}>Mengaplikasi (berkesadaran, bermakna)</div>
+                            <div style={{ fontWeight: 'bold', marginTop: '6px' }}>{content.pengalamanBelajar.inti.mengaplikasi.sintaks2.judul}</div>
+                            <ul style={{ margin: '4px 0 0 0', paddingLeft: '20px' }}>
+                              {content.pengalamanBelajar.inti.mengaplikasi.sintaks2.langkah.map((l: string, idx: number) => (
+                                <li key={idx}>{l}</li>
+                              ))}
+                            </ul>
+                            <div style={{ margin: '6px 0 12px 20px', fontSize: '12px', fontStyle: 'italic' }}>
+                              Diferensiasi konten dan lingkungan:<br/>
+                              - FI: {content.pengalamanBelajar.inti.mengaplikasi.sintaks2.diferensiasi[0]}<br/>
+                              - FD: {content.pengalamanBelajar.inti.mengaplikasi.sintaks2.diferensiasi[1]}
+                            </div>
+
+                            <div style={{ fontWeight: 'bold', marginTop: '10px' }}>{content.pengalamanBelajar.inti.mengaplikasi.sintaks3.judul}</div>
+                            <ul style={{ margin: '4px 0 0 0', paddingLeft: '20px' }}>
+                              {content.pengalamanBelajar.inti.mengaplikasi.sintaks3.langkah.map((l: string, idx: number) => (
+                                <li key={idx}>{l}</li>
+                              ))}
+                            </ul>
+                            <div style={{ margin: '6px 0 12px 20px', fontSize: '12px', fontStyle: 'italic' }}>
+                              Diferensiasi proses dan lingkungan:<br/>
+                              - FI: {content.pengalamanBelajar.inti.mengaplikasi.sintaks3.diferensiasi[0]}<br/>
+                              - FD: {content.pengalamanBelajar.inti.mengaplikasi.sintaks3.diferensiasi[1]}
+                            </div>
+
+                            <div style={{ fontWeight: 'bold', textDecoration: 'underline', marginTop: '14px' }}>Merefleksi (berkesadaran)</div>
+                            <div style={{ fontWeight: 'bold', marginTop: '6px' }}>{content.pengalamanBelajar.inti.mengaplikasi.sintaks4.judul}</div>
+                            <ul style={{ margin: '4px 0 12px 0', paddingLeft: '20px' }}>
+                              {content.pengalamanBelajar.inti.mengaplikasi.sintaks4.langkah.map((l: string, idx: number) => (
+                                <li key={idx}>{l}</li>
+                              ))}
+                            </ul>
+
+                            <div style={{ fontWeight: 'bold', textDecoration: 'underline', marginTop: '14px' }}>Menganalisis dan mengevaluasi (Sintaks 5 PBL)</div>
+                            <ul style={{ margin: '4px 0 0 0', paddingLeft: '20px' }}>
+                              {content.pengalamanBelajar.inti.menganalisis.sintaks5.langkah.map((l: string, idx: number) => (
+                                <li key={idx}>{l}</li>
+                              ))}
+                            </ul>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style={{ fontWeight: 'bold' }}>PENUTUP<br/><span style={{ fontSize: '11px', fontWeight: 'normal', fontStyle: 'italic' }}>(berkesadaran)</span></td>
+                          <td>
+                            <ul style={{ margin: 0, paddingLeft: '20px' }}>
+                              {content.pengalamanBelajar.penutup.map((p: string, idx: number) => {
+                                if (p.includes("Kemampuan kalian membaca data")) {
+                                  return (
+                                    <li key={idx} style={{ marginBottom: '8px', listStyleType: 'none', marginLeft: '-20px', padding: '10px 14px', borderLeft: '3px solid #000000', background: '#F8F8F8', fontStyle: 'italic' }}>
+                                      {p}
+                                    </li>
+                                  )
+                                }
+                                return <li key={idx} style={{ marginBottom: '4px' }}>{p}</li>
+                              })}
+                            </ul>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+
+                  </div>
+                </div>
+              )
+            })()}
+          </div>
+        )}
+
+        {/* ═══════════════════════════════════════
+            TAB: BASIS PENGETAHUAN AI (RAG)
+        ═══════════════════════════════════════ */}
+        {activeTab === 'chatbot-rag' && (
           <div className="guru-tab-content" style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '28px', alignItems: 'start' }}>
             {/* Form */}
             <div style={{ background: '#fff', border: '1px solid rgba(85,183,180,0.2)', borderRadius: '24px', padding: '24px', position: 'sticky', top: '20px' }}>

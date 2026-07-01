@@ -109,6 +109,21 @@ model ChatbotKnowledge {
   @@map("chatbot_knowledge")
 }
 
+model ModulAjar {
+  id        String   @id @default(uuid())
+  title     String
+  subject   String   @default("Matematika")
+  grade     String   @default("E / X")
+  topic     String
+  duration  String   @default("2 x 45 Menit")
+  session   String   @default("Pertama")
+  content   String   @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("modul_ajar")
+}
+
 model Team {
   id            String   @id @default(uuid())
   classroomId   String   @map("classroom_id")
