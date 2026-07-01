@@ -3,13 +3,38 @@
 :root {
   --background: #FAF6EE;
   --foreground: #1C1917;
+
+  /* ── Skeptikos Landing Page Palette ── */
+  --sk-bg: #060D1F;
+  --sk-cyan: #00B4D8;
+  --sk-gold: #FFD700;
+  --sk-purple: #A855F7;
+  --sk-text: #FFFFFF;
+  --sk-text-muted: #94A3B8;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-sk-bg: var(--sk-bg);
+  --color-sk-cyan: var(--sk-cyan);
+  --color-sk-gold: var(--sk-gold);
+  --color-sk-purple: var(--sk-purple);
+  --color-sk-text: var(--sk-text);
+  --color-sk-text-muted: var(--sk-text-muted);
   --font-sans: var(--font-plus-jakarta-sans);
   --font-heading: var(--font-outfit);
+}
+
+/* ── Skeptikos glow utilities ── */
+.glow-cyan {
+  box-shadow: 0 0 20px rgba(0, 180, 216, 0.25),
+              0 0 60px rgba(0, 180, 216, 0.08);
+}
+
+.glow-gold {
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.25),
+              0 0 60px rgba(255, 215, 0, 0.08);
 }
 
 body {
@@ -23,7 +48,6 @@ body {
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-outfit), sans-serif;
   font-weight: 700;
-  color: #1c1917;
 }
 
 /* Custom scrollbar for premium theme */

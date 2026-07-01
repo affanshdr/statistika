@@ -8,7 +8,7 @@ import StatsSection from '@/components/landing/StatsSection'
 import CTASection from '@/components/landing/CTASection'
 import FooterSection from '@/components/landing/FooterSection'
 
-export default function Home() {
+export default function LandingPage() {
   return (
     <main className="bg-[#060D1F] min-h-screen overflow-x-hidden">
       <Navbar />

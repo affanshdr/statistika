@@ -40,19 +40,6 @@ interface KnowledgeItem {
   updatedAt: string
 }
 
-interface GroupStudent {
-  id: string
-  name: string
-  label: string
-  cognitiveStyle: 'FI' | 'FD'
-}
-
-interface Group {
-  id: string
-  name: string
-  students: GroupStudent[]
-}
-
 interface PreVsPostEntry {
   id: string
   name: string
@@ -96,9 +83,7 @@ const IconDashboard = () => (
 const IconKelas = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
 )
-const IconProgress = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-)
+
 const IconModul = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
 )
@@ -129,18 +114,13 @@ const IconExport = () => (
 const IconUsers = () => (
   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
 )
-const IconCheck = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-)
 const IconArrowRight = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
 )
 const IconClock = () => (
   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
 )
-const IconFilter = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
-)
+
 
 const IconHistory = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><polyline points="3 3 3 8 8 8"/><line x1="12" y1="7" x2="12" y2="12"/><line x1="12" y1="12" x2="16" y2="14"/></svg>
@@ -159,16 +139,6 @@ const IconTrendDown = () => (
 )
 
 // ─────────────────────────────────────────────
-// DEFAULT GROUPS INITIALIZATION
-// ─────────────────────────────────────────────
-const DEFAULT_GROUPS: Group[] = [
-  { id: 'grp-1', name: 'Kelompok FD 1', students: [] },
-  { id: 'grp-2', name: 'Kelompok FD 2', students: [] },
-  { id: 'grp-3', name: 'Kelompok FD 3', students: [] },
-  { id: 'grp-4', name: 'Kelompok FD 4', students: [] },
-]
-
-// ─────────────────────────────────────────────
 // MAIN COMPONENT
 // ─────────────────────────────────────────────
 export default function GuruPage() {
@@ -181,7 +151,7 @@ export default function GuruPage() {
   const [checkingAuth, setCheckingAuth] = useState(true)
 
   // Tabs
-  type Tab = 'dashboard' | 'progress' | 'manajemen-kelas' | 'modul-ajar' | 'analisis'
+  type Tab = 'dashboard' | 'manajemen-kelas' | 'modul-ajar' | 'analisis'
   const [activeTab, setActiveTab] = useState<Tab>('dashboard')
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
@@ -191,14 +161,10 @@ export default function GuruPage() {
   const [knowledgeItems, setKnowledgeItems] = useState<KnowledgeItem[]>([])
 
   // Loading
-  const [loadingStudents, setLoadingStudents] = useState(true)
   const [loadingClassrooms, setLoadingClassrooms] = useState(true)
   const [loadingKnowledge, setLoadingKnowledge] = useState(true)
 
-  // Progress tab
-  const [progressSearch, setProgressSearch] = useState('')
-  const [progressFilter, setProgressFilter] = useState<'semua' | 'belum-selesai' | 'selesai'>('semua')
-  const [progressClassFilter, setProgressClassFilter] = useState('semua')
+
 
   // Manajemen Kelas
   const [selectedClassId, setSelectedClassId] = useState<string | null>(null)
@@ -223,11 +189,7 @@ export default function GuruPage() {
   const [moveTargetClassId, setMoveTargetClassId] = useState('')
   const [moveSaving, setMoveSaving] = useState(false)
 
-  // Drag and Drop (dashboard)
-  const [availableStudents, setAvailableStudents] = useState<GroupStudent[]>([])
-  const [groups, setGroups] = useState<Group[]>([])
-  const [lastSaved, setLastSaved] = useState('HARI INI, 10:45 AM')
-  const [dragOverGroupId, setDragOverGroupId] = useState<string | null>(null)
+
 
   // RAG Knowledge (modul-ajar)
   const [isEditing, setIsEditing] = useState(false)
@@ -256,11 +218,10 @@ export default function GuruPage() {
 
   // ── FETCH DATA ──
   const fetchStudents = useCallback(async () => {
-    setLoadingStudents(true)
     try {
       const res = await fetch('/api/students')
       if (res.ok) setStudents(await res.json())
-    } catch (e) { console.error(e) } finally { setLoadingStudents(false) }
+    } catch (e) { console.error(e) }
   }, [])
 
   const fetchClassrooms = useCallback(async () => {
@@ -320,53 +281,7 @@ export default function GuruPage() {
     }
   }, [isAuthorized, fetchStudents, fetchClassrooms, fetchKnowledge])
 
-  const initGroupsAndAvailable = useCallback((studentList: Student[]) => {
-    const savedGroupsRaw = localStorage.getItem('groups_fd')
-    const savedTime = localStorage.getItem('last_saved_time')
 
-    const dbGroupStudents: GroupStudent[] = studentList
-      .filter(s => s.geftResult && s.geftResult.cognitiveStyle)
-      .map(s => ({
-        id: s.id,
-        name: s.name,
-        label: `${s.geftResult?.cognitiveStyle} · ${s.classroom?.name || '-'}`,
-        cognitiveStyle: s.geftResult?.cognitiveStyle as 'FI' | 'FD'
-      }))
-
-    let loadedGroups: Group[] = []
-    if (savedGroupsRaw) {
-      try {
-        const parsed = JSON.parse(savedGroupsRaw) as Group[]
-        loadedGroups = parsed.map(g => ({
-          ...g,
-          students: g.students
-            .map(gs => dbGroupStudents.find(dbS => dbS.id === gs.id))
-            .filter((gs): gs is GroupStudent => !!gs)
-        }))
-      } catch (e) {
-        console.error(e)
-      }
-    }
-
-    if (loadedGroups.length === 0) {
-      loadedGroups = DEFAULT_GROUPS
-    }
-
-    const assignedIds = new Set(loadedGroups.flatMap(g => g.students.map(s => s.id)))
-    const loadedAvailable = dbGroupStudents.filter(s => !assignedIds.has(s.id))
-
-    startTransition(() => {
-      setGroups(loadedGroups)
-      setAvailableStudents(loadedAvailable)
-      if (savedTime) setLastSaved(savedTime)
-    })
-  }, [])
-
-  useEffect(() => {
-    if (isAuthorized) {
-      initGroupsAndAvailable(students)
-    }
-  }, [isAuthorized, students, initGroupsAndAvailable])
 
   useEffect(() => {
     if (selectedClassId) startTransition(() => { fetchClassStudents(selectedClassId) })
@@ -386,52 +301,7 @@ export default function GuruPage() {
     sessionStorage.removeItem('teacher_authorized')
   }
 
-  // ── DRAG AND DROP ──
-  const handleDragStart = (e: React.DragEvent, studentId: string, source: string) => {
-    e.dataTransfer.setData('text/plain', JSON.stringify({ studentId, source }))
-  }
-  const handleDrop = (e: React.DragEvent, targetGroupId: string) => {
-    e.preventDefault()
-    setDragOverGroupId(null)
-    try {
-      const { studentId, source } = JSON.parse(e.dataTransfer.getData('text/plain'))
-      if (source === targetGroupId) return
-      let studentToMove: GroupStudent | undefined
-      if (source === 'available') {
-        studentToMove = availableStudents.find(s => s.id === studentId)
-      } else {
-        studentToMove = groups.find(g => g.id === source)?.students.find(s => s.id === studentId)
-      }
-      if (!studentToMove) return
-      if (source === 'available') setAvailableStudents(prev => prev.filter(s => s.id !== studentId))
-      else setGroups(prev => prev.map(g => g.id === source ? { ...g, students: g.students.filter(s => s.id !== studentId) } : g))
-      if (targetGroupId === 'available') setAvailableStudents(prev => [...prev, studentToMove!])
-      else setGroups(prev => prev.map(g => g.id === targetGroupId ? { ...g, students: g.students.some(s => s.id === studentId) ? g.students : [...g.students, studentToMove!] } : g))
-    } catch (err) { console.error(err) }
-  }
-  const removeStudentFromGroup = (studentId: string, groupId: string) => {
-    const student = groups.find(g => g.id === groupId)?.students.find(s => s.id === studentId)
-    if (!student) return
-    setGroups(prev => prev.map(g => g.id === groupId ? { ...g, students: g.students.filter(s => s.id !== studentId) } : g))
-    setAvailableStudents(prev => [...prev, student])
-  }
-  const handleSaveGroups = () => {
-    localStorage.setItem('available_students', JSON.stringify(availableStudents))
-    localStorage.setItem('groups_fd', JSON.stringify(groups))
-    const now = new Date()
-    const timeStr = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`
-    const fullSave = `HARI INI, ${timeStr} ${now.getHours() >= 12 ? 'PM' : 'AM'}`
-    localStorage.setItem('last_saved_time', fullSave)
-    setLastSaved(fullSave)
-  }
-  const handleResetGroups = () => {
-    if (!confirm('Apakah Anda yakin ingin mereset kelompok diskusi? Semua pengaturan kelompok saat ini akan dihapus.')) return
-    localStorage.removeItem('groups_fd')
-    localStorage.removeItem('available_students')
-    localStorage.removeItem('last_saved_time')
-    initGroupsAndAvailable(students)
-    setLastSaved('BELUM DISIMPAN')
-  }
+
 
   // ── CLASS CRUD ──
   const openCreateClass = () => {
@@ -581,14 +451,6 @@ export default function GuruPage() {
     link.click()
   }
 
-  // ── FILTERED PROGRESS DATA ──
-  const filteredProgressStudents = students.filter(s => {
-    const nameMatch = s.name.toLowerCase().includes(progressSearch.toLowerCase())
-    const classMatch = progressClassFilter === 'semua' || s.classroomId === progressClassFilter
-    const stage = getStudentStageStatus(s)
-    const statusMatch = progressFilter === 'semua' ? true : progressFilter === 'belum-selesai' ? stage !== 'selesai' : stage === 'selesai'
-    return nameMatch && classMatch && statusMatch
-  })
 
   // ─────────────────────────────────────────────
   // LOADING / AUTH GATES
@@ -600,24 +462,24 @@ export default function GuruPage() {
   )
 
   if (!isAuthorized) return (
-    <main style={{ minHeight: '100vh', background: '#FAF6EE', color: '#1C1917', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-      <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle, rgba(180,140,80,0.1) 1px, transparent 1px)', backgroundSize: '28px 28px', zIndex: 0 }} />
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} style={{ background: '#FFFFFF', borderRadius: '24px', border: '1px solid rgba(180,140,80,0.2)', boxShadow: '0 10px 40px rgba(143,79,6,0.08)', width: '100%', maxWidth: '400px', padding: '36px 30px', zIndex: 1, position: 'relative' }}>
-        <button onClick={() => router.push('/')} style={{ background: 'none', border: 'none', color: '#8F4F06', cursor: 'pointer', fontSize: '13px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '24px', padding: 0 }}>← Kembali ke Menu Utama</button>
+    <main style={{ minHeight: '100vh', background: '#E5F3F4', color: '#1C1917', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+      <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle, rgba(85,183,180,0.18) 1px, transparent 1px)', backgroundSize: '28px 28px', zIndex: 0 }} />
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} style={{ background: '#FFFFFF', borderRadius: '24px', border: '1px solid rgba(85,183,180,0.25)', boxShadow: '0 10px 40px rgba(56,123,126,0.08)', width: '100%', maxWidth: '400px', padding: '36px 30px', zIndex: 1, position: 'relative' }}>
+        <button onClick={() => router.push('/')} style={{ background: 'none', border: 'none', color: '#387B7E', cursor: 'pointer', fontSize: '13px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '24px', padding: 0 }}>← Kembali ke Menu Utama</button>
         <div style={{ textAlign: 'center', marginBottom: '28px' }}>
-          <div style={{ width: '56px', height: '56px', borderRadius: '16px', background: 'rgba(143,79,6,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+          <div style={{ width: '56px', height: '56px', borderRadius: '16px', background: 'rgba(85,183,180,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
             <span style={{ fontSize: '28px' }}>🧑‍🏫</span>
           </div>
-          <h2 style={{ margin: 0, fontSize: '22px', fontWeight: 800, color: '#8F4F06', fontFamily: 'var(--font-heading)' }}>Portal Otoritas Guru</h2>
+          <h2 style={{ margin: 0, fontSize: '22px', fontWeight: 800, color: '#387B7E', fontFamily: 'var(--font-heading)' }}>Portal Otoritas Guru</h2>
           <p style={{ margin: '6px 0 0', fontSize: '13px', color: '#78716C' }}>Masukkan sandi otentikasi guru untuk masuk.</p>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
           <div>
             <label style={{ display: 'block', fontSize: '11px', fontWeight: 800, color: '#78716C', letterSpacing: '1px', marginBottom: '8px' }}>KATA SANDI PORTAL</label>
-            <input type="password" placeholder="Masukkan sandi..." value={passcode} onChange={e => setPasscode(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleVerifyPasscode()} style={{ width: '100%', boxSizing: 'border-box', padding: '14px 16px', borderRadius: '12px', background: '#FAF6EE', border: '1px solid rgba(180,140,80,0.3)', color: '#1C1917', fontSize: '14px', outline: 'none' }} />
+            <input type="password" placeholder="Masukkan sandi..." value={passcode} onChange={e => setPasscode(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleVerifyPasscode()} style={{ width: '100%', boxSizing: 'border-box', padding: '14px 16px', borderRadius: '12px', background: '#F3F8F9', border: '1px solid rgba(85,183,180,0.35)', color: '#1C1917', fontSize: '14px', outline: 'none' }} />
           </div>
           {passcodeError && <div style={{ padding: '10px 14px', borderRadius: '10px', background: '#FEF2F2', border: '1px solid #FCA5A5', color: '#EF4444', fontSize: '13px' }}>⚠️ {passcodeError}</div>}
-          <button onClick={handleVerifyPasscode} style={{ width: '100%', padding: '15px', borderRadius: '12px', border: 'none', background: '#8F4F06', color: '#FFFFFF', fontSize: '14px', fontWeight: 800, cursor: 'pointer' }}>Masuk Dashboard</button>
+          <button onClick={handleVerifyPasscode} style={{ width: '100%', padding: '15px', borderRadius: '12px', border: 'none', background: '#387B7E', color: '#FFFFFF', fontSize: '14px', fontWeight: 800, cursor: 'pointer', transition: 'background 0.2s' }} onMouseEnter={e => e.currentTarget.style.background = '#2E6669'} onMouseLeave={e => e.currentTarget.style.background = '#387B7E'}>Masuk Dashboard</button>
         </div>
       </motion.div>
     </main>
@@ -629,47 +491,48 @@ export default function GuruPage() {
   const stuckCount = analysisData?.stuckStudents.length ?? 0
   const sidebarItems: { key: Tab; label: string; icon: React.ReactNode; badge?: number }[] = [
     { key: 'dashboard', label: 'Dashboard', icon: <IconDashboard /> },
-    { key: 'progress', label: 'Progress Siswa', icon: <IconProgress /> },
     { key: 'manajemen-kelas', label: 'Manajemen Kelas', icon: <IconKelas /> },
     { key: 'analisis', label: 'Analisis Belajar', icon: <IconAnalysis />, badge: stuckCount },
     { key: 'modul-ajar', label: 'Modul Ajar (RAG)', icon: <IconModul /> },
   ]
 
   return (
-    <div className="guru-layout" style={{ minHeight: '100vh', background: '#FAF6EE', display: 'flex', fontFamily: 'var(--font-sans), sans-serif' }}>
+    <div className="guru-layout" style={{ minHeight: '100vh', background: '#FFFFFF', display: 'flex', fontFamily: 'var(--font-sans), sans-serif' }}>
       <style>{`
         @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
         @keyframes pulse-ring { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.15);opacity:.8} }
         .guru-tab-content { animation: fadeIn 0.25s ease; }
         .guru-layout { color: #1C1917; }
-        .stat-card { background:#fff; border-radius:20px; border:1px solid rgba(180,140,80,0.15); padding:24px; box-shadow:0 4px 20px rgba(143,79,6,0.03); transition: box-shadow 0.2s, transform 0.2s; }
-        .stat-card:hover { box-shadow:0 8px 30px rgba(143,79,6,0.08); transform:translateY(-2px); }
-        .guru-table th { background:#FAF6EE; font-size:10px; font-weight:800; color:#A8A29E; letter-spacing:0.8px; padding:12px 16px; text-align:left; border-bottom:1px solid rgba(180,140,80,0.15); }
-        .guru-table td { padding:14px 16px; border-bottom:1px solid rgba(180,140,80,0.07); font-size:13px; vertical-align:middle; }
-        .guru-table tr:hover td { background:rgba(250,246,238,0.6); }
+        .stat-card { background:#F3F8F9; border-radius:20px; padding:24px; transition: background 0.2s, transform 0.2s; }
+        .stat-card:hover { background:#EBF3F5; transform:translateY(-2px); }
+        .guru-table th { background:#F3F8F9; font-size:10px; font-weight:800; color:#78716C; letter-spacing:0.8px; padding:12px 16px; text-align:left; border-bottom:1px solid rgba(85,183,180,0.15); }
+        .guru-table td { padding:14px 16px; border-bottom:1px solid rgba(85,183,180,0.08); font-size:13px; vertical-align:middle; }
+        .guru-table tr:hover td { background:rgba(85,183,180,0.06); }
         .badge-fi { background:#F0FDFA; color:#0D9488; border:1px solid #99F6E4; }
         .badge-fd { background:#FEF7ED; color:#B45309; border:1px solid #FCD19C; }
         .badge-selesai { background:#F7FEE7; color:#4D7C0F; border:1px solid #BEF264; }
         .badge-pending { background:#FEF2F2; color:#B91C1C; border:1px solid #FCA5A5; }
         .badge-progress { background:#FFF3EE; color:#C2410C; border:1px solid #FDBA74; }
-        .class-card { background:#fff; border-radius:20px; border:1px solid rgba(180,140,80,0.15); padding:20px; cursor:pointer; transition:all 0.2s; box-shadow:0 2px 12px rgba(143,79,6,0.02); }
-        .class-card:hover { border-color:#8F4F06; box-shadow:0 6px 24px rgba(143,79,6,0.1); transform:translateY(-2px); }
-        .class-card.selected { border-color:#8F4F06; box-shadow:0 0 0 3px rgba(143,79,6,0.12); }
-        .btn-icon { background:none; border:1px solid rgba(180,140,80,0.25); border-radius:8px; padding:6px 8px; cursor:pointer; display:flex; align-items:center; gap:4px; font-size:11px; font-weight:700; transition:all 0.2s; color:#78716C; }
-        .btn-icon:hover { background:#FAF6EE; color:#8F4F06; border-color:#8F4F06; }
+        .class-card { background:#fff; border-radius:20px; border:1px solid rgba(85,183,180,0.20); padding:20px; cursor:pointer; transition:all 0.2s; box-shadow:0 2px 12px rgba(85,183,180,0.02); }
+        .class-card:hover { border-color:#55B7B4; box-shadow:0 6px 24px rgba(85,183,180,0.12); transform:translateY(-2px); }
+        .class-card.selected { border-color:#387B7E; box-shadow:0 0 0 3px rgba(85,183,180,0.2); }
+        .btn-icon { background:none; border:1px solid rgba(85,183,180,0.25); border-radius:8px; padding:6px 8px; cursor:pointer; display:flex; align-items:center; gap:4px; font-size:11px; font-weight:700; transition:all 0.2s; color:#78716C; }
+        .btn-icon:hover { background:#F3F8F9; color:#387B7E; border-color:#387B7E; }
         .btn-icon.danger:hover { background:#FEF2F2; color:#DC2626; border-color:#FCA5A5; }
-        .sidebar-nav-btn { display:flex; align-items:center; gap:12px; padding:11px 16px; border-radius:0 12px 12px 0; border:none; border-left:3px solid transparent; background:transparent; color:#78716C; font-size:13.5px; font-weight:600; cursor:pointer; text-align:left; width:100%; transition:all 0.18s; justify-content:space-between; }
-        .sidebar-nav-btn.active { border-left-color:#8F4F06; background:#F4EFE6; color:#8F4F06; font-weight:800; }
-        .sidebar-nav-btn:hover:not(.active) { background:rgba(143,79,6,0.04); color:#8F4F06; }
+        .sidebar-nav-btn { display:flex; align-items:center; gap:12px; padding:13px 20px; border-radius:28px 0 0 28px; border:none; background:transparent; color:rgba(255,255,255,0.85); font-size:13.5px; font-weight:600; cursor:pointer; text-align:left; width:calc(100% - 16px); margin-left:16px; transition:all 0.2s; justify-content:space-between; position:relative; }
+        .sidebar-nav-btn.active { background:#FFFFFF; color:#387B7E; font-weight:800; border-left:none; box-shadow:-4px 4px 12px rgba(0,0,0,0.03); }
+        .sidebar-nav-btn.active::before { content:""; position:absolute; right:0; top:-20px; width:20px; height:20px; background:transparent; border-bottom-right-radius:20px; box-shadow:10px 10px 0 10px #FFFFFF; pointer-events:none; z-index:10; }
+        .sidebar-nav-btn.active::after { content:""; position:absolute; right:0; bottom:-20px; width:20px; height:20px; background:transparent; border-top-right-radius:20px; box-shadow:10px -10px 0 10px #FFFFFF; pointer-events:none; z-index:10; }
+        .sidebar-nav-btn:hover:not(.active) { background:rgba(255,255,255,0.1); color:#FFFFFF; }
         .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:200; display:flex; align-items:center; justify-content:center; padding:20px; }
         .modal-box { background:#fff; border-radius:24px; padding:32px; width:100%; max-width:480px; box-shadow:0 20px 60px rgba(0,0,0,0.15); }
-        .form-input { width:100%; box-sizing:border-box; padding:11px 14px; border-radius:10px; background:#FAF6EE; border:1.5px solid rgba(180,140,80,0.25); color:#1C1917; font-size:13px; outline:none; font-family:inherit; transition:border-color 0.15s; }
-        .form-input:focus { border-color:#8F4F06; }
+        .form-input { width:100%; box-sizing:border-box; padding:11px 14px; border-radius:10px; background:#F3F8F9; border:1.5px solid rgba(85,183,180,0.25); color:#1C1917; font-size:13px; outline:none; font-family:inherit; transition:border-color 0.15s; }
+        .form-input:focus { border-color:#387B7E; }
         .form-label { display:block; font-size:10px; font-weight:800; color:#78716C; letter-spacing:1px; margin-bottom:7px; }
-        .gain-bar-bg { height:10px; border-radius:5px; background:#F4EDE0; overflow:hidden; flex:1; }
-        .notif-panel { position:absolute; right:0; top:calc(100% + 8px); width:340px; background:#fff; border-radius:20px; border:1px solid rgba(180,140,80,0.2); box-shadow:0 16px 48px rgba(143,79,6,0.12); z-index:100; overflow:hidden; }
-        .stuck-row { display:flex; align-items:center; gap:12px; padding:14px 18px; border-bottom:1px solid rgba(180,140,80,0.08); transition:background 0.15s; }
-        .stuck-row:hover { background:#FAF6EE; }
+        .gain-bar-bg { height:10px; border-radius:5px; background:#E0F2F1; overflow:hidden; flex:1; }
+        .notif-panel { position:absolute; right:0; top:calc(100% + 8px); width:340px; background:#fff; border-radius:20px; border:1px solid rgba(85,183,180,0.2); box-shadow:0 16px 48px rgba(85,183,180,0.08); z-index:100; overflow:hidden; }
+        .stuck-row { display:flex; align-items:center; gap:12px; padding:14px 18px; border-bottom:1px solid rgba(85,183,180,0.08); transition:background 0.15s; }
+        .stuck-row:hover { background:#F3F8F9; }
         .notif-badge { animation: pulse-ring 2s infinite; }
         @media (max-width: 768px) {
           .guru-sidebar { display:none !important; }
@@ -686,24 +549,40 @@ export default function GuruPage() {
       </AnimatePresence>
 
       {/* ── SIDEBAR ── */}
-      <aside className={`guru-sidebar ${mobileMenuOpen ? 'mobile-open' : ''}`} style={{ width: '258px', background: '#FAF6EE', borderRight: '1px solid rgba(180,140,80,0.18)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '24px 0', flexShrink: 0, position: 'sticky', top: 0, height: '100vh', boxSizing: 'border-box' }}>
+      <aside className={`guru-sidebar ${mobileMenuOpen ? 'mobile-open' : ''}`} style={{ width: '258px', background: 'linear-gradient(180deg, #55B7B4 0%, #387B7E 100%)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '24px 0', flexShrink: 0, position: 'sticky', top: 0, height: '100vh', boxSizing: 'border-box' }}>
         {/* Brand */}
         <div>
           <div style={{ padding: '0 20px', marginBottom: '28px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: '#8F4F06', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M8 11l4-2 4 2-4 2z"/><path d="M12 13v3"/></svg>
+            <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#387B7E" strokeWidth="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M8 11l4-2 4 2-4 2z"/><path d="M12 13v3"/></svg>
             </div>
             <div>
-              <h2 style={{ margin: 0, fontSize: '17px', fontWeight: 800, color: '#8F4F06', fontFamily: 'var(--font-heading)', lineHeight: 1.1 }}>Portal Guru</h2>
-              <span style={{ fontSize: '9px', fontWeight: 700, color: '#854D0E', letterSpacing: '0.8px' }}>SKEPTIKOS AKADEMIK</span>
+              <h2 style={{ margin: 0, fontSize: '17px', fontWeight: 800, color: '#FFFFFF', fontFamily: 'var(--font-heading)', lineHeight: 1.1 }}>Portal Guru</h2>
+              <span style={{ fontSize: '9px', fontWeight: 700, color: 'rgba(255, 255, 255, 0.75)', letterSpacing: '0.8px' }}>SKEPTIKOS AKADEMIK</span>
             </div>
           </div>
 
           {/* Nav */}
-          <nav style={{ display: 'flex', flexDirection: 'column', gap: '2px', padding: '0 8px' }}>
+          <nav style={{ display: 'flex', flexDirection: 'column', gap: '2px', padding: '0 0 0 8px' }}>
             {sidebarItems.map(item => (
               <button key={item.key} className={`sidebar-nav-btn ${activeTab === item.key ? 'active' : ''}`} onClick={() => { setActiveTab(item.key); setMobileMenuOpen(false) }}>
-                {item.icon} {item.label}
+                <span style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  {item.icon}
+                  <span>{item.label}</span>
+                </span>
+                {item.badge !== undefined && item.badge > 0 && (
+                  <span style={{
+                    background: activeTab === item.key ? '#EF4444' : '#FFFFFF',
+                    color: activeTab === item.key ? '#FFFFFF' : '#EF4444',
+                    fontSize: '10px',
+                    fontWeight: 800,
+                    padding: '2px 6px',
+                    borderRadius: '8px',
+                    lineHeight: 1
+                  }}>
+                    {item.badge}
+                  </span>
+                )}
               </button>
             ))}
           </nav>
@@ -711,17 +590,17 @@ export default function GuruPage() {
 
         {/* Bottom */}
         <div style={{ padding: '0 16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          <div style={{ padding: '14px 16px', borderRadius: '16px', background: 'rgba(143,79,6,0.06)', border: '1px solid rgba(143,79,6,0.1)' }}>
+          <div style={{ padding: '14px 16px', borderRadius: '16px', background: 'rgba(255, 255, 255, 0.12)', border: '1px solid rgba(255, 255, 255, 0.18)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/profile_sarah.png" alt="Profil Guru" style={{ width: '36px', height: '36px', borderRadius: '50%', border: '2px solid #8F4F06', objectFit: 'cover' }} />
+              <img src="/profile_sarah.png" alt="Profil Guru" style={{ width: '36px', height: '36px', borderRadius: '50%', border: '2px solid #FFFFFF', objectFit: 'cover' }} />
               <div>
-                <div style={{ fontSize: '12px', fontWeight: 800, color: '#1C1917' }}>Dr. Sarah Wijaya</div>
-                <div style={{ fontSize: '10px', color: '#78716C', fontWeight: 600 }}>Koordinator Statistika</div>
+                <div style={{ fontSize: '12px', fontWeight: 800, color: '#FFFFFF' }}>Dr. Sarah Wijaya</div>
+                <div style={{ fontSize: '10px', color: 'rgba(255, 255, 255, 0.75)', fontWeight: 600 }}>Koordinator Statistika</div>
               </div>
             </div>
           </div>
-          <button onClick={handleLogout} style={{ width: '100%', padding: '11px', borderRadius: '12px', border: 'none', background: 'transparent', color: '#78716C', fontSize: '13px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', transition: 'color 0.2s' }} onMouseEnter={e => e.currentTarget.style.color = '#8F4F06'} onMouseLeave={e => e.currentTarget.style.color = '#78716C'}>
+          <button onClick={handleLogout} style={{ width: '100%', padding: '11px', borderRadius: '12px', border: 'none', background: 'transparent', color: 'rgba(255, 255, 255, 0.8)', fontSize: '13px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', transition: 'color 0.2s' }} onMouseEnter={e => e.currentTarget.style.color = '#FFFFFF'} onMouseLeave={e => e.currentTarget.style.color = 'rgba(255, 255, 255, 0.8)'}>
             <IconKeluar /> Keluar
           </button>
         </div>
@@ -731,50 +610,48 @@ export default function GuruPage() {
       <main style={{ flex: 1, padding: '30px 36px', boxSizing: 'border-box', overflowY: 'auto', maxHeight: '100vh' }}>
         {/* Mobile header */}
         <div className="guru-mobile-header" style={{ display: 'none', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <button onClick={() => setMobileMenuOpen(true)} style={{ background: 'none', border: 'none', color: '#8F4F06', cursor: 'pointer' }}>
+          <button onClick={() => setMobileMenuOpen(true)} style={{ background: 'none', border: 'none', color: '#387B7E', cursor: 'pointer' }}>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
           </button>
-          <span style={{ fontWeight: 800, color: '#8F4F06', fontSize: '15px' }}>Portal Guru</span>
+          <span style={{ fontWeight: 800, color: '#387B7E', fontSize: '15px' }}>Portal Guru</span>
           <IconBell />
         </div>
 
         {/* Top header */}
         <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '28px' }}>
           <div>
-            <h1 style={{ margin: 0, fontSize: '22px', fontWeight: 800, color: '#8F4F06', fontFamily: 'var(--font-heading)' }}>
+            <h1 style={{ margin: 0, fontSize: '22px', fontWeight: 800, color: '#387B7E', fontFamily: 'var(--font-heading)' }}>
               {activeTab === 'dashboard' && 'Ringkasan Kelas'}
-              {activeTab === 'progress' && 'Progress Per Siswa'}
               {activeTab === 'manajemen-kelas' && 'Manajemen Kelas'}
               {activeTab === 'analisis' && 'Analisis Belajar'}
               {activeTab === 'modul-ajar' && 'Modul Ajar (RAG)'}
             </h1>
             <p style={{ margin: '4px 0 0', fontSize: '12px', color: '#78716C', fontWeight: 600 }}>
               {activeTab === 'dashboard' && 'Snapshot cepat kondisi kelas Anda saat ini'}
-              {activeTab === 'progress' && 'Detail tahapan tiap siswa — filter siapa yang perlu dikejar'}
               {activeTab === 'manajemen-kelas' && 'Kelola kelas, daftar siswa, dan pindah kelas'}
               {activeTab === 'analisis' && 'Pre/Post learning gain · Pola kesalahan · Siswa macet'}
               {activeTab === 'modul-ajar' && 'Kelola basis pengetahuan RAG untuk AI Chatbot'}
             </p>
           </div>
           <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-            {(activeTab === 'dashboard' || activeTab === 'progress') && (
-              <button onClick={() => handleExportCSV(activeTab === 'progress' ? filteredProgressStudents : students)} style={{ display: 'flex', alignItems: 'center', gap: '7px', padding: '10px 16px', borderRadius: '12px', border: 'none', background: '#8F4F06', color: '#fff', fontSize: '12px', fontWeight: 800, cursor: 'pointer', transition: 'background 0.2s' }} onMouseEnter={e => e.currentTarget.style.background = '#754005'} onMouseLeave={e => e.currentTarget.style.background = '#8F4F06'}>
+            {activeTab === 'dashboard' && (
+              <button onClick={() => handleExportCSV(students)} style={{ display: 'flex', alignItems: 'center', gap: '7px', padding: '10px 16px', borderRadius: '12px', border: 'none', background: '#387B7E', color: '#fff', fontSize: '12px', fontWeight: 800, cursor: 'pointer', transition: 'background 0.2s' }} onMouseEnter={e => e.currentTarget.style.background = '#2E6669'} onMouseLeave={e => e.currentTarget.style.background = '#387B7E'}>
                 <IconExport /> Ekspor CSV
               </button>
             )}
-            {activeTab === 'manajemen-kelas' && (
-              <button onClick={openCreateClass} style={{ display: 'flex', alignItems: 'center', gap: '7px', padding: '10px 16px', borderRadius: '12px', border: 'none', background: '#8F4F06', color: '#fff', fontSize: '12px', fontWeight: 800, cursor: 'pointer' }}>
+            {activeTab === 'manajemen-kelas' && !selectedClassId && (
+              <button onClick={openCreateClass} style={{ display: 'flex', alignItems: 'center', gap: '7px', padding: '10px 16px', borderRadius: '12px', border: 'none', background: '#387B7E', color: '#fff', fontSize: '12px', fontWeight: 800, cursor: 'pointer', transition: 'background 0.2s' }} onMouseEnter={e => e.currentTarget.style.background = '#2E6669'} onMouseLeave={e => e.currentTarget.style.background = '#387B7E'}>
                 <IconPlus /> Tambah Kelas
               </button>
             )}
             {activeTab === 'analisis' && (
-              <button onClick={() => fetchAnalysis(analysisClassFilter, stuckDays)} style={{ display: 'flex', alignItems: 'center', gap: '7px', padding: '10px 16px', borderRadius: '12px', border: 'none', background: '#8F4F06', color: '#fff', fontSize: '12px', fontWeight: 800, cursor: 'pointer' }}>
+              <button onClick={() => fetchAnalysis(analysisClassFilter, stuckDays)} style={{ display: 'flex', alignItems: 'center', gap: '7px', padding: '10px 16px', borderRadius: '12px', border: 'none', background: '#387B7E', color: '#fff', fontSize: '12px', fontWeight: 800, cursor: 'pointer', transition: 'background 0.2s' }} onMouseEnter={e => e.currentTarget.style.background = '#2E6669'} onMouseLeave={e => e.currentTarget.style.background = '#387B7E'}>
                 <IconHistory /> Refresh
               </button>
             )}
             {/* Notifikasi Bell */}
             <div style={{ position: 'relative' }}>
-              <button onClick={() => setShowNotifPanel(p => !p)} style={{ position: 'relative', background: '#fff', border: '1px solid rgba(180,140,80,0.25)', borderRadius: '12px', padding: '10px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', color: '#78716C' }}>
+              <button onClick={() => setShowNotifPanel(p => !p)} style={{ position: 'relative', background: '#fff', border: '1px solid rgba(85,183,180,0.3)', borderRadius: '12px', padding: '10px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', color: '#78716C' }}>
                 <IconBell />
                 {stuckCount > 0 && (
                   <span className="notif-badge" style={{ position: 'absolute', top: '-5px', right: '-5px', background: '#C2410C', color: '#fff', fontSize: '9px', fontWeight: 900, borderRadius: '20px', padding: '2px 5px', minWidth: '16px', textAlign: 'center', lineHeight: 1.4 }}>{stuckCount}</span>
@@ -783,7 +660,7 @@ export default function GuruPage() {
               <AnimatePresence>
                 {showNotifPanel && (
                   <motion.div className="notif-panel" initial={{ opacity: 0, y: -8, scale: 0.96 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -8, scale: 0.96 }}>
-                    <div style={{ padding: '16px 18px', borderBottom: '1px solid rgba(180,140,80,0.12)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ padding: '16px 18px', borderBottom: '1px solid rgba(85,183,180,0.12)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <div>
                         <div style={{ fontSize: '13px', fontWeight: 800, color: '#1C1917' }}>🔔 Siswa Macet</div>
                         <div style={{ fontSize: '10px', color: '#78716C', fontWeight: 600, marginTop: '2px' }}>Tidak ada aktivitas ≥ {stuckDays} hari</div>
@@ -793,7 +670,7 @@ export default function GuruPage() {
                     <div style={{ maxHeight: '320px', overflowY: 'auto' }}>
                       {!analysisData ? (
                         <div style={{ padding: '24px', textAlign: 'center', color: '#78716C', fontSize: '12px' }}>
-                          <button onClick={() => { setActiveTab('analisis'); setShowNotifPanel(false) }} style={{ background: '#8F4F06', color: '#fff', border: 'none', borderRadius: '10px', padding: '10px 16px', cursor: 'pointer', fontSize: '12px', fontWeight: 800 }}>Muat Analisis →</button>
+                          <button onClick={() => { setActiveTab('analisis'); setShowNotifPanel(false) }} style={{ background: '#387B7E', color: '#fff', border: 'none', borderRadius: '10px', padding: '10px 16px', cursor: 'pointer', fontSize: '12px', fontWeight: 800, transition: 'background 0.2s' }} onMouseEnter={e => e.currentTarget.style.background = '#2E6669'} onMouseLeave={e => e.currentTarget.style.background = '#387B7E'}>Muat Analisis →</button>
                         </div>
                       ) : stuckCount === 0 ? (
                         <div style={{ padding: '28px', textAlign: 'center', color: '#78716C', fontSize: '12px', fontWeight: 600 }}>✅ Semua siswa aktif!</div>
@@ -814,7 +691,7 @@ export default function GuruPage() {
                       ))}
                     </div>
                     {stuckCount > 0 && (
-                      <div style={{ padding: '12px 18px', borderTop: '1px solid rgba(180,140,80,0.1)' }}>
+                      <div style={{ padding: '12px 18px', borderTop: '1px solid rgba(85,183,180,0.1)' }}>
                         <button onClick={() => { setActiveTab('analisis'); setShowNotifPanel(false) }} style={{ width: '100%', background: '#FFF3EE', color: '#9A3412', border: 'none', borderRadius: '10px', padding: '10px', cursor: 'pointer', fontSize: '11px', fontWeight: 800 }}>Lihat Semua di Analisis →</button>
                       </div>
                     )}
@@ -865,13 +742,13 @@ export default function GuruPage() {
                 <div style={{ fontSize: '42px', fontWeight: 900, color: '#1C1917', lineHeight: 1, fontFamily: 'var(--font-heading)' }}>{totalStuck}</div>
                 <div style={{ fontSize: '13px', fontWeight: 700, color: '#44403C', marginTop: '6px' }}>Siswa Belum Selesai</div>
                 <div style={{ fontSize: '11px', color: '#78716C', marginTop: '4px' }}>Stuck di GEFT atau Diagnostik</div>
-                <button onClick={() => { setActiveTab('progress'); setProgressFilter('belum-selesai') }} style={{ marginTop: '14px', width: '100%', padding: '8px', borderRadius: '10px', border: 'none', background: '#FFF3EE', color: '#9A3412', fontSize: '11px', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                <button onClick={() => setActiveTab('analisis')} style={{ marginTop: '14px', width: '100%', padding: '8px', borderRadius: '10px', border: 'none', background: '#FFF3EE', color: '#9A3412', fontSize: '11px', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
                   Lihat Detail <IconArrowRight />
                 </button>
               </div>
 
               {/* Distribusi FI vs FD */}
-              <div className="stat-card" style={{ borderTop: '4px solid #8F4F06' }}>
+              <div className="stat-card" style={{ borderTop: '4px solid #387B7E' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
                   <div style={{ width: '44px', height: '44px', borderRadius: '14px', background: '#F0FDFA', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0D9488" strokeWidth="2.5"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
@@ -894,7 +771,7 @@ export default function GuruPage() {
                     <div style={{ width: `${(totalFI / totalWithGeft) * 100}%`, background: '#0D9488', borderRadius: '4px', transition: 'width 0.5s' }} />
                     <div style={{ flex: 1, background: '#D97706', borderRadius: '4px' }} />
                   </div>
-                ) : <div style={{ height: '8px', borderRadius: '4px', background: '#E7DDD0' }} />}
+                ) : <div style={{ height: '8px', borderRadius: '4px', background: '#F3F8F9' }} />}
                 <div style={{ fontSize: '10px', color: '#78716C', fontWeight: 700, marginTop: '8px' }}>
                   {totalWithGeft > 0 ? `${Math.round((totalFI/totalWithGeft)*100)}% FI · ${Math.round((totalFD/totalWithGeft)*100)}% FD` : 'Menunggu hasil GEFT'}
                 </div>
@@ -903,7 +780,7 @@ export default function GuruPage() {
 
             {/* Per-Kelas Distribution */}
             {classrooms.length > 0 && (
-              <div style={{ background: '#fff', borderRadius: '24px', padding: '24px', border: '1px solid rgba(180,140,80,0.15)', boxShadow: '0 4px 20px rgba(143,79,6,0.02)' }}>
+              <div style={{ background: '#fff', borderRadius: '24px', padding: '24px', border: '1px solid rgba(85,183,180,0.2)', boxShadow: '0 4px 20px rgba(85,183,180,0.02)' }}>
                 <h3 style={{ margin: '0 0 20px', fontSize: '15px', fontWeight: 800, color: '#1C1917' }}>Distribusi Kognitif per Kelas</h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                   {classrooms.map(cls => {
@@ -912,13 +789,13 @@ export default function GuruPage() {
                       <div key={cls.id} style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                         <div style={{ minWidth: '140px', fontSize: '13px', fontWeight: 700, color: '#1C1917' }}>{cls.name}</div>
                         <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <div style={{ flex: 1, height: '10px', background: '#F4EDE0', borderRadius: '5px', overflow: 'hidden', display: 'flex' }}>
+                          <div style={{ flex: 1, height: '10px', background: '#F3F8F9', borderRadius: '5px', overflow: 'hidden', display: 'flex' }}>
                             {(cls.fiCount + cls.fdCount) > 0 ? (
                               <>
                                 <div style={{ width: `${fiPct}%`, background: '#0D9488', transition: 'width 0.5s' }} />
                                 <div style={{ flex: 1, background: '#D97706' }} />
                               </>
-                            ) : <div style={{ flex: 1, background: '#E7DDD0' }} />}
+                            ) : <div style={{ flex: 1, background: '#F3F8F9' }} />}
                           </div>
                           <span style={{ fontSize: '11px', color: '#0D9488', fontWeight: 800, minWidth: '30px' }}>FI:{cls.fiCount}</span>
                           <span style={{ fontSize: '11px', color: '#B45309', fontWeight: 800, minWidth: '30px' }}>FD:{cls.fdCount}</span>
@@ -931,155 +808,11 @@ export default function GuruPage() {
               </div>
             )}
 
-            {/* Kelompok FD Drag & Drop */}
-            <div id="grouping-section" style={{ background: '#fff', borderRadius: '24px', padding: '24px', border: '1px solid rgba(180,140,80,0.15)', boxShadow: '0 4px 20px rgba(143,79,6,0.02)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
-                <div>
-                  <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 800, color: '#1C1917' }}>Pembentukan Kelompok Focus Discussion</h3>
-                  <p style={{ margin: '4px 0 0', fontSize: '12px', color: '#78716C' }}>Drag & drop siswa ke kelompok diskusi</p>
-                </div>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <button onClick={handleResetGroups} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '9px 13px', borderRadius: '10px', border: '1px solid rgba(180,140,80,0.3)', background: '#fff', color: '#78716C', fontSize: '11px', fontWeight: 800, cursor: 'pointer' }}>
-                    <IconHistory /> Reset
-                  </button>
-                  <button onClick={handleSaveGroups} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '9px 13px', borderRadius: '10px', border: 'none', background: '#8F4F06', color: '#fff', fontSize: '11px', fontWeight: 800, cursor: 'pointer' }}>
-                    Simpan
-                  </button>
-                </div>
-              </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: `200px repeat(${groups.length}, 1fr)`, gap: '16px', overflowX: 'auto' }}>
-                {/* Available */}
-                <div onDragOver={e => e.preventDefault()} onDrop={e => handleDrop(e, 'available')} style={{ background: '#FAF6EE', borderRadius: '16px', padding: '14px', border: '2px dashed #B48C50', minHeight: '240px' }}>
-                  <div style={{ fontSize: '11px', fontWeight: 800, color: '#8F4F06', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>🧑‍🎓 Siswa Tersedia</div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    {availableStudents.map(s => (
-                      <div key={s.id} draggable onDragStart={e => handleDragStart(e, s.id, 'available')} style={{ background: '#fff', border: '1px solid rgba(180,140,80,0.18)', borderRadius: '10px', padding: '10px 12px', cursor: 'grab', fontSize: '12px', fontWeight: 700 }}>
-                        <div>{s.name}</div>
-                        <div style={{ fontSize: '9px', color: '#A8A29E', marginTop: '2px' }}>{s.label}</div>
-                      </div>
-                    ))}
-                    {availableStudents.length === 0 && <div style={{ textAlign: 'center', color: '#A8A29E', fontSize: '11px', padding: '16px 0' }}>Semua sudah ditempatkan</div>}
-                  </div>
-                </div>
-
-                {/* Groups */}
-                {groups.map(grp => (
-                  <div key={grp.id} onDragOver={e => { e.preventDefault(); setDragOverGroupId(grp.id) }} onDragLeave={() => setDragOverGroupId(null)} onDrop={e => handleDrop(e, grp.id)} style={{ background: dragOverGroupId === grp.id ? '#FCFAF5' : '#fff', borderRadius: '16px', padding: '14px', border: '1px solid rgba(180,140,80,0.15)', borderTop: '4px solid #8F4F06', minHeight: '240px', transition: 'background 0.15s' }}>
-                    <div style={{ fontSize: '12px', fontWeight: 800, color: '#1C1917', marginBottom: '12px' }}>{grp.name}</div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                      {grp.students.map(s => (
-                        <div key={s.id} draggable onDragStart={e => handleDragStart(e, s.id, grp.id)} style={{ background: '#FAF6EE', border: '1px solid rgba(180,140,80,0.1)', borderRadius: '9px', padding: '9px 11px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'grab', fontSize: '12px', fontWeight: 700 }}>
-                          <span>{s.name}</span>
-                          <button onClick={() => removeStudentFromGroup(s.id, grp.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#A8A29E', padding: 0, lineHeight: 1 }}><IconClose /></button>
-                        </div>
-                      ))}
-                      <div style={{ border: '2px dashed rgba(180,140,80,0.2)', borderRadius: '9px', padding: '10px', textAlign: 'center', fontSize: '10px', fontWeight: 800, color: '#B48C50' }}>+ Drop Siswa</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div style={{ marginTop: '12px', fontSize: '9px', color: '#A8A29E', fontWeight: 800, textAlign: 'right' }}>TERAKHIR DISIMPAN: {lastSaved}</div>
-            </div>
           </div>
         )}
 
-        {/* ═══════════════════════════════════════
-            TAB: PROGRESS SISWA
-        ═══════════════════════════════════════ */}
-        {activeTab === 'progress' && (
-          <div className="guru-tab-content" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
-            {/* Filter Bar */}
-            <div style={{ background: '#fff', borderRadius: '16px', padding: '16px 20px', border: '1px solid rgba(180,140,80,0.15)', display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
-              {/* Search */}
-              <div style={{ position: 'relative', flex: '1 1 200px' }}>
-                <span style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#78716C' }}><IconSearch /></span>
-                <input type="text" placeholder="Cari nama siswa..." value={progressSearch} onChange={e => setProgressSearch(e.target.value)} style={{ width: '100%', boxSizing: 'border-box', paddingLeft: '36px', paddingRight: '12px', paddingTop: '10px', paddingBottom: '10px', borderRadius: '10px', border: '1.5px solid rgba(180,140,80,0.2)', background: '#FAF6EE', fontSize: '13px', color: '#1C1917', outline: 'none' }} />
-              </div>
-
-              {/* Status Filter */}
-              <div style={{ display: 'flex', gap: '6px' }}>
-                {(['semua', 'belum-selesai', 'selesai'] as const).map(f => (
-                  <button key={f} onClick={() => setProgressFilter(f)} style={{ padding: '8px 14px', borderRadius: '10px', border: 'none', fontSize: '12px', fontWeight: 800, cursor: 'pointer', background: progressFilter === f ? '#8F4F06' : '#F0EAE1', color: progressFilter === f ? '#fff' : '#78716C', transition: 'all 0.18s' }}>
-                    {f === 'semua' ? 'Semua' : f === 'belum-selesai' ? '⚠️ Belum Selesai' : '✅ Selesai'}
-                  </button>
-                ))}
-              </div>
-
-              {/* Kelas Filter */}
-              <select value={progressClassFilter} onChange={e => setProgressClassFilter(e.target.value)} style={{ padding: '10px 12px', borderRadius: '10px', border: '1.5px solid rgba(180,140,80,0.2)', background: '#FAF6EE', color: '#8F4F06', fontSize: '12px', fontWeight: 800, outline: 'none', cursor: 'pointer' }}>
-                <option value="semua">Semua Kelas</option>
-                {classrooms.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-              </select>
-
-              <span style={{ fontSize: '11px', color: '#78716C', fontWeight: 700, marginLeft: 'auto' }}>
-                <IconFilter /> {filteredProgressStudents.length} siswa
-              </span>
-            </div>
-
-            {/* Table */}
-            <div style={{ background: '#fff', borderRadius: '20px', border: '1px solid rgba(180,140,80,0.15)', overflow: 'hidden', boxShadow: '0 4px 20px rgba(143,79,6,0.02)' }}>
-              <div style={{ overflowX: 'auto' }}>
-                <table className="guru-table" style={{ width: '100%', borderCollapse: 'collapse', minWidth: '760px' }}>
-                  <thead>
-                    <tr>
-                      <th>NAMA SISWA</th>
-                      <th>KELAS</th>
-                      <th>STATUS TAHAP</th>
-                      <th>PROFIL KOGNITIF</th>
-                      <th>SKOR INVESTIGASI</th>
-                      <th>SKOR GEFT</th>
-                      <th>TOTAL XP</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {loadingStudents ? (
-                      <tr><td colSpan={7} style={{ textAlign: 'center', padding: '40px', color: '#78716C' }}>Memuat data siswa...</td></tr>
-                    ) : filteredProgressStudents.length === 0 ? (
-                      <tr><td colSpan={7} style={{ textAlign: 'center', padding: '40px', color: '#78716C', fontWeight: 600 }}>Tidak ada siswa yang sesuai filter.</td></tr>
-                    ) : filteredProgressStudents.map(s => {
-                      const stage = getStudentStageStatus(s)
-                      const initials = s.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()
-                      return (
-                        <tr key={s.id}>
-                          <td>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                              <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#FAF2E6', color: '#8F4F06', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 800, flexShrink: 0, border: '1px solid rgba(143,79,6,0.15)' }}>{initials}</div>
-                              <span style={{ fontWeight: 800, color: '#1C1917' }}>{s.name}</span>
-                            </div>
-                          </td>
-                          <td style={{ color: '#78716C', fontWeight: 600 }}>{s.classroom?.name || '-'}</td>
-                          <td>
-                            <span className={`badge-${stage === 'selesai' ? 'selesai' : stage === 'diagnostic-pending' ? 'progress' : 'pending'}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '5px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 800 }}>
-                              {stage === 'selesai' && <><IconCheck /> Selesai</>}
-                              {stage === 'diagnostic-pending' && <>⏳ Menunggu Diagnostik</>}
-                              {stage === 'geft-pending' && <>🔴 Belum GEFT</>}
-                              {stage === 'awal' && <>🔴 Belum Mulai</>}
-                            </span>
-                          </td>
-                          <td>
-                            {s.geftResult ? (
-                              <span className={s.geftResult.cognitiveStyle === 'FI' ? 'badge-fi' : 'badge-fd'} style={{ display: 'inline-block', padding: '5px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 800 }}>
-                                {s.geftResult.cognitiveStyle === 'FI' ? '🧠 Field Independent' : '🌐 Field Dependent'}
-                              </span>
-                            ) : <span style={{ color: '#A8A29E', fontSize: '12px' }}>—</span>}
-                          </td>
-                          <td style={{ fontWeight: 800, color: s.diagnosticScore ? '#8F4F06' : '#A8A29E' }}>
-                            {s.diagnosticScore ?? '—'}
-                            {s.diagnosticLevel && <span style={{ fontSize: '10px', color: '#78716C', marginLeft: '6px' }}>({s.diagnosticLevel})</span>}
-                          </td>
-                          <td style={{ fontWeight: 700, color: '#44403C' }}>{s.geftResult?.score ?? '—'}<span style={{ fontSize: '10px', color: '#A8A29E' }}>/18</span></td>
-                          <td style={{ fontWeight: 800, color: '#8F4F06' }}>{s.leaderboard?.totalXp ?? 0} XP</td>
-                        </tr>
-                      )
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* ═══════════════════════════════════════
             TAB: MANAJEMEN KELAS
@@ -1088,72 +821,72 @@ export default function GuruPage() {
           <div className="guru-tab-content" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
             {/* Class Grid */}
-            {loadingClassrooms ? (
-              <div style={{ textAlign: 'center', padding: '60px', color: '#78716C' }}>Memuat data kelas...</div>
-            ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px' }}>
-                {classrooms.map(cls => {
-                  const withGeft = cls.fiCount + cls.fdCount
-                  return (
-                    <div key={cls.id} className={`class-card ${selectedClassId === cls.id ? 'selected' : ''}`} onClick={() => setSelectedClassId(selectedClassId === cls.id ? null : cls.id)}>
-                      {/* Header */}
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '14px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                          <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(143,79,6,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <IconUsers />
-                          </div>
-                          <div>
-                            <div style={{ fontSize: '14px', fontWeight: 800, color: '#1C1917' }}>{cls.name}</div>
-                            <div style={{ fontSize: '10px', color: '#78716C', fontWeight: 600 }}>
-                              {cls.grade !== '-' ? `Kelas ${cls.grade}` : ''}{cls.major !== '-' ? ` · ${cls.major}` : ''}
-                              {cls.grade === '-' && cls.major === '-' ? 'Kelas Umum' : ''}
+            {!selectedClassId ? (
+              loadingClassrooms ? (
+                <div style={{ textAlign: 'center', padding: '60px', color: '#78716C' }}>Memuat data kelas...</div>
+              ) : (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px' }}>
+                  {classrooms.map(cls => {
+                    const withGeft = cls.fiCount + cls.fdCount
+                    return (
+                      <div key={cls.id} className="class-card" onClick={() => setSelectedClassId(cls.id)}>
+                        {/* Header */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '14px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(56,123,126,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              <IconUsers />
+                            </div>
+                            <div>
+                              <div style={{ fontSize: '14px', fontWeight: 800, color: '#1C1917' }}>{cls.name}</div>
+                              <div style={{ fontSize: '10px', color: '#78716C', fontWeight: 600 }}>
+                                {cls.grade !== '-' ? `Kelas ${cls.grade}` : ''}{cls.major !== '-' ? ` · ${cls.major}` : ''}
+                                {cls.grade === '-' && cls.major === '-' ? 'Kelas Umum' : ''}
+                              </div>
                             </div>
                           </div>
+                          <div style={{ display: 'flex', gap: '6px' }}>
+                            <button className="btn-icon" onClick={e => { e.stopPropagation(); openEditClass(cls) }}><IconEdit /></button>
+                            <button className="btn-icon danger" onClick={e => { e.stopPropagation(); handleDeleteClass(cls.id, cls.name) }}><IconTrash /></button>
+                          </div>
                         </div>
-                        <div style={{ display: 'flex', gap: '6px' }}>
-                          <button className="btn-icon" onClick={e => { e.stopPropagation(); openEditClass(cls) }}><IconEdit /></button>
-                          <button className="btn-icon danger" onClick={e => { e.stopPropagation(); handleDeleteClass(cls.id, cls.name) }}><IconTrash /></button>
+
+                        {/* Stats */}
+                        <div style={{ display: 'flex', gap: '10px', marginBottom: '14px' }}>
+                          <div style={{ flex: 1, padding: '10px', borderRadius: '10px', background: '#F3F8F9', textAlign: 'center' }}>
+                            <div style={{ fontSize: '22px', fontWeight: 900, color: '#387B7E', fontFamily: 'var(--font-heading)' }}>{cls.totalStudents}</div>
+                            <div style={{ fontSize: '9px', fontWeight: 800, color: '#78716C' }}>TOTAL SISWA</div>
+                          </div>
+                          <div style={{ flex: 1, padding: '10px', borderRadius: '10px', background: '#F0FDFA', textAlign: 'center' }}>
+                            <div style={{ fontSize: '22px', fontWeight: 900, color: '#0D9488', fontFamily: 'var(--font-heading)' }}>{cls.fiCount}</div>
+                            <div style={{ fontSize: '9px', fontWeight: 800, color: '#0D9488' }}>FI</div>
+                          </div>
+                          <div style={{ flex: 1, padding: '10px', borderRadius: '10px', background: '#FEF7ED', textAlign: 'center' }}>
+                            <div style={{ fontSize: '22px', fontWeight: 900, color: '#B45309', fontFamily: 'var(--font-heading)' }}>{cls.fdCount}</div>
+                            <div style={{ fontSize: '9px', fontWeight: 800, color: '#B45309' }}>FD</div>
+                          </div>
                         </div>
+
+                        {/* Mini bar */}
+                        {withGeft > 0 && (
+                          <div style={{ height: '6px', borderRadius: '3px', background: '#F3F8F9', overflow: 'hidden', display: 'flex', marginBottom: '10px' }}>
+                            <div style={{ width: `${(cls.fiCount / withGeft) * 100}%`, background: '#0D9488', transition: 'width 0.5s' }} />
+                            <div style={{ flex: 1, background: '#D97706' }} />
+                          </div>
+                        )}
                       </div>
+                    )
+                  })}
+                </div>
+              )
+            ) : (
+              /* Class Student Detail (sliced to new sub-view) */
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} style={{ background: '#fff', borderRadius: '24px', padding: '24px', border: '1px solid rgba(85,183,180,0.2)', boxShadow: '0 4px 20px rgba(85,183,180,0.02)' }}>
+                {/* Back button */}
+                <button onClick={() => setSelectedClassId(null)} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 14px', borderRadius: '10px', border: '1px solid rgba(85,183,180,0.3)', background: '#fff', color: '#387B7E', fontSize: '12px', fontWeight: 800, cursor: 'pointer', marginBottom: '20px', transition: 'all 0.2s' }} onMouseEnter={e => { e.currentTarget.style.background = '#E5F3F4'; e.currentTarget.style.borderColor = '#387B7E' }} onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = 'rgba(85,183,180,0.3)' }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                  Kembali ke Daftar Kelas
+                </button>
 
-                      {/* Stats */}
-                      <div style={{ display: 'flex', gap: '10px', marginBottom: '14px' }}>
-                        <div style={{ flex: 1, padding: '10px', borderRadius: '10px', background: '#FAF6EE', textAlign: 'center' }}>
-                          <div style={{ fontSize: '22px', fontWeight: 900, color: '#8F4F06', fontFamily: 'var(--font-heading)' }}>{cls.totalStudents}</div>
-                          <div style={{ fontSize: '9px', fontWeight: 800, color: '#78716C' }}>TOTAL SISWA</div>
-                        </div>
-                        <div style={{ flex: 1, padding: '10px', borderRadius: '10px', background: '#F0FDFA', textAlign: 'center' }}>
-                          <div style={{ fontSize: '22px', fontWeight: 900, color: '#0D9488', fontFamily: 'var(--font-heading)' }}>{cls.fiCount}</div>
-                          <div style={{ fontSize: '9px', fontWeight: 800, color: '#0D9488' }}>FI</div>
-                        </div>
-                        <div style={{ flex: 1, padding: '10px', borderRadius: '10px', background: '#FEF7ED', textAlign: 'center' }}>
-                          <div style={{ fontSize: '22px', fontWeight: 900, color: '#B45309', fontFamily: 'var(--font-heading)' }}>{cls.fdCount}</div>
-                          <div style={{ fontSize: '9px', fontWeight: 800, color: '#B45309' }}>FD</div>
-                        </div>
-                      </div>
-
-                      {/* Mini bar */}
-                      {withGeft > 0 && (
-                        <div style={{ height: '6px', borderRadius: '3px', background: '#F4EDE0', overflow: 'hidden', display: 'flex', marginBottom: '10px' }}>
-                          <div style={{ width: `${(cls.fiCount / withGeft) * 100}%`, background: '#0D9488', transition: 'width 0.5s' }} />
-                          <div style={{ flex: 1, background: '#D97706' }} />
-                        </div>
-                      )}
-
-                      {selectedClassId === cls.id && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11px', fontWeight: 800, color: '#8F4F06', marginTop: '4px' }}>
-                          <IconArrowRight /> Lihat daftar siswa di bawah
-                        </div>
-                      )}
-                    </div>
-                  )
-                })}
-              </div>
-            )}
-
-            {/* Class Student Detail */}
-            {selectedClassId && (
-              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} style={{ background: '#fff', borderRadius: '24px', padding: '24px', border: '1px solid rgba(180,140,80,0.15)', boxShadow: '0 4px 20px rgba(143,79,6,0.02)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                   <div>
                     <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 800, color: '#1C1917' }}>
@@ -1164,9 +897,9 @@ export default function GuruPage() {
                   <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                     <div style={{ position: 'relative' }}>
                       <span style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#78716C' }}><IconSearch /></span>
-                      <input type="text" placeholder="Cari siswa..." value={classStudentSearch} onChange={e => setClassStudentSearch(e.target.value)} style={{ paddingLeft: '32px', paddingRight: '12px', paddingTop: '9px', paddingBottom: '9px', borderRadius: '10px', border: '1.5px solid rgba(180,140,80,0.2)', background: '#FAF6EE', fontSize: '12px', color: '#1C1917', outline: 'none', width: '180px' }} />
+                      <input type="text" placeholder="Cari siswa..." value={classStudentSearch} onChange={e => setClassStudentSearch(e.target.value)} style={{ paddingLeft: '32px', paddingRight: '12px', paddingTop: '9px', paddingBottom: '9px', borderRadius: '10px', border: '1.5px solid rgba(85,183,180,0.25)', background: '#F3F8F9', fontSize: '12px', color: '#1C1917', outline: 'none', width: '180px' }} />
                     </div>
-                    <button onClick={() => handleExportCSV(classStudents)} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '9px 14px', borderRadius: '10px', border: 'none', background: '#8F4F06', color: '#fff', fontSize: '11px', fontWeight: 800, cursor: 'pointer' }}>
+                    <button onClick={() => handleExportCSV(classStudents)} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '9px 14px', borderRadius: '10px', border: 'none', background: '#387B7E', color: '#fff', fontSize: '11px', fontWeight: 800, cursor: 'pointer', transition: 'background 0.2s' }} onMouseEnter={e => e.currentTarget.style.background = '#2E6669'} onMouseLeave={e => e.currentTarget.style.background = '#387B7E'}>
                       <IconExport /> Ekspor
                     </button>
                   </div>
@@ -1196,7 +929,7 @@ export default function GuruPage() {
                             <tr key={s.id}>
                               <td>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                  <div style={{ width: '30px', height: '30px', borderRadius: '50%', background: '#FAF2E6', color: '#8F4F06', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 800, flexShrink: 0 }}>{initials}</div>
+                                  <div style={{ width: '30px', height: '30px', borderRadius: '50%', background: '#E5F3F4', color: '#387B7E', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 800, flexShrink: 0 }}>{initials}</div>
                                   <span style={{ fontWeight: 800, color: '#1C1917', fontSize: '13px' }}>{s.name}</span>
                                 </div>
                               </td>
@@ -1214,7 +947,7 @@ export default function GuruPage() {
                                 ) : <span style={{ color: '#A8A29E' }}>—</span>}
                               </td>
                               <td style={{ fontWeight: 700 }}>{s.geftResult?.score ?? '—'}</td>
-                              <td style={{ fontWeight: 700, color: '#8F4F06' }}>{s.diagnosticScore ?? '—'}</td>
+                              <td style={{ fontWeight: 700, color: '#387B7E' }}>{s.diagnosticScore ?? '—'}</td>
                               <td>
                                 <div style={{ display: 'flex', gap: '6px' }}>
                                   <button className="btn-icon" onClick={() => openMoveStudent(s)} title="Pindah Kelas">
@@ -1246,8 +979,8 @@ export default function GuruPage() {
         {activeTab === 'modul-ajar' && (
           <div className="guru-tab-content" style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '28px', alignItems: 'start' }}>
             {/* Form */}
-            <div style={{ background: '#fff', border: '1px solid rgba(180,140,80,0.15)', borderRadius: '24px', padding: '24px', position: 'sticky', top: '20px' }}>
-              <h3 style={{ margin: '0 0 20px', fontSize: '15px', fontWeight: 800, color: '#8F4F06' }}>{isEditing ? '📝 Edit Pengetahuan' : '✨ Tambah Pengetahuan'}</h3>
+            <div style={{ background: '#fff', border: '1px solid rgba(85,183,180,0.2)', borderRadius: '24px', padding: '24px', position: 'sticky', top: '20px' }}>
+              <h3 style={{ margin: '0 0 20px', fontSize: '15px', fontWeight: 800, color: '#387B7E' }}>{isEditing ? '📝 Edit Pengetahuan' : '✨ Tambah Pengetahuan'}</h3>
               <form onSubmit={handleSaveKnowledge} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <div>
                   <label className="form-label">JUDUL MATERI</label>
@@ -1255,7 +988,7 @@ export default function GuruPage() {
                 </div>
                 <div>
                   <label className="form-label">KATEGORI</label>
-                  <select className="form-input" value={formCategory} onChange={e => setFormCategory(e.target.value)} style={{ color: '#8F4F06', fontWeight: 800 }}>
+                  <select className="form-input" value={formCategory} onChange={e => setFormCategory(e.target.value)} style={{ color: '#387B7E', fontWeight: 800 }}>
                     <option value="statistika">Statistika</option>
                     <option value="gameplay">Gameplay</option>
                     <option value="umum">Umum / Kognitif</option>
@@ -1267,8 +1000,8 @@ export default function GuruPage() {
                 </div>
                 {formError && <div style={{ padding: '10px 14px', borderRadius: '10px', background: '#FEF2F2', border: '1px solid #FCA5A5', color: '#EF4444', fontSize: '13px' }}>⚠️ {formError}</div>}
                 <div style={{ display: 'flex', gap: '10px' }}>
-                  {isEditing && <button type="button" onClick={resetForm} style={{ flex: 1, padding: '12px', borderRadius: '10px', border: '1px solid rgba(180,140,80,0.3)', background: 'transparent', color: '#78716C', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}>Batal</button>}
-                  <button type="submit" disabled={formSaving} style={{ flex: 2, padding: '12px', borderRadius: '10px', border: 'none', background: '#8F4F06', color: '#fff', fontSize: '13px', fontWeight: 800, cursor: 'pointer' }}>
+                  {isEditing && <button type="button" onClick={resetForm} style={{ flex: 1, padding: '12px', borderRadius: '10px', border: '1px solid rgba(85,183,180,0.3)', background: 'transparent', color: '#78716C', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}>Batal</button>}
+                  <button type="submit" disabled={formSaving} style={{ flex: 2, padding: '12px', borderRadius: '10px', border: 'none', background: '#387B7E', color: '#fff', fontSize: '13px', fontWeight: 800, cursor: 'pointer', transition: 'background 0.2s' }} onMouseEnter={e => e.currentTarget.style.background = '#2E6669'} onMouseLeave={e => e.currentTarget.style.background = '#387B7E'}>
                     {formSaving ? 'Menyimpan...' : 'Simpan Materi 💾'}
                   </button>
                 </div>
@@ -1277,13 +1010,13 @@ export default function GuruPage() {
 
             {/* List */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 800, color: '#8F4F06' }}>Dokumen RAG Aktif</h3>
+              <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 800, color: '#387B7E' }}>Dokumen RAG Aktif</h3>
               {loadingKnowledge ? (
                 <div style={{ padding: '40px', textAlign: 'center', color: '#78716C' }}>Memuat...</div>
               ) : knowledgeItems.length === 0 ? (
-                <div style={{ background: '#fff', border: '1px dashed rgba(180,140,80,0.3)', padding: '40px', borderRadius: '16px', textAlign: 'center', color: '#78716C' }}>Belum ada dokumen tersimpan.</div>
+                <div style={{ background: '#fff', border: '1px dashed rgba(85,183,180,0.3)', padding: '40px', borderRadius: '16px', textAlign: 'center', color: '#78716C' }}>Belum ada dokumen tersimpan.</div>
               ) : knowledgeItems.map(item => (
-                <div key={item.id} style={{ background: '#fff', border: '1px solid rgba(180,140,80,0.15)', borderRadius: '16px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <div key={item.id} style={{ background: '#fff', border: '1px solid rgba(85,183,180,0.2)', borderRadius: '16px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                     <div>
                       <span style={{ display: 'inline-block', padding: '2px 8px', borderRadius: '4px', fontSize: '9px', fontWeight: 800, background: item.category === 'statistika' ? '#EFF6FF' : item.category === 'gameplay' ? '#ECFDF5' : '#FEF3C7', color: item.category === 'statistika' ? '#1D4ED8' : item.category === 'gameplay' ? '#047857' : '#B45309', border: `1px solid ${item.category === 'statistika' ? '#BFDBFE' : item.category === 'gameplay' ? '#A7F3D0' : '#FDE68A'}`, textTransform: 'uppercase', marginBottom: '6px' }}>{item.category}</span>
@@ -1295,7 +1028,7 @@ export default function GuruPage() {
                     </div>
                   </div>
                   <p style={{ margin: 0, fontSize: '12.5px', color: '#44403C', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>{item.content}</p>
-                  <div style={{ fontSize: '9px', color: '#A8A29E', borderTop: '1px solid rgba(180,140,80,0.1)', paddingTop: '8px', textAlign: 'right', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '4px' }}>
+                  <div style={{ fontSize: '9px', color: '#A8A29E', borderTop: '1px solid rgba(85,183,180,0.1)', paddingTop: '8px', textAlign: 'right', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '4px' }}>
                     <IconClock /> {new Date(item.updatedAt).toLocaleString('id-ID')}
                   </div>
                 </div>
@@ -1311,16 +1044,16 @@ export default function GuruPage() {
           <div className="guru-tab-content" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
             {/* Filter Bar */}
-            <div style={{ background: '#fff', borderRadius: '16px', padding: '16px 20px', border: '1px solid rgba(180,140,80,0.15)', display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
-              <select value={analysisClassFilter} onChange={e => { setAnalysisClassFilter(e.target.value); fetchAnalysis(e.target.value, stuckDays) }} style={{ padding: '9px 12px', borderRadius: '10px', border: '1.5px solid rgba(180,140,80,0.2)', background: '#FAF6EE', color: '#8F4F06', fontSize: '12px', fontWeight: 800, outline: 'none', cursor: 'pointer' }}>
+            <div style={{ background: '#fff', borderRadius: '16px', padding: '16px 20px', border: '1px solid rgba(85,183,180,0.2)', display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
+              <select value={analysisClassFilter} onChange={e => { setAnalysisClassFilter(e.target.value); fetchAnalysis(e.target.value, stuckDays) }} style={{ padding: '9px 12px', borderRadius: '10px', border: '1.5px solid rgba(85,183,180,0.25)', background: '#F3F8F9', color: '#387B7E', fontSize: '12px', fontWeight: 800, outline: 'none', cursor: 'pointer' }}>
                 <option value="semua">Semua Kelas</option>
                 {classrooms.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <span style={{ fontSize: '12px', fontWeight: 700, color: '#78716C' }}>Macet setelah</span>
-                <input type="number" min={1} max={30} value={stuckDays} onChange={e => setStuckDays(Number(e.target.value))} style={{ width: '52px', padding: '8px 10px', borderRadius: '10px', border: '1.5px solid rgba(180,140,80,0.2)', background: '#FAF6EE', fontSize: '13px', fontWeight: 800, color: '#8F4F06', outline: 'none', textAlign: 'center' }} />
+                <input type="number" min={1} max={30} value={stuckDays} onChange={e => setStuckDays(Number(e.target.value))} style={{ width: '52px', padding: '8px 10px', borderRadius: '10px', border: '1.5px solid rgba(85,183,180,0.25)', background: '#F3F8F9', fontSize: '13px', fontWeight: 800, color: '#387B7E', outline: 'none', textAlign: 'center' }} />
                 <span style={{ fontSize: '12px', fontWeight: 700, color: '#78716C' }}>hari</span>
-                <button onClick={() => fetchAnalysis(analysisClassFilter, stuckDays)} style={{ padding: '9px 16px', borderRadius: '10px', border: 'none', background: '#8F4F06', color: '#fff', fontSize: '12px', fontWeight: 800, cursor: 'pointer' }}>Terapkan</button>
+                <button onClick={() => fetchAnalysis(analysisClassFilter, stuckDays)} style={{ padding: '9px 16px', borderRadius: '10px', border: 'none', background: '#387B7E', color: '#fff', fontSize: '12px', fontWeight: 800, cursor: 'pointer', transition: 'background 0.2s' }} onMouseEnter={e => e.currentTarget.style.background = '#2E6669'} onMouseLeave={e => e.currentTarget.style.background = '#387B7E'}>Terapkan</button>
               </div>
               {analysisData && <span style={{ marginLeft: 'auto', fontSize: '10px', color: '#A8A29E', fontWeight: 700 }}>Diperbarui: {new Date(analysisData.generatedAt).toLocaleTimeString('id-ID')}</span>}
             </div>
@@ -1330,27 +1063,27 @@ export default function GuruPage() {
             ) : !analysisData ? (
               <div style={{ textAlign: 'center', padding: '60px' }}>
                 <p style={{ color: '#78716C', fontWeight: 600, marginBottom: '16px' }}>Klik Refresh untuk memuat analisis</p>
-                <button onClick={() => fetchAnalysis(analysisClassFilter, stuckDays)} style={{ padding: '12px 24px', borderRadius: '12px', border: 'none', background: '#8F4F06', color: '#fff', fontWeight: 800, cursor: 'pointer', fontSize: '14px' }}>Muat Analisis 🔍</button>
+                <button onClick={() => fetchAnalysis(analysisClassFilter, stuckDays)} style={{ padding: '12px 24px', borderRadius: '12px', border: 'none', background: '#387B7E', color: '#fff', fontWeight: 800, cursor: 'pointer', fontSize: '14px', transition: 'background 0.2s' }} onMouseEnter={e => e.currentTarget.style.background = '#2E6669'} onMouseLeave={e => e.currentTarget.style.background = '#387B7E'}>Muat Analisis 🔍</button>
               </div>
             ) : (
               <>
                 {/* ── FITUR 8: STUCK STUDENTS ── */}
                 {analysisData.stuckStudents.length > 0 && (
-                  <div style={{ background: '#FFF3EE', borderRadius: '20px', padding: '20px 24px', border: '1.5px solid #FDBA74', display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
-                    <div style={{ width: '44px', height: '44px', borderRadius: '14px', background: '#C2410C', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <div style={{ background: '#F3F8F9', borderRadius: '20px', padding: '20px 24px', border: '1.5px solid rgba(85,183,180,0.4)', display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+                    <div style={{ width: '44px', height: '44px', borderRadius: '14px', background: '#387B7E', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                       <IconAlertOctagon />
                     </div>
                     <div style={{ flex: 1 }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
                         <div>
-                          <div style={{ fontSize: '15px', fontWeight: 800, color: '#7C2D12' }}>⚠️ {analysisData.stuckStudents.length} Siswa Tidak Aktif ≥ {stuckDays} Hari</div>
-                          <div style={{ fontSize: '12px', color: '#9A3412', fontWeight: 600, marginTop: '2px' }}>Butuh intervensi segera — perhatikan daftar ini</div>
+                          <div style={{ fontSize: '15px', fontWeight: 800, color: '#387B7E' }}>⚠️ {analysisData.stuckStudents.length} Siswa Tidak Aktif ≥ {stuckDays} Hari</div>
+                          <div style={{ fontSize: '12px', color: '#78716C', fontWeight: 600, marginTop: '2px' }}>Butuh intervensi segera — perhatikan daftar ini</div>
                         </div>
                       </div>
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '10px' }}>
                         {analysisData.stuckStudents.map(s => (
-                          <div key={s.id} style={{ background: '#fff', borderRadius: '12px', padding: '12px 14px', border: '1px solid #FCD19C', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#FFF3EE', border: '2px solid #FDBA74', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 900, color: '#C2410C', flexShrink: 0 }}>
+                          <div key={s.id} style={{ background: '#fff', borderRadius: '12px', padding: '12px 14px', border: '1px solid rgba(85,183,180,0.3)', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#F3F8F9', border: '2px solid rgba(85,183,180,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 900, color: '#387B7E', flexShrink: 0 }}>
                               {s.name.split(' ').map((n:string) => n[0]).join('').substring(0,2).toUpperCase()}
                             </div>
                             <div style={{ flex: 1, minWidth: 0 }}>
@@ -1358,8 +1091,8 @@ export default function GuruPage() {
                               <div style={{ fontSize: '10px', color: '#78716C', fontWeight: 600 }}>{s.classroomName}</div>
                             </div>
                             <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                              <div style={{ fontSize: '18px', fontWeight: 900, color: '#C2410C', lineHeight: 1 }}>{s.daysSinceActivity}</div>
-                              <div style={{ fontSize: '9px', fontWeight: 700, color: '#9A3412' }}>HARI</div>
+                              <div style={{ fontSize: '18px', fontWeight: 900, color: '#387B7E', lineHeight: 1 }}>{s.daysSinceActivity}</div>
+                              <div style={{ fontSize: '9px', fontWeight: 700, color: '#78716C' }}>HARI</div>
                             </div>
                           </div>
                         ))}
@@ -1369,22 +1102,22 @@ export default function GuruPage() {
                 )}
 
                 {analysisData.stuckStudents.length === 0 && (
-                  <div style={{ background: '#F7FEE7', borderRadius: '16px', padding: '16px 20px', border: '1px solid #BEF264', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div style={{ background: '#F0FDFA', borderRadius: '16px', padding: '16px 20px', border: '1px solid #CCFBF1', display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <span style={{ fontSize: '20px' }}>✅</span>
-                    <span style={{ fontSize: '14px', fontWeight: 700, color: '#4D7C0F' }}>Semua siswa aktif dalam {stuckDays} hari terakhir!</span>
+                    <span style={{ fontSize: '14px', fontWeight: 700, color: '#0F766E' }}>Semua siswa aktif dalam {stuckDays} hari terakhir!</span>
                   </div>
                 )}
 
                 {/* ── FITUR 6: PRE vs POST ── */}
-                <div style={{ background: '#fff', borderRadius: '24px', padding: '24px', border: '1px solid rgba(180,140,80,0.15)' }}>
+                <div style={{ background: '#fff', borderRadius: '24px', padding: '24px', border: '1px solid rgba(85,183,180,0.2)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                     <div>
                       <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 800, color: '#1C1917' }}>📊 Learning Gain — Pre vs Post</h3>
                       <p style={{ margin: '4px 0 0', fontSize: '12px', color: '#78716C' }}>Diagnostik awal ↔ Skor investigasi akhir per siswa</p>
                     </div>
                     <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><div style={{ width: '10px', height: '10px', borderRadius: '2px', background: '#D4B280' }} /><span style={{ fontSize: '11px', color: '#78716C', fontWeight: 700 }}>Pre (Diagnostik)</span></div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><div style={{ width: '10px', height: '10px', borderRadius: '2px', background: '#8F4F06' }} /><span style={{ fontSize: '11px', color: '#78716C', fontWeight: 700 }}>Post (Investigasi)</span></div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><div style={{ width: '10px', height: '10px', borderRadius: '2px', background: '#55B7B4' }} /><span style={{ fontSize: '11px', color: '#78716C', fontWeight: 700 }}>Pre (Diagnostik)</span></div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><div style={{ width: '10px', height: '10px', borderRadius: '2px', background: '#387B7E' }} /><span style={{ fontSize: '11px', color: '#78716C', fontWeight: 700 }}>Post (Investigasi)</span></div>
                     </div>
                   </div>
                   {analysisData.preVsPost.filter(s => s.preScore !== null || s.postScore !== null).length === 0 ? (
@@ -1400,7 +1133,7 @@ export default function GuruPage() {
                           const gain = s.gain
                           const isPositive = gain !== null && gain >= 0
                           return (
-                            <div key={s.id} style={{ display: 'grid', gridTemplateColumns: '160px 1fr 70px', gap: '12px', alignItems: 'center', padding: '10px 14px', borderRadius: '12px', background: '#FAF8F5', border: '1px solid rgba(180,140,80,0.08)' }}>
+                            <div key={s.id} style={{ display: 'grid', gridTemplateColumns: '160px 1fr 70px', gap: '12px', alignItems: 'center', padding: '10px 14px', borderRadius: '12px', background: '#F3F8F9', border: '1px solid rgba(85,183,180,0.08)' }}>
                               <div>
                                 <div style={{ fontSize: '13px', fontWeight: 800, color: '#1C1917', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{s.name}</div>
                                 <div style={{ fontSize: '10px', color: '#78716C', fontWeight: 600 }}>{s.classroomName}</div>
@@ -1408,25 +1141,25 @@ export default function GuruPage() {
                               <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                                 {/* Pre bar */}
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                  <span style={{ fontSize: '9px', fontWeight: 800, color: '#B48C50', width: '28px', textAlign: 'right' }}>PRE</span>
+                                  <span style={{ fontSize: '9px', fontWeight: 800, color: '#55B7B4', width: '28px', textAlign: 'right' }}>PRE</span>
                                   <div className="gain-bar-bg">
-                                    <div style={{ height: '100%', width: `${pre}%`, background: '#D4B280', borderRadius: '5px', transition: 'width 0.6s ease' }} />
+                                    <div style={{ height: '100%', width: `${pre}%`, background: '#55B7B4', borderRadius: '5px', transition: 'width 0.6s ease' }} />
                                   </div>
                                   <span style={{ fontSize: '10px', fontWeight: 800, color: '#78716C', width: '28px' }}>{s.preScore ?? '—'}</span>
                                 </div>
                                 {/* Post bar */}
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                  <span style={{ fontSize: '9px', fontWeight: 800, color: '#8F4F06', width: '28px', textAlign: 'right' }}>POST</span>
+                                  <span style={{ fontSize: '9px', fontWeight: 800, color: '#387B7E', width: '28px', textAlign: 'right' }}>POST</span>
                                   <div className="gain-bar-bg">
-                                    <div style={{ height: '100%', width: `${post}%`, background: '#8F4F06', borderRadius: '5px', transition: 'width 0.6s ease' }} />
+                                    <div style={{ height: '100%', width: `${post}%`, background: '#387B7E', borderRadius: '5px', transition: 'width 0.6s ease' }} />
                                   </div>
-                                  <span style={{ fontSize: '10px', fontWeight: 800, color: '#8F4F06', width: '28px' }}>{s.postScore ?? '—'}</span>
+                                  <span style={{ fontSize: '10px', fontWeight: 800, color: '#387B7E', width: '28px' }}>{s.postScore ?? '—'}</span>
                                 </div>
                               </div>
                               <div style={{ textAlign: 'center' }}>
                                 {gain !== null ? (
                                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '3px', color: isPositive ? '#4D7C0F' : '#B91C1C' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '3px', color: isPositive ? '#0F766E' : '#B91C1C' }}>
                                       {isPositive ? <IconTrendUp /> : <IconTrendDown />}
                                       <span style={{ fontSize: '15px', fontWeight: 900 }}>{gain > 0 ? '+' : ''}{gain}</span>
                                     </div>
@@ -1442,7 +1175,7 @@ export default function GuruPage() {
                 </div>
 
                 {/* ── FITUR 7: LEVEL ERROR ANALYSIS ── */}
-                <div style={{ background: '#fff', borderRadius: '24px', padding: '24px', border: '1px solid rgba(180,140,80,0.15)' }}>
+                <div style={{ background: '#fff', borderRadius: '24px', padding: '24px', border: '1px solid rgba(85,183,180,0.2)' }}>
                   <div style={{ marginBottom: '20px' }}>
                     <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 800, color: '#1C1917' }}>🎯 Pola Kesalahan per Level Investigasi</h3>
                     <p style={{ margin: '4px 0 0', fontSize: '12px', color: '#78716C' }}>Diurutkan dari level dengan error rate tertinggi — langsung actionable</p>
@@ -1454,9 +1187,9 @@ export default function GuruPage() {
                       {analysisData.levelAnalysis.map((lv, idx) => {
                         const isHigh = lv.errorRate >= 60
                         const isMed = lv.errorRate >= 30 && lv.errorRate < 60
-                        const accent = isHigh ? '#C2410C' : isMed ? '#B45309' : '#4D7C0F'
-                        const bg = isHigh ? '#FFF3EE' : isMed ? '#FEF7ED' : '#F7FEE7'
-                        const border = isHigh ? '#FDBA74' : isMed ? '#FCD19C' : '#BEF264'
+                        const accent = isHigh ? '#B91C1C' : isMed ? '#D97706' : '#0F766E'
+                        const bg = isHigh ? '#FEF2F2' : isMed ? '#FFFBEB' : '#F0FDFA'
+                        const border = isHigh ? '#FCA5A5' : isMed ? '#FCD34D' : '#99F6E4'
                         return (
                           <div key={lv.levelId} style={{ borderRadius: '16px', border: `1.5px solid ${border}`, background: bg, padding: '16px 20px' }}>
                             <div style={{ display: 'grid', gridTemplateColumns: '28px 1fr auto', gap: '12px', alignItems: 'center', marginBottom: lv.topWrongAnswers.length > 0 ? '12px' : '0' }}>
@@ -1515,7 +1248,7 @@ export default function GuruPage() {
           <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
             <motion.div className="modal-box" initial={{ scale: 0.92, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.92, y: 20 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-                <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: '#8F4F06' }}>
+                <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: '#387B7E' }}>
                   {classModalMode === 'create' ? '🏫 Buat Kelas Baru' : '✏️ Edit Kelas'}
                 </h3>
                 <button onClick={() => setShowClassModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#78716C', padding: '4px' }}><IconClose /></button>
@@ -1551,8 +1284,8 @@ export default function GuruPage() {
                 {classModalError && <div style={{ padding: '10px 14px', borderRadius: '10px', background: '#FEF2F2', border: '1px solid #FCA5A5', color: '#EF4444', fontSize: '13px' }}>⚠️ {classModalError}</div>}
 
                 <div style={{ display: 'flex', gap: '10px', marginTop: '8px' }}>
-                  <button onClick={() => setShowClassModal(false)} style={{ flex: 1, padding: '13px', borderRadius: '12px', border: '1px solid rgba(180,140,80,0.3)', background: 'transparent', color: '#78716C', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}>Batal</button>
-                  <button onClick={handleSaveClass} disabled={classModalSaving} style={{ flex: 2, padding: '13px', borderRadius: '12px', border: 'none', background: '#8F4F06', color: '#fff', fontSize: '13px', fontWeight: 800, cursor: 'pointer' }}>
+                  <button onClick={() => setShowClassModal(false)} style={{ flex: 1, padding: '13px', borderRadius: '12px', border: '1px solid rgba(85,183,180,0.3)', background: 'transparent', color: '#78716C', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}>Batal</button>
+                  <button onClick={handleSaveClass} disabled={classModalSaving} style={{ flex: 2, padding: '13px', borderRadius: '12px', border: 'none', background: '#387B7E', color: '#fff', fontSize: '13px', fontWeight: 800, cursor: 'pointer', transition: 'background 0.2s' }} onMouseEnter={e => e.currentTarget.style.background = '#2E6669'} onMouseLeave={e => e.currentTarget.style.background = '#387B7E'}>
                     {classModalSaving ? 'Menyimpan...' : classModalMode === 'create' ? 'Buat Kelas' : 'Simpan Perubahan'}
                   </button>
                 </div>
@@ -1570,7 +1303,7 @@ export default function GuruPage() {
           <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
             <motion.div className="modal-box" initial={{ scale: 0.92, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.92, y: 20 }} style={{ maxWidth: '380px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                <h3 style={{ margin: 0, fontSize: '17px', fontWeight: 800, color: '#8F4F06' }}>Pindah Kelas Siswa</h3>
+                <h3 style={{ margin: 0, fontSize: '17px', fontWeight: 800, color: '#387B7E' }}>Pindah Kelas Siswa</h3>
                 <button onClick={() => setShowMoveModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#78716C' }}><IconClose /></button>
               </div>
               <p style={{ margin: '0 0 16px', fontSize: '13px', color: '#78716C', fontWeight: 600 }}>Pindahkan <strong style={{ color: '#1C1917' }}>{moveStudentName}</strong> ke kelas:</p>
@@ -1581,8 +1314,8 @@ export default function GuruPage() {
                 ))}
               </select>
               <div style={{ display: 'flex', gap: '10px' }}>
-                <button onClick={() => setShowMoveModal(false)} style={{ flex: 1, padding: '12px', borderRadius: '12px', border: '1px solid rgba(180,140,80,0.3)', background: 'transparent', color: '#78716C', fontWeight: 700, cursor: 'pointer' }}>Batal</button>
-                <button onClick={handleMoveStudent} disabled={moveSaving || !moveTargetClassId} style={{ flex: 2, padding: '12px', borderRadius: '12px', border: 'none', background: moveTargetClassId ? '#8F4F06' : '#D1D5DB', color: '#fff', fontWeight: 800, cursor: moveTargetClassId ? 'pointer' : 'not-allowed', transition: 'background 0.2s' }}>
+                <button onClick={() => setShowMoveModal(false)} style={{ flex: 1, padding: '12px', borderRadius: '12px', border: '1px solid rgba(85,183,180,0.3)', background: 'transparent', color: '#78716C', fontWeight: 700, cursor: 'pointer' }}>Batal</button>
+                <button onClick={handleMoveStudent} disabled={moveSaving || !moveTargetClassId} style={{ flex: 2, padding: '12px', borderRadius: '12px', border: 'none', background: moveTargetClassId ? '#387B7E' : '#D1D5DB', color: '#fff', fontWeight: 800, cursor: moveTargetClassId ? 'pointer' : 'not-allowed', transition: 'background 0.2s' }} onMouseEnter={e => e.currentTarget.style.background = moveTargetClassId ? '#2E6669' : '#D1D5DB'} onMouseLeave={e => e.currentTarget.style.background = moveTargetClassId ? '#387B7E' : '#D1D5DB'}>
                   {moveSaving ? 'Memindahkan...' : 'Pindahkan Siswa'}
                 </button>
               </div>

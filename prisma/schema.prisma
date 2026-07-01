@@ -76,6 +76,8 @@ model GameSession {
   timeTaken      Int      @map("time_taken")
   verdictAnswer  String   @map("verdict_answer")
   isCorrect      Boolean  @map("is_correct")
+  postTestScore  Int?     @map("post_test_score")
+  postTestCompleted Boolean @default(false) @map("post_test_completed")
   createdAt      DateTime @default(now()) @map("created_at")
 
   student Student @relation(fields: [studentId], references: [id])
