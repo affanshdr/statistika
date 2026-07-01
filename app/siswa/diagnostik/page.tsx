@@ -400,6 +400,7 @@ export default function DiagnostikPage() {
                         color = '#FFFFFF'
                         boxShadow = '0 0 16px rgba(0, 173, 181, 0.35)'
                       }
+                      
                     } else {
                       const isCorrectAnswer = i === q.correct
                       if (isSelected) {

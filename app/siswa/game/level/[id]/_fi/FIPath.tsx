@@ -9,20 +9,22 @@ import MythBustedStamp from '../../../_components/MythBustedStamp'
 import VerdictScreen from '../../../_components/VerdictScreen'
 import { BADGES, STATS } from '../../../_data/level1'
 import { useRouter } from 'next/navigation'
+import IntervalKelasPhase from '../../../_components/IntervalKelasPhase'
 
 const DraggableHistogram = dynamic(() => import('../../../_components/DraggableHistogram'), { ssr: false })
 
-// Steps: 0=Histogram, 1=Hasil Analisis, 1.5=Verifikasi Berita, 2=MythBusted, 3=Materi Booklet
-// Gunakan number karena ada step 1.5
-type GameStep = 0 | 1 | 1.5 | 2 | 3
+// Steps: 0=IntervalKelas, 1=Histogram, 2=Hasil Analisis, 3=Verifikasi Berita, 4=MythBusted
+type GameStep = 0 | 1 | 2 | 3 | 4
 
 interface PendingBadge { icon: string; name: string; desc: string; id: string }
 
-export default function FIPath() {
+export default function FIPath({ demoMode = false, demoStep = null }: { demoMode?: boolean; demoStep?: string | null }) {
   const router = useRouter()
   const { addXP, isCompleted, completeLevel, unlockBadge, incrementMistake, mistakeCount, sessionStartTime, xp } = useGameStore()
 
-  const [step, setStep] = useState<GameStep>(0)
+  const [step, setStep] = useState<GameStep>(
+    demoMode ? (demoStep === 'histogram' ? 1 : 0) : 0
+  )
   const [pendingBadges, setPendingBadges] = useState<PendingBadge[]>([])
   // Track if isCompleted came from this active session (not stale persist)
   const sessionActiveRef = useRef(false)
@@ -38,25 +40,30 @@ export default function FIPath() {
 
   const dismissBadge = () => setPendingBadges(prev => prev.slice(1))
 
-  // ── STEP 0: Histogram submitted ──
+  // ── STEP 0: Interval Kelas submitted ──
+  const handleIntervalSubmit = () => {
+    setStep(1)
+  }
+
+  // ── STEP 1: Histogram submitted ──
   const handleHistogramSubmit = (isCorrect: boolean) => {
     if (isCorrect) {
-      addXP(30, 'Menyusun histogram dengan benar', 0)
-      setStep(1)
+      addXP(30, 'Menyusun histogram dengan benar', 1)
+      setStep(2)
     } else {
       incrementMistake()
     }
   }
 
-  // ── STEP 1: Analisis selesai → ke Verifikasi Berita ──
+  // ── STEP 2: Analisis selesai → ke Verifikasi Berita ──
   const handleProceedToVerification = () => {
-    addXP(20, 'Analisis distribusi tepat', 1)
-    setStep(1.5)
+    addXP(20, 'Analisis distribusi tepat', 2)
+    setStep(3)
   }
 
-  // ── STEP 1.5: Verifikasi benar → ke MythBusted ──
+  // ── STEP 3: Verifikasi benar → ke MythBusted ──
   const handleVerificationCorrect = () => {
-    addXP(15, 'Verifikasi berita benar', 1)
+    addXP(15, 'Verifikasi berita benar', 3)
     awardBadge(BADGES.CRITICAL)
     if (mistakeCount === 0) awardBadge(BADGES.PERFECT)
 
@@ -68,23 +75,23 @@ export default function FIPath() {
     // FI ×1.5 multiplier
     const currentXP = xp + 35
     const bonus = Math.floor(currentXP * 0.5)
-    addXP(bonus, 'FI Multiplier ×1.5', 1)
+    addXP(bonus, 'FI Multiplier ×1.5', 3)
     awardBadge(BADGES.MYTHBUST)
 
     setTimeout(() => {
-      setStep(2)
+      setStep(4)
       setSubmitting(false)
     }, 400)
   }
 
-  // ── STEP 1.5: Verifikasi salah → coba lagi (tidak kembali ke step sebelumnya) ──
+  // ── STEP 3: Verifikasi salah → coba lagi (tidak kembali ke step sebelumnya) ──
   const handleVerificationWrong = () => {
     incrementMistake()
   }
 
-  // ── STEP 2: Myth Busted complete → finish level ──
+  // ── STEP 4: Myth Busted complete → finish level ──
   const handleMythBustedComplete = () => {
-    addXP(15, 'Menyelesaikan Level 1', 2)
+    addXP(15, 'Menyelesaikan Level 1', 4)
     completeLevel(1)
   }
 
@@ -95,13 +102,13 @@ export default function FIPath() {
     }
   }, [isCompleted, router])
 
-  const STEP_LABELS = ['Histogram', 'Analisis', 'Verifikasi', 'Selesai']
-  const displayStep = step === 0 ? 0 : step === 1 ? 1 : step === 1.5 ? 2 : 3
+  const STEP_LABELS = ['Batas Kelas', 'Histogram', 'Analisis', 'Verifikasi', 'Selesai']
+  const displayStep = step
 
   return (
     <div
-      className={step === 0 ? 'tahap-a-fullscreen tahap-a-container' : undefined}
-      style={step === 0 
+      className={step === 1 ? 'tahap-a-fullscreen tahap-a-container' : undefined}
+      style={step === 1 
         ? { position: 'relative' }
         : { maxWidth: '820px', margin: '0 auto', padding: '24px 16px', paddingBottom: '40px', position: 'relative' }}
     >
@@ -121,9 +128,16 @@ export default function FIPath() {
       <div style={{ width: '100%', flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
       <AnimatePresence mode="wait">
 
-        {/* ── STEP 0: Histogram Builder ── */}
+        {/* ── STEP 0: Menyusun Interval Kelas ── */}
         {step === 0 && (
           <motion.div key="step0" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }} style={{ width: '100%', flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+            <IntervalKelasPhase isFD={false} onSubmit={handleIntervalSubmit} demoMode={demoMode} />
+          </motion.div>
+        )}
+
+        {/* ── STEP 1: Histogram Builder ── */}
+        {step === 1 && (
+          <motion.div key="step1" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }} style={{ width: '100%', flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
             <div className="game-card" style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, padding: '16px' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', flex: 1, minHeight: 0 }}>
                 <div>
@@ -135,9 +149,9 @@ export default function FIPath() {
           </motion.div>
         )}
 
-        {/* ── STEP 1: Text Analysis ── */}
-        {step === 1 && (
-          <motion.div key="step1" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }}>
+        {/* ── STEP 2: Text Analysis ── */}
+        {step === 2 && (
+          <motion.div key="step2" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }}>
             <div className="game-card" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               <div>
                 <div style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 800, letterSpacing: '1px', marginBottom: '6px' }}>
@@ -188,9 +202,9 @@ export default function FIPath() {
           </motion.div>
         )}
 
-        {/* ── STEP 1.5: Verifikasi Berita ── */}
-        {step === 1.5 && (
-          <motion.div key="step15" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }}>
+        {/* ── STEP 3: Verifikasi Berita ── */}
+        {step === 3 && (
+          <motion.div key="step3" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }}>
             <div className="game-card" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               <div>
                 <div style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 800, letterSpacing: '1px', marginBottom: '6px' }}>
@@ -211,9 +225,9 @@ export default function FIPath() {
       </AnimatePresence>
       </div>{/* /flex-fill wrapper */}
 
-      {/* ── STEP 2: Myth Busted Stamp (fullscreen overlay) ── */}
+      {/* ── STEP 4: Myth Busted Stamp (fullscreen overlay) ── */}
       <AnimatePresence>
-        {step === 2 && (
+        {step === 4 && (
           <MythBustedStamp onComplete={handleMythBustedComplete} />
         )}
       </AnimatePresence>

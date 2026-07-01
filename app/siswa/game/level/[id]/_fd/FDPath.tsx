@@ -12,11 +12,12 @@ import TeamGateButton from '../../../_components/TeamGateButton'
 import { BADGES, STATS } from '../../../_data/level1'
 import { useRouter } from 'next/navigation'
 import { useGameRealtime } from '@/lib/hooks/useGameRealtime'
+import IntervalKelasPhase from '../../../_components/IntervalKelasPhase'
 
 const DraggableHistogram = dynamic(() => import('../../../_components/DraggableHistogram'), { ssr: false })
 
-// Steps: 0=Histogram(guided), 1=Hasil Analisis, 1.5=Verifikasi Berita, 2=MythBusted, 3=Materi
-type GameStep = 0 | 1 | 1.5 | 2 | 3
+// Steps: 0=IntervalKelas, 1=Histogram(guided), 2=Hasil Analisis, 3=Verifikasi Berita, 4=MythBusted
+type GameStep = 0 | 1 | 2 | 3 | 4
 
 interface PendingBadge { icon: string; name: string; desc: string; id: string }
 
@@ -77,13 +78,18 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
 
   // Initial DiRA Message
   useEffect(() => {
-    if (teamId) {
-      setDiraMsg('Halo Detektif! Lo sekarang udah join bareng tim lo nih. Bisa langsung mabar diskusikan di chat kanan buat susun histogram bareng! Drag 26 data sisa ke kolom yang valid ya! 😉')
-    } else {
-      setDiraMsg('Yuk pindahin data screen time 35 siswa ke histogram! Gue udah bantu masukin beberapa data di kelas-kelasnya sebagai contoh. Tinggal drag 26 data sisa ke kelas yang pas ya! 😉')
+    if (step === 0) {
+      setDiraMsg('Yuk tentukan batas tepi kelas (Tepi Bawah & Tepi Atas) dulu sebelum kita susun histogramnya! 📏')
+      setShowDira(true)
+    } else if (step === 1) {
+      if (teamId) {
+        setDiraMsg('Halo Detektif! Lo sekarang udah join bareng tim lo nih. Bisa langsung mabar diskusikan di chat kanan buat susun histogram bareng! Drag 26 data sisa ke kolom yang valid ya! 😉')
+      } else {
+        setDiraMsg('Yuk pindahin data screen time 35 siswa ke histogram! Gue udah bantu masukin beberapa data di kelas-kelasnya sebagai contoh. Tinggal drag 26 data sisa ke kelas yang pas ya! 😉')
+      }
+      setShowDira(true)
     }
-    setShowDira(true)
-  }, [teamId])
+  }, [teamId, step])
 
   const fetchTeamState = useCallback(async () => {
     if (!teamId) return
@@ -96,10 +102,10 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
       if (data.currentStep !== undefined && data.currentStep !== step) {
         setStep(data.currentStep as GameStep)
         // Show DiRA hint for new steps
-        if (data.currentStep === 1) {
+        if (data.currentStep === 2) {
           setDiraMsg('Mantap banget! Tim lo sukses bikin histogramnya valid 100%. 📊\nSekarang, yuk kita spill bareng statistik dasarnya!')
           setShowDira(true)
-        } else if (data.currentStep === 1.5) {
+        } else if (data.currentStep === 3) {
           setShowDira(false)
         }
       }
@@ -132,8 +138,8 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
         if (data.verdictAnswer) {
           useGameStore.getState().setVerdict(data.verdictAnswer)
         }
-        if (step !== 2 && step !== 3) {
-          setStep(2)
+        if (step !== 4) {
+          setStep(4)
         }
       }
     } catch (error) {
@@ -185,10 +191,41 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
     }
   }
 
-  // ── STEP 0: Histogram submitted ──
+  // ── STEP 0: Interval Kelas submitted ──
+  const handleIntervalSubmit = async () => {
+    if (teamId && studentId) {
+      // Team mode: cast gate vote — advance when 2/3 have submitted correctly
+      try {
+        const res = await fetch('/api/game/team/sync', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            teamId,
+            castVote: { gate: 'gate_interval_done', studentId },
+          }),
+        })
+        if (res.ok) {
+          const data = await res.json()
+          if (data.team) {
+            setTeamReadyVotes(data.team.readyVotes ?? {})
+            broadcastSyncTrigger() // tell other group members to fetch immediately!
+            if (data.team.currentStep !== undefined && data.team.currentStep !== step) {
+              setStep(data.team.currentStep as GameStep)
+            }
+          }
+        }
+      } catch (e) { console.error(e) }
+    } else {
+      // Solo mode: advance immediately
+      broadcastStep(1)
+      setTimeout(() => setStep(1), 400)
+    }
+  }
+
+  // ── STEP 1: Histogram submitted ──
   const handleHistogramSubmit = async (isCorrect: boolean) => {
     if (isCorrect) {
-      addXP(25, 'Menyusun histogram terbimbing dengan benar', 0)
+      addXP(25, 'Menyusun histogram terbimbing dengan benar', 1)
       setHistogramCorrect(true)
 
       if (teamId && studentId) {
@@ -216,13 +253,13 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
             }
           }
         } catch (e) { console.error(e) }
-        // Step advance is handled by polling/instant response when server sets currentStep = 1
+        // Step advance is handled by polling/instant response when server sets currentStep = 2
       } else {
         // Solo/FI mode: advance immediately
         setDiraMsg('Gokil! Lo sukses bikin histogramnya bener semua. 📊\nSekarang, yuk kita spill bareng statistik dasarnya di Tahap B ini!')
         setShowDira(true)
-        broadcastStep(1)
-        setTimeout(() => setStep(1), 400)
+        broadcastStep(2)
+        setTimeout(() => setStep(2), 400)
       }
     } else {
       // FD: hanya red flash, tanpa life lost — eksplorasi mandiri
@@ -233,22 +270,22 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
     }
   }
 
-  // ── STEP 1: Analisis selesai → ke Verifikasi Berita ──
+  // ── STEP 2: Analisis selesai → ke Verifikasi Berita ──
   // Hanya dipakai di solo/FI mode. Team mode pakai TeamGateButton gate_step1_done.
   const handleProceedToVerification = async () => {
     if (submitting) return
     setSubmitting(true)
-    addXP(20, 'Analisis distribusi FD tepat', 1)
+    addXP(20, 'Analisis distribusi FD tepat', 2)
     setShowDira(false)
     setTimeout(() => {
-      setStep(1.5)
+      setStep(3)
       setSubmitting(false)
     }, 300)
   }
 
-  // ── STEP 1.5: Verifikasi benar → cast vote gate_verdict_done ──
+  // ── STEP 3: Verifikasi benar → cast vote gate_verdict_done ──
   const handleVerificationCorrect = async () => {
-    addXP(15, 'Verifikasi berita benar', 1)
+    addXP(15, 'Verifikasi berita benar', 3)
     awardBadge(BADGES.DETECTIVE)
     if (mistakeCount === 0) awardBadge(BADGES.PERFECT)
 
@@ -280,10 +317,10 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
           }
         }
       } catch (e) { console.error(e) }
-      // Step advance is handled by polling/instant response when server sets currentStep = 2
+      // Step advance is handled by polling/instant response when server sets currentStep = 4
     } else {
       // Solo/FI mode: advance immediately
-      setTimeout(() => setStep(2), 400)
+      setTimeout(() => setStep(4), 400)
     }
   }
 
@@ -294,9 +331,9 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
     setShowDira(true)
   }
 
-  // ── STEP 2: MythBusted complete → finish level ──
+  // ── STEP 4: MythBusted complete → finish level ──
   const handleMythBustedComplete = () => {
-    addXP(15, 'Menyelesaikan Level 1', 2)
+    addXP(15, 'Menyelesaikan Level 1', 4)
     completeLevel(1)
   }
 
@@ -331,8 +368,8 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
     }
   }, [isCompleted, router])
 
-  const STEP_LABELS = ['Histogram', 'Analisis', 'Verifikasi', 'Selesai']
-  const displayStep = step === 0 ? 0 : step === 1 ? 1 : step === 1.5 ? 2 : 3
+  const STEP_LABELS = ['Batas Kelas', 'Histogram', 'Analisis', 'Verifikasi', 'Selesai']
+  const displayStep = step
 
   if (teamId && syncLoading && chatMessages.length === 0 && teamMembers.length === 0) {
     return (
@@ -352,8 +389,8 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
       
       {/* ── LEFT SIDE: Main Gameplay Content ── */}
       <div
-        className={step === 0 ? 'tahap-a-fullscreen tahap-a-container' : undefined}
-        style={step === 0 
+        className={step === 1 ? 'tahap-a-fullscreen tahap-a-container' : undefined}
+        style={step === 1 
           ? { position: 'relative', flex: 1 }
           : { flex: 1, maxWidth: '820px', margin: '0 auto', padding: '24px 16px', paddingBottom: '120px', position: 'relative' }}
       >
@@ -383,9 +420,25 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
         <div style={{ width: '100%', flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
           <AnimatePresence mode="wait">
 
-            {/* ── STEP 0: Histogram Terbimbing ── */}
+            {/* ── STEP 0: Menyusun Interval Kelas ── */}
             {step === 0 && (
               <motion.div key="step0" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }} style={{ width: '100%', flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+                <IntervalKelasPhase
+                  isFD={true}
+                  teamId={teamId}
+                  studentId={studentId}
+                  studentName={studentName}
+                  onSubmit={handleIntervalSubmit}
+                  hasVotedInterval={(teamReadyVotes['gate_interval_done'] ?? []).includes(studentId ?? '')}
+                  teamMembers={teamMembers}
+                  teamReadyVotes={teamReadyVotes}
+                />
+              </motion.div>
+            )}
+
+            {/* ── STEP 1: Histogram Terbimbing ── */}
+            {step === 1 && (
+              <motion.div key="step1" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }} style={{ width: '100%', flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
                 <div className="game-card" style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, padding: '16px' }}>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', flex: 1, minHeight: 0 }}>
                     <div>
@@ -402,9 +455,9 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
               </motion.div>
             )}
 
-            {/* ── STEP 1: Text Analysis (FD) ── */}
-            {step === 1 && (
-              <motion.div key="step1" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }}>
+            {/* ── STEP 2: Text Analysis (FD) ── */}
+            {step === 2 && (
+              <motion.div key="step2" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }}>
                 <div className="game-card" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                   <div>
                     <div style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 800, letterSpacing: '1px', marginBottom: '6px' }}>
@@ -455,7 +508,7 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
                       members={teamMembers}
                       readyVotes={teamReadyVotes}
                       label="Lanjut: Verifikasi Berita →"
-                      onVote={() => { addXP(20, 'Analisis distribusi FD tepat', 1); setShowDira(false) }}
+                      onVote={() => { addXP(20, 'Analisis distribusi FD tepat', 2); setShowDira(false) }}
                       onVoteSuccess={(votes, stepVal) => {
                         setTeamReadyVotes(votes)
                         broadcastSyncTrigger() // tell others to sync immediately!
@@ -463,7 +516,7 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
                           setStep(stepVal as GameStep)
                         }
                       }}
-                      onComplete={() => setStep(1.5)}
+                      onComplete={() => setStep(3)}
                     />
                   ) : (
                     <button
@@ -479,9 +532,9 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
               </motion.div>
             )}
 
-            {/* ── STEP 1.5: Verifikasi Berita (FD — guided) ── */}
-            {step === 1.5 && (
-              <motion.div key="step15" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }}>
+            {/* ── STEP 3: Verifikasi Berita (FD — guided) ── */}
+            {step === 3 && (
+              <motion.div key="step3" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }}>
                 <div className="game-card" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                   <div>
                     <div style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 800, letterSpacing: '1px', marginBottom: '6px' }}>
@@ -501,15 +554,15 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
           </AnimatePresence>
         </div>
 
-        {/* ── STEP 2: Myth Busted Stamp (overlay) ── */}
+        {/* ── STEP 4: Myth Busted Stamp (overlay) ── */}
         <AnimatePresence>
-          {step === 2 && (
+          {step === 4 && (
             <MythBustedStamp onComplete={handleMythBustedComplete} />
           )}
         </AnimatePresence>
 
         {/* DiRA guide for step 0 & 1 */}
-        {(step === 0 || step === 1) && showDira && diraMsg && (
+        {(step === 1 || step === 2) && showDira && diraMsg && (
           <DiRA message={diraMsg} onDismiss={() => setShowDira(false)} />
         )}
 
@@ -557,7 +610,7 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
                     </div>
                     {isMe ? (
                       <span style={{ fontSize: '9px', color: 'var(--accent)', fontWeight: 700 }}>
-                        {['Histogram', 'Analisis', 'Verifikasi', 'Selesai'][step === 0 ? 0 : step === 1 ? 1 : step === 1.5 ? 2 : 3]}
+                        {['Batas Kelas', 'Histogram', 'Analisis', 'Verifikasi', 'Selesai'][step]}
                       </span>
                     ) : null}
                   </div>

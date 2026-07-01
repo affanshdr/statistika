@@ -286,7 +286,7 @@ export default function DiraPopup({ step, autoDismissMs = 7000, onDismiss }: Dir
                 fontWeight: 700,
                 marginLeft: '8px',
               }}>
-                Langkah {step === 'rentang' ? 1 : step === 'banyak-kelas' ? 2 : 3} dari 3
+                Langkah {step === 'banyak-kelas' ? 1 : step === 'rentang' ? 2 : 3} dari 3
               </span>
             </div>
 
@@ -397,7 +397,7 @@ export default function DiraPopup({ step, autoDismissMs = 7000, onDismiss }: Dir
                     cursor: typewriterDone ? 'pointer' : 'not-allowed',
                     border: 'none',
                     background: typewriterDone ? 'var(--accent)' : 'rgba(14, 131, 136, 0.1)',
-                    color: typewriterDone ? '#000' : '#94A3B8',
+                    color: typewriterDone ? '#FFFFFF' : '#94A3B8',
                   }}
                 >
                   {msg.cta} →

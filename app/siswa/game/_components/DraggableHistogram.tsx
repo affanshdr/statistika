@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect } from 'react'
 import { motion, AnimatePresence, PanInfo } from 'framer-motion'
 import { screenTimeData, CLASS_LABELS, getClassIndex, CORRECT_TABLE } from '../_data/level1'
+import { useGameStore } from '@/lib/store/gameStore'
 
 interface DataPoint {
   id: string
@@ -69,6 +70,16 @@ export default function DraggableHistogram({
   mode, onSubmit, readOnly = false, forceStack = false,
   placedIndices, onPlacedChange,
 }: DraggableHistogramProps) {
+  const answers = useGameStore(state => state.answers)
+  const intervalKelas = answers?.intervalKelas as { kelasInterval: string, tepiBawah: number, tepiAtas: number }[] | undefined
+
+  const ticks = intervalKelas && intervalKelas.length === 6 
+    ? [
+        intervalKelas[0].tepiBawah.toFixed(1),
+        ...intervalKelas.map(item => item.tepiAtas.toFixed(1))
+      ]
+    : ['0.5', '3.5', '6.5', '9.5', '12.5', '15.5', '18.5']
+
   const [isNarrow, setIsNarrow] = useState(false)
   const [isShortViewport, setIsShortViewport] = useState(false)
 
@@ -251,7 +262,7 @@ export default function DraggableHistogram({
           position: 'relative',
           flexShrink: 0,
         }}>
-          {['0.5', '3.5', '6.5', '9.5', '12.5', '15.5', '18.5'].map((tick, idx) => (
+          {ticks.map((tick, idx) => (
             <span
               key={idx}
               style={{
@@ -667,7 +678,7 @@ export default function DraggableHistogram({
             position: 'relative',
             flexShrink: 0,
           }}>
-            {['0.5', '3.5', '6.5', '9.5', '12.5', '15.5', '18.5'].map((tick, idx) => (
+            {ticks.map((tick, idx) => (
               <span
                 key={idx}
                 style={{
