@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback, startTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
+import LkpdWorksheet from '../siswa/game/_components/LkpdWorksheet'
 
 // ─────────────────────────────────────────────
 // INTERFACES
@@ -28,7 +29,7 @@ interface Student {
   diagnosticScore?: number | null
   diagnosticLevel?: string | null
   leaderboard?: { totalXp: number } | null
-  gameSessions?: { xpEarned: number; createdAt: string }[]
+  gameSessions?: { xpEarned: number; createdAt: string; lkpdCompleted?: boolean; lkpdAnswers?: any }[]
   createdAt?: string
 }
 
@@ -212,6 +213,17 @@ export default function GuruPage() {
   const [moveStudentName, setMoveStudentName] = useState('')
   const [moveTargetClassId, setMoveTargetClassId] = useState('')
   const [moveSaving, setMoveSaving] = useState(false)
+
+  // LKPD Viewer Modal
+  const [showLkpdModal, setShowLkpdModal] = useState(false)
+  const [viewingLkpdStudent, setViewingLkpdStudent] = useState<Student | null>(null)
+  const [viewingLkpdAnswers, setViewingLkpdAnswers] = useState<any>(null)
+
+  const openViewLkpd = (s: Student, answers: any) => {
+    setViewingLkpdStudent(s)
+    setViewingLkpdAnswers(answers)
+    setShowLkpdModal(true)
+  }
 
 
 
@@ -986,6 +998,16 @@ export default function GuruPage() {
                               <td style={{ fontWeight: 700, color: '#387B7E' }}>{s.diagnosticScore ?? '—'}</td>
                               <td>
                                 <div style={{ display: 'flex', gap: '6px' }}>
+                                  {s.gameSessions?.[0]?.lkpdCompleted && (
+                                    <button
+                                      className="btn-icon"
+                                      onClick={() => openViewLkpd(s, s.gameSessions?.[0]?.lkpdAnswers)}
+                                      title="Lihat Jawaban LKPD"
+                                      style={{ background: '#387B7E', color: '#FFF' }}
+                                    >
+                                      📄 LKPD
+                                    </button>
+                                  )}
                                   <button className="btn-icon" onClick={() => openMoveStudent(s)} title="Pindah Kelas">
                                     <IconArrowRight /> Pindah
                                   </button>
@@ -1705,6 +1727,87 @@ export default function GuruPage() {
               </div>
             </motion.div>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Modal Lihat LKPD */}
+      <AnimatePresence>
+        {showLkpdModal && viewingLkpdStudent && (
+          <div
+            style={{
+              position: 'fixed',
+              inset: 0,
+              background: 'rgba(15, 23, 42, 0.65)',
+              backdropFilter: 'blur(4px)',
+              zIndex: 9999,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '20px',
+            }}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              style={{
+                background: '#FAF5E4',
+                borderRadius: '24px',
+                width: '100%',
+                maxWidth: '840px',
+                maxHeight: '90vh',
+                overflowY: 'auto',
+                border: '3px solid #1E293B',
+                boxShadow: '12px 12px 0px rgba(15, 23, 42, 0.9)',
+                position: 'relative',
+                padding: '24px',
+              }}
+            >
+              {/* Close Button */}
+              <button
+                onClick={() => {
+                  setShowLkpdModal(false)
+                  setViewingLkpdStudent(null)
+                  setViewingLkpdAnswers(null)
+                }}
+                style={{
+                  position: 'absolute',
+                  top: '16px',
+                  right: '16px',
+                  background: '#FFF',
+                  border: '2px solid #1E293B',
+                  borderRadius: '50%',
+                  width: '32px',
+                  height: '32px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontWeight: 'bold',
+                  zIndex: 10,
+                  boxShadow: '2px 2px 0px #1E293B',
+                }}
+              >
+                ✕
+              </button>
+
+              <div style={{ marginBottom: '20px', borderBottom: '2px solid #1E293B', paddingBottom: '10px' }}>
+                <h2 style={{ fontSize: '20px', fontWeight: 900, color: '#1E3A8A' }}>
+                  Lembar Kerja (LKPD) Siswa
+                </h2>
+                <p style={{ fontSize: '13px', color: '#475569', margin: '4px 0 0' }}>
+                  Menampilkan jawaban dari <strong>{viewingLkpdStudent.name}</strong>
+                </p>
+              </div>
+
+              <LkpdWorksheet
+                readOnly={true}
+                initialAnswers={viewingLkpdAnswers}
+                studentName={viewingLkpdStudent.name}
+                studentClass={viewingLkpdStudent.classroom?.name}
+              />
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
     </div>

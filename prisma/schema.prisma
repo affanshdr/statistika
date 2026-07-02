@@ -78,6 +78,8 @@ model GameSession {
   isCorrect      Boolean  @map("is_correct")
   postTestScore  Int?     @map("post_test_score")
   postTestCompleted Boolean @default(false) @map("post_test_completed")
+  lkpdAnswers    Json?    @map("lkpd_answers")
+  lkpdCompleted  Boolean  @default(false) @map("lkpd_completed")
   createdAt      DateTime @default(now()) @map("created_at")
 
   student Student @relation(fields: [studentId], references: [id])
