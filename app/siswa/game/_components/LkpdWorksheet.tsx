@@ -686,15 +686,6 @@ export default function LkpdWorksheet({
                 >
                   Periksa Jawaban
                 </button>
-                <button
-                  type="button"
-                  onClick={handleNextPage}
-                  className="game-btn game-btn-primary"
-                  style={{ padding: '8px 16px', fontSize: '13px' }}
-                  disabled={showValidation && !isValidated}
-                >
-                  Selanjutnya &rarr;
-                </button>
               </div>
             )}
           </motion.div>
@@ -951,15 +942,6 @@ export default function LkpdWorksheet({
                 >
                   Periksa Jawaban
                 </button>
-                <button
-                  type="button"
-                  onClick={handleNextPage}
-                  className="game-btn game-btn-primary"
-                  style={{ padding: '8px 16px', fontSize: '13px' }}
-                  disabled={showValidation && !isValidated}
-                >
-                  Selanjutnya &rarr;
-                </button>
               </div>
             )}
           </motion.div>
@@ -1042,7 +1024,7 @@ export default function LkpdWorksheet({
                     cursor: (!nama.trim() || !kelas.trim() || !essay2.trim() || !essay3.trim() || !essay4.trim()) ? 'not-allowed' : 'pointer',
                   }}
                 >
-                  Kirim LKPD Sekarang &rarr;
+                  Kirim LKPD Sekarang
                 </button>
               </div>
             )}
@@ -1052,41 +1034,72 @@ export default function LkpdWorksheet({
       </AnimatePresence>
 
       {/* Navigation Buttons for paging (always visible at bottom) */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: `2px solid ${creamTheme.borderDark}`, marginTop: '20px', paddingTop: '14px' }}>
-        <button
-          type="button"
-          onClick={handlePrevPage}
-          disabled={currentPage === 1}
-          className="game-btn game-btn-secondary"
-          style={{ padding: '6px 12px', fontSize: '12px', opacity: currentPage === 1 ? 0.5 : 1 }}
-        >
-          &larr; Halaman Sebelumnya
-        </button>
-        <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', alignItems: 'center', borderTop: `2px solid ${creamTheme.borderDark}`, marginTop: '20px', paddingTop: '16px' }}>
+        
+        {/* Dots on top, nicely centered */}
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center', justifyContent: 'center', padding: '6px 0' }}>
           {[1, 2, 3, 4].map((p) => (
             <div
               key={p}
               onClick={() => setCurrentPage(p as any)}
               style={{
-                width: '10px',
-                height: '10px',
+                width: '12px',
+                height: '12px',
                 borderRadius: '50%',
                 background: currentPage === p ? creamTheme.accentBlue : '#CBD5E1',
                 cursor: 'pointer',
+                border: `1.5px solid ${creamTheme.borderDark}`,
                 transition: 'all 0.2s',
               }}
             />
           ))}
         </div>
-        <button
-          type="button"
-          onClick={handleNextPage}
-          disabled={currentPage === 4}
-          className="game-btn game-btn-secondary"
-          style={{ padding: '6px 12px', fontSize: '12px', opacity: currentPage === 4 ? 0.5 : 1 }}
-        >
-          Halaman Berikutnya &rarr;
-        </button>
+
+        {/* Buttons below, side by side with plenty of padding */}
+        <div style={{ display: 'flex', width: '100%', gap: '12px', justifyContent: 'space-between' }}>
+          <button
+            type="button"
+            onClick={handlePrevPage}
+            disabled={currentPage === 1}
+            className="game-btn game-btn-secondary"
+            style={{
+              flex: 1,
+              padding: '12px 16px',
+              fontSize: '13px',
+              minHeight: '44px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              opacity: currentPage === 1 ? 0.4 : 1,
+              border: `2px solid ${creamTheme.borderDark}`,
+              cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+            }}
+          >
+            Halaman Sebelumnya
+          </button>
+          
+          <button
+            type="button"
+            onClick={handleNextPage}
+            disabled={currentPage === 4}
+            className="game-btn game-btn-secondary"
+            style={{
+              flex: 1,
+              padding: '12px 16px',
+              fontSize: '13px',
+              minHeight: '44px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              opacity: currentPage === 4 ? 0.4 : 1,
+              border: `2px solid ${creamTheme.borderDark}`,
+              cursor: currentPage === 4 ? 'not-allowed' : 'pointer',
+            }}
+          >
+            Halaman Berikutnya
+          </button>
+        </div>
+
       </div>
 
     </div>
