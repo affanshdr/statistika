@@ -4,13 +4,11 @@ import { useEffect, useRef, useState } from 'react'
 import { useGameStore } from '@/lib/store/gameStore'
 
 interface GameHeaderProps {
-  timerRunning?: boolean
   isBlurred?: boolean
 }
 
-export default function GameHeader({ timerRunning = true, isBlurred = false }: GameHeaderProps) {
-  const { xp, lives, cognitiveStyle, currentLevel, timeRemaining, setTimeRemaining, resetLevel } = useGameStore()
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+export default function GameHeader({ isBlurred = false }: GameHeaderProps) {
+  const { currentLevel, resetLevel } = useGameStore()
   const [isMobile, setIsMobile] = useState(false)
   const [isLandscape, setIsLandscape] = useState(false)
   const [showExitConfirm, setShowExitConfirm] = useState(false)
@@ -25,18 +23,6 @@ export default function GameHeader({ timerRunning = true, isBlurred = false }: G
     return () => window.removeEventListener('resize', check)
   }, [])
 
-  useEffect(() => {
-    if (!timerRunning) return
-    intervalRef.current = setInterval(() => {
-      setTimeRemaining(Math.max(0, useGameStore.getState().timeRemaining - 1))
-    }, 1000)
-    return () => { if (intervalRef.current) clearInterval(intervalRef.current) }
-  }, [timerRunning, setTimeRemaining])
-
-  const mins = Math.floor(timeRemaining / 60).toString().padStart(2, '0')
-  const secs = (timeRemaining % 60).toString().padStart(2, '0')
-  const isUrgent = timeRemaining > 0 && timeRemaining <= 60
-  const maxLives = cognitiveStyle === 'FD' ? 4 : 3
 
   return (
     <>
@@ -96,10 +82,7 @@ export default function GameHeader({ timerRunning = true, isBlurred = false }: G
         </div>
 
 
-        {/* Right: Timer */}
-        <div className={`game-header-timer ${isUrgent ? 'urgent' : ''}`}>
-          ⏱ {mins}:{secs}
-        </div>
+
       </header>
 
       {/* Exit Confirmation Modal */}

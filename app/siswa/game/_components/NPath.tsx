@@ -16,9 +16,11 @@ interface QuizDoor {
   label: string
   color: string
   quizQ: string
-  quizA: number
+  quizA: number | string
   hint: string
   count: number
+  choices?: readonly (number | string)[]
+  fdContext?: string
 }
 
 const DOORS = [
@@ -31,29 +33,74 @@ const DOORS = [
 ] as const
 
 const CLASS_DOORS = [
-  // Room A (total 9) - Simple math & word stories
-  { id: 'A1', roomId: 'A' as DoorId, label: 'Kelas VII-1', x: 52.5, y: 213,
-    color: '#818cf8', quizQ: '3 + 5 = ?', quizA: 8, hint: '3 ditambah 5 sama dengan 8', count: 3 },
-  { id: 'A2', roomId: 'A' as DoorId, label: 'Kelas VII-2', x: 140, y: 186,
-    color: '#818cf8', quizQ: '10 - 4 = ?', quizA: 6, hint: '10 dikurangi 4 sama dengan 6', count: 3 },
-  { id: 'A3', roomId: 'A' as DoorId, label: 'Kelas VII-3', x: 227.5, y: 160,
-    color: '#818cf8', quizQ: 'Cici bermain game 2 jam dan belajar 2 jam. Berapa jam total screen time Cici?', quizA: 4, hint: 'Cici: 2 jam game + 2 jam belajar = 4 jam', count: 3 },
+  // Room A (total 9) - Topik: Statistika (Bloom Level 2: Memahami)
+  { 
+    id: 'A1', roomId: 'A' as DoorId, label: 'Kelas VII-1', x: 52.5, y: 213, color: '#818cf8', 
+    quizQ: 'Data screen time 5 siswa: 2, 4, 3, 8, 1 jam. Berapa rentang datanya?', 
+    quizA: 7, choices: [5, 6, 7, 8] as const,
+    fdContext: '💡 Ingat: rentang = nilai terbesar − nilai terkecil',
+    hint: 'Kurangkan nilai terbesar (8) dengan nilai terkecil (1) untuk mendapatkan rentang.', count: 3 
+  },
+  { 
+    id: 'A2', roomId: 'A' as DoorId, label: 'Kelas VII-2', x: 140, y: 186, color: '#818cf8', 
+    quizQ: 'Tepi bawah kelas interval 4–6 adalah?', 
+    quizA: 3.5, choices: [3, 3.5, 4, 4.5] as const,
+    fdContext: '💡 Ingat: tepi bawah = batas bawah − 0.5',
+    hint: 'Kurangi batas bawah kelas (4) dengan 0.5.', count: 3 
+  },
+  { 
+    id: 'A3', roomId: 'A' as DoorId, label: 'Kelas VII-3', x: 227.5, y: 160, color: '#818cf8', 
+    quizQ: 'Rentang = 17, Banyak Kelas = 6. Panjang kelas interval dibulatkan ke atas adalah?', 
+    quizA: 3, choices: [2, 3, 4, 5] as const,
+    fdContext: '💡 Ingat: panjang kelas = rentang ÷ banyak kelas, bulatkan ke atas.',
+    hint: 'Bagi nilai rentang dengan banyak kelas, lalu bulatkan hasilnya ke atas.', count: 3 
+  },
 
-  // Room B (total 15) - Medium arithmetic & word stories
-  { id: 'B1', roomId: 'B' as DoorId, label: 'Kelas VIII-1', x: 320, y: 145,
-    color: '#00ADB5', quizQ: '3 × 4 = ?', quizA: 12, hint: '3 dikali 4 sama dengan 12', count: 5 },
-  { id: 'B2', roomId: 'B' as DoorId, label: 'Kelas VIII-2', x: 400, y: 145,
-    color: '#00ADB5', quizQ: 'Budi punya screen time 5 jam. Jika dikurangi 2 jam, berapa jam target barunya?', quizA: 3, hint: 'Target baru: 5 jam dikurangi 2 jam = 3 jam', count: 5 },
-  { id: 'B3', roomId: 'B' as DoorId, label: 'Kelas VIII-3', x: 480, y: 145,
-    color: '#00ADB5', quizQ: '14 - 6 = ?', quizA: 8, hint: '14 dikurangi 6 sama dengan 8', count: 5 },
+  // Room B (total 15) - Topik: Etika Media Sosial (Bloom Level 4: Menganalisis)
+  { 
+    id: 'B1', roomId: 'B' as DoorId, label: 'Kelas VIII-1', x: 320, y: 145, color: '#00ADB5', 
+    quizQ: 'Kamu menerima berita viral yang belum terverifikasi. Tindakan paling etis adalah?', 
+    quizA: 'Verifikasi dulu', choices: ['Langsung share', 'Verifikasi dulu', 'Screenshot & sebar', 'Abaikan saja'] as const,
+    fdContext: '💡 Pikirkan dampaknya terhadap orang lain',
+    hint: 'Cari tindakan yang memastikan kebenaran informasi sebelum membagikannya.', count: 5 
+  },
+  { 
+    id: 'B2', roomId: 'B' as DoorId, label: 'Kelas VIII-2', x: 400, y: 145, color: '#00ADB5', 
+    quizQ: 'Seseorang memposting foto orang lain tanpa izin untuk konten viral. Ini termasuk pelanggaran?', 
+    quizA: 'Kedua-duanya', choices: ['Privasi', 'Hak cipta', 'Kedua-duanya', 'Bukan pelanggaran'] as const,
+    fdContext: '💡 Pikirkan mengenai kepemilikan dan privasi hak orang lain',
+    hint: 'Memposting foto orang lain melanggar ranah pribadi sekaligus kepemilikan ciptaan.', count: 5 
+  },
+  { 
+    id: 'B3', roomId: 'B' as DoorId, label: 'Kelas VIII-3', x: 480, y: 145, color: '#00ADB5', 
+    quizQ: 'Konten yang sengaja dibuat untuk memancing emosi negatif di media sosial disebut?', 
+    quizA: 'Clickbait', choices: ['Clickbait', 'Hoax', 'Meme', 'Spam'] as const,
+    fdContext: '💡 Pikirkan tujuan pembuat konten yang ingin menarik perhatian emosional secara instan',
+    hint: 'Istilah ini merujuk pada pancingan tautan atau umpan klik untuk memicu reaksi emosi cepat.', count: 5 
+  },
 
-  // Room C (total 11) - Combined operations & analytical stories
-  { id: 'C1', roomId: 'C' as DoorId, label: 'Kelas IX-1', x: 572.5, y: 160,
-    color: '#f472b6', quizQ: 'Rata-rata screen time 3 siswa adalah 5 jam. Berapa total jam seluruhnya?', quizA: 15, hint: 'Total = rata-rata 5 jam dikali 3 siswa = 15 jam', count: 4 },
-  { id: 'C2', roomId: 'C' as DoorId, label: 'Kelas IX-2', x: 660, y: 186,
-    color: '#f472b6', quizQ: '2 × 5 + 3 = ?', quizA: 13, hint: 'Selesaikan perkalian dulu: 2 × 5 = 10, lalu tambah 3 = 13', count: 4 },
-  { id: 'C3', roomId: 'C' as DoorId, label: 'Kelas IX-3', x: 747.5, y: 213,
-    color: '#f472b6', quizQ: 'Dari 12 jam waktu luang, separuhnya dipakai bermain HP. Berapa jam screen time-nya?', quizA: 6, hint: 'Setengah dari 12 jam adalah 6 jam', count: 3 },
+  // Room C (total 11) - Topik: Literasi Digital (Bloom Level 3-4: Mengaplikasikan & Menganalisis)
+  { 
+    id: 'C1', roomId: 'C' as DoorId, label: 'Kelas IX-1', x: 572.5, y: 160, color: '#f472b6', 
+    quizQ: 'Ciri utama berita hoax yang paling umum adalah?', 
+    quizA: 'Sumber tidak jelas', choices: ['Sumber tidak jelas', 'Ada foto', 'Ada tanggal', 'Ditulis wartawan'] as const,
+    fdContext: '💡 Perhatikan kredibilitas pembuat informasi',
+    hint: 'Berita bohong biasanya tidak menyebutkan asal-usul kredibel atau pihak penanggung jawab.', count: 4 
+  },
+  { 
+    id: 'C2', roomId: 'C' as DoorId, label: 'Kelas IX-2', x: 660, y: 186, color: '#f472b6', 
+    quizQ: 'Langkah pertama yang benar saat menemukan informasi mencurigakan di internet adalah?', 
+    quizA: 'Cek sumber asli', choices: ['Cek sumber asli', 'Tanya teman', 'Langsung percaya', 'Share ke grup'] as const,
+    fdContext: '💡 Telusuri keaslian data sebelum bertindak',
+    hint: 'Selalu lakukan konfirmasi kebenaran ke situs atau pihak pertama yang merilis informasi.', count: 4 
+  },
+  { 
+    id: 'C3', roomId: 'C' as DoorId, label: 'Kelas IX-3', x: 747.5, y: 213, color: '#f472b6', 
+    quizQ: 'Jika tepi bawah kelas pertama 0.5 dan panjang kelas 3, tepi atas kelas pertama adalah?', 
+    quizA: 3.5, choices: [3.5, 3, 4, 4.5] as const,
+    fdContext: '💡 Ingat: tepi atas = tepi bawah + panjang kelas',
+    hint: 'Jumlahkan tepi bawah kelas pertama dengan panjang kelasnya.', count: 3 
+  },
 ] as const
 
 const DATA_CIRCLES = [
@@ -347,17 +394,549 @@ function Joystick({ onDir }: { onDir: (x: number, y: number) => void }) {
   )
 }
 
+// Helper to generate choice pool for answers
+function generateAnswerPool(correctAnswer: number): number[] {
+  const pool = new Set<number>()
+  pool.add(correctAnswer)
+  
+  // Distractors must be within range ±2 to ±3 from correctAnswer
+  const candidates: number[] = []
+  for (let offset = -3; offset <= 3; offset++) {
+    if (offset === 0) continue
+    if (Math.abs(offset) < 2) continue // Only allow ±2 and ±3
+    const val = correctAnswer + offset
+    if (val > 0) { // must be positive (greater than 0)
+      candidates.push(val)
+    }
+  }
+  
+  // If we don't have enough candidates (e.g. correctAnswer is very small like 1 or 2), let's expand candidate range to ±1, +4, +5 but always positive.
+  if (candidates.length < 3) {
+    for (let offset = -3; offset <= 5; offset++) {
+      if (offset === 0) continue
+      const val = correctAnswer + offset
+      if (val > 0 && val !== correctAnswer && !candidates.includes(val)) {
+        candidates.push(val)
+      }
+    }
+  }
+  
+  // Shuffle candidates and pick 3 distractors so that total pool size is 4
+  const shuffledCandidates = [...candidates].sort(() => Math.random() - 0.5)
+  const numDistractors = Math.min(3, shuffledCandidates.length)
+  for (let i = 0; i < numDistractors; i++) {
+    pool.add(shuffledCandidates[i])
+  }
+  
+  // Fallback: if we still don't have 4 choices, add more positive numbers close by
+  let offset = 4
+  while (pool.size < 4) {
+    const val = correctAnswer + offset
+    if (val > 0 && !pool.has(val)) {
+      pool.add(val)
+    }
+    const val2 = correctAnswer - offset
+    if (val2 > 0 && !pool.has(val2)) {
+      pool.add(val2)
+    }
+    offset++
+  }
+  
+  // Convert to array and shuffle
+  return Array.from(pool).sort(() => Math.random() - 0.5)
+}
+
+// Helper to get dynamic hint focusing on process
+function getProcessHint(quizQ: string): string {
+  const isWordProblem = /[a-zA-Z]{3,}/.test(quizQ) && quizQ.length > 15;
+  
+  if (isWordProblem) {
+    return "Baca ulang soalnya pelan-pelan, angka mana yang perlu dihitung? 🤔";
+  }
+  
+  const hasMult = quizQ.includes('×') || quizQ.includes('*');
+  const hasAddSub = quizQ.includes('+') || quizQ.includes('-');
+  if (hasMult && hasAddSub) {
+    return "Selesaikan perkalian/pembagian terlebih dahulu, baru lakukan penjumlahan/pengurangan 🤔";
+  }
+  
+  if (hasMult) {
+    return "Ingat, a × b berarti a dijumlahkan sebanyak b kali 🤔";
+  }
+  if (quizQ.includes('-')) {
+    return "Bayangkan kamu punya sejumlah sesuatu, lalu dikurangi 🤔";
+  }
+  if (quizQ.includes('+')) {
+    return "Coba jumlahkan kedua angka satu per satu 🤔";
+  }
+  
+  return "Coba hitung kembali dengan teliti ya 🤔";
+}
+
+interface VisualHintModalProps {
+  door: QuizDoor
+  onClose: () => void
+}
+
+function VisualHintModal({ door, onClose }: VisualHintModalProps) {
+  const [hintStep, setHintStep] = useState<1 | 2 | 3>(1)
+
+  const renderIllustration = () => {
+    switch (door.id) {
+      case 'A': // Room A door (3 × 3 = 9)
+      case 'B': // Room B door (3 × 5 = 15)
+        {
+          const rows = door.id === 'A' ? 3 : 5
+          const cols = 3
+          return (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, alignItems: 'center' }}>
+              {Array.from({ length: rows }).map((_, rIdx) => (
+                <div key={rIdx} style={{ display: 'flex', gap: 8 }}>
+                  {Array.from({ length: cols }).map((_, cIdx) => {
+                    const idx = rIdx * cols + cIdx + 1
+                    return (
+                      <div key={cIdx} style={{
+                        width: 32, height: 32, borderRadius: '50%',
+                        background: hintStep >= 2 ? 'rgba(0, 173, 181, 0.2)' : 'rgba(0, 173, 181, 0.05)',
+                        border: '1.5px solid #00ADB5',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        color: '#FFFFFF', fontWeight: 900, fontSize: 13,
+                        boxShadow: hintStep >= 2 ? '0 0 8px rgba(0, 173, 181, 0.4)' : 'none',
+                        transition: 'all 0.3s'
+                      }}>
+                        {hintStep >= 2 ? idx : ''}
+                      </div>
+                    )
+                  })}
+                </div>
+              ))}
+              <div style={{ fontSize: 12, color: '#94A3B8', marginTop: 8, textAlign: 'center', fontWeight: 600 }}>
+                {hintStep === 1 ? `${rows} baris, masing-masing berisi ${cols} objek.` : 'Hitung jumlah seluruh objek satu per satu:'}
+              </div>
+            </div>
+          )
+        }
+
+      case 'C': // Room C door (8 + 3 = 11)
+        {
+          const leftCount = 8
+          const rightCount = 3
+          return (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14, alignItems: 'center' }}>
+              <div style={{ display: 'flex', gap: 20, alignItems: 'center' }}>
+                {/* Left Group */}
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, maxWidth: 120, justifyContent: 'center' }}>
+                  {Array.from({ length: leftCount }).map((_, i) => (
+                    <div key={i} style={{
+                      width: 28, height: 28, borderRadius: '50%',
+                      background: hintStep >= 2 ? 'rgba(129, 140, 248, 0.25)' : 'rgba(129, 140, 248, 0.08)',
+                      border: '1.5px solid #818cf8',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      color: '#FFFFFF', fontWeight: 900, fontSize: 11,
+                      boxShadow: hintStep >= 2 ? '0 0 6px rgba(129, 140, 248, 0.4)' : 'none',
+                      transition: 'all 0.3s'
+                    }}>
+                      {hintStep >= 2 ? i + 1 : ''}
+                    </div>
+                  ))}
+                </div>
+                <div style={{ fontSize: 20, fontWeight: 900, color: door.color }}>+</div>
+                {/* Right Group */}
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, maxWidth: 120, justifyContent: 'center' }}>
+                  {Array.from({ length: rightCount }).map((_, i) => (
+                    <div key={i} style={{
+                      width: 28, height: 28, borderRadius: '50%',
+                      background: hintStep >= 2 ? 'rgba(16, 185, 129, 0.25)' : 'rgba(16, 185, 129, 0.08)',
+                      border: '1.5px solid #10b981',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      color: '#FFFFFF', fontWeight: 900, fontSize: 11,
+                      boxShadow: hintStep >= 2 ? '0 0 6px rgba(16, 185, 129, 0.4)' : 'none',
+                      transition: 'all 0.3s'
+                    }}>
+                      {hintStep >= 2 ? leftCount + i + 1 : ''}
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div style={{ fontSize: 12, color: '#94A3B8', marginTop: 4, textAlign: 'center', fontWeight: 600 }}>
+                {hintStep === 1 ? `Gabungkan grup kiri (${leftCount} objek) dan grup kanan (${rightCount} objek).` : 'Hitung total gabungan objek:'}
+              </div>
+            </div>
+          )
+        }
+
+      case 'A1': // VII-1: Rentang dari data [2, 4, 3, 8, 1] (Jwb: 7)
+        return (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14, alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: 20, alignItems: 'center' }}>
+              <div style={{ padding: '10px 14px', background: 'rgba(239, 68, 68, 0.08)', border: '1.5px solid #EF4444', borderRadius: 12, textAlign: 'center' }}>
+                <div style={{ fontSize: 10, color: '#EF4444', fontWeight: 800, marginBottom: 4 }}>TERKECIL</div>
+                <div style={{ fontSize: 24, fontWeight: 900, color: '#FFFFFF' }}>1</div>
+              </div>
+              <div style={{ fontSize: 20, color: '#94A3B8', fontWeight: 'bold' }}>sampai</div>
+              <div style={{ padding: '10px 14px', background: 'rgba(16, 185, 129, 0.08)', border: '1.5px solid #10b981', borderRadius: 12, textAlign: 'center' }}>
+                <div style={{ fontSize: 10, color: '#10b981', fontWeight: 800, marginBottom: 4 }}>TERBESAR</div>
+                <div style={{ fontSize: 24, fontWeight: 900, color: '#FFFFFF' }}>8</div>
+              </div>
+            </div>
+            {hintStep >= 2 && (
+              <div style={{ fontSize: 16, fontWeight: 800, color: '#00ADB5', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: 10, width: '100%', textAlign: 'center' }}>
+                Rentang = 8 − 1 = 7
+              </div>
+            )}
+            <div style={{ fontSize: 12, color: '#94A3B8', textAlign: 'center', fontWeight: 600 }}>
+              {hintStep === 1 ? 'Rentang dihitung dengan mencari selisih antara nilai terbesar (8) dan terkecil (1).' : 'Kurangkan nilai terbesar dengan nilai terkecil.'}
+            </div>
+          </div>
+        )
+
+      case 'A2': // VII-2: Tepi bawah dari kelas 4-6? (Jwb: 3.5)
+        return (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14, alignItems: 'center', width: '100%' }}>
+            <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+              <div style={{ padding: '10px 14px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, textAlign: 'center' }}>
+                <div style={{ fontSize: 10, color: '#94A3B8', fontWeight: 800, marginBottom: 4 }}>BATAS BAWAH</div>
+                <div style={{ fontSize: 24, fontWeight: 900, color: '#FFFFFF' }}>4</div>
+              </div>
+              <div style={{ fontSize: 20, color: '#00ADB5', fontWeight: 'bold' }}>− 0.5</div>
+              {hintStep >= 2 && (
+                <div style={{ padding: '10px 14px', background: 'rgba(0,173,181,0.1)', border: '1.5px solid #00ADB5', borderRadius: 12, textAlign: 'center', boxShadow: '0 0 10px rgba(0,173,181,0.3)' }}>
+                  <div style={{ fontSize: 10, color: '#00ADB5', fontWeight: 800, marginBottom: 4 }}>TEPI BAWAH</div>
+                  <div style={{ fontSize: 24, fontWeight: 900, color: '#00ADB5' }}>3.5</div>
+                </div>
+              )}
+            </div>
+            <div style={{ fontSize: 12, color: '#94A3B8', textAlign: 'center', fontWeight: 600 }}>
+              {hintStep === 1 ? 'Tepi bawah diperoleh dengan mengurangkan batas bawah kelas dengan 0.5.' : 'Kurangkan batas bawah (4) dengan 0.5 untuk memperoleh tepi bawah: 4 − 0.5 = 3.5.'}
+            </div>
+          </div>
+        )
+
+      case 'A3': // VII-3: Rentang = 17, banyak kelas = 6. Panjang kelas dibulatkan ke atas? (Jwb: 3)
+        return (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14, alignItems: 'center', width: '100%' }}>
+            <div style={{ padding: '12px 16px', background: 'rgba(0,173,181,0.06)', border: '1px solid rgba(0,173,181,0.2)', borderRadius: 12, width: '90%', textAlign: 'center' }}>
+              <div style={{ fontSize: 11, color: '#94A3B8', fontWeight: 800, marginBottom: 6 }}>RUMUS PANJANG KELAS</div>
+              <div style={{ fontSize: 15, fontWeight: 'bold', color: '#FFFFFF', fontFamily: 'monospace' }}>
+                Panjang Kelas = Rentang ÷ Banyak Kelas
+              </div>
+              {hintStep >= 2 && (
+                <div style={{ fontSize: 15, fontWeight: 'bold', color: '#00ADB5', fontFamily: 'monospace', marginTop: 8, borderTop: '1px dashed rgba(255,255,255,0.1)', paddingTop: 8 }}>
+                  17 ÷ 6 = 2.83... → Bulatkan ke atas = 3
+                </div>
+              )}
+            </div>
+            <div style={{ fontSize: 12, color: '#94A3B8', textAlign: 'center', fontWeight: 600 }}>
+              {hintStep === 1 ? 'Bagi rentang data dengan banyak kelas sesuai rumus.' : 'Hasil pembagian adalah 2.83. Dibulatkan ke atas menjadi bilangan bulat terdekat yaitu 3.'}
+            </div>
+          </div>
+        )
+
+      case 'B1': // VIII-1: Tindakan paling etis atas berita belum terverifikasi (Jwb: Verifikasi dulu)
+        return (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center', width: '100%' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, width: '90%' }}>
+              <div style={{ padding: 10, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, textAlign: 'center' }}>
+                <span style={{ fontSize: 12, fontWeight: 'bold', color: '#E2E8F0' }}>Penerimaan Berita Baru 📰</span>
+              </div>
+              {hintStep >= 2 && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  <div style={{ padding: '8px 10px', background: 'rgba(239, 68, 68, 0.08)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: 8, fontSize: 11, color: '#EF4444' }}>
+                    ❌ Langsung Share / Sebar ➡️ Potensi hoax & fitnah!
+                  </div>
+                  <div style={{ padding: '8px 10px', background: 'rgba(16, 185, 129, 0.08)', border: '1.5px solid #10b981', borderRadius: 8, fontSize: 11, color: '#10B981', fontWeight: 'bold', boxShadow: '0 0 6px rgba(16, 185, 129, 0.2)' }}>
+                    ✅ Verifikasi ➡️ Cek fakta agar aman & bermanfaat!
+                  </div>
+                </div>
+              )}
+            </div>
+            <div style={{ fontSize: 12, color: '#94A3B8', textAlign: 'center', fontWeight: 600 }}>
+              {hintStep === 1 ? 'Mendapat berita viral membutuhkan penyaringan yang ketat sebelum dibagikan.' : 'Prioritaskan tindakan yang memverifikasi kebenaran berita terlebih dahulu.'}
+            </div>
+          </div>
+        )
+
+      case 'B2': // VIII-2: Posting foto tanpa izin (Jwb: Kedua-duanya)
+        return (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center', width: '100%' }}>
+            <div style={{ display: 'flex', gap: 12, justifyContent: 'center', width: '90%' }}>
+              <div style={{ flex: 1, padding: 10, background: 'rgba(0,173,181,0.05)', border: '1px solid #00ADB5', borderRadius: 10, textAlign: 'center' }}>
+                <div style={{ fontSize: 18 }}>🔒</div>
+                <div style={{ fontSize: 11, fontWeight: 'bold', color: '#FFFFFF', marginTop: 4 }}>Hak Privasi</div>
+                <div style={{ fontSize: 9, color: '#94A3B8', marginTop: 2 }}>Kebebasan individu</div>
+              </div>
+              <div style={{ flex: 1, padding: 10, background: 'rgba(0,173,181,0.05)', border: '1px solid #00ADB5', borderRadius: 10, textAlign: 'center' }}>
+                <div style={{ fontSize: 18 }}>🎨</div>
+                <div style={{ fontSize: 11, fontWeight: 'bold', color: '#FFFFFF', marginTop: 4 }}>Hak Cipta</div>
+                <div style={{ fontSize: 9, color: '#94A3B8', marginTop: 2 }}>Kepemilikan karya</div>
+              </div>
+            </div>
+            {hintStep >= 2 && (
+              <div style={{ padding: '8px 12px', background: 'rgba(16, 185, 129, 0.08)', border: '1.5px solid #10b981', borderRadius: 8, width: '90%', textAlign: 'center', fontSize: 12, color: '#10B981', fontWeight: 'bold' }}>
+                Kedua hak tersebut dilanggar sekaligus!
+              </div>
+            )}
+            <div style={{ fontSize: 12, color: '#94A3B8', textAlign: 'center', fontWeight: 600 }}>
+              {hintStep === 1 ? 'Mempublikasikan foto potret seseorang menyangkut ranah pribadi dan kepemilikan visual.' : 'Karena melanggar kebebasan pribadi dan kepemilikan karya, maka pilihan yang tepat adalah kedua-duanya.'}
+            </div>
+          </div>
+        )
+
+      case 'B3': // VIII-3: Konten memancing emosi negatif (Jwb: Clickbait)
+        return (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14, alignItems: 'center', width: '100%' }}>
+            <div style={{ padding: '12px 16px', background: 'rgba(217, 119, 6, 0.06)', border: '1px solid #d97706', borderRadius: 12, width: '90%', textAlign: 'center' }}>
+              <div style={{ fontSize: 10, color: '#ffb060', fontWeight: 800, marginBottom: 4, letterSpacing: '1px' }}>DEFINISI KUNCI</div>
+              <div style={{ fontSize: 14, fontWeight: 'bold', color: '#FFFFFF' }}>
+                "Umpan klik" / Clickbait 🎣
+              </div>
+              {hintStep >= 2 && (
+                <div style={{ fontSize: 12, color: '#94A3B8', marginTop: 6, borderTop: '1px dashed rgba(255,255,255,0.1)', paddingTop: 6 }}>
+                  Konten provokatif sengaja didesain untuk memicu amarah/emosi instan pembaca agar mengeklik tautan tersebut.
+                </div>
+              )}
+            </div>
+            <div style={{ fontSize: 12, color: '#94A3B8', textAlign: 'center', fontWeight: 600 }}>
+              {hintStep === 1 ? 'Istilah ini menggambarkan pancingan judul atau umpan visual yang memicu respons emosional.' : 'Pancingan semacam ini dikenal secara umum dengan sebutan Clickbait.'}
+            </div>
+          </div>
+        )
+
+      case 'C1': // IX-1: Ciri hoax yang paling umum (Jwb: Sumber tidak jelas)
+        return (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center', width: '100%' }}>
+            <div style={{ padding: '10px 14px', background: 'rgba(239, 68, 68, 0.05)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: 10, width: '90%' }}>
+              <div style={{ fontSize: 10, color: '#EF4444', fontWeight: 800, marginBottom: 4 }}>CHECKLIST HOAX:</div>
+              <ul style={{ margin: 0, paddingLeft: 18, fontSize: 11.5, color: '#E2E8F0', display: 'flex', flexDirection: 'column', gap: 4, textAlign: 'left' }}>
+                <li>Informasi bombastis & berlebihan</li>
+                <li style={{ color: hintStep >= 2 ? '#EF4444' : '#E2E8F0', fontWeight: hintStep >= 2 ? 'bold' : 'normal' }}>
+                  Tidak memiliki sumber rujukan yang jelas/kredibel
+                </li>
+                <li>Meminta informasi disebarkan secara instan</li>
+              </ul>
+            </div>
+            <div style={{ fontSize: 12, color: '#94A3B8', textAlign: 'center', fontWeight: 600 }}>
+              {hintStep === 1 ? 'Ciri utama berita palsu yang paling mencolok terletak pada asal-usul kredibilitas beritanya.' : 'Ciri paling umum adalah sumber informasinya tidak jelas atau tidak dapat dipertanggungjawabkan.'}
+            </div>
+          </div>
+        )
+
+      case 'C2': // IX-2: Langkah pertama saat menemukan info mencurigakan (Jwb: Cek sumber asli)
+        return (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center', width: '100%' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, width: '90%' }}>
+              <div style={{ padding: 10, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, textAlign: 'center' }}>
+                <span style={{ fontSize: 12, color: '#E2E8F0', fontWeight: 'bold' }}>🔎 Menemukan Info Mencurigakan</span>
+              </div>
+              {hintStep >= 2 && (
+                <div style={{ padding: '10px 12px', background: 'rgba(0,173,181,0.08)', border: '1.5px solid #00ADB5', borderRadius: 8, textAlign: 'center', fontSize: 12, color: '#00ADB5', fontWeight: 'bold' }}>
+                  Langkah 1: Menelusuri & Cek Sumber Aslinya!
+                </div>
+              )}
+            </div>
+            <div style={{ fontSize: 12, color: '#94A3B8', textAlign: 'center', fontWeight: 600 }}>
+              {hintStep === 1 ? 'Sebelum mempercayai atau membagikan, langkah pertama adalah melakukan penelusuran fakta.' : 'Tindakan awal yang benar adalah memverifikasi langsung ke sumber rujukan orisinalnya.'}
+            </div>
+          </div>
+        )
+
+      case 'C3': // IX-3: Platform verifikasi berita di Indonesia (Jwb: TurnBackHoax)
+        return (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14, alignItems: 'center', width: '100%' }}>
+            <div style={{ padding: '12px 16px', background: 'rgba(0,173,181,0.06)', border: '1px solid rgba(0,173,181,0.2)', borderRadius: 12, width: '90%', textAlign: 'center' }}>
+              <div style={{ fontSize: 10, color: '#00ADB5', fontWeight: 800, marginBottom: 4 }}>DATABASE RUJUKAN CEK FAKTA</div>
+              <div style={{ fontSize: 16, fontWeight: 'bold', color: '#FFFFFF', fontFamily: 'monospace' }}>
+                🌐 Mafindo (TurnBackHoax)
+              </div>
+              {hintStep >= 2 && (
+                <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 6, borderTop: '1px dashed rgba(255,255,255,0.1)', paddingTop: 6 }}>
+                  Situs independen cek fakta yang mengarsipkan berbagai klarifikasi hoaks secara resmi di Indonesia.
+                </div>
+              )}
+            </div>
+            <div style={{ fontSize: 12, color: '#94A3B8', textAlign: 'center', fontWeight: 600 }}>
+              {hintStep === 1 ? 'Pilihlah portal cek fakta komunitas anti-fitnah resmi yang terdaftar di Indonesia.' : 'Platform cek fakta Indonesia yang terpopuler dan terakreditasi adalah TurnBackHoax.'}
+            </div>
+          </div>
+        )
+
+      default:
+        return <div style={{ color: '#E2E8F0', fontSize: 13 }}>Ilustrasi bantuan tidak tersedia 🤔</div>
+    }
+  }
+
+  return (
+    <div 
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 600,
+        background: 'rgba(4, 7, 10, 0.8)',
+        backdropFilter: 'blur(8px)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 20
+      }}
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9, y: 15 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.9, y: 15 }}
+        style={{
+          maxWidth: 400,
+          width: '100%',
+          background: 'rgba(15, 35, 56, 0.98)',
+          border: '2px solid #00ADB5',
+          boxShadow: '0 0 25px rgba(0, 173, 181, 0.35)',
+          borderRadius: 24,
+          padding: '24px 20px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 16
+        }}
+        onClick={e => e.stopPropagation()}
+      >
+        <div>
+          <div style={{ fontSize: 11, fontWeight: 900, color: '#00ADB5', letterSpacing: '2px', marginBottom: 4 }}>🧠 BANTUAN VISUAL STEP-BY-STEP</div>
+          <h3 style={{ margin: 0, fontSize: 16, color: '#FFFFFF', fontWeight: 800 }}>Teka-teki: {door.label}</h3>
+        </div>
+
+        {/* Step Indicator */}
+        <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>
+          {[1, 2, 3].map(st => (
+            <div key={st} style={{
+              flex: 1, height: 6, borderRadius: 3,
+              background: hintStep === st ? '#00ADB5' : hintStep > st ? 'rgba(0,173,181,0.3)' : 'rgba(255,255,255,0.06)',
+              transition: 'background 0.3s'
+            }} />
+          ))}
+        </div>
+
+        {/* Teks Soal Aktif */}
+        <div style={{ 
+          background: 'rgba(0, 173, 181, 0.06)', 
+          border: '1.5px solid rgba(0, 173, 181, 0.25)', 
+          borderRadius: 14, 
+          padding: '10px 14px', 
+          textAlign: 'center' 
+        }}>
+          <div style={{ fontSize: '10px', fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>
+            SOAL AKTIF
+          </div>
+          <div style={{ 
+            fontSize: door.quizQ.length > 30 ? '13px' : '16px', 
+            fontWeight: 900, 
+            color: '#FFFFFF', 
+            fontFamily: 'var(--font-data)', 
+            lineHeight: 1.4 
+          }}>
+            {door.quizQ}
+          </div>
+        </div>
+
+        {/* Illustration Canvas Area */}
+        <div style={{
+          minHeight: 180,
+          background: 'rgba(4, 7, 10, 0.4)',
+          border: '1px solid rgba(14, 131, 136, 0.15)',
+          borderRadius: 16,
+          padding: 16,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+          {hintStep === 3 ? (
+            <div style={{ textAlign: 'center', padding: '10px 0' }}>
+              <div style={{ fontSize: 36, marginBottom: 12 }}>🤔</div>
+              <p style={{ margin: 0, fontSize: 16, fontWeight: 800, color: '#FFFFFF', lineHeight: 1.5 }}>
+                Jadi totalnya berapa?<br />
+                <span style={{ fontSize: 12, color: '#94A3B8', fontWeight: 500 }}>Tutup bantuan ini lalu seret jawaban yang tepat!</span>
+              </p>
+            </div>
+          ) : (
+            renderIllustration()
+          )}
+        </div>
+
+        {/* Buttons */}
+        <div style={{ display: 'flex', gap: 12 }}>
+          <button className="game-btn game-btn-secondary" style={{ flex: 1, padding: '10px 14px', fontSize: 13 }} onClick={onClose}>Tutup</button>
+          {hintStep < 3 && (
+            <button className="game-btn game-btn-primary" style={{ flex: 1.5, padding: '10px 14px', fontSize: 13 }} onClick={() => setHintStep(curr => (curr + 1) as any)}>
+              Lanjut →
+            </button>
+          )}
+        </div>
+      </motion.div>
+    </div>
+  )
+}
+
 // ─── Quiz popup ───────────────────────────────────────────────────────────────
 function QuizPopup({ door, isFD, onCorrect, onClose }:
   { door: QuizDoor; isFD: boolean; onCorrect: () => void; onClose: () => void }) {
-  const [val, setVal] = useState('')
   const [shake, setShake] = useState(0)
-  const [hint, setHint] = useState(false)
+  const [wrongCount, setWrongCount] = useState(0)
+  const [openVisualModal, setOpenVisualModal] = useState(false)
+  const [choices, setChoices] = useState<(number | string)[]>([])
+  const [placedChoice, setPlacedChoice] = useState<number | string | null>(null)
+  const [resetKeys, setResetKeys] = useState<Record<string, number>>({})
+  const [isCorrect, setIsCorrect] = useState(false)
+  const [isWrong, setIsWrong] = useState(false)
+
+  useEffect(() => {
+    if (door.choices) {
+      setChoices([...door.choices].sort(() => Math.random() - 0.5))
+    } else {
+      setChoices(generateAnswerPool(Number(door.quizA)))
+    }
+    setPlacedChoice(null)
+    setIsCorrect(false)
+    setIsWrong(false)
+    setWrongCount(0)
+    setOpenVisualModal(false)
+  }, [door])
+
+  // Automatically open the visual modal when the threshold is hit
+  useEffect(() => {
+    const needsVisual = isFD ? (wrongCount >= 2) : (wrongCount >= 3)
+    if (needsVisual) {
+      setOpenVisualModal(true)
+    }
+  }, [wrongCount, isFD])
+
+  const handlePlaceAnswer = (val: number | string) => {
+    if (val === door.quizA) {
+      setPlacedChoice(val)
+      setIsCorrect(true)
+      setIsWrong(false)
+    } else {
+      setPlacedChoice(val)
+      setIsWrong(true)
+      setIsCorrect(false)
+      setShake(k => k + 1)
+      setWrongCount(prev => prev + 1)
+      // Snap it back after a short red animation
+      setTimeout(() => {
+        setPlacedChoice(null)
+        setIsWrong(false)
+        setResetKeys(prev => ({ ...prev, [val]: (prev[val] ?? 0) + 1 }))
+      }, 800)
+    }
+  }
 
   const submit = () => {
-    if (parseInt(val.trim(), 10) === door.quizA) { onCorrect() }
-    else { setShake(k => k + 1); if (isFD) { setHint(true); setTimeout(() => setHint(false), 3500) } }
+    if (isCorrect) {
+      onCorrect()
+    }
   }
+
+  const showTextHint = isFD ? (wrongCount >= 1) : (wrongCount >= 2)
+  const showVisualHint = isFD ? (wrongCount >= 2) : (wrongCount >= 3)
+
+  const isTextQuestion = typeof door.quizA === 'string'
 
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 500, background: 'rgba(11, 30, 44, 0.85)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
@@ -384,25 +963,229 @@ function QuizPopup({ door, isFD, onCorrect, onClose }:
             <p style={{ margin: 0, fontSize: 15, fontWeight: 600, color: '#E2E8F0', lineHeight: 1.6 }}>Di dalam pintu ini tersimpan data screen time. Jawab soal berikut untuk membuka pintu:</p>
           </div>
           <div style={{ background: `${door.color}11`, border: `1.5px solid ${door.color}33`, borderRadius: 16, padding: '16px 12px', textAlign: 'center' }}>
-            <div style={{ fontSize: door.quizQ.length > 20 ? (door.quizQ.length > 50 ? 15 : 20) : 36, fontWeight: 900, color: '#FFFFFF', fontFamily: 'var(--font-data)', lineHeight: 1.4 }}>{door.quizQ}</div>
+            <div style={{ fontSize: door.quizQ.length > 20 ? (door.quizQ.length > 50 ? 14 : 16) : 22, fontWeight: 900, color: '#FFFFFF', fontFamily: 'var(--font-data)', lineHeight: 1.4 }}>{door.quizQ}</div>
+            
+            {/* FD Context Hint */}
+            {isFD && door.fdContext && (
+              <div style={{ marginTop: '10px', fontSize: '12px', color: '#ffb060', fontWeight: 600, lineHeight: 1.5, background: 'rgba(217, 119, 6, 0.08)', border: '1px dashed rgba(217, 119, 6, 0.3)', borderRadius: '8px', padding: '6px 8px' }}>
+                {door.fdContext}
+              </div>
+            )}
           </div>
+
+          {/* Target Answer Slot */}
+          <div style={{ textAlign: 'center', margin: '8px 0' }}>
+            <div style={{ fontSize: '11px', fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>
+              Drop Jawaban di Sini
+            </div>
+            <div
+              data-answer-slot="true"
+              style={{
+                width: isTextQuestion ? '85%' : 72,
+                height: isTextQuestion ? 46 : 72,
+                borderRadius: isTextQuestion ? 12 : 16,
+                border: isCorrect
+                  ? '2px solid #00ADB5'
+                  : isWrong
+                    ? '2px dashed #EF4444'
+                    : '2px dashed rgba(14, 131, 136, 0.4)',
+                background: isCorrect
+                  ? 'rgba(0, 173, 181, 0.15)'
+                  : isWrong
+                    ? 'rgba(239, 68, 68, 0.08)'
+                    : 'rgba(14, 131, 136, 0.02)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '0 auto',
+                boxShadow: isCorrect ? '0 0 15px rgba(0, 173, 181, 0.25)' : 'none',
+                transition: 'all 0.25s ease',
+              }}
+            >
+              {placedChoice !== null ? (
+                <div
+                  style={{
+                    width: isTextQuestion ? '90%' : 48,
+                    height: isTextQuestion ? 32 : 48,
+                    borderRadius: isTextQuestion ? 8 : '50%',
+                    background: isCorrect
+                      ? 'linear-gradient(135deg, #00ADB5 0%, #008891 100%)'
+                      : 'linear-gradient(135deg, #EF4444 0%, #C53030 100%)',
+                    border: '1.5px solid #FFFFFF',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#FFFFFF',
+                    fontWeight: 900,
+                    fontSize: isTextQuestion ? '12px' : (placedChoice.toString().length > 2 ? '14px' : '18px'),
+                    fontFamily: isTextQuestion ? 'var(--font-ui)' : 'var(--font-data)',
+                    padding: isTextQuestion ? '0 8px' : '0',
+                    textAlign: 'center',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis'
+                  }}
+                >
+                  {placedChoice}
+                </div>
+              ) : (
+                <span style={{ fontSize: 22, opacity: 0.2, color: door.color, fontFamily: 'monospace' }}>?</span>
+              )}
+            </div>
+          </div>
+
+          {/* Choices Pool */}
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 10, margin: '10px 0', flexWrap: 'wrap', minHeight: '60px', alignItems: 'center' }}>
+            {choices.map((val) => {
+              const isPlaced = placedChoice === val && isCorrect
+              if (isPlaced) {
+                return (
+                  <div
+                    key={`placeholder-${val}`}
+                    style={{
+                      width: isTextQuestion ? undefined : 48,
+                      height: isTextQuestion ? 34 : 48,
+                      padding: isTextQuestion ? '8px 14px' : undefined,
+                      minWidth: isTextQuestion ? 80 : undefined,
+                      borderRadius: isTextQuestion ? 10 : '50%',
+                      background: 'rgba(255, 255, 255, 0.02)',
+                      border: '1px dashed rgba(255, 255, 255, 0.08)',
+                    }}
+                  />
+                )
+              }
+
+              const key = `${val}-${resetKeys[val] ?? 0}`
+              return (
+                <motion.div
+                  key={key}
+                  id={`choice-${val}`}
+                  drag
+                  dragMomentum={false}
+                  dragElastic={0.08}
+                  onDragStart={() => {
+                    setIsWrong(false)
+                  }}
+                  onDragEnd={(event) => {
+                    let clientX: number, clientY: number
+                    if ('changedTouches' in event && event.changedTouches.length > 0) {
+                      clientX = event.changedTouches[0].clientX
+                      clientY = event.changedTouches[0].clientY
+                    } else {
+                      clientX = (event as MouseEvent | PointerEvent).clientX
+                      clientY = (event as MouseEvent | PointerEvent).clientY
+                    }
+
+                    const dragEl = document.getElementById(`choice-${val}`)
+                    const savedPE = dragEl?.style.pointerEvents ?? ''
+                    if (dragEl) dragEl.style.pointerEvents = 'none'
+                    const elem = document.elementFromPoint(clientX, clientY)
+                    if (dragEl) dragEl.style.pointerEvents = savedPE
+
+                    let placed = false
+                    if (elem) {
+                      const slotEl = elem.closest('[data-answer-slot]')
+                      if (slotEl) {
+                        placed = true
+                        handlePlaceAnswer(val)
+                      }
+                    }
+
+                    if (!placed) {
+                      setResetKeys(prev => ({ ...prev, [val]: (prev[val] ?? 0) + 1 }))
+                    }
+                  }}
+                  whileHover={{ scale: 1.08 }}
+                  whileDrag={{ scale: 1.15, zIndex: 9999, cursor: 'grabbing', boxShadow: `0 8px 24px ${door.color}66, 0 0 0 2px ${door.color}` }}
+                  style={{
+                    width: isTextQuestion ? undefined : 48,
+                    height: isTextQuestion ? 34 : 48,
+                    borderRadius: isTextQuestion ? 10 : '50%',
+                    background: `linear-gradient(135deg, ${door.color}dd 0%, ${door.color}88 100%)`,
+                    border: `1.5px solid ${door.color}55`,
+                    boxShadow: '0 3px 8px rgba(0,0,0,0.4)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#FFFFFF',
+                    fontWeight: 900,
+                    fontSize: isTextQuestion ? '12px' : (val.toString().length > 2 ? '14px' : '18px'),
+                    fontFamily: isTextQuestion ? 'var(--font-ui)' : 'var(--font-data)',
+                    padding: isTextQuestion ? '8px 14px' : '0',
+                    cursor: 'grab',
+                    userSelect: 'none',
+                    touchAction: 'none',
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  {val}
+                </motion.div>
+              )
+            })}
+          </div>
+
           <motion.div key={shake} animate={shake > 0 ? { x: [-8, 8, -5, 5, 0] } : {}} transition={{ duration: 0.35 }}>
-            <input type="number" value={val} onChange={e => setVal(e.target.value)} onKeyDown={e => e.key === 'Enter' && submit()}
-              autoFocus placeholder="Jawaban kamu..."
-              style={{ width: '100%', boxSizing: 'border-box', background: 'rgba(14, 131, 136, 0.1)', border: `2px solid ${door.color}77`, borderRadius: 14, padding: '14px 18px', color: '#FFFFFF', fontSize: 24, fontWeight: 900, textAlign: 'center', fontFamily: 'var(--font-data)', outline: 'none' }} />
+            <AnimatePresence>
+              {showTextHint && <motion.div initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                style={{ padding: '12px 16px', borderRadius: 12, background: 'rgba(217,119,6,0.08)', border: '1px solid rgba(217,119,6,0.25)', fontSize: 15, fontWeight: 600, color: '#ffb060', lineHeight: 1.6 }}>
+                💡 {door.hint}
+              </motion.div>}
+            </AnimatePresence>
           </motion.div>
-          <AnimatePresence>
-            {hint && <motion.div initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-              style={{ padding: '12px 16px', borderRadius: 12, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', fontSize: 15, fontWeight: 600, color: '#ff8080', lineHeight: 1.6 }}>
-              💡 {door.hint}
-            </motion.div>}
-          </AnimatePresence>
+
+          {/* Bantuan Visual Button */}
+          {showVisualHint && (
+            <button
+              className="game-btn game-btn-secondary"
+              style={{
+                fontSize: '11px',
+                fontWeight: 700,
+                padding: '6px 12px',
+                alignSelf: 'center',
+                color: '#00ADB5',
+                borderColor: 'rgba(0, 173, 181, 0.3)',
+                background: 'rgba(0, 173, 181, 0.05)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                margin: '4px auto 0 auto',
+                borderRadius: '8px'
+              }}
+              onClick={() => setOpenVisualModal(true)}
+            >
+              💡 Buka Bantuan Visual Step-by-Step
+            </button>
+          )}
+
           <div style={{ display: 'flex', gap: 12 }}>
             <button className="game-btn game-btn-secondary" style={{ flex: 1, fontSize: 15, fontWeight: 800, padding: '10px 14px' }} onClick={onClose}>Kembali</button>
-            <button className="game-btn game-btn-primary" style={{ flex: 2, fontSize: 15, fontWeight: 800, padding: '10px 14px' }} onClick={submit}>Buka Pintu →</button>
+            <button
+              className="game-btn game-btn-primary"
+              style={{
+                flex: 2,
+                fontSize: 15,
+                fontWeight: 800,
+                padding: '10px 14px',
+                opacity: isCorrect ? 1 : 0.45,
+                cursor: isCorrect ? 'pointer' : 'not-allowed'
+              }}
+              onClick={submit}
+              disabled={!isCorrect}
+            >
+              Buka Pintu →
+            </button>
           </div>
         </motion.div>
       </div>
+
+      <AnimatePresence>
+        {openVisualModal && (
+          <VisualHintModal 
+            door={door} 
+            onClose={() => setOpenVisualModal(false)} 
+          />
+        )}
+      </AnimatePresence>
     </div>
   )
 }
@@ -640,7 +1423,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
       }
       if ((e.key === 'Enter' || e.key === ' ') && nearDoorVal && !unlockedR.current.has(nearDoorVal.id)) {
         e.preventDefault()
-        setActiveDoor(nearDoorVal)
+        setUnlocked(p => new Set([...p, nearDoorVal.id]))
       } else if ((e.key === 'Enter' || e.key === ' ') && nearClassVal && !unlockedR.current.has(nearClassVal.id)) {
         e.preventDefault()
         setActiveClass(nearClassVal)
@@ -1089,7 +1872,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
 
               return (
                 <g key={door.id} style={{ cursor: open ? 'default' : 'pointer' }}
-                  onClick={e => { e.stopPropagation(); if (!open && !activeDoor) setActiveDoor(door) }}>
+                  onClick={e => { e.stopPropagation(); if (!open) setUnlocked(p => new Set([...p, door.id])) }}>
                   {near && <circle cx={door.x} cy={door.y} r={22} fill={`${door.color}15`} stroke={`${door.color}44`} strokeWidth={0.6} />}
                   <rect x={rx} y={ry} width={42} height={26} rx={6}
                     fill={open ? `${door.color}25` : '#111827'} stroke={near ? '#FFFFFF' : door.color} strokeWidth={1} />
@@ -1298,6 +2081,92 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
             <circle cx={charPos.x} cy={charPos.y} r={7.0} fill="url(#char-grad)" filter="url(#avatar-super-glow)" />
             <text x={charPos.x} y={charPos.y - 11} textAnchor="middle" fontSize={8} fontWeight="bold" fill="#ffffff" fontFamily="var(--font-ui)" style={{ letterSpacing: '0.5px', filter: 'drop-shadow(0 1px 3px rgba(0,0,0,0.9))' }}>Kamu</text>
 
+            {/* Quick Click floating helper buttons rendered directly inside the SVG */}
+            <AnimatePresence>
+              {nearDoor && !unlocked.has(nearDoor.id) && !activeDoor && (() => {
+                const buttonW = 110
+                const buttonLeft = Math.max(10, Math.min(VW - 10 - buttonW, charPos.x - buttonW / 2))
+                const textX = buttonLeft + buttonW / 2
+                return (
+                  <motion.g
+                    key={`btn-door-${nearDoor.id}`}
+                    initial={{ opacity: 0, scale: 0.8, y: 5 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.8, y: 5 }}
+                    onClick={() => setUnlocked(p => new Set([...p, nearDoor.id]))}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <rect
+                      x={buttonLeft}
+                      y={charPos.y - 38}
+                      width={buttonW}
+                      height={22}
+                      rx={11}
+                      fill="rgba(15, 23, 42, 0.95)"
+                      stroke={nearDoor.color}
+                      strokeWidth={1.5}
+                      style={{ filter: 'drop-shadow(0px 4px 6px rgba(0,0,0,0.5))' }}
+                    />
+                    <text
+                      x={textX}
+                      y={charPos.y - 27}
+                      textAnchor="middle"
+                      dominantBaseline="middle"
+                      fill="#ffffff"
+                      fontSize={10}
+                      fontWeight="bold"
+                      style={{ userSelect: 'none', pointerEvents: 'none', fontFamily: 'var(--font-ui)' }}
+                    >
+                      🔓 Buka {nearDoor.id}
+                    </text>
+                  </motion.g>
+                )
+              })()}
+              {nearClass && !unlocked.has(nearClass.id) && !activeClass && !nearDoor && (() => {
+                const buttonW = 130
+                const buttonLeft = Math.max(10, Math.min(VW - 10 - buttonW, charPos.x - buttonW / 2))
+                const textX = buttonLeft + buttonW / 2
+                return (
+                  <motion.g
+                    key={`btn-class-${nearClass.id}`}
+                    initial={{ opacity: 0, scale: 0.8, y: 5 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.8, y: 5 }}
+                    onClick={() => setActiveClass(nearClass)}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <rect
+                      x={buttonLeft}
+                      y={charPos.y - 38}
+                      width={buttonW}
+                      height={22}
+                      rx={11}
+                      fill="rgba(15, 23, 42, 0.95)"
+                      stroke={nearClass.color}
+                      strokeWidth={1.5}
+                      style={{ filter: 'drop-shadow(0px 4px 6px rgba(0,0,0,0.5))' }}
+                    />
+                    <text
+                      x={textX}
+                      y={charPos.y - 27}
+                      textAnchor="middle"
+                      dominantBaseline="middle"
+                      fill="#ffffff"
+                      fontSize={10}
+                      fontWeight="bold"
+                      style={{ userSelect: 'none', pointerEvents: 'none', fontFamily: 'var(--font-ui)' }}
+                    >
+                      🔓 Buka {nearClass.label}
+                    </text>
+                  </motion.g>
+                )
+              })()}
+            </AnimatePresence>
+
           </svg>
 
           {/* Vignette Overlay (Revisi 5) */}
@@ -1314,24 +2183,6 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
           <div style={{ position: 'absolute', bottom: 12, left: 12, zIndex: 20 }}>
             <Joystick onDir={(x, y) => { dirRef.current = { x, y } }} />
           </div>
-
-          {/* Quick Click helper overlay button */}
-          <AnimatePresence>
-            {nearDoor && !unlocked.has(nearDoor.id) && !activeDoor && (
-              <motion.button initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 5 }}
-                onClick={() => setActiveDoor(nearDoor)}
-                style={{ position: 'absolute', bottom: 12, right: 12, zIndex: 20, background: nearDoor.color, color: '#fff', border: 'none', borderRadius: 20, padding: '8px 14px', fontSize: 11, fontWeight: 800, cursor: 'pointer', boxShadow: `0 0 10px ${nearDoor.color}` }}>
-                🔓 Buka {nearDoor.id}
-              </motion.button>
-            )}
-            {nearClass && !unlocked.has(nearClass.id) && !activeClass && !nearDoor && (
-              <motion.button initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 5 }}
-                onClick={() => setActiveClass(nearClass)}
-                style={{ position: 'absolute', bottom: 12, right: 12, zIndex: 20, background: nearClass.color, color: '#fff', border: 'none', borderRadius: 20, padding: '8px 14px', fontSize: 11, fontWeight: 800, cursor: 'pointer', boxShadow: `0 0 10px ${nearClass.color}` }}>
-                🔓 Buka {nearClass.label}
-              </motion.button>
-            )}
-          </AnimatePresence>
         </div>
       </div>
 

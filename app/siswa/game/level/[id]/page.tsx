@@ -33,7 +33,6 @@ function LevelPageInner({
     demoMode ? (demoStep === 'minmax' ? 'minmax' : 'exploration') : 'exploration'
   )
   const [cutscenePhase, setCutscenePhase] = useState<'comments' | 'mentor'>('comments')
-  const [timerRunning, setTimerRunning] = useState(false)
   const [hydrated, setHydrated] = useState(false)
   /** true while the async rejoin check is running */
   const [initializing, setInitializing] = useState(true)
@@ -130,7 +129,6 @@ function LevelPageInner({
     <OrientationGuard lockScreen={true}>
       <div className="game-root game-level-root">
         <GameHeader
-          timerRunning={timerRunning && phase === 'game'}
           isBlurred={phase === 'cutscene' && cutscenePhase === 'mentor'}
         />
 
@@ -186,7 +184,6 @@ function LevelPageInner({
                   initialSub="panjang-kelas"
                   onComplete={async () => {
                     setPhase('game')
-                    setTimerRunning(true)
                   }}
                 />
               )}

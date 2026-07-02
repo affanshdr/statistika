@@ -118,15 +118,47 @@ export default function DraggableHistogram({
 
   const [selectedPoint, setSelectedPoint] = useState<DataPoint | null>(null)
   const [flashError, setFlashError] = useState<number | null>(null)
-  const [flashHint, setFlashHint] = useState<string | null>(null)
+  const [lastFailedVal, setLastFailedVal] = useState<number | null>(null)
+  const [failedCount, setFailedCount] = useState<number>(0)
   const [submitted, setSubmitted] = useState(false)
   const [draggingId, setDraggingId] = useState<string | null>(null)
 
-  const triggerError = (slotIdx: number, hint: string) => {
-    setFlashError(slotIdx)
-    setFlashHint(hint)
-    setTimeout(() => { setFlashError(null); setFlashHint(null) }, 2500)
+  const isFD = mode === 'FD'
+  let showTextHint = false
+  let showVisualHighlight = false
+
+  if (lastFailedVal !== null) {
+    if (isFD) {
+      if (failedCount === 1) {
+        showTextHint = true
+      } else if (failedCount >= 2) {
+        showVisualHighlight = true
+      }
+    } else {
+      if (failedCount === 2) {
+        showTextHint = true
+      } else if (failedCount >= 3) {
+        showVisualHighlight = true
+      }
+    }
   }
+
+  const correctSlotIdx = lastFailedVal !== null ? getClassIndex(lastFailedVal) : null
+
+  const handleWrongAttempt = useCallback((val: number, slotIdx: number) => {
+    setFlashError(slotIdx)
+    setTimeout(() => { setFlashError(null) }, 500)
+
+    setLastFailedVal(prevVal => {
+      if (prevVal === val) {
+        setFailedCount(prevCount => prevCount + 1)
+        return prevVal
+      } else {
+        setFailedCount(1)
+        return val
+      }
+    })
+  }, [])
 
   // Called when Framer Motion starts a drag gesture on a data point
   const handleDragStart = useCallback((dp: DataPoint) => () => {
@@ -176,13 +208,20 @@ export default function DraggableHistogram({
               }
               return updated
             })
+            setLastFailedVal(prev => {
+              if (prev === dp.val) {
+                setFailedCount(0)
+                return null
+              }
+              return prev
+            })
           } else {
-            triggerError(slotIdx, `💡 Angka ${dp.val} seharusnya masuk ke kelas ${CLASS_LABELS[dp.classIdx]}!`)
+            handleWrongAttempt(dp.val, slotIdx)
           }
         }
       }
     }
-  }, [])
+  }, [onPlacedChange, handleWrongAttempt])
 
   // Tap-to-select then tap-slot to place (alternative to drag)
   const onTapPoint = (dp: DataPoint) => {
@@ -201,11 +240,18 @@ export default function DraggableHistogram({
         }
         return updated
       })
+      setLastFailedVal(prev => {
+        if (prev === selectedPoint.val) {
+          setFailedCount(0)
+          return null
+        }
+        return prev
+      })
       setSelectedPoint(null)
     } else {
-      triggerError(slotIdx, `💡 Angka ${selectedPoint.val} seharusnya masuk ke kelas ${CLASS_LABELS[selectedPoint.classIdx]}.`)
+      handleWrongAttempt(selectedPoint.val, slotIdx)
     }
-  }, [selectedPoint, onPlacedChange])
+  }, [selectedPoint, onPlacedChange, handleWrongAttempt])
 
   const handleSubmit = () => {
     if (!dataPoints.every(dp => dp.placed)) return
@@ -558,13 +604,32 @@ export default function DraggableHistogram({
               const isTarget    = selectedPoint?.classIdx === i
               const col         = CLASS_COLORS[i]
               const isMatchDrag = false
+              const shouldHighlightColumn = showVisualHighlight && correctSlotIdx === i
 
               return (
                 <motion.div
                   key={i}
                   data-slot-idx={i}
-                  animate={isError ? { x: [-5, 5, -5, 5, 0] } : {}}
-                  transition={{ duration: 0.35 }}
+                  animate={
+                    isError 
+                      ? { x: [-5, 5, -5, 5, 0] } 
+                      : shouldHighlightColumn
+                        ? {
+                            boxShadow: [
+                              '0 0 4px rgba(0, 173, 181, 0.25), inset 0 0 3px rgba(0, 173, 181, 0.1)',
+                              '0 0 16px rgba(0, 173, 181, 0.8), inset 0 0 8px rgba(0, 173, 181, 0.4)',
+                              '0 0 4px rgba(0, 173, 181, 0.25), inset 0 0 3px rgba(0, 173, 181, 0.1)'
+                            ]
+                          }
+                        : {}
+                  }
+                  transition={
+                    isError 
+                      ? { duration: 0.35 } 
+                      : shouldHighlightColumn
+                        ? { repeat: Infinity, duration: 1.8, ease: 'easeInOut' }
+                        : {}
+                  }
                   onClick={() => onTapSlot(i)}
                   style={{
                     flex: 1, display: 'flex', flexDirection: 'column',
@@ -583,13 +648,15 @@ export default function DraggableHistogram({
                             // Non-matching: dim out so the correct column stands out
                             ? 'rgba(14, 131, 136, 0.03)'
                             : 'transparent',
+                    border: '2px solid transparent',
+                    borderColor: shouldHighlightColumn ? '#00ADB5' : 'transparent',
                     outline: isMatchDrag && !isError
                       ? `2px dashed ${col}99`
                       : isDraggingAny && !isError
                         ? `1px dashed ${col}20`
                         : 'none',
                     outlineOffset: '-2px',
-                    transition: 'background 0.18s, outline 0.18s',
+                    transition: 'background 0.18s, outline 0.18s, border-color 0.18s',
                     // Scale up the matching column slightly for extra affordance
                     transform: isMatchDrag ? 'scaleY(1.018)' : 'scaleY(1)',
                   }}
@@ -711,7 +778,7 @@ export default function DraggableHistogram({
 
       {/* Hint toast */}
       <AnimatePresence>
-        {flashHint && (
+        {showTextHint && (
           <motion.div
             key="hint"
             initial={{ opacity: 0, y: 6 }}
@@ -725,7 +792,7 @@ export default function DraggableHistogram({
               color: '#E2E8F0', lineHeight: 1.4,
             }}
           >
-            {flashHint}
+            Lihat nilai angkanya dulu, kira-kira masuk di rentang interval yang mana? 🤔
           </motion.div>
         )}
       </AnimatePresence>
