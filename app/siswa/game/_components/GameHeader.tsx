@@ -96,10 +96,7 @@ export default function GameHeader({ timerRunning = true, isBlurred = false }: G
         </div>
 
 
-        {/* Right: Timer */}
-        <div className={`game-header-timer ${isUrgent ? 'urgent' : ''}`}>
-          ⏱ {mins}:{secs}
-        </div>
+
       </header>
 
       {/* Exit Confirmation Modal */}

@@ -1298,6 +1298,92 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
             <circle cx={charPos.x} cy={charPos.y} r={7.0} fill="url(#char-grad)" filter="url(#avatar-super-glow)" />
             <text x={charPos.x} y={charPos.y - 11} textAnchor="middle" fontSize={8} fontWeight="bold" fill="#ffffff" fontFamily="var(--font-ui)" style={{ letterSpacing: '0.5px', filter: 'drop-shadow(0 1px 3px rgba(0,0,0,0.9))' }}>Kamu</text>
 
+            {/* Quick Click floating helper buttons rendered directly inside the SVG */}
+            <AnimatePresence>
+              {nearDoor && !unlocked.has(nearDoor.id) && !activeDoor && (() => {
+                const buttonW = 110
+                const buttonLeft = Math.max(10, Math.min(VW - 10 - buttonW, nearDoor.x - buttonW / 2))
+                const textX = buttonLeft + buttonW / 2
+                return (
+                  <motion.g
+                    key={`btn-door-${nearDoor.id}`}
+                    initial={{ opacity: 0, scale: 0.8, y: 5 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.8, y: 5 }}
+                    onClick={() => setActiveDoor(nearDoor)}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <rect
+                      x={buttonLeft}
+                      y={nearDoor.y - 42}
+                      width={buttonW}
+                      height={22}
+                      rx={11}
+                      fill="rgba(15, 23, 42, 0.95)"
+                      stroke={nearDoor.color}
+                      strokeWidth={1.5}
+                      style={{ filter: 'drop-shadow(0px 4px 6px rgba(0,0,0,0.5))' }}
+                    />
+                    <text
+                      x={textX}
+                      y={nearDoor.y - 31}
+                      textAnchor="middle"
+                      dominantBaseline="middle"
+                      fill="#ffffff"
+                      fontSize={10}
+                      fontWeight="bold"
+                      style={{ userSelect: 'none', pointerEvents: 'none', fontFamily: 'var(--font-ui)' }}
+                    >
+                      🔓 Buka {nearDoor.id}
+                    </text>
+                  </motion.g>
+                )
+              })()}
+              {nearClass && !unlocked.has(nearClass.id) && !activeClass && !nearDoor && (() => {
+                const buttonW = 130
+                const buttonLeft = Math.max(10, Math.min(VW - 10 - buttonW, nearClass.x - buttonW / 2))
+                const textX = buttonLeft + buttonW / 2
+                return (
+                  <motion.g
+                    key={`btn-class-${nearClass.id}`}
+                    initial={{ opacity: 0, scale: 0.8, y: 5 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.8, y: 5 }}
+                    onClick={() => setActiveClass(nearClass)}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <rect
+                      x={buttonLeft}
+                      y={nearClass.y - 42}
+                      width={buttonW}
+                      height={22}
+                      rx={11}
+                      fill="rgba(15, 23, 42, 0.95)"
+                      stroke={nearClass.color}
+                      strokeWidth={1.5}
+                      style={{ filter: 'drop-shadow(0px 4px 6px rgba(0,0,0,0.5))' }}
+                    />
+                    <text
+                      x={textX}
+                      y={nearClass.y - 31}
+                      textAnchor="middle"
+                      dominantBaseline="middle"
+                      fill="#ffffff"
+                      fontSize={10}
+                      fontWeight="bold"
+                      style={{ userSelect: 'none', pointerEvents: 'none', fontFamily: 'var(--font-ui)' }}
+                    >
+                      🔓 Buka {nearClass.label}
+                    </text>
+                  </motion.g>
+                )
+              })()}
+            </AnimatePresence>
+
           </svg>
 
           {/* Vignette Overlay (Revisi 5) */}
@@ -1314,24 +1400,6 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
           <div style={{ position: 'absolute', bottom: 12, left: 12, zIndex: 20 }}>
             <Joystick onDir={(x, y) => { dirRef.current = { x, y } }} />
           </div>
-
-          {/* Quick Click helper overlay button */}
-          <AnimatePresence>
-            {nearDoor && !unlocked.has(nearDoor.id) && !activeDoor && (
-              <motion.button initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 5 }}
-                onClick={() => setActiveDoor(nearDoor)}
-                style={{ position: 'absolute', bottom: 12, right: 12, zIndex: 20, background: nearDoor.color, color: '#fff', border: 'none', borderRadius: 20, padding: '8px 14px', fontSize: 11, fontWeight: 800, cursor: 'pointer', boxShadow: `0 0 10px ${nearDoor.color}` }}>
-                🔓 Buka {nearDoor.id}
-              </motion.button>
-            )}
-            {nearClass && !unlocked.has(nearClass.id) && !activeClass && !nearDoor && (
-              <motion.button initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 5 }}
-                onClick={() => setActiveClass(nearClass)}
-                style={{ position: 'absolute', bottom: 12, right: 12, zIndex: 20, background: nearClass.color, color: '#fff', border: 'none', borderRadius: 20, padding: '8px 14px', fontSize: 11, fontWeight: 800, cursor: 'pointer', boxShadow: `0 0 10px ${nearClass.color}` }}>
-                🔓 Buka {nearClass.label}
-              </motion.button>
-            )}
-          </AnimatePresence>
         </div>
       </div>
 
