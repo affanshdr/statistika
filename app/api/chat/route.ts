@@ -129,7 +129,7 @@ export async function POST(req: NextRequest) {
     // Retrieve knowledge articles using RAG keyword search
     const contextResults = await searchKnowledge(query, 3)
 
-    const apiKey = process.env.GEMINI_API_KEY
+    const apiKey = process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY_1 || process.env.GEMINI_API_KEY_2 || process.env.GEMINI_API_KEY_3
 
     // If Gemini API Key is missing, run in Demo Mode with beautiful rule-based generation
     if (!apiKey) {
@@ -177,14 +177,33 @@ ${contextResults.length > 0
 Aturan Penting Respon (CRITICAL RULES):
 1. KAMU HANYA DIPERBOLEHKAN MENJAWAB PERTANYAAN TENTANG MATERI STATISTIKA DESKRIPTIF.
 2. Jika siswa bertanya hal lain di luar materi statistika (seperti gameplay game Skeptikos, cara menyelesaikan level game, curhat, obrolan santai non-edukatif, pelajaran lain, coding, sains, dll.), tolaklah pertanyaan tersebut secara sopan namun tegas. Katakan bahwa kamu adalah asisten khusus materi Statistika Deskriptif dan tidak diperbolehkan menjawab pertanyaan lain. Arahkan mereka untuk kembali mendiskusikan materi statistika.
-3. Jawablah dalam Bahasa Indonesia yang baik dan sesuai dengan gaya belajar siswa.
-4. Gunakan format markdown yang rapi. Untuk rumus matematika, gunakan tanda dolar tunggal $ untuk inline (contoh: $x̄$) atau ganda $$ untuk blok rumus terpisah agar mudah dibaca.`
+3. Jika siswa mengunggah gambar/tangkapan layar berupa postingan media sosial, artikel berita, atau infografis grafik yang memuat data statistik, bacalah tulisan di dalamnya (OCR) dan lakukan analisis kritis terhadap visual grafik atau klaim data tersebut (seperti sumbu y yang dimanipulasi, ketiadaan baseline, bias pencilan pada rata-rata, dll.) menggunakan teori statistika deskriptif SMA yang relevan.
+4. Jawablah dalam Bahasa Indonesia yang baik dan sesuai dengan gaya belajar siswa.
+5. Gunakan format markdown yang rapi. Untuk rumus matematika, gunakan tanda dolar tunggal $ untuk inline (contoh: $x̄$) atau ganda $$ untuk blok rumus terpisah agar mudah dibaca.`
 
-    // Format messages history for Gemini API
-    const contents = messages.map((m: any) => ({
-      role: m.role === 'user' ? 'user' : 'model',
-      parts: [{ text: m.content }]
-    }))
+    // Format messages history for Gemini API (supporting multimodal inlineData)
+    const contents = messages.map((m: any) => {
+      const parts: any[] = []
+      
+      if (m.image) {
+        const match = m.image.match(/^data:(image\/[a-zA-Z+.-]+);base64,(.+)$/)
+        if (match) {
+          parts.push({
+            inlineData: {
+              mimeType: match[1],
+              data: match[2]
+            }
+          })
+        }
+      }
+      
+      parts.push({ text: m.content || '' })
+      
+      return {
+        role: m.role === 'user' ? 'user' : 'model',
+        parts: parts
+      }
+    })
 
     // Call Gemini API via fetch (lightweight & 100% reliable)
     // We use gemini-2.5-flash which is the standard fast & smart model
