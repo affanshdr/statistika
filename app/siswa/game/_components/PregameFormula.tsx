@@ -1879,6 +1879,57 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                   borderTop: isMobile ? '1px solid rgba(180,140,80,0.1)' : 'none'
                 }}>
                   {!isMobile && (
+                    <div style={{
+                      width: '100%',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '8px',
+                      background: 'rgba(11, 30, 44, 0.4)',
+                      border: '1px solid rgba(180,140,80,0.15)',
+                      borderRadius: '16px',
+                      padding: '12px 10px',
+                      maxHeight: '230px',
+                      boxSizing: 'border-box',
+                      marginBottom: '4px'
+                    }}>
+                      <div style={{ fontSize: '10px', fontWeight: 800, color: '#00ADB5', letterSpacing: '1px', textTransform: 'uppercase' }}>
+                        📊 DATA TERKUMPUL (35)
+                      </div>
+                      <div style={{ 
+                        display: 'flex', 
+                        flexWrap: 'wrap', 
+                        gap: '6px', 
+                        overflowY: 'auto', 
+                        flex: 1,
+                        paddingRight: '2px'
+                      }}>
+                        {screenTimeData.map((val, idx) => (
+                          <div
+                            key={idx}
+                            style={{
+                              width: '26px',
+                              height: '26px',
+                              borderRadius: '50%',
+                              background: 'rgba(0, 173, 181, 0.08)',
+                              border: '1px solid rgba(0, 173, 181, 0.35)',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              fontSize: '10px',
+                              fontWeight: 800,
+                              color: '#FFFFFF',
+                              fontFamily: 'var(--font-data)',
+                              transition: 'all 0.2s ease',
+                            }}
+                          >
+                            {val}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {!isMobile && (
                     <div style={{ fontSize: '12px', fontWeight: 800, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '1.5px' }}>
                       📐 RUMUS RENTANG
                     </div>

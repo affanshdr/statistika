@@ -19,6 +19,8 @@ interface QuizDoor {
   quizA: number
   hint: string
   count: number
+  choices?: readonly number[]
+  fdContext?: string
 }
 
 const DOORS = [
@@ -31,29 +33,74 @@ const DOORS = [
 ] as const
 
 const CLASS_DOORS = [
-  // Room A (total 9) - Simple math & word stories
-  { id: 'A1', roomId: 'A' as DoorId, label: 'Kelas VII-1', x: 52.5, y: 213,
-    color: '#818cf8', quizQ: '3 + 5 = ?', quizA: 8, hint: '3 ditambah 5 sama dengan 8', count: 3 },
-  { id: 'A2', roomId: 'A' as DoorId, label: 'Kelas VII-2', x: 140, y: 186,
-    color: '#818cf8', quizQ: '10 - 4 = ?', quizA: 6, hint: '10 dikurangi 4 sama dengan 6', count: 3 },
-  { id: 'A3', roomId: 'A' as DoorId, label: 'Kelas VII-3', x: 227.5, y: 160,
-    color: '#818cf8', quizQ: 'Cici bermain game 2 jam dan belajar 2 jam. Berapa jam total screen time Cici?', quizA: 4, hint: 'Cici: 2 jam game + 2 jam belajar = 4 jam', count: 3 },
+  // Room A (total 9) - Level Bloom 2 (Memahami)
+  { 
+    id: 'A1', roomId: 'A' as DoorId, label: 'Kelas VII-1', x: 52.5, y: 213, color: '#818cf8', 
+    quizQ: 'Dari 5 siswa dengan screen time 2, 4, 3, 5, 1 jam — berapa siswa yang screen time-nya di bawah 4 jam?', 
+    quizA: 3, choices: [3, 2, 4, 5] as const,
+    fdContext: '💡 Ingat: hitung berapa banyak angka yang nilainya lebih kecil dari 4.',
+    hint: 'Hitung berapa banyak siswa yang memiliki screen time kurang dari 4 jam (1, 2, atau 3 jam).', count: 3 
+  },
+  { 
+    id: 'A2', roomId: 'A' as DoorId, label: 'Kelas VII-2', x: 140, y: 186, color: '#818cf8', 
+    quizQ: 'Seorang siswa main medsos 3 jam pagi dan 2 jam malam. Berapa total screen time-nya hari ini?', 
+    quizA: 5, choices: [5, 3, 4, 6] as const,
+    fdContext: '💡 Ingat: total screen time = waktu pagi + waktu malam.',
+    hint: 'Coba jumlahkan kedua angka tersebut satu per satu.', count: 3 
+  },
+  { 
+    id: 'A3', roomId: 'A' as DoorId, label: 'Kelas VII-3', x: 227.5, y: 160, color: '#818cf8', 
+    quizQ: 'Data screen time 4 siswa adalah 2, 5, 3, 8 jam. Mana yang paling tinggi?', 
+    quizA: 8, choices: [8, 5, 6, 7] as const,
+    fdContext: '💡 Ingat: cari angka paling besar dari kumpulan data tersebut.',
+    hint: 'Cari angka dengan nilai tertinggi dari deretan angka yang diberikan.', count: 3 
+  },
 
-  // Room B (total 15) - Medium arithmetic & word stories
-  { id: 'B1', roomId: 'B' as DoorId, label: 'Kelas VIII-1', x: 320, y: 145,
-    color: '#00ADB5', quizQ: '3 × 4 = ?', quizA: 12, hint: '3 dikali 4 sama dengan 12', count: 5 },
-  { id: 'B2', roomId: 'B' as DoorId, label: 'Kelas VIII-2', x: 400, y: 145,
-    color: '#00ADB5', quizQ: 'Budi punya screen time 5 jam. Jika dikurangi 2 jam, berapa jam target barunya?', quizA: 3, hint: 'Target baru: 5 jam dikurangi 2 jam = 3 jam', count: 5 },
-  { id: 'B3', roomId: 'B' as DoorId, label: 'Kelas VIII-3', x: 480, y: 145,
-    color: '#00ADB5', quizQ: '14 - 6 = ?', quizA: 8, hint: '14 dikurangi 6 sama dengan 8', count: 5 },
+  // Room B (total 15) - Level Bloom 3 (Mengaplikasikan)
+  { 
+    id: 'B1', roomId: 'B' as DoorId, label: 'Kelas VIII-1', x: 320, y: 145, color: '#00ADB5', 
+    quizQ: 'Nilai terkecil data screen time adalah 1 jam, nilai terbesar 18 jam. Berapa rentang datanya?', 
+    quizA: 17, choices: [17, 15, 16, 18] as const,
+    fdContext: '💡 Ingat: rentang = nilai terbesar − nilai terkecil',
+    hint: 'Kurangi nilai terbesar dengan nilai terkecil untuk mendapatkan rentang.', count: 5 
+  },
+  { 
+    id: 'B2', roomId: 'B' as DoorId, label: 'Kelas VIII-2', x: 400, y: 145, color: '#00ADB5', 
+    quizQ: 'Ada 6 siswa dengan screen time di kelas 1–3 jam, dan 8 siswa di kelas 4–6 jam. Berapa total siswa di dua kelas itu?', 
+    quizA: 14, choices: [14, 12, 13, 15] as const,
+    fdContext: '💡 Ingat: jumlahkan frekuensi kedua kelas tersebut.',
+    hint: 'Coba jumlahkan kedua jumlah siswa tersebut.', count: 5 
+  },
+  { 
+    id: 'B3', roomId: 'B' as DoorId, label: 'Kelas VIII-3', x: 480, y: 145, color: '#00ADB5', 
+    quizQ: 'Jika panjang kelas interval adalah 3 dan dimulai dari 1, batas atas kelas pertama adalah?', 
+    quizA: 3, choices: [3, 2, 4, 5] as const,
+    fdContext: '💡 Ingat: kelas pertama mencakup data 1, 2, dan 3.',
+    hint: 'Batas atas adalah nilai paling ujung kanan dari interval pertama (1, 2, 3).', count: 5 
+  },
 
-  // Room C (total 11) - Combined operations & analytical stories
-  { id: 'C1', roomId: 'C' as DoorId, label: 'Kelas IX-1', x: 572.5, y: 160,
-    color: '#f472b6', quizQ: 'Rata-rata screen time 3 siswa adalah 5 jam. Berapa total jam seluruhnya?', quizA: 15, hint: 'Total = rata-rata 5 jam dikali 3 siswa = 15 jam', count: 4 },
-  { id: 'C2', roomId: 'C' as DoorId, label: 'Kelas IX-2', x: 660, y: 186,
-    color: '#f472b6', quizQ: '2 × 5 + 3 = ?', quizA: 13, hint: 'Selesaikan perkalian dulu: 2 × 5 = 10, lalu tambah 3 = 13', count: 4 },
-  { id: 'C3', roomId: 'C' as DoorId, label: 'Kelas IX-3', x: 747.5, y: 213,
-    color: '#f472b6', quizQ: 'Dari 12 jam waktu luang, separuhnya dipakai bermain HP. Berapa jam screen time-nya?', quizA: 6, hint: 'Setengah dari 12 jam adalah 6 jam', count: 3 },
+  // Room C (total 11) - Level Bloom 3 (Mengaplikasikan, lebih kompleks)
+  { 
+    id: 'C1', roomId: 'C' as DoorId, label: 'Kelas IX-1', x: 572.5, y: 160, color: '#f472b6', 
+    quizQ: 'Rentang data adalah 17 dan banyak kelas 6. Berapa panjang kelas interval yang dibulatkan ke atas?', 
+    quizA: 3, choices: [3, 2, 4, 5] as const,
+    fdContext: '💡 Ingat: panjang kelas = rentang ÷ banyak kelas, bulatkan ke atas.',
+    hint: 'Bagi nilai rentang dengan banyak kelas, lalu bulatkan hasilnya ke atas.', count: 4 
+  },
+  { 
+    id: 'C2', roomId: 'C' as DoorId, label: 'Kelas IX-2', x: 660, y: 186, color: '#f472b6', 
+    quizQ: 'Tepi bawah kelas interval 4–6 adalah?', 
+    quizA: 3.5, choices: [3.5, 3, 4, 4.5] as const,
+    fdContext: '💡 Ingat: tepi bawah = batas bawah − 0.5',
+    hint: 'Kurangi batas bawah kelas (4) dengan 0.5.', count: 4 
+  },
+  { 
+    id: 'C3', roomId: 'C' as DoorId, label: 'Kelas IX-3', x: 747.5, y: 213, color: '#f472b6', 
+    quizQ: 'Jika tepi bawah kelas pertama 0.5 dan panjang kelas 3, tepi atas kelas pertama adalah?', 
+    quizA: 3.5, choices: [3.5, 3, 4, 4.5] as const,
+    fdContext: '💡 Ingat: tepi atas = tepi bawah + panjang kelas',
+    hint: 'Jumlahkan tepi bawah kelas pertama dengan panjang kelasnya.', count: 3 
+  },
 ] as const
 
 const DATA_CIRCLES = [
@@ -436,11 +483,10 @@ function VisualHintModal({ door, onClose }: VisualHintModalProps) {
 
   const renderIllustration = () => {
     switch (door.id) {
-      case 'A': // 3 × 3 = 9
-      case 'B': // 3 × 5 = 15
-      case 'B1': // 3 × 4 = 12
+      case 'A': // Room A door (3 × 3 = 9)
+      case 'B': // Room B door (3 × 5 = 15)
         {
-          const rows = door.id === 'A' ? 3 : door.id === 'B' ? 5 : 4
+          const rows = door.id === 'A' ? 3 : 5
           const cols = 3
           return (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10, alignItems: 'center' }}>
@@ -471,11 +517,10 @@ function VisualHintModal({ door, onClose }: VisualHintModalProps) {
           )
         }
 
-      case 'C': // 8 + 3 = 11
-      case 'A1': // 3 + 5 = 8
+      case 'C': // Room C door (8 + 3 = 11)
         {
-          const leftCount = door.id === 'C' ? 8 : 3
-          const rightCount = door.id === 'C' ? 3 : 5
+          const leftCount = 8
+          const rightCount = 3
           return (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14, alignItems: 'center' }}>
               <div style={{ display: 'flex', gap: 20, alignItems: 'center' }}>
@@ -520,194 +565,292 @@ function VisualHintModal({ door, onClose }: VisualHintModalProps) {
           )
         }
 
-      case 'A2': // 10 - 4 = 6
-      case 'B3': // 14 - 6 = 8
+      case 'A1': // Dari 5 siswa (2, 4, 3, 5, 1) — berapa di bawah 4 jam? (Jwb: 3)
         {
-          const total = door.id === 'A2' ? 10 : 14
-          const sub = door.id === 'A2' ? 4 : 6
+          const data = [2, 4, 3, 5, 1]
           return (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center' }}>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, maxWidth: 220, justifyContent: 'center' }}>
-                {Array.from({ length: total }).map((_, i) => {
-                  const isCrossed = i >= total - sub
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14, alignItems: 'center' }}>
+              <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
+                {data.map((val, idx) => {
+                  const isMatch = val < 4
                   return (
-                    <div key={i} style={{
-                      width: 30, height: 30, borderRadius: 6,
-                      background: isCrossed && hintStep >= 2
-                        ? 'rgba(239, 68, 68, 0.15)'
-                        : 'rgba(0, 173, 181, 0.1)',
-                      border: isCrossed && hintStep >= 2
-                        ? '1.5px dashed #ef4444'
-                        : '1.5px solid #00ADB5',
+                    <div key={idx} style={{
+                      width: 40, height: 40, borderRadius: '50%',
+                      background: isMatch && hintStep >= 2 ? 'rgba(0, 173, 181, 0.25)' : 'rgba(255, 255, 255, 0.05)',
+                      border: isMatch && hintStep >= 2 ? '2px solid #00ADB5' : '1px solid rgba(255, 255, 255, 0.2)',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      position: 'relative',
+                      color: isMatch && hintStep >= 2 ? '#00ADB5' : '#FFFFFF',
+                      fontWeight: 'bold', fontSize: 16,
+                      boxShadow: isMatch && hintStep >= 2 ? '0 0 10px rgba(0, 173, 181, 0.4)' : 'none',
                       transition: 'all 0.3s'
                     }}>
-                      {hintStep >= 2 && !isCrossed && (
-                        <span style={{ color: '#FFFFFF', fontWeight: 900, fontSize: 12 }}>{i + 1}</span>
-                      )}
-                      {hintStep >= 2 && isCrossed && (
-                        <span style={{ color: '#ef4444', fontWeight: 900, fontSize: 14, position: 'absolute' }}>✕</span>
-                      )}
+                      {val}
                     </div>
                   )
                 })}
               </div>
-              <div style={{ fontSize: 12, color: '#94A3B8', marginTop: 4, textAlign: 'center', fontWeight: 600 }}>
-                {hintStep === 1 ? `Mulai dengan ${total} kotak objek.` : `Kurangi (hilangkan) sebanyak ${sub} kotak objek.`}
+              <div style={{ fontSize: 12, color: '#94A3B8', textAlign: 'center', fontWeight: 600 }}>
+                {hintStep === 1 
+                  ? 'Berikut adalah data screen time dari 5 siswa: 2, 4, 3, 5, dan 1 jam.' 
+                  : 'Fokus pada data yang nilainya di bawah 4 jam (kurang dari 4): 2, 3, dan 1.'}
               </div>
             </div>
           )
         }
 
-      case 'A3': // Cici: 2 game + 2 study
-        return (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 14, alignItems: 'center' }}>
-            <div style={{ display: 'flex', gap: 24 }}>
-              <div style={{ textAlign: 'center' }}>
-                <div style={{ display: 'flex', gap: 6, fontSize: 24 }}>
-                  <span style={{ opacity: hintStep >= 2 ? 1 : 0.6 }}>🎮</span>
-                  <span style={{ opacity: hintStep >= 2 ? 1 : 0.6 }}>🎮</span>
+      case 'A2': // 3 pagi + 2 malam = 5
+        {
+          const leftCount = 3
+          const rightCount = 2
+          return (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14, alignItems: 'center' }}>
+              <div style={{ display: 'flex', gap: 20, alignItems: 'center' }}>
+                {/* Pagi */}
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    {Array.from({ length: leftCount }).map((_, i) => (
+                      <div key={i} style={{
+                        width: 28, height: 28, borderRadius: '50%',
+                        background: hintStep >= 2 ? 'rgba(129, 140, 248, 0.25)' : 'rgba(129, 140, 248, 0.08)',
+                        border: '1.5px solid #818cf8',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        color: '#FFFFFF', fontWeight: 900, fontSize: 12,
+                        boxShadow: hintStep >= 2 ? '0 0 6px rgba(129, 140, 248, 0.4)' : 'none',
+                        transition: 'all 0.3s'
+                      }}>
+                        {hintStep >= 2 ? i + 1 : '☀️'}
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{ fontSize: 10, color: '#818cf8', fontWeight: 800, marginTop: 4 }}>PAGI (3 jam)</div>
                 </div>
-                <div style={{ fontSize: 10, color: '#818cf8', fontWeight: 800, marginTop: 4 }}>GAME (2)</div>
+                <div style={{ fontSize: 20, fontWeight: 900, color: '#00ADB5' }}>+</div>
+                {/* Malam */}
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    {Array.from({ length: rightCount }).map((_, i) => (
+                      <div key={i} style={{
+                        width: 28, height: 28, borderRadius: '50%',
+                        background: hintStep >= 2 ? 'rgba(16, 185, 129, 0.25)' : 'rgba(16, 185, 129, 0.08)',
+                        border: '1.5px solid #10b981',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        color: '#FFFFFF', fontWeight: 900, fontSize: 12,
+                        boxShadow: hintStep >= 2 ? '0 0 6px rgba(16, 185, 129, 0.4)' : 'none',
+                        transition: 'all 0.3s'
+                      }}>
+                        {hintStep >= 2 ? leftCount + i + 1 : '🌙'}
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{ fontSize: 10, color: '#10b981', fontWeight: 800, marginTop: 4 }}>MALAM (2 jam)</div>
+                </div>
               </div>
-              <div style={{ fontSize: 20, color: '#FFFFFF', alignSelf: 'center' }}>+</div>
-              <div style={{ textAlign: 'center' }}>
-                <div style={{ display: 'flex', gap: 6, fontSize: 24 }}>
-                  <span style={{ opacity: hintStep >= 2 ? 1 : 0.6 }}>📚</span>
-                  <span style={{ opacity: hintStep >= 2 ? 1 : 0.6 }}>📚</span>
-                </div>
-                <div style={{ fontSize: 10, color: '#10b981', fontWeight: 800, marginTop: 4 }}>BELAJAR (2)</div>
+              <div style={{ fontSize: 12, color: '#94A3B8', marginTop: 4, textAlign: 'center', fontWeight: 600 }}>
+                {hintStep === 1 ? 'Gabungkan waktu screen time pagi hari (3 jam) dan malam hari (2 jam).' : 'Hitung total gabungan jam screen time hari ini: 1, 2, 3, 4, 5 jam.'}
               </div>
             </div>
+          )
+        }
+
+      case 'A3': // Data: 2, 5, 3, 8. Mana yang paling tinggi? (Jwb: 8)
+        {
+          const data = [2, 5, 3, 8]
+          return (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14, alignItems: 'center' }}>
+              <div style={{ display: 'flex', gap: 16, alignItems: 'flex-end', height: 100 }}>
+                {data.map((val, idx) => {
+                  const isMax = val === 8
+                  return (
+                    <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+                      <div style={{
+                        width: 32,
+                        height: val * 10,
+                        background: isMax && hintStep >= 2 ? 'linear-gradient(180deg, #00ADB5 0%, #008891 100%)' : 'rgba(255, 255, 255, 0.1)',
+                        border: isMax && hintStep >= 2 ? '1.5px solid #00ADB5' : '1px solid rgba(255,255,255,0.2)',
+                        boxShadow: isMax && hintStep >= 2 ? '0 0 10px rgba(0, 173, 181, 0.5)' : 'none',
+                        transition: 'all 0.3s',
+                        borderRadius: '4px 4px 0 0'
+                      }} />
+                      <div style={{
+                        fontSize: 14,
+                        fontWeight: 'bold',
+                        color: isMax && hintStep >= 2 ? '#00ADB5' : '#FFFFFF'
+                      }}>{val}</div>
+                    </div>
+                  )
+                })}
+              </div>
+              <div style={{ fontSize: 12, color: '#94A3B8', textAlign: 'center', fontWeight: 600 }}>
+                {hintStep === 1 ? 'Perhatikan nilai screen time dari keempat siswa tersebut.' : 'Nilai tertinggi/paling tinggi di antara semuanya adalah 8 jam.'}
+              </div>
+            </div>
+          )
+        }
+
+      case 'B1': // Min = 1, Max = 18. Berapa rentang datanya? (Jwb: 17)
+        return (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14, alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: 20, alignItems: 'center' }}>
+              <div style={{ padding: '10px 14px', background: 'rgba(239, 68, 68, 0.08)', border: '1.5px solid #EF4444', borderRadius: 12, textAlign: 'center' }}>
+                <div style={{ fontSize: 10, color: '#EF4444', fontWeight: 800, marginBottom: 4 }}>TERKECIL</div>
+                <div style={{ fontSize: 24, fontWeight: 900, color: '#FFFFFF' }}>1</div>
+              </div>
+              <div style={{ fontSize: 20, color: '#94A3B8', fontWeight: 'bold' }}>sampai</div>
+              <div style={{ padding: '10px 14px', background: 'rgba(16, 185, 129, 0.08)', border: '1.5px solid #10b981', borderRadius: 12, textAlign: 'center' }}>
+                <div style={{ fontSize: 10, color: '#10b981', fontWeight: 800, marginBottom: 4 }}>TERBESAR</div>
+                <div style={{ fontSize: 24, fontWeight: 900, color: '#FFFFFF' }}>18</div>
+              </div>
+            </div>
+            {hintStep >= 2 && (
+              <div style={{ fontSize: 16, fontWeight: 800, color: '#00ADB5', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: 10, width: '100%', textAlign: 'center' }}>
+                Rentang = 18 − 1 = 17
+              </div>
+            )}
             <div style={{ fontSize: 12, color: '#94A3B8', textAlign: 'center', fontWeight: 600 }}>
-              {hintStep === 1 ? 'Jumlahkan waktu bermain game dan waktu belajar Cici.' : 'Hitung total seluruh jam aktivitas: 1, 2, 3, 4 jam'}
+              {hintStep === 1 ? 'Rentang dihitung dengan mencari selisih antara nilai terbesar dan terkecil.' : 'Kurangkan nilai terbesar (18) dengan nilai terkecil (1).'}
             </div>
           </div>
         )
 
-      case 'B2': // Budi: 5 subtract 2
+      case 'B2': // Kelas 1-3 (6 siswa) + Kelas 4-6 (8 siswa) = 14
+        {
+          const leftCount = 6
+          const rightCount = 8
+          return (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14, alignItems: 'center' }}>
+              <div style={{ display: 'flex', gap: 20, alignItems: 'center' }}>
+                {/* Kelas 1-3 */}
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, maxWidth: 90, justifyContent: 'center' }}>
+                    {Array.from({ length: leftCount }).map((_, i) => (
+                      <div key={i} style={{
+                        width: 20, height: 20, borderRadius: '50%',
+                        background: hintStep >= 2 ? 'rgba(129, 140, 248, 0.25)' : 'rgba(129, 140, 248, 0.08)',
+                        border: '1.5px solid #818cf8',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        color: '#FFFFFF', fontWeight: 900, fontSize: 10,
+                        boxShadow: hintStep >= 2 ? '0 0 6px rgba(129, 140, 248, 0.4)' : 'none',
+                        transition: 'all 0.3s'
+                      }}>
+                        {hintStep >= 2 ? i + 1 : '👤'}
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{ fontSize: 9, color: '#818cf8', fontWeight: 800, marginTop: 4 }}>KELAS 1–3 (6)</div>
+                </div>
+                <div style={{ fontSize: 20, fontWeight: 900, color: '#00ADB5' }}>+</div>
+                {/* Kelas 4-6 */}
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, maxWidth: 110, justifyContent: 'center' }}>
+                    {Array.from({ length: rightCount }).map((_, i) => (
+                      <div key={i} style={{
+                        width: 20, height: 20, borderRadius: '50%',
+                        background: hintStep >= 2 ? 'rgba(16, 185, 129, 0.25)' : 'rgba(16, 185, 129, 0.08)',
+                        border: '1.5px solid #10b981',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        color: '#FFFFFF', fontWeight: 900, fontSize: 10,
+                        boxShadow: hintStep >= 2 ? '0 0 6px rgba(16, 185, 129, 0.4)' : 'none',
+                        transition: 'all 0.3s'
+                      }}>
+                        {hintStep >= 2 ? leftCount + i + 1 : '👤'}
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{ fontSize: 9, color: '#10b981', fontWeight: 800, marginTop: 4 }}>KELAS 4–6 (8)</div>
+                </div>
+              </div>
+              <div style={{ fontSize: 12, color: '#94A3B8', marginTop: 4, textAlign: 'center', fontWeight: 600 }}>
+                {hintStep === 1 ? 'Jumlahkan frekuensi (banyak siswa) di kelas 1–3 jam dan kelas 4–6 jam.' : 'Hitung total seluruh siswa di kedua kelas tersebut: 6 + 8 = 14 siswa.'}
+              </div>
+            </div>
+          )
+        }
+
+      case 'B3': // Panjang kelas = 3, dimulai dari 1. Batas atas? (Jwb: 3)
         return (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14, alignItems: 'center' }}>
-            <div style={{ display: 'flex', gap: 8, fontSize: 28 }}>
-              {Array.from({ length: 5 }).map((_, i) => {
-                const isCrossed = i >= 3
+            <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+              {[1, 2, 3].map((val) => {
+                const isBatasAtas = val === 3
                 return (
-                  <div key={i} style={{ position: 'relative' }}>
-                    <span style={{ opacity: isCrossed && hintStep >= 2 ? 0.25 : 1 }}>📱</span>
-                    {isCrossed && hintStep >= 2 && (
-                      <span style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', color: '#ef4444', fontSize: 20, fontWeight: 900 }}>❌</span>
-                    )}
+                  <div key={val} style={{
+                    width: 44, height: 44, borderRadius: 8,
+                    background: isBatasAtas && hintStep >= 2 ? 'rgba(0, 173, 181, 0.2)' : 'rgba(255, 255, 255, 0.05)',
+                    border: isBatasAtas && hintStep >= 2 ? '2px solid #00ADB5' : '1px solid rgba(255, 255, 255, 0.2)',
+                    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                    boxShadow: isBatasAtas && hintStep >= 2 ? '0 0 10px rgba(0, 173, 181, 0.4)' : 'none',
+                    transition: 'all 0.3s'
+                  }}>
+                    <span style={{ fontSize: 16, fontWeight: 900, color: isBatasAtas && hintStep >= 2 ? '#00ADB5' : '#FFFFFF' }}>{val}</span>
+                    {isBatasAtas && hintStep >= 2 && <span style={{ fontSize: 7, fontWeight: 800, color: '#00ADB5' }}>BATAS ATAS</span>}
                   </div>
                 )
               })}
             </div>
             <div style={{ fontSize: 12, color: '#94A3B8', textAlign: 'center', fontWeight: 600 }}>
-              {hintStep === 1 ? 'Budi memiliki 5 jam screen time semula.' : 'Kurangi 2 jam (diwakili tanda ❌), hitung sisa jam yang tersisa.'}
+              {hintStep === 1 ? 'Dengan panjang kelas 3 dan dimulai dari 1, anggotanya adalah 1, 2, dan 3.' : 'Batas atas adalah nilai terbesar dalam kelas tersebut, yaitu 3.'}
             </div>
           </div>
         )
 
-      case 'C1': // Average 5 hours for 3 students = 15 total
+      case 'C1': // Rentang = 17, banyak kelas = 6. Panjang kelas? (Jwb: 3)
         return (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center' }}>
-            <div style={{ display: 'flex', gap: 16 }}>
-              {[1, 2, 3].map(st => (
-                <div key={st} style={{ padding: '8px 10px', background: 'rgba(0,173,181,0.06)', border: '1px solid rgba(0,173,181,0.2)', borderRadius: 10, textAlign: 'center' }}>
-                  <div style={{ fontSize: 18, marginBottom: 4 }}>👤</div>
-                  <div style={{ fontSize: 9, fontWeight: 800, color: '#00ADB5', marginBottom: 6 }}>SISWA {st}</div>
-                  <div style={{ display: 'flex', gap: 3, color: '#a5b4fc', fontSize: 12 }}>
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <span key={i} style={{ opacity: hintStep >= 2 ? 1 : 0.4 }}>⌛</span>
-                    ))}
-                  </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14, alignItems: 'center', width: '100%' }}>
+            <div style={{ padding: '12px 16px', background: 'rgba(0,173,181,0.06)', border: '1px solid rgba(0,173,181,0.2)', borderRadius: 12, width: '90%', textAlign: 'center' }}>
+              <div style={{ fontSize: 11, color: '#94A3B8', fontWeight: 800, marginBottom: 6 }}>RUMUS PANJANG KELAS</div>
+              <div style={{ fontSize: 15, fontWeight: 'bold', color: '#FFFFFF', fontFamily: 'monospace' }}>
+                Panjang Kelas = Rentang ÷ Banyak Kelas
+              </div>
+              {hintStep >= 2 && (
+                <div style={{ fontSize: 15, fontWeight: 'bold', color: '#00ADB5', fontFamily: 'monospace', marginTop: 8, borderTop: '1px dashed rgba(255,255,255,0.1)', paddingTop: 8 }}>
+                  17 ÷ 6 = 2.83... → Bulatkan ke atas = 3
                 </div>
-              ))}
+              )}
             </div>
             <div style={{ fontSize: 12, color: '#94A3B8', textAlign: 'center', fontWeight: 600 }}>
-              {hintStep === 1 ? 'Ada 3 siswa. Masing-masing memiliki 5 jam screen time.' : 'Jumlahkan 5 jam + 5 jam + 5 jam untuk mendapatkan total jam seluruhnya.'}
+              {hintStep === 1 ? 'Bagi rentang data dengan banyak kelas sesuai rumus.' : 'Hasil pembagian adalah 2.83. Dibulatkan ke atas menjadi bilangan bulat terdekat yaitu 3.'}
             </div>
           </div>
         )
 
-      case 'C2': // 2 × 5 + 3 = 13
+      case 'C2': // Tepi bawah 4-6? (Jwb: 3.5)
         return (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center' }}>
-            <div style={{ display: 'flex', gap: 16, alignItems: 'stretch' }}>
-              <div style={{ padding: 10, background: 'rgba(129, 140, 248, 0.08)', border: '1px solid #818cf8', borderRadius: 12, display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'center' }}>
-                <div style={{ fontSize: 9, fontWeight: 800, color: '#818cf8' }}>TAHAP 1: KELOMPOK PERKALIAN (2 × 5)</div>
-                {hintStep >= 2 && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                    {[0, 1].map(r => (
-                      <div key={r} style={{ display: 'flex', gap: 4 }}>
-                        {Array.from({ length: 5 }).map((_, c) => (
-                          <div key={c} style={{ width: 18, height: 18, borderRadius: '50%', background: 'rgba(129, 140, 248, 0.3)', border: '1px solid #818cf8', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#FFF', fontSize: 9, fontWeight: 'bold' }}>
-                            {r * 5 + c + 1}
-                          </div>
-                        ))}
-                      </div>
-                    ))}
-                  </div>
-                )}
-                {hintStep < 2 && <div style={{ fontSize: 20, color: '#818cf8' }}>2 × 5</div>}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14, alignItems: 'center', width: '100%' }}>
+            <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+              <div style={{ padding: '10px 14px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, textAlign: 'center' }}>
+                <div style={{ fontSize: 10, color: '#94A3B8', fontWeight: 800, marginBottom: 4 }}>BATAS BAWAH</div>
+                <div style={{ fontSize: 24, fontWeight: 900, color: '#FFFFFF' }}>4</div>
               </div>
-              <div style={{ fontSize: 24, alignSelf: 'center', color: '#FFFFFF' }}>+</div>
-              <div style={{ padding: 10, background: 'rgba(16, 185, 129, 0.08)', border: '1px solid #10b981', borderRadius: 12, display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'center', justifyContent: 'center' }}>
-                <div style={{ fontSize: 9, fontWeight: 800, color: '#10b981' }}>TAHAP 2: PENJUMLAHAN (+ 3)</div>
-                {hintStep >= 2 && (
-                  <div style={{ display: 'flex', gap: 4 }}>
-                    {[1, 2, 3].map(i => (
-                      <div key={i} style={{ width: 18, height: 18, borderRadius: '50%', background: 'rgba(16, 185, 129, 0.3)', border: '1px solid #10b981', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#FFF', fontSize: 9, fontWeight: 'bold' }}>
-                        {10 + i}
-                      </div>
-                    ))}
-                  </div>
-                )}
-                {hintStep < 2 && <div style={{ fontSize: 20, color: '#10b981' }}>3</div>}
-              </div>
+              <div style={{ fontSize: 20, color: '#00ADB5', fontWeight: 'bold' }}>− 0.5</div>
+              {hintStep >= 2 && (
+                <div style={{ padding: '10px 14px', background: 'rgba(0,173,181,0.1)', border: '1.5px solid #00ADB5', borderRadius: 12, textAlign: 'center', boxShadow: '0 0 10px rgba(0,173,181,0.3)' }}>
+                  <div style={{ fontSize: 10, color: '#00ADB5', fontWeight: 800, marginBottom: 4 }}>TEPI BAWAH</div>
+                  <div style={{ fontSize: 24, fontWeight: 900, color: '#00ADB5' }}>3.5</div>
+                </div>
+              )}
             </div>
             <div style={{ fontSize: 12, color: '#94A3B8', textAlign: 'center', fontWeight: 600 }}>
-              {hintStep === 1 ? 'Hitung dahulu hasil dari perkalian (2 × 5), kemudian tambahkan 3.' : 'Langkah 1: hasil perkalian adalah 10. Langkah 2: tambahkan 3, sehingga total = 13.'}
+              {hintStep === 1 ? 'Tepi bawah diperoleh dengan mengurangkan batas bawah kelas dengan 0.5.' : 'Kurangkan batas bawah (4) dengan 0.5 untuk memperoleh tepi bawah: 4 − 0.5 = 3.5.'}
             </div>
           </div>
         )
 
-      case 'C3': // Half of 12 hours = 6
+      case 'C3': // Tepi bawah = 0.5, panjang = 3. Tepi atas? (Jwb: 3.5)
         return (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              {/* Row 1 */}
-              <div style={{ display: 'flex', gap: 6 }}>
-                {Array.from({ length: 6 }).map((_, i) => (
-                  <div key={i} style={{
-                    width: 24, height: 24, borderRadius: 4,
-                    background: 'rgba(0,173,181,0.25)', border: '1.5px solid #00ADB5',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    color: '#FFF', fontWeight: 'bold', fontSize: 10,
-                    boxShadow: hintStep >= 2 ? '0 0 6px rgba(0,173,181,0.4)' : 'none',
-                    transition: 'all 0.3s'
-                  }}>
-                    {hintStep >= 2 ? i + 1 : ''}
-                  </div>
-                ))}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14, alignItems: 'center', width: '100%' }}>
+            <div style={{ padding: '12px 16px', background: 'rgba(0,173,181,0.06)', border: '1px solid rgba(0,173,181,0.2)', borderRadius: 12, width: '90%', textAlign: 'center' }}>
+              <div style={{ fontSize: 11, color: '#94A3B8', fontWeight: 800, marginBottom: 6 }}>RUMUS TEPI ATAS</div>
+              <div style={{ fontSize: 15, fontWeight: 'bold', color: '#FFFFFF', fontFamily: 'monospace' }}>
+                Tepi Atas = Tepi Bawah + Panjang Kelas
               </div>
-              {/* Row 2 */}
-              <div style={{ display: 'flex', gap: 6 }}>
-                {Array.from({ length: 6 }).map((_, i) => (
-                  <div key={i} style={{
-                    width: 24, height: 24, borderRadius: 4,
-                    background: hintStep >= 2 ? 'rgba(255,255,255,0.02)' : 'rgba(0,173,181,0.25)',
-                    border: hintStep >= 2 ? '1.5px dashed rgba(255,255,255,0.1)' : '1.5px solid #00ADB5',
-                    opacity: hintStep >= 2 ? 0.3 : 1,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    transition: 'all 0.3s'
-                  }}>
-                  </div>
-                ))}
-              </div>
+              {hintStep >= 2 && (
+                <div style={{ fontSize: 15, fontWeight: 'bold', color: '#00ADB5', fontFamily: 'monospace', marginTop: 8, borderTop: '1px dashed rgba(255,255,255,0.1)', paddingTop: 8 }}>
+                  0.5 + 3 = 3.5
+                </div>
+              )}
             </div>
             <div style={{ fontSize: 12, color: '#94A3B8', textAlign: 'center', fontWeight: 600 }}>
-              {hintStep === 1 ? '12 jam dibagi menjadi 2 bagian yang sama besar (dua baris masing-masing berisi 6 jam).' : 'Fokus hanya pada separuh bagian saja (baris atas), hitung jumlah jamnya.'}
+              {hintStep === 1 ? 'Jumlahkan tepi bawah kelas pertama dengan panjang kelasnya.' : 'Tepi bawah 0.5 ditambah panjang kelas 3 adalah 3.5.'}
             </div>
           </div>
         )
@@ -839,7 +982,11 @@ function QuizPopup({ door, isFD, onCorrect, onClose }:
   const [isWrong, setIsWrong] = useState(false)
 
   useEffect(() => {
-    setChoices(generateAnswerPool(door.quizA))
+    if (door.choices) {
+      setChoices([...door.choices].sort(() => Math.random() - 0.5))
+    } else {
+      setChoices(generateAnswerPool(door.quizA))
+    }
     setPlacedChoice(null)
     setIsCorrect(false)
     setIsWrong(false)
@@ -910,6 +1057,13 @@ function QuizPopup({ door, isFD, onCorrect, onClose }:
           </div>
           <div style={{ background: `${door.color}11`, border: `1.5px solid ${door.color}33`, borderRadius: 16, padding: '16px 12px', textAlign: 'center' }}>
             <div style={{ fontSize: door.quizQ.length > 20 ? (door.quizQ.length > 50 ? 15 : 20) : 36, fontWeight: 900, color: '#FFFFFF', fontFamily: 'var(--font-data)', lineHeight: 1.4 }}>{door.quizQ}</div>
+            
+            {/* FD Context Hint */}
+            {isFD && door.fdContext && (
+              <div style={{ marginTop: '10px', fontSize: '12px', color: '#ffb060', fontWeight: 600, lineHeight: 1.5, background: 'rgba(217, 119, 6, 0.08)', border: '1px dashed rgba(217, 119, 6, 0.3)', borderRadius: '8px', padding: '6px 8px' }}>
+                {door.fdContext}
+              </div>
+            )}
           </div>
 
           {/* Target Answer Slot */}
@@ -917,7 +1071,6 @@ function QuizPopup({ door, isFD, onCorrect, onClose }:
             <div style={{ fontSize: '11px', fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>
               Drop Jawaban di Sini
             </div>
-            
             <div
               data-answer-slot="true"
               style={{
@@ -957,7 +1110,7 @@ function QuizPopup({ door, isFD, onCorrect, onClose }:
                     justifyContent: 'center',
                     color: '#FFFFFF',
                     fontWeight: 900,
-                    fontSize: '18px',
+                    fontSize: placedChoice.toString().length > 2 ? '14px' : '18px',
                     fontFamily: 'var(--font-data)',
                   }}
                 >
@@ -1042,7 +1195,7 @@ function QuizPopup({ door, isFD, onCorrect, onClose }:
                     justifyContent: 'center',
                     color: '#FFFFFF',
                     fontWeight: 900,
-                    fontSize: '18px',
+                    fontSize: val.toString().length > 2 ? '14px' : '18px',
                     fontFamily: 'var(--font-data)',
                     cursor: 'grab',
                     userSelect: 'none',
@@ -1354,7 +1507,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
       }
       if ((e.key === 'Enter' || e.key === ' ') && nearDoorVal && !unlockedR.current.has(nearDoorVal.id)) {
         e.preventDefault()
-        setActiveDoor(nearDoorVal)
+        setUnlocked(p => new Set([...p, nearDoorVal.id]))
       } else if ((e.key === 'Enter' || e.key === ' ') && nearClassVal && !unlockedR.current.has(nearClassVal.id)) {
         e.preventDefault()
         setActiveClass(nearClassVal)
@@ -1803,7 +1956,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
 
               return (
                 <g key={door.id} style={{ cursor: open ? 'default' : 'pointer' }}
-                  onClick={e => { e.stopPropagation(); if (!open && !activeDoor) setActiveDoor(door) }}>
+                  onClick={e => { e.stopPropagation(); if (!open) setUnlocked(p => new Set([...p, door.id])) }}>
                   {near && <circle cx={door.x} cy={door.y} r={22} fill={`${door.color}15`} stroke={`${door.color}44`} strokeWidth={0.6} />}
                   <rect x={rx} y={ry} width={42} height={26} rx={6}
                     fill={open ? `${door.color}25` : '#111827'} stroke={near ? '#FFFFFF' : door.color} strokeWidth={1} />
@@ -2024,7 +2177,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                     initial={{ opacity: 0, scale: 0.8, y: 5 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.8, y: 5 }}
-                    onClick={() => setActiveDoor(nearDoor)}
+                    onClick={() => setUnlocked(p => new Set([...p, nearDoor.id]))}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     style={{ cursor: 'pointer' }}

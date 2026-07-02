@@ -75,9 +75,7 @@ export default function IntervalKelasPhase({
   // Drag and drop states
   const [pool, setPool] = useState<PoolItem[]>([])
   const [filledSlots, setFilledSlots] = useState<(number | null)[]>(
-    demoMode
-      ? [0.5, 3.5, 3.5, 6.5, 6.5, 9.5, null, null, null, null, null, null]
-      : Array(12).fill(null)
+    [0.5, 3.5, 3.5, 6.5, 6.5, 9.5, null, null, null, null, null, null]
   )
   const [shakeSlotIdx, setShakeSlotIdx] = useState<number | null>(null)
   const [toastMsg, setToastMsg] = useState<string | null>(null)
@@ -89,19 +87,17 @@ export default function IntervalKelasPhase({
       ...CORRECT_POOL.map((v, i) => ({ id: `correct-${i}-${v}`, val: v })),
       ...DISTRACTORS.map((v, i) => ({ id: `distractor-${i}-${v}`, val: v }))
     ]
-    if (demoMode) {
-      const prefilled = [0.5, 3.5, 3.5, 6.5, 6.5, 9.5]
-      prefilled.forEach(val => {
-        const idx = initialItems.findIndex(item => item.val === val)
-        if (idx !== -1) {
-          initialItems.splice(idx, 1)
-        }
-      })
-    }
+    const prefilled = [0.5, 3.5, 3.5, 6.5, 6.5, 9.5]
+    prefilled.forEach(val => {
+      const idx = initialItems.findIndex(item => item.val === val)
+      if (idx !== -1) {
+        initialItems.splice(idx, 1)
+      }
+    })
     // Simple shuffle
     const shuffled = [...initialItems].sort(() => Math.random() - 0.5)
     setPool(shuffled)
-  }, [demoMode])
+  }, [])
 
   // Handle stage 1 separation click
   const handleSeparateClasses = () => {
