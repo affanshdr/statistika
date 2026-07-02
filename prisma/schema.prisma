@@ -76,6 +76,8 @@ model GameSession {
   timeTaken      Int      @map("time_taken")
   verdictAnswer  String   @map("verdict_answer")
   isCorrect      Boolean  @map("is_correct")
+  postTestScore  Int?     @map("post_test_score")
+  postTestCompleted Boolean @default(false) @map("post_test_completed")
   createdAt      DateTime @default(now()) @map("created_at")
 
   student Student @relation(fields: [studentId], references: [id])
@@ -105,6 +107,21 @@ model ChatbotKnowledge {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("chatbot_knowledge")
+}
+
+model ModulAjar {
+  id        String   @id @default(uuid())
+  title     String
+  subject   String   @default("Matematika")
+  grade     String   @default("E / X")
+  topic     String
+  duration  String   @default("2 x 45 Menit")
+  session   String   @default("Pertama")
+  content   String   @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("modul_ajar")
 }
 
 model Team {

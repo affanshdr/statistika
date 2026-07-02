@@ -18,6 +18,7 @@ export default function ResultsPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = use(params)
+  const levelId = parseInt(id) || 1
   const router = useRouter()
   const store = useGameStore()
   const savedRef = useRef(false)
@@ -316,22 +317,43 @@ export default function ResultsPage({
                 </div>
               </motion.div>
 
-              {/* ── Action — Kembali ke Lobby ── */}
+              {/* ── Action — Kembali ke Lobby / Post Test ── */}
               <motion.div
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 }}
-                style={{ display: 'flex', justifyContent: 'center', paddingTop: '8px' }}
+                style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', paddingTop: '8px' }}
               >
-                <motion.button
-                  className="game-btn game-btn-primary"
-                  whileHover={{ scale: 1.03 }}
-                  whileTap={{ scale: 0.97 }}
-                  onClick={() => router.push('/siswa')}
-                  style={{ padding: '14px 40px', fontSize: '15px', fontWeight: 800, borderRadius: '14px' }}
-                >
-                  ← Kembali ke Dashboard
-                </motion.button>
+                {!store.completedPostTests?.includes(levelId) ? (
+                  <motion.button
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.97 }}
+                    onClick={() => router.push(`/siswa/game/posttest/${levelId}`)}
+                    style={{
+                      padding: '14px 40px',
+                      fontSize: '15px',
+                      fontWeight: 800,
+                      borderRadius: '14px',
+                      border: 'none',
+                      background: 'linear-gradient(90deg, #D97706, #EA580C)',
+                      color: '#FFFFFF',
+                      cursor: 'pointer',
+                      boxShadow: '0 4px 20px rgba(217,119,6,0.35)',
+                    }}
+                  >
+                    Mulai Post Test →
+                  </motion.button>
+                ) : (
+                  <motion.button
+                    className="game-btn game-btn-primary"
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.97 }}
+                    onClick={() => router.push('/')}
+                    style={{ padding: '14px 40px', fontSize: '15px', fontWeight: 800, borderRadius: '14px' }}
+                  >
+                    ← Kembali ke Beranda
+                  </motion.button>
+                )}
               </motion.div>
 
             </motion.div>
