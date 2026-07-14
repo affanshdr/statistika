@@ -76,7 +76,7 @@ const LEVELS = [
     title: 'Kasus: Polling Pilkada',
     desc: 'Segera hadir di lokasi ini. Pelajari sampling & representasi data populasi.',
     tags: [],
-    locked: true,
+    locked: false,
     xpMax: 0,
     locationName: 'Kantor KPU Kota',
   },

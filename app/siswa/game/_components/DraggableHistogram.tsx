@@ -323,6 +323,7 @@ export default function DraggableHistogram({
                 textAlign: 'center',
               }}
             >
+              
               {tick}
             </span>
           ))}
@@ -450,6 +451,7 @@ export default function DraggableHistogram({
                         boxShadow: `0 14px 36px ${col}66, 0 0 0 2px ${col}`,
                         opacity: 0.97,
                       }}
+
                       style={{
                         // flex-item sizing
                         flexShrink: 0,

@@ -1,8 +1,21 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { motion, useMotionValue, useTransform, AnimatePresence } from 'framer-motion'
+import {
+  motion,
+  useMotionValue,
+  useTransform,
+  AnimatePresence,
+  useScroll,
+  useSpring,
+  useInView,
+} from 'framer-motion'
+import dynamic from 'next/dynamic'
+
+// Dynamic import agar tidak SSR
+const CustomCursor = dynamic(() => import('@/components/CustomCursor'), { ssr: false })
+const MagneticButton = dynamic(() => import('@/components/MagneticButton'), { ssr: false })
 
 type Classroom = {
   id: string
@@ -11,7 +24,7 @@ type Classroom = {
   major: string
 }
 
-// Animated grid particle
+// ── Animated particle (teal dot)
 function Particle({ x, y, delay }: { x: string; y: string; delay: number }) {
   return (
     <motion.div
@@ -34,12 +47,27 @@ const PARTICLES = [
   { x: '35%', y: '72%', delay: 1.6 }, { x: '88%', y: '55%', delay: 2.4 },
   { x: '55%', y: '30%', delay: 0.4 }, { x: '20%', y: '60%', delay: 1.2 },
   { x: '65%', y: '80%', delay: 2.0 }, { x: '42%', y: '45%', delay: 0.6 },
+  { x: '90%', y: '30%', delay: 1.8 }, { x: '8%', y: '75%', delay: 3.0 },
 ]
 
-// Animated stat counter
-function CountUp({ target, suffix = '', duration = 1500 }: { target: number; suffix?: string; duration?: number }) {
+// ── CountUp triggered on viewport entry
+function CountUp({
+  target,
+  suffix = '',
+  duration = 1500,
+  inView,
+}: {
+  target: number
+  suffix?: string
+  duration?: number
+  inView: boolean
+}) {
   const [val, setVal] = useState(0)
+  const started = useRef(false)
+
   useEffect(() => {
+    if (!inView || started.current) return
+    started.current = true
     let active = true
     let frameId: number
     const start = Date.now()
@@ -48,18 +76,173 @@ function CountUp({ target, suffix = '', duration = 1500 }: { target: number; suf
       const t = Math.min((Date.now() - start) / duration, 1)
       const ease = 1 - Math.pow(1 - t, 3)
       setVal(Math.round(ease * target))
-      if (t < 1) {
-        frameId = requestAnimationFrame(tick)
-      }
+      if (t < 1) frameId = requestAnimationFrame(tick)
     }
-    const timer = setTimeout(tick, 400)
+    const timer = setTimeout(tick, 200)
     return () => {
       active = false
       clearTimeout(timer)
       cancelAnimationFrame(frameId)
     }
-  }, [target, duration])
+  }, [inView, target, duration])
+
   return <>{val}{suffix}</>
+}
+
+// ── Staggered word reveal animation
+function WordReveal({ text, delay = 0 }: { text: string; delay?: number }) {
+  const words = text.split(' ')
+  return (
+    <>
+      {words.map((word, i) => (
+        <span key={i} style={{ display: 'inline-block', overflow: 'hidden', marginRight: '0.25em' }}>
+          <motion.span
+            initial={{ y: '110%', opacity: 0 }}
+            animate={{ y: '0%', opacity: 1 }}
+            transition={{
+              delay: delay + i * 0.1,
+              duration: 0.5,
+              ease: [0.22, 1, 0.36, 1],
+            }}
+            style={{ display: 'inline-block' }}
+          >
+            {word}
+          </motion.span>
+        </span>
+      ))}
+    </>
+  )
+}
+
+// ── Feature card with scroll-triggered animation
+function FeatureCard({
+  icon,
+  label,
+  desc,
+  index,
+}: {
+  icon: string
+  label: string
+  desc: string
+  index: number
+}) {
+  const ref = useRef<HTMLDivElement>(null)
+  const inView = useInView(ref, { once: true, margin: '-60px 0px' })
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 40 }}
+      animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
+      transition={{
+        delay: index * 0.15,
+        duration: 0.55,
+        ease: [0.22, 1, 0.36, 1],
+      }}
+      style={{
+        padding: '14px 16px', borderRadius: '14px',
+        background: 'rgba(13, 27, 42, 0.7)',
+        border: '1px solid rgba(14, 131, 136, 0.2)',
+        boxShadow: '0 2px 8px rgba(14, 131, 136, 0.06)',
+        transition: 'border-color 0.2s, background 0.2s, box-shadow 0.2s',
+        cursor: 'default',
+      }}
+      whileHover={{
+        borderColor: 'rgba(0,173,181,0.5)',
+        background: 'rgba(13, 27, 42, 0.9)',
+        boxShadow: '0 4px 16px rgba(0,173,181,0.15)',
+      }}
+    >
+      <div style={{ fontSize: '22px', marginBottom: '6px' }}>{icon}</div>
+      <div style={{ fontSize: '13px', fontWeight: 800, color: '#FFFFFF', marginBottom: '4px' }}>{label}</div>
+      <div style={{ fontSize: '11px', color: '#94A3B8', lineHeight: 1.5 }}>{desc}</div>
+    </motion.div>
+  )
+}
+
+// ── Stats row with inView counter
+function StatsRow() {
+  const ref = useRef<HTMLDivElement>(null)
+  const inView = useInView(ref, { once: true, margin: '-40px 0px' })
+  const stats = [
+    { val: 15, suffix: ' soal', label: 'Tes Diagnostik' },
+    { val: 35, suffix: ' data', label: 'Dataset Nyata' },
+    { val: 3, suffix: ' materi', label: 'Buku Saku' },
+  ]
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0 }}
+      animate={inView ? { opacity: 1 } : { opacity: 0 }}
+      transition={{ duration: 0.6 }}
+      style={{
+        display: 'flex', gap: '28px', paddingTop: '8px',
+        borderTop: '1px solid rgba(14, 131, 136, 0.15)',
+      }}
+    >
+      {stats.map(({ val, suffix, label }) => (
+        <div key={label}>
+          <div style={{ fontSize: '24px', fontWeight: 900, color: '#00ADB5', fontFamily: "'Geist Mono', monospace" }}>
+            <CountUp target={val} suffix={suffix} inView={inView} />
+          </div>
+          <div style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 700, marginTop: '2px' }}>{label}</div>
+        </div>
+      ))}
+    </motion.div>
+  )
+}
+
+// ── Parallax background wrapper
+function ParallaxBg({ scrollY }: { scrollY: ReturnType<typeof useSpring> }) {
+  const y = useTransform(scrollY, (v) => v * -0.35)
+  return (
+    <motion.div
+      style={{
+        position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', overflow: 'hidden',
+        y,
+        willChange: 'transform',
+      }}
+    >
+      {/* Dot grid */}
+      <div style={{
+        position: 'absolute', inset: 0,
+        backgroundImage: 'radial-gradient(circle, rgba(14, 131, 136, 0.15) 1px, transparent 1px)',
+        backgroundSize: '28px 28px',
+      }} />
+
+      {/* Glow blobs */}
+      <div style={{ position: 'absolute', top: '-5%', left: '-8%', width: '600px', height: '600px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(0, 173, 181, 0.08) 0%, transparent 70%)', filter: 'blur(60px)' }} />
+      <div style={{ position: 'absolute', bottom: '5%', right: '-8%', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(14, 131, 136, 0.06) 0%, transparent 70%)', filter: 'blur(50px)' }} />
+      <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: '800px', height: '800px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(0, 240, 255, 0.04) 0%, transparent 60%)', filter: 'blur(80px)' }} />
+
+      {/* Extra mid-page glow */}
+      <div style={{ position: 'absolute', top: '70%', left: '20%', width: '400px', height: '400px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(0,173,181,0.05) 0%, transparent 70%)', filter: 'blur(60px)' }} />
+
+      {/* Floating particles */}
+      {PARTICLES.map((p, i) => <Particle key={i} {...p} />)}
+    </motion.div>
+  )
+}
+
+// ── Noise/grain overlay (cinematic texture)
+function NoiseOverlay() {
+  return (
+    <div
+      aria-hidden="true"
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 5,
+        pointerEvents: 'none',
+        opacity: 0.032,
+        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+        backgroundRepeat: 'repeat',
+        backgroundSize: '128px 128px',
+        mixBlendMode: 'overlay',
+      }}
+    />
+  )
 }
 
 export default function HomePage() {
@@ -72,6 +255,7 @@ export default function HomePage() {
   const [loadingClass, setLoadingClass] = useState(true)
   const [nameFocus, setNameFocus] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const [lenisDone, setLenisDone] = useState(false)
 
   // Card tilt on mouse
   const mouseX = useMotionValue(0)
@@ -80,13 +264,18 @@ export default function HomePage() {
   const rotateY = useTransform(mouseX, [-100, 100], [-4, 4])
   const cardRef = useRef<HTMLDivElement>(null)
 
-  const handleMouseMove = (e: React.MouseEvent) => {
+  // Parallax scroll
+  const { scrollY: rawScrollY } = useScroll()
+  const scrollY = useSpring(rawScrollY, { stiffness: 60, damping: 20, mass: 0.2 })
+
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
     if (!cardRef.current) return
     const rect = cardRef.current.getBoundingClientRect()
     mouseX.set(e.clientX - rect.left - rect.width / 2)
     mouseY.set(e.clientY - rect.top - rect.height / 2)
-  }
-  const handleMouseLeave = () => { mouseX.set(0); mouseY.set(0) }
+  }, [mouseX, mouseY])
+
+  const handleMouseLeave = useCallback(() => { mouseX.set(0); mouseY.set(0) }, [mouseX, mouseY])
 
   // Scroll detection for sticky header
   useEffect(() => {
@@ -95,6 +284,33 @@ export default function HomePage() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
+  // Lenis smooth scroll (only on landing page)
+  useEffect(() => {
+    let lenis: import('lenis').default | null = null
+
+    import('lenis').then(({ default: Lenis }) => {
+      lenis = new Lenis({
+        duration: 1.2,
+        easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        smoothWheel: true,
+        wheelMultiplier: 1,
+        touchMultiplier: 1.5,
+      })
+
+      const raf = (time: number) => {
+        lenis!.raf(time)
+        requestAnimationFrame(raf)
+      }
+      requestAnimationFrame(raf)
+      setLenisDone(true)
+    })
+
+    return () => {
+      lenis?.destroy()
+    }
+  }, [])
+
+  // Check existing session
   useEffect(() => {
     const data = localStorage.getItem('student')
     if (data) {
@@ -154,33 +370,29 @@ export default function HomePage() {
     { icon: '📖', label: 'Buku Saku Detektif', desc: 'Pelajari distribusi, outlier, dan mean vs median lewat animasi interaktif.' },
   ]
 
+  // Suppress unused warning
+  void lenisDone
+
   return (
-    <main style={{
-      minHeight: '100vh',
-      background: '#0B1E2C',
-      color: '#F8FAFC',
-      position: 'relative',
-      fontFamily: "'Outfit', 'Inter', sans-serif",
-    }}>
+    <main
+      style={{
+        minHeight: '100vh',
+        background: '#0B1E2C',
+        color: '#F8FAFC',
+        position: 'relative',
+        fontFamily: "'Outfit', 'Inter', sans-serif",
+        // Hide default cursor on desktop
+        cursor: 'none',
+      }}
+    >
+      {/* Custom cursor — desktop only */}
+      <CustomCursor />
 
-      {/* Overflow wrapper untuk background decorations — terpisah dari main agar sticky bekerja */}
-      <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', overflow: 'hidden' }}>
-        {/* ── Teal dot pattern background ── */}
-        <div style={{
-          position: 'absolute', inset: 0,
-          backgroundImage:
-            'radial-gradient(circle, rgba(14, 131, 136, 0.15) 1px, transparent 1px)',
-          backgroundSize: '28px 28px',
-        }} />
+      {/* Noise/grain cinematic overlay */}
+      <NoiseOverlay />
 
-        {/* Cyber teal glow blobs */}
-        <div style={{ position: 'absolute', top: '-5%', left: '-8%', width: '600px', height: '600px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(0, 173, 181, 0.08) 0%, transparent 70%)', filter: 'blur(60px)' }} />
-        <div style={{ position: 'absolute', bottom: '5%', right: '-8%', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(14, 131, 136, 0.06) 0%, transparent 70%)', filter: 'blur(50px)' }} />
-        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: '800px', height: '800px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(0, 240, 255, 0.04) 0%, transparent 60%)', filter: 'blur(80px)' }} />
-
-        {/* Floating particles */}
-        {PARTICLES.map((p, i) => <Particle key={i} {...p} />)}
-      </div>
+      {/* Parallax background */}
+      <ParallaxBg scrollY={scrollY} />
 
       {/* ── Navbar — sticky ── */}
       <header style={{
@@ -190,6 +402,7 @@ export default function HomePage() {
         borderBottom: scrolled ? '1px solid rgba(14, 131, 136, 0.2)' : '1px solid rgba(14, 131, 136, 0.08)',
         boxShadow: scrolled ? '0 4px 24px rgba(14, 131, 136, 0.08)' : 'none',
         transition: 'background 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease',
+        cursor: 'none',
       }}>
         <style>{`
           .nav-inner {
@@ -208,12 +421,16 @@ export default function HomePage() {
             .nav-btn-full { display: none; }
             .nav-btn-short { display: inline; }
           }
+          /* Restore cursor on mobile/touch */
+          @media (hover: none) {
+            * { cursor: auto !important; }
+          }
         `}</style>
         <div className="nav-inner">
           {/* Logo */}
           <div
             onClick={() => router.push('/')}
-            style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
+            style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'none' }}
           >
             <motion.div
               animate={{ filter: ['drop-shadow(0 0 4px rgba(0,173,181,0.5))', 'drop-shadow(0 0 10px rgba(0,173,181,0.8))', 'drop-shadow(0 0 4px rgba(0,173,181,0.5))'] }}
@@ -238,7 +455,6 @@ export default function HomePage() {
           </div>
 
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-            {/* Status badge — desktop only */}
             <div className="nav-badge" style={{
               padding: '4px 10px', borderRadius: '50px', fontSize: '11px', fontWeight: 700,
               border: '1px solid rgba(14,131,136,0.25)', background: 'rgba(14,131,136,0.08)',
@@ -254,7 +470,7 @@ export default function HomePage() {
                 border: '1px solid rgba(14,131,136,0.2)',
                 background: 'rgba(14,131,136,0.06)',
                 color: '#E2E8F0', fontSize: '13px',
-                fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s',
+                fontWeight: 600, cursor: 'none', transition: 'all 0.2s',
                 whiteSpace: 'nowrap',
               }}
               onMouseEnter={e => { e.currentTarget.style.background = 'rgba(14,131,136,0.12)'; e.currentTarget.style.color = '#FFF' }}
@@ -292,95 +508,88 @@ export default function HomePage() {
               LIDM IPDP 2026
             </motion.div>
 
-            {/* Headline */}
-            <motion.h1
+            {/* ── Headline with word-by-word reveal ── */}
+            <h1
               className="hero-h1"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1, duration: 0.6 }}
-              style={{ margin: 0, fontWeight: 900, lineHeight: 1.1, letterSpacing: '-0.5px' }}
+              style={{ margin: 0, fontWeight: 900, lineHeight: 1.15, letterSpacing: '-0.5px' }}
             >
-              <span style={{ display: 'block', fontSize: 'clamp(32px, 5vw, 54px)', color: '#FFFFFF' }}>
-                Jadi Detektif Data,
+              {/* Line 1 */}
+              <span style={{ display: 'block', fontSize: 'clamp(32px, 5vw, 54px)', color: '#FFFFFF', overflow: 'hidden' }}>
+                <WordReveal text="Jadi Detektif Data," delay={0.05} />
               </span>
+              {/* Line 2 */}
               <span style={{ display: 'block', fontSize: 'clamp(32px, 5vw, 54px)', color: '#FFFFFF' }}>
-                Ungkap Klaim{' '}
-                <span style={{
-                  background: 'linear-gradient(90deg, #00ADB5 0%, #00F0FF 100%)',
-                  WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-                }}>
-                  Viral
-                </span>{' '}dengan
-              </span>
-              <span style={{ display: 'block', fontSize: 'clamp(32px, 5vw, 54px)', color: '#FFFFFF' }}>
-                <span style={{
-                  background: 'linear-gradient(90deg, #00ADB5 0%, #00F0FF 100%)',
-                  WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-                }}>
-                  Statistika!
+                <WordReveal text="Ungkap Klaim" delay={0.25} />
+                {' '}
+                <span style={{ display: 'inline-block', overflow: 'hidden' }}>
+                  <motion.span
+                    style={{
+                      display: 'inline-block',
+                      background: 'linear-gradient(90deg, #00ADB5 0%, #00F0FF 100%)',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                    }}
+                    initial={{ y: '110%', opacity: 0 }}
+                    animate={{ y: '0%', opacity: 1 }}
+                    transition={{ delay: 0.55, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                  >
+                    Viral
+                  </motion.span>
+                </span>
+                {' '}
+                <span style={{ display: 'inline-block', overflow: 'hidden' }}>
+                  <motion.span
+                    style={{ display: 'inline-block' }}
+                    initial={{ y: '110%', opacity: 0 }}
+                    animate={{ y: '0%', opacity: 1 }}
+                    transition={{ delay: 0.65, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                  >
+                    dengan
+                  </motion.span>
                 </span>
               </span>
-            </motion.h1>
+              {/* Line 3 */}
+              <span style={{ display: 'block', fontSize: 'clamp(32px, 5vw, 54px)', color: '#FFFFFF', overflow: 'hidden' }}>
+                <motion.span
+                  style={{
+                    display: 'inline-block',
+                    background: 'linear-gradient(90deg, #00ADB5 0%, #00F0FF 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                  }}
+                  initial={{ y: '110%', opacity: 0 }}
+                  animate={{ y: '0%', opacity: 1 }}
+                  transition={{ delay: 0.75, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  Statistika!
+                </motion.span>
+              </span>
+            </h1>
 
-            {/* Subtitle */}
+            {/* Subtitle — fade in after headline */}
             <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.25 }}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.1, duration: 0.6, ease: 'easeOut' }}
               style={{ margin: 0, fontSize: '16px', color: '#94A3B8', lineHeight: 1.7, maxWidth: '480px' }}
             >
               Platform game edukasi adaptif yang menggabungkan profil kognitif <strong style={{ color: '#00ADB5' }}>FI/FD</strong>, investigasi data nyata, dan visualisasi histogram interaktif untuk pembelajaran statistika SMA yang menyenangkan.
             </motion.p>
 
-            {/* Features grid */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.35 }}
-              style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}
-            >
-              {FEATURES.map((f, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.4 + i * 0.08 }}
-                  style={{
-                    padding: '14px 16px', borderRadius: '14px',
-                    background: 'rgba(13, 27, 42, 0.7)',
-                    border: '1px solid rgba(14, 131, 136, 0.2)',
-                    boxShadow: '0 2px 8px rgba(14, 131, 136, 0.06)',
-                    transition: 'all 0.2s', cursor: 'default',
-                  }}
-                  whileHover={{ borderColor: 'rgba(0,173,181,0.5)', background: 'rgba(13, 27, 42, 0.9)', boxShadow: '0 4px 16px rgba(0,173,181,0.15)' }}
-                >
-                  <div style={{ fontSize: '22px', marginBottom: '6px' }}>{f.icon}</div>
-                  <div style={{ fontSize: '13px', fontWeight: 800, color: '#FFFFFF', marginBottom: '4px' }}>{f.label}</div>
-                  <div style={{ fontSize: '11px', color: '#94A3B8', lineHeight: 1.5 }}>{f.desc}</div>
-                </motion.div>
-              ))}
-            </motion.div>
-
-            {/* Stats row */}
+            {/* Features grid — scroll triggered */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.7 }}
-              style={{ display: 'flex', gap: '28px', paddingTop: '8px', borderTop: '1px solid rgba(14, 131, 136, 0.15)' }}
+              transition={{ delay: 1.2, duration: 0.4 }}
+              style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}
             >
-              {[
-                { val: 15, suffix: ' soal', label: 'Tes Diagnostik' },
-                { val: 35, suffix: ' data', label: 'Dataset Nyata' },
-                { val: 3, suffix: ' materi', label: 'Buku Saku' },
-              ].map(({ val, suffix, label }) => (
-                <div key={label}>
-                  <div style={{ fontSize: '24px', fontWeight: 900, color: '#00ADB5', fontFamily: "'Geist Mono', monospace" }}>
-                    <CountUp target={val} suffix={suffix} />
-                  </div>
-                  <div style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 700, marginTop: '2px' }}>{label}</div>
-                </div>
+              {FEATURES.map((f, i) => (
+                <FeatureCard key={i} {...f} index={i} />
               ))}
             </motion.div>
+
+            {/* Stats row — viewport-triggered counter */}
+            <StatsRow />
           </div>
 
           {/* ── RIGHT: Login Card ── */}
@@ -392,7 +601,7 @@ export default function HomePage() {
               style={{ rotateX, rotateY, width: '100%', maxWidth: '420px' }}
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2, duration: 0.6, type: 'spring', stiffness: 100 }}
+              transition={{ delay: 0.3, duration: 0.7, type: 'spring', stiffness: 100 }}
             >
               {/* Glow border ring */}
               <div style={{
@@ -466,6 +675,7 @@ export default function HomePage() {
                             color: '#1C1917', fontSize: '14px', outline: 'none',
                             transition: 'all 0.2s', fontFamily: 'inherit',
                             boxShadow: nameFocus ? '0 0 0 3px rgba(14,131,136,0.1)' : 'none',
+                            cursor: 'text',
                           }}
                         />
                       </div>
@@ -529,13 +739,9 @@ export default function HomePage() {
                       </div>
                     ) : classrooms.length === 1 ? (
                       <div style={{
-                        padding: '12px 16px',
-                        borderRadius: '12px',
-                        background: 'rgba(14,131,136,0.06)',
-                        border: '1px solid rgba(14,131,136,0.2)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
+                        padding: '12px 16px', borderRadius: '12px',
+                        background: 'rgba(14,131,136,0.06)', border: '1px solid rgba(14,131,136,0.2)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                       }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                           <span style={{ fontSize: '18px' }}>🏛️</span>
@@ -549,8 +755,7 @@ export default function HomePage() {
                     ) : (
                       <div style={{
                         padding: '12px 16px', borderRadius: '12px',
-                        background: 'rgba(239,68,68,0.05)',
-                        border: '1px solid rgba(239,68,68,0.2)',
+                        background: 'rgba(239,68,68,0.05)', border: '1px solid rgba(239,68,68,0.2)',
                         fontSize: '13px', color: '#f87171',
                         display: 'flex', alignItems: 'center', gap: '8px',
                       }}>
@@ -576,12 +781,11 @@ export default function HomePage() {
                       )}
                     </AnimatePresence>
 
-                    {/* Submit */}
-                    <motion.button
+                    {/* Submit — Magnetic Button */}
+                    <MagneticButton
+                      id="btn-mulai-investigasi"
                       onClick={handleMulaiBelajar}
                       disabled={loading || loadingClass}
-                      whileHover={!loading && !loadingClass ? { scale: 1.02, boxShadow: '0 4px 24px rgba(14,131,136,0.35)' } : {}}
-                      whileTap={!loading && !loadingClass ? { scale: 0.98 } : {}}
                       style={{
                         width: '100%', padding: '16px',
                         borderRadius: '14px', border: 'none',
@@ -589,12 +793,13 @@ export default function HomePage() {
                           ? 'rgba(14, 131, 136, 0.3)'
                           : 'linear-gradient(90deg, #0E8388 0%, #00ADB5 100%)',
                         color: '#ffffff', fontSize: '15px', fontWeight: 900,
-                        cursor: loading || loadingClass ? 'not-allowed' : 'pointer',
+                        cursor: loading || loadingClass ? 'not-allowed' : 'none',
                         letterSpacing: '0.5px',
                         boxShadow: loading || loadingClass ? 'none' : '0 4px 20px rgba(14,131,136,0.3)',
                         transition: 'background 0.2s',
                         marginTop: '4px',
                         display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                        position: 'relative',
                       }}
                     >
                       {loading ? (
@@ -605,7 +810,7 @@ export default function HomePage() {
                       ) : (
                         <>🚀 Mulai Investigasi</>
                       )}
-                    </motion.button>
+                    </MagneticButton>
                   </div>
 
                   {/* Flow steps hint */}
@@ -650,6 +855,7 @@ export default function HomePage() {
         * { box-sizing: border-box; }
         input::placeholder { color: rgba(87,83,78,0.4); }
         select { appearance: none; }
+        input, select, button { cursor: inherit; }
 
         @media (min-width: 901px) {
           .login-card-container {
@@ -678,6 +884,11 @@ export default function HomePage() {
         }
         @media (max-width: 480px) {
           .hero-h1 span { font-size: 26px !important; }
+        }
+
+        /* Mobile: restore default cursor & disable cursor:none */
+        @media (hover: none), (pointer: coarse) {
+          * { cursor: auto !important; }
         }
       `}</style>
     </main>

@@ -110,8 +110,8 @@ function LevelPageInner({
     )
   }
 
-  // Only Level 1 exists
-  if (id !== '1') {
+  // Only Level 1 and Level 2 exist
+  if (id !== '1' && id !== '2') {
     return (
       <div className="game-root" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', flexDirection: 'column', gap: '16px' }}>
         <div style={{ fontSize: '48px' }}>🚧</div>
@@ -124,6 +124,26 @@ function LevelPageInner({
   }
 
   if (!resolvedStyle) return null
+
+  // Empty placeholder for Level 2
+  if (id === '2') {
+    return (
+      <OrientationGuard lockScreen={true}>
+        <div className="game-root game-level-root" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: '#0B1E2C', color: '#F8FAFC' }}>
+          <GameHeader isBlurred={false} />
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '16px', padding: '24px', textAlign: 'center' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: 800, color: '#FFFFFF' }}>Level 2: Polling Pilkada</h2>
+            <p style={{ color: '#94A3B8', fontSize: '14.5px', maxWidth: '480px', lineHeight: 1.6 }}>
+              Selamat datang di Kantor KPU Kota! Misi investigasi bias sampling pada polling Pilkada sedang dalam tahap persiapan.
+            </p>
+            <button className="game-btn game-btn-primary" onClick={() => router.push('/siswa')} style={{ marginTop: '8px' }}>
+              Kembali ke Dashboard
+            </button>
+          </div>
+        </div>
+      </OrientationGuard>
+    )
+  }
 
   return (
     <OrientationGuard lockScreen={true}>

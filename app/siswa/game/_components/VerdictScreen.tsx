@@ -446,6 +446,9 @@ export default function VerificationScreen({ onCorrect, onWrong, guidedMode }: V
           )}
         </div>
       </div>
+      
+
+
 
       {showDira && diraMsg && (
         <DiRA message={diraMsg} onDismiss={() => setShowDira(false)} />
