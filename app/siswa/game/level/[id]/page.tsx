@@ -12,6 +12,7 @@ import OrientationGuard from '../../_components/OrientationGuard'
 import PregameFormula from '../../_components/PregameFormula'
 import NPath from '../../_components/NPath'
 import TeamLobby from '../../_components/TeamLobby'
+import Level2Path from './Level2Path'
 import '../../game.css'
 
 function LevelPageInner({
@@ -125,20 +126,20 @@ function LevelPageInner({
 
   if (!resolvedStyle) return null
 
-  // Empty placeholder for Level 2
+  // Level 2 Path rendering
   if (id === '2') {
     return (
       <OrientationGuard lockScreen={true}>
         <div className="game-root game-level-root" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: '#0B1E2C', color: '#F8FAFC' }}>
           <GameHeader isBlurred={false} />
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '16px', padding: '24px', textAlign: 'center' }}>
-            <h2 style={{ fontSize: '24px', fontWeight: 800, color: '#FFFFFF' }}>Level 2: Polling Pilkada</h2>
-            <p style={{ color: '#94A3B8', fontSize: '14.5px', maxWidth: '480px', lineHeight: 1.6 }}>
-              Selamat datang di Kantor KPU Kota! Misi investigasi bias sampling pada polling Pilkada sedang dalam tahap persiapan.
-            </p>
-            <button className="game-btn game-btn-primary" onClick={() => router.push('/siswa')} style={{ marginTop: '8px' }}>
-              Kembali ke Dashboard
-            </button>
+          <div className="game-level-content-wrapper" style={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative' }}>
+            <Level2Path
+              cognitiveStyle={resolvedStyle}
+              teamId={teamId}
+              studentId={studentInfo?.id}
+              studentName={studentInfo?.name}
+              demoMode={demoMode}
+            />
           </div>
         </div>
       </OrientationGuard>

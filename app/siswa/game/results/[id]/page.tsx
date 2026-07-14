@@ -4,13 +4,12 @@ import { use, useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useGameStore } from '@/lib/store/gameStore'
-import { BADGES, CORRECT_VERDICT, VERDICT_EXPLANATION, LEVEL1_CONFIG } from '../../_data/level1'
+import * as Level1Data from '../../_data/level1'
+import * as Level2Data from '../../_data/level2'
 import '../../game.css'
 
 import dynamic from 'next/dynamic'
 const ReactConfetti = dynamic(() => import('react-confetti'), { ssr: false })
-
-const BADGE_DEFS = Object.values(BADGES)
 
 export default function ResultsPage({
   params,
@@ -19,6 +18,14 @@ export default function ResultsPage({
 }) {
   const { id } = use(params)
   const levelId = parseInt(id) || 1
+  const isLevel2 = levelId === 2
+  
+  const levelData = isLevel2 ? Level2Data : Level1Data
+  const config = isLevel2 ? Level2Data.LEVEL2_CONFIG : Level1Data.LEVEL1_CONFIG
+  const correctVerdict = levelData.CORRECT_VERDICT
+  const verdictExplanation = levelData.VERDICT_EXPLANATION
+  const badgesDef = Object.values(levelData.BADGES)
+
   const router = useRouter()
   const store = useGameStore()
   const savedRef = useRef(false)
@@ -26,7 +33,7 @@ export default function ResultsPage({
   const [confetti, setConfetti] = useState(false)
   const [showContent, setShowContent] = useState(false)
 
-  const isCorrect = store.verdictAnswer === CORRECT_VERDICT
+  const isCorrect = store.verdictAnswer === correctVerdict
 
   useEffect(() => {
     setWindowSize({ width: window.innerWidth, height: window.innerHeight })
@@ -51,7 +58,7 @@ export default function ResultsPage({
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         studentId: student.id,
-        levelId: 1,
+        levelId: levelId,
         cognitiveStyle: store.cognitiveStyle,
         xpEarned: store.xp,
         livesRemaining: store.lives,
@@ -73,7 +80,9 @@ export default function ResultsPage({
     }).catch(console.error)
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const newBadges = store.badges.map(id => BADGE_DEFS.find(b => b.id === id)).filter(Boolean)
+  const newBadges = store.badges
+    .map(badgeId => badgesDef.find(b => b.id === badgeId))
+    .filter(Boolean)
 
   const handleDownloadBukuSaku = async () => {
     try {
@@ -83,7 +92,7 @@ export default function ResultsPage({
       const blobUrl = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = blobUrl
-      a.download = 'Buku Saku Level 1.jpeg'
+      a.download = `Buku Saku Level ${levelId}.jpeg`
       document.body.appendChild(a)
       a.click()
       document.body.removeChild(a)
@@ -152,7 +161,7 @@ export default function ResultsPage({
             {isCorrect ? 'Investigasi Selesai!' : 'Level Selesai'}
           </h1>
           <p style={{ color: 'var(--text-secondary)', fontSize: '14px', margin: '0 0 4px' }}>
-            {LEVEL1_CONFIG.title}
+            {config.title}
           </p>
         </motion.div>
 
@@ -210,7 +219,6 @@ export default function ResultsPage({
                 <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 800, letterSpacing: '1.5px', marginBottom: '4px' }}>
                   🔍 ANALISIS VERDICT
                 </div>
-                {/* Apa itu verdict */}
                 <p style={{ margin: '0 0 16px', fontSize: '12px', color: '#94A3B8', lineHeight: 1.5 }}>
                   <strong style={{ color: '#CBD5E1' }}>Verdict</strong> adalah kesimpulan akhir dari analisis data — apakah klaim berita bisa dipercaya, menyesatkan, atau hoaks berdasarkan bukti statistik yang kamu temukan.
                 </p>
@@ -223,7 +231,7 @@ export default function ResultsPage({
                     border: `1px solid ${isCorrect ? 'rgba(217,119,6,0.25)' : 'rgba(239,68,68,0.25)'}`,
                     borderRadius: '12px', minWidth: '130px',
                   }}>
-                    <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 800, marginBottom: '6px', letterSpacing: '1px' }}>VERDICTMU</div>
+                    <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 800, letterSpacing: '1px', marginBottom: '6px' }}>VERDICTMU</div>
                     <div style={{ fontWeight: 800, fontSize: '15px', color: isCorrect ? 'var(--accent)' : 'var(--danger)' }}>
                       {store.verdictAnswer ?? '—'} {isCorrect ? '✅' : '❌'}
                     </div>
@@ -235,8 +243,10 @@ export default function ResultsPage({
                     border: '1px solid rgba(217,119,6,0.25)',
                     borderRadius: '12px', minWidth: '130px',
                   }}>
-                    <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 800, marginBottom: '6px', letterSpacing: '1px' }}>VERDICT BENAR</div>
-                    <div style={{ fontWeight: 800, fontSize: '15px', color: 'var(--accent)' }}>MISLEADING ⚠️</div>
+                    <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 800, letterSpacing: '1px', marginBottom: '6px' }}>VERDICT BENAR</div>
+                    <div style={{ fontWeight: 800, fontSize: '15px', color: 'var(--accent)' }}>
+                      {isLevel2 ? 'SERIOUS_PROBLEM ⚠️' : 'MISLEADING ⚠️'}
+                    </div>
                   </div>
                 </div>
 
@@ -245,7 +255,7 @@ export default function ResultsPage({
                   border: '1px solid var(--game-border-accent)', borderRadius: '10px',
                   fontSize: '13px', lineHeight: 1.7, color: '#F8FAFC',
                 }}
-                  dangerouslySetInnerHTML={{ __html: `<strong>Penjelasan:</strong> ${VERDICT_EXPLANATION}` }}
+                  dangerouslySetInnerHTML={{ __html: `<strong>Penjelasan:</strong> ${verdictExplanation}` }}
                 />
               </motion.div>
 
@@ -259,17 +269,33 @@ export default function ResultsPage({
                 <div style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 800, letterSpacing: '1.5px', marginBottom: '12px' }}>
                   📌 RINGKASAN INVESTIGASI
                 </div>
-                <p style={{ margin: '0 0 10px', fontSize: '13px', lineHeight: 1.75, color: '#F1F5F9' }}>
-                  Dalam investigasi ini, kamu menganalisis data <em>screen time</em> dari <strong>35 siswa</strong> untuk memverifikasi klaim viral:{' '}
-                  <em>&quot;Remaja Indonesia rata-rata habiskan &gt;8 jam/hari di medsos.&quot;</em>
-                </p>
-                <p style={{ margin: '0 0 10px', fontSize: '13px', lineHeight: 1.75, color: '#F1F5F9' }}>
-                  Setelah menyusun <strong>histogram distribusi frekuensi</strong> dan menghitung statistik dasar, ditemukan bahwa nilai mean sebenarnya jauh di bawah 8 jam. Klaim tersebut terbukti{' '}
-                  <strong style={{ color: 'var(--warning)' }}>MISLEADING</strong> — angka yang digunakan dalam berita distorsi oleh data ekstrem (outlier).
-                </p>
-                <p style={{ margin: 0, fontSize: '13px', lineHeight: 1.75, color: '#F1F5F9' }}>
-                  Ini adalah contoh nyata <strong>sampling bias</strong> dan manipulasi statistik dalam berita viral. Kemampuan membaca data seperti ini adalah senjata utama seorang detektif literasi digital!
-                </p>
+                {!isLevel2 ? (
+                  <>
+                    <p style={{ margin: '0 0 10px', fontSize: '13px', lineHeight: 1.75, color: '#F1F5F9' }}>
+                      Dalam investigasi ini, kamu menganalisis data <em>screen time</em> dari <strong>35 siswa</strong> untuk memverifikasi klaim viral:{' '}
+                      <em>&quot;Remaja Indonesia rata-rata habiskan &gt;8 jam/hari di medsos.&quot;</em>
+                    </p>
+                    <p style={{ margin: '0 0 10px', fontSize: '13px', lineHeight: 1.75, color: '#F1F5F9' }}>
+                      Setelah menyusun <strong>histogram distribusi frekuensi</strong> dan menghitung statistik dasar, ditemukan bahwa nilai mean sebenarnya jauh di bawah 8 jam. Klaim tersebut terbukti{' '}
+                      <strong style={{ color: 'var(--warning)' }}>MISLEADING</strong> — angka yang digunakan dalam berita distorsi oleh data ekstrem (outlier).
+                    </p>
+                    <p style={{ margin: 0, fontSize: '13px', lineHeight: 1.75, color: '#F1F5F9' }}>
+                      Ini adalah contoh nyata <strong>sampling bias</strong> dan manipulasi statistik dalam berita viral. Kemampuan membaca data seperti ini adalah senjata utama seorang detektif literasi digital!
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p style={{ margin: '0 0 10px', fontSize: '13px', lineHeight: 1.75, color: '#F1F5F9' }}>
+                      Dalam investigasi ini, kamu mengumpulkan data kasus cyberbullying dari <strong>30 korban</strong> di berbagai lokasi sekolah untuk memahami penyebaran masalah perundungan siber.
+                    </p>
+                    <p style={{ margin: '0 0 10px', fontSize: '13px', lineHeight: 1.75, color: '#F1F5F9' }}>
+                      Setelah menghitung nilai Mean (8.3), Median (8.5), dan Modus (4), disimpulkan bahwa cyberbullying di sekolah adalah <strong style={{ color: 'var(--warning)' }}>MASALAH SERIUS (SERIOUS PROBLEM)</strong> yang menyebar luas, karena mayoritas korban mengalami tingkat perundungan yang tinggi meskipun nilai paling umumnya (modus) bernilai rendah.
+                    </p>
+                    <p style={{ margin: 0, fontSize: '13px', lineHeight: 1.75, color: '#F1F5F9' }}>
+                      Penyelidikan ini memberikan bimbingan bagi pelaku dan kesadaran pentingnya etika media sosial serta literasi digital untuk menghentikan mata rantai cyberbullying di sekolah.
+                    </p>
+                  </>
+                )}
               </motion.div>
 
               {/* ── Download Buku Saku ── */}

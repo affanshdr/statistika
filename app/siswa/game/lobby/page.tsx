@@ -20,12 +20,20 @@ const LEVELS = [
     id: 1,
     icon: '🎬',
     title: 'Level 1 (The Viral Myth)',
-    desc: '',
+    desc: 'Sebuah postingan viral mengklaim remaja Indonesia rata-rata >8 jam/hari di medsos. Selidiki kebenarannya.',
     tags: ['Distribusi Frekuensi', 'Histogram', 'Analisis Kritis'],
     locked: false,
     xpMax: 0,
   },
-  { id: 2, icon: '📈', title: 'Kasus: Polling Pilkada', desc: 'Segera hadir', tags: [], locked: true, xpMax: 0 },
+  {
+    id: 2,
+    icon: '🛡️',
+    title: 'Level 2 (Kasus: Cyberbullying)',
+    desc: 'Investigasi kasus perundungan siber di sekolah. Kumpulkan data korban, bimbing pelaku siber, dan analisis pemusatan data.',
+    tags: ['Mean', 'Median', 'Modus', 'Ukuran Pemusatan'],
+    locked: false,
+    xpMax: 0,
+  },
   { id: 3, icon: '🌡️', title: 'Kasus: Anomali Cuaca', desc: 'Segera hadir', tags: [], locked: true, xpMax: 0 },
   { id: 4, icon: '🏥', title: 'Kasus: Data Kesehatan', desc: 'Segera hadir', tags: [], locked: true, xpMax: 0 },
   { id: 5, icon: '📊', title: 'Kasus: Survei Ekonomi', desc: 'Segera hadir', tags: [], locked: true, xpMax: 0 },
@@ -33,7 +41,7 @@ const LEVELS = [
 
 export default function LobbyPage() {
   const router = useRouter()
-  const { cognitiveStyle, setCognitiveStyle, startLevel, resetLevel } = useGameStore()
+  const { cognitiveStyle, setCognitiveStyle, startLevel, resetLevel, completedLevels } = useGameStore()
   const [student, setStudent] = useState<Student | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -144,60 +152,63 @@ export default function LobbyPage() {
             🗂️ Kasus Investigasi Aktif
           </h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-            {LEVELS.filter(level => level.id === 1).map((level, i) => (
-              <motion.div
-                key={level.id}
-                className={`level-card ${level.locked ? 'locked' : ''}`}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.08 }}
-                onClick={() => !level.locked && handlePlayLevel(level.id)}
-              >
-                <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
-                  <div style={{ fontSize: '36px', padding: '12px', background: 'rgba(217,119,6,0.06)', borderRadius: '14px', flexShrink: 0 }}>
-                    {level.icon}
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px', marginBottom: '6px' }}>
-                      <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '1px' }}>LEVEL {level.id}</div>
-                      {!level.locked && level.xpMax > 0 && <div style={{ fontSize: '12px', color: 'var(--accent)', fontWeight: 700 }}>Max {level.xpMax} XP</div>}
+            {LEVELS.filter(level => level.id <= 2).map((level, i) => {
+              const isUnlocked = level.id === 1 || completedLevels.includes(level.id - 1)
+              return (
+                <motion.div
+                  key={level.id}
+                  className={`level-card ${!isUnlocked ? 'locked' : ''}`}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.08 }}
+                  onClick={() => isUnlocked && handlePlayLevel(level.id)}
+                >
+                  <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+                    <div style={{ fontSize: '36px', padding: '12px', background: 'rgba(217,119,6,0.06)', borderRadius: '14px', flexShrink: 0 }}>
+                      {level.icon}
                     </div>
-                    <h4 style={{ margin: '0 0 6px', fontSize: '15px', fontWeight: 800, color: level.locked ? 'var(--text-muted)' : '#fff' }}>
-                      {level.title}
-                    </h4>
-                    {level.desc && (
-                      <p style={{ margin: '0 0 10px', fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-                        {level.desc}
-                      </p>
-                    )}
-                    {level.tags.length > 0 && (
-                      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                        {level.tags.map(tag => (
-                          <span key={tag} style={{ fontSize: '10px', color: 'var(--text-muted)', background: 'rgba(180,140,80,0.1)', border: '1px solid var(--game-border)', borderRadius: '50px', padding: '3px 8px', fontWeight: 700 }}>
-                            {tag}
-                          </span>
-                        ))}
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px', marginBottom: '6px' }}>
+                        <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '1px' }}>LEVEL {level.id}</div>
+                        {isUnlocked && level.xpMax > 0 && <div style={{ fontSize: '12px', color: 'var(--accent)', fontWeight: 700 }}>Max {level.xpMax} XP</div>}
                       </div>
-                    )}
+                      <h4 style={{ margin: '0 0 6px', fontSize: '15px', fontWeight: 800, color: !isUnlocked ? 'var(--text-muted)' : '#fff' }}>
+                        {level.title}
+                      </h4>
+                      {level.desc && (
+                        <p style={{ margin: '0 0 10px', fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                          {level.desc}
+                        </p>
+                      )}
+                      {level.tags.length > 0 && (
+                        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                          {level.tags.map(tag => (
+                            <span key={tag} style={{ fontSize: '10px', color: 'var(--text-muted)', background: 'rgba(180,140,80,0.1)', border: '1px solid var(--game-border)', borderRadius: '50px', padding: '3px 8px', fontWeight: 700 }}>
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
 
-                {!level.locked && (
-                  <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid var(--game-border)' }}>
-                    <button
-                      className="game-btn game-btn-primary"
-                      style={{ fontSize: '13px', padding: '10px 20px' }}
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        handlePlayLevel(level.id)
-                      }}
-                    >
-                      {cognitiveStyle === 'FI' ? '🧠 Mulai (FI Path)' : '👥 Mulai (FD Path)'} →
-                    </button>
-                  </div>
-                )}
-              </motion.div>
-            ))}
+                  {isUnlocked && (
+                    <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid var(--game-border)' }}>
+                      <button
+                        className="game-btn game-btn-primary"
+                        style={{ fontSize: '13px', padding: '10px 20px' }}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handlePlayLevel(level.id)
+                        }}
+                      >
+                        {cognitiveStyle === 'FI' ? '🧠 Mulai (FI Path)' : '👥 Mulai (FD Path)'} →
+                      </button>
+                    </div>
+                  )}
+                </motion.div>
+              )
+            })}
           </div>
         </div>
       </div>

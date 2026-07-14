@@ -72,13 +72,13 @@ const LEVELS = [
   },
   {
     id: 2,
-    icon: '🗳️',
-    title: 'Kasus: Polling Pilkada',
-    desc: 'Segera hadir di lokasi ini. Pelajari sampling & representasi data populasi.',
-    tags: [],
+    icon: '🛡️',
+    title: 'Level 2 (Kasus: Cyberbullying)',
+    desc: 'Investigasi kasus perundungan siber di sekolah. Kumpulkan data korban, bimbing pelaku, dan analisis pemusatan data.',
+    tags: ['Mean', 'Median', 'Modus', 'Ukuran Pemusatan'],
     locked: false,
     xpMax: 0,
-    locationName: 'Kantor KPU Kota',
+    locationName: 'Sekolah Menengah',
   },
   {
     id: 3,

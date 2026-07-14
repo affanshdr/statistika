@@ -6,7 +6,7 @@ import { motion as motionClient, AnimatePresence as AnimatePresenceClient } from
 import { useGameStore } from '@/lib/store/gameStore'
 import '../../game.css'
 
-const QUESTIONS = [
+const QUESTIONS_LEVEL1 = [
   {
     id: 1,
     text: 'Jika sebuah kumpulan data memiliki nilai rata-rata (mean) yang jauh lebih besar daripada median-nya, bentuk distribusi data tersebut kemungkinan adalah...',
@@ -64,6 +64,64 @@ const QUESTIONS = [
   },
 ]
 
+const QUESTIONS_LEVEL2 = [
+  {
+    id: 1,
+    text: 'Dalam suatu rilis data korban perundungan siber di suatu wilayah, diperoleh informasi bahwa nilai Modus dari data tersebut adalah 3 kali per semester, sedangkan Rata-rata (mean) adalah 9 kali per semester. Manakah kesimpulan yang paling tepat mengenai kondisi tersebut?',
+    options: [
+      'Mayoritas korban mengalami perundungan sebanyak 9 kali per semester.',
+      'Meskipun paling banyak korban mengalami perundungan 3 kali, terdapat sebagian korban yang mengalami perundungan siber dengan frekuensi sangat tinggi sehingga menarik nilai rata-rata menjadi jauh lebih besar.',
+      'Nilai rata-rata salah dihitung karena nilainya tidak mungkin lebih besar dari modus.',
+      'Jumlah korban perundungan siber di wilayah tersebut pasti hanya ada 9 orang.',
+    ],
+    correct: 1,
+  },
+  {
+    id: 2,
+    text: 'Nilai rata-rata (mean) penggunaan media sosial harian kelompok belajar A adalah 5 jam, sedangkan kelompok belajar B adalah 7 jam. Jika kedua kelompok tersebut digabungkan, nilai rata-rata gabungannya adalah...',
+    options: [
+      'Pasti tepat 6 jam.',
+      'Tergantung pada jumlah anggota masing-masing kelompok belajar A dan B.',
+      'Pasti lebih dekat ke 7 jam.',
+      'Pasti lebih dekat ke 5 jam.',
+    ],
+    correct: 1,
+  },
+  {
+    id: 3,
+    text: 'Jika kita memiliki kumpulan data: 3, 5, 5, 6, 8, 10, 12, 25. Nilai manakah yang paling terpengaruh jika kita menambahkan nilai pencilan (outlier) baru sebesar 100 ke dalam data tersebut?',
+    options: [
+      'Median (Nilai Tengah)',
+      'Modus',
+      'Mean (Rata-rata)',
+      'Median dan Modus secara bersamaan',
+    ],
+    correct: 2,
+  },
+  {
+    id: 4,
+    text: 'Diberikan data jumlah insiden cyberbullying bulanan di kelas X: 2, 2, 4, 5, 7. Berapakah nilai rata-rata (mean) dan median dari data tersebut?',
+    options: [
+      'Mean = 4, Median = 4',
+      'Mean = 4, Median = 2',
+      'Mean = 3.5, Median = 4',
+      'Mean = 4, Median = 5',
+    ],
+    correct: 0,
+  },
+  {
+    id: 5,
+    text: 'Mengapa kemampuan literasi digital dan etika bermedia sosial penting dalam mencegah cyberbullying?',
+    options: [
+      'Karena membuat pengguna media sosial bisa meretas akun pelaku siber.',
+      'Karena menumbuhkan empati, tanggung jawab, dan pemahaman tentang dampak psikologis dari setiap komentar atau konten yang dibagikan secara digital.',
+      'Karena membuat kuota internet menjadi lebih hemat.',
+      'Karena membantu melacak lokasi fisik pengguna media sosial secara otomatis.',
+    ],
+    correct: 1,
+  },
+]
+
 export default function PostTestPage({
   params,
 }: {
@@ -71,6 +129,7 @@ export default function PostTestPage({
 }) {
   const { id: levelIdStr } = use(params)
   const levelId = parseInt(levelIdStr) || 1
+  const isLevel2 = levelId === 2
   const router = useRouter()
   const store = useGameStore()
 
@@ -91,6 +150,15 @@ export default function PostTestPage({
     }
     setStudent(JSON.parse(data))
   }, [router])
+
+  const QUESTIONS = isLevel2 ? QUESTIONS_LEVEL2 : QUESTIONS_LEVEL1
+  const levelTitle = isLevel2 ? 'Kasus 2: Cyberbullying' : 'Kasus 1: The Viral Myth'
+  const levelDescription = isLevel2
+    ? 'Selamat, Detektif! Kamu telah menyelesaikan penyelidikan data perundungan siber. Sekarang saatnya menguji kembali pemahaman konsep statistika deskriptif (Mean, Median, Modus) yang telah kamu pelajari selama investigasi.'
+    : 'Selamat, Detektif! Kamu telah menyelesaikan penyelidikan data screen time. Sekarang saatnya menguji kembali pemahaman konsep statistika deskriptif yang telah kamu pelajari selama investigasi.'
+  const levelTopics = isLevel2
+    ? 'Materi: Mean, Median, Modus, dan Dampak Cyberbullying'
+    : 'Materi: Histogram, Outlier, dan Ukuran Pemusatan (Mean/Median)'
 
   const handleNext = () => {
     if (selected === null) return
@@ -127,7 +195,7 @@ export default function PostTestPage({
             // Update local Zustand store
             store.completePostTest(levelId)
             if (earnedXp > 0) {
-              store.addXP(earnedXp, 'Post Test Level 1', 5)
+              store.addXP(earnedXp, `Post Test Level ${levelId}`, 5)
             }
           })
           .catch(console.error)
@@ -159,7 +227,7 @@ export default function PostTestPage({
           🕵️‍♂️ Post Test Investigasi
         </div>
         <div style={{ fontSize: '12px', color: 'var(--text-secondary)', fontWeight: 700 }}>
-          Kasus 1: The Viral Myth
+          {levelTitle}
         </div>
       </header>
 
@@ -188,7 +256,7 @@ export default function PostTestPage({
                 Evaluasi Akhir Misi (Post Test)
               </h2>
               <p style={{ color: '#57534E', fontSize: '14px', lineHeight: 1.6, margin: '0 0 24px' }}>
-                Selamat, Detektif! Kamu telah menyelesaikan penyelidikan data screen time. Sekarang saatnya menguji kembali pemahaman konsep statistika deskriptif yang telah kamu pelajari selama investigasi.
+                {levelDescription}
               </p>
               <div style={{
                 background: 'rgba(217,119,6,0.05)',
@@ -201,7 +269,7 @@ export default function PostTestPage({
                 <div style={{ fontSize: '12px', fontWeight: 800, color: '#D97706', marginBottom: '8px', letterSpacing: '0.5px' }}>INFO EVALUASI:</div>
                 <ul style={{ margin: 0, paddingLeft: '18px', fontSize: '13px', color: '#44403C', lineHeight: 1.6 }}>
                   <li>Jumlah soal: <strong>5 Pilihan Ganda</strong></li>
-                  <li>Materi: Histogram, Outlier, dan Ukuran Pemusatan (Mean/Median)</li>
+                  <li>{levelTopics}</li>
                   <li>Hadiah: <strong>+10 XP</strong> untuk setiap jawaban yang benar</li>
                 </ul>
               </div>
@@ -353,7 +421,7 @@ export default function PostTestPage({
                 Evaluasi Selesai!
               </h2>
               <p style={{ color: 'var(--text-secondary)', fontSize: '14px', margin: '0 0 24px' }}>
-                Hasil Post Test untuk <strong>Kasus 1: The Viral Myth</strong>
+                Hasil Post Test untuk <strong>{levelTitle}</strong>
               </p>
 
               {/* Score display */}
