@@ -135,7 +135,7 @@ function LevelPageInner({
           <div className="game-level-content-wrapper" style={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative' }}>
             <Level2Path
               cognitiveStyle={resolvedStyle}
-              teamId={teamId}
+              teamId={null}
               studentId={studentInfo?.id}
               studentName={studentInfo?.name}
               demoMode={demoMode}
