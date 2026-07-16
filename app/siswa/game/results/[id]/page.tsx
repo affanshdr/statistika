@@ -4,14 +4,12 @@ import { use, useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useGameStore } from '@/lib/store/gameStore'
-import { BADGES, CORRECT_VERDICT, VERDICT_EXPLANATION, LEVEL1_CONFIG } from '../../_data/level1'
+import { getLevelData } from '../../_data'
 import '../../game.css'
 import LkpdWorksheet from '../../_components/LkpdWorksheet'
 
 import dynamic from 'next/dynamic'
 const ReactConfetti = dynamic(() => import('react-confetti'), { ssr: false })
-
-const BADGE_DEFS = Object.values(BADGES)
 
 export default function ResultsPage({
   params,
@@ -20,6 +18,9 @@ export default function ResultsPage({
 }) {
   const { id } = use(params)
   const levelId = parseInt(id) || 1
+  const levelData = getLevelData(levelId)
+  const BADGE_DEFS = Object.values(levelData.badges)
+
   const router = useRouter()
   const store = useGameStore()
   const savedRef = useRef(false)
@@ -31,7 +32,7 @@ export default function ResultsPage({
   const [lkpdCompleted, setLkpdCompleted] = useState(false)
   const [checkingLkpd, setCheckingLkpd] = useState(true)
 
-  const isCorrect = store.verdictAnswer === CORRECT_VERDICT
+  const isCorrect = store.verdictAnswer === levelData.correctVerdict
 
   useEffect(() => {
     setWindowSize({ width: window.innerWidth, height: window.innerHeight })
@@ -45,14 +46,25 @@ export default function ResultsPage({
           
           // Check if LKPD is already completed
           fetch(`/api/game/lkpd?studentId=${s.id}&levelId=${levelId}`)
-            .then((res) => {
+            .then(async (res) => {
               if (res.ok) {
+                const data = await res.json()
                 setLkpdCompleted(true)
-                setShowContent(true)
+                if (data.postTestCompleted) {
+                  setShowContent(true)
+                  setCheckingLkpd(false)
+                } else {
+                  // Force redirect to Post Test before showing results
+                  router.push(`/siswa/game/posttest/${levelId}`)
+                }
+              } else {
+                setCheckingLkpd(false)
               }
             })
-            .catch(console.error)
-            .finally(() => setCheckingLkpd(false))
+            .catch((err) => {
+              console.error(err)
+              setCheckingLkpd(false)
+            })
         } else {
           setCheckingLkpd(false)
         }
@@ -79,13 +91,13 @@ export default function ResultsPage({
       if (res.ok) {
         const data = await res.json()
         if (data.xpAdded) {
-          store.addXP(data.xpAdded, 'Mengisi LKPD Level 1', 10)
+          store.addXP(data.xpAdded, `Mengisi LKPD Level ${levelId}`, 10)
         }
         setLkpdCompleted(true)
         if (isCorrect) setConfetti(true)
         setTimeout(() => {
           setConfetti(false)
-          setShowContent(true)
+          router.push(`/siswa/game/posttest/${levelId}`)
         }, 2500)
       } else {
         alert('Gagal mengirim LKPD. Silakan coba lagi.')
@@ -113,7 +125,7 @@ export default function ResultsPage({
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         studentId: student.id,
-        levelId: 1,
+        levelId,
         cognitiveStyle: store.cognitiveStyle,
         xpEarned: store.xp,
         livesRemaining: store.lives,
@@ -251,7 +263,7 @@ export default function ResultsPage({
             {isCorrect ? 'Investigasi Selesai!' : 'Level Selesai'}
           </h1>
           <p style={{ color: 'var(--text-secondary)', fontSize: '14px', margin: '0 0 4px' }}>
-            {LEVEL1_CONFIG.title}
+            {levelData.config.title}
           </p>
         </motion.div>
 
@@ -283,11 +295,11 @@ export default function ResultsPage({
                         animate={{ scale: 1, rotate: 0 }}
                         transition={{ delay: 0.15 + i * 0.1, type: 'spring', stiffness: 300 }}
                         style={{
-                          textAlign: 'center', padding: '16px 20px',
-                          background: 'var(--accent-dim)',
-                          border: '1px solid var(--game-border-accent)',
-                          borderRadius: '16px', minWidth: '110px',
-                          flex: '1 1 110px', maxWidth: '160px',
+                           textAlign: 'center', padding: '16px 20px',
+                           background: 'var(--accent-dim)',
+                           border: '1px solid var(--game-border-accent)',
+                           borderRadius: '16px', minWidth: '110px',
+                           flex: '1 1 110px', maxWidth: '160px',
                         }}
                       >
                         <div style={{ fontSize: '34px', marginBottom: '6px' }}>{badge.icon}</div>
@@ -324,7 +336,7 @@ export default function ResultsPage({
                   }}>
                     <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 800, marginBottom: '6px', letterSpacing: '1px' }}>VERDICTMU</div>
                     <div style={{ fontWeight: 800, fontSize: '15px', color: isCorrect ? 'var(--accent)' : 'var(--danger)' }}>
-                      {store.verdictAnswer ?? '—'} {isCorrect ? '✅' : '❌'}
+                      {store.verdictAnswer === 'INTERVENTION_NEEDED' ? 'INTERVENSI DINI ⚠️' : store.verdictAnswer ?? '—'} {isCorrect ? '✅' : '❌'}
                     </div>
                   </div>
                   {/* Verdict benar */}
@@ -335,7 +347,9 @@ export default function ResultsPage({
                     borderRadius: '12px', minWidth: '130px',
                   }}>
                     <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 800, marginBottom: '6px', letterSpacing: '1px' }}>VERDICT BENAR</div>
-                    <div style={{ fontWeight: 800, fontSize: '15px', color: 'var(--accent)' }}>MISLEADING ⚠️</div>
+                    <div style={{ fontWeight: 800, fontSize: '15px', color: 'var(--accent)' }}>
+                      {levelData.correctVerdict === 'MISLEADING' ? 'MISLEADING ⚠️' : 'INTERVENSI DINI ⚠️'}
+                    </div>
                   </div>
                 </div>
 
@@ -344,7 +358,7 @@ export default function ResultsPage({
                   border: '1px solid var(--game-border-accent)', borderRadius: '10px',
                   fontSize: '13px', lineHeight: 1.7, color: '#F8FAFC',
                 }}
-                  dangerouslySetInnerHTML={{ __html: `<strong>Penjelasan:</strong> ${VERDICT_EXPLANATION}` }}
+                  dangerouslySetInnerHTML={{ __html: `<strong>Penjelasan:</strong> ${levelData.verdictExplanation}` }}
                 />
               </motion.div>
 
@@ -358,16 +372,29 @@ export default function ResultsPage({
                 <div style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 800, letterSpacing: '1.5px', marginBottom: '12px' }}>
                   📌 RINGKASAN INVESTIGASI
                 </div>
-                <p style={{ margin: '0 0 10px', fontSize: '13px', lineHeight: 1.75, color: '#F1F5F9' }}>
-                  Dalam investigasi ini, kamu menganalisis data <em>screen time</em> dari <strong>35 siswa</strong> untuk memverifikasi klaim viral:{' '}
-                  <em>&quot;Remaja Indonesia rata-rata habiskan &gt;8 jam/hari di medsos.&quot;</em>
-                </p>
-                <p style={{ margin: '0 0 10px', fontSize: '13px', lineHeight: 1.75, color: '#F1F5F9' }}>
-                  Setelah menyusun <strong>histogram distribusi frekuensi</strong> dan menghitung statistik dasar, ditemukan bahwa nilai mean sebenarnya jauh di bawah 8 jam. Klaim tersebut terbukti{' '}
-                  <strong style={{ color: 'var(--warning)' }}>MISLEADING</strong> — angka yang digunakan dalam berita distorsi oleh data ekstrem (outlier).
-                </p>
+                {levelId === 2 ? (
+                  <>
+                    <p style={{ margin: '0 0 10px', fontSize: '13px', lineHeight: 1.75, color: '#F1F5F9' }}>
+                      Dalam investigasi ini, kamu menganalisis sebaran frekuensi kasus perundungan siber (cyberbullying) yang dialami oleh <strong>30 siswa</strong>.
+                    </p>
+                    <p style={{ margin: '0 0 10px', fontSize: '13px', lineHeight: 1.75, color: '#F1F5F9' }}>
+                      Setelah menyusun <strong>histogram distribusi frekuensi</strong> dan menghitung statistik dasar (mean 8.30 dan median 8.50), kamu menemukan bahwa meskipun sebagian besar korban berada di frekuensi rendah, terdapat kelompok minoritas (16.7%) yang mengalaminya secara berulang secara ekstrem (14-16 kali). Penyelidikan ini membuktikan perlunya <strong>intervensi dini</strong> di sekolah.
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p style={{ margin: '0 0 10px', fontSize: '13px', lineHeight: 1.75, color: '#F1F5F9' }}>
+                      Dalam investigasi ini, kamu menganalisis data <em>screen time</em> dari <strong>35 siswa</strong> untuk memverifikasi klaim viral:{' '}
+                      <em>&quot;Remaja Indonesia rata-rata habiskan &gt;8 jam/hari di medsos.&quot;</em>
+                    </p>
+                    <p style={{ margin: '0 0 10px', fontSize: '13px', lineHeight: 1.75, color: '#F1F5F9' }}>
+                      Setelah menyusun <strong>histogram distribusi frekuensi</strong> dan menghitung statistik dasar, ditemukan bahwa nilai mean sebenarnya jauh di bawah 8 jam. Klaim tersebut terbukti{' '}
+                      <strong style={{ color: 'var(--warning)' }}>MISLEADING</strong> — angka yang digunakan dalam berita distorsi oleh data ekstrem (outlier).
+                    </p>
+                  </>
+                )}
                 <p style={{ margin: 0, fontSize: '13px', lineHeight: 1.75, color: '#F1F5F9' }}>
-                  Ini adalah contoh nyata <strong>sampling bias</strong> dan manipulasi statistik dalam berita viral. Kemampuan membaca data seperti ini adalah senjata utama seorang detektif literasi digital!
+                  Ini adalah contoh nyata pentingnya literasi data dan statistik untuk memecahkan masalah di dunia nyata secara objektif. Kemampuan membaca data seperti ini adalah senjata utama seorang detektif literasi digital!
                 </p>
               </motion.div>
 

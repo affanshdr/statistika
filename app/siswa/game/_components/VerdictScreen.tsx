@@ -2,33 +2,45 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { STATS } from '../_data/level1'
+import { getLevelData } from '../_data'
 import DiRA from './DiRA'
 
 interface VerificationScreenProps {
   onCorrect: () => void    // jawaban benar → lanjut MythBusted
   onWrong: () => void      // jawaban salah → coba lagi
   guidedMode?: boolean     // FD: tampilkan hint dari DiRA
-}
-
-const VIRAL_POST = {
-  handle: '@faktaviral.id',
-  badge: '📱 VIRAL POST',
-  text: 'BREAKING: Remaja Indonesia rata-rata habiskan',
-  highlight: '>8 jam/hari',
-  suffix: 'di medsos! Generasi cemas kecanduan HP!',
+  levelId?: number
 }
 
 type Answer = 'benar' | 'hoaks' | null
 
-export default function VerificationScreen({ onCorrect, onWrong, guidedMode }: VerificationScreenProps) {
+export default function VerificationScreen({ onCorrect, onWrong, guidedMode, levelId = 1 }: VerificationScreenProps) {
+  const levelData = getLevelData(levelId)
+  const STATS = levelData.stats
+
+  const VIRAL_POST = levelId === 2 ? {
+    handle: '@guru.bk.laporan',
+    badge: '📄 LAPORAN INSIDEN BK',
+    text: 'Pengaduan Cyberbullying Kelas X: Rata-rata perlakuan',
+    highlight: `${STATS.mean} kali/semester`,
+    suffix: 'dengan kelompok korban mengalami perundungan berulang secara ekstrem.',
+  } : {
+    handle: '@faktaviral.id',
+    badge: '📱 VIRAL POST',
+    text: 'BREAKING: Remaja Indonesia rata-rata habiskan',
+    highlight: '>8 jam/hari',
+    suffix: 'di medsos! Generasi cemas kecanduan HP!',
+  }
+
   const [selected, setSelected] = useState<Answer>(null)
   const [submitted, setSubmitted] = useState(false)
   const [isWrong, setIsWrong] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const [showDira, setShowDira] = useState(true)
   const [diraMsg, setDiraMsg] = useState(
-    'Nah, lo udah liat kan datanya? Sekarang coba inget postingan viral tadi. Menurut data valid hasil analisis lo, klaim itu riil (benar) atau hoaks (misleading)? Spill jawabannya dong!'
+    levelId === 2
+      ? 'Nah, lo udah liat kan datanya? Sekarang coba inget postingan laporan BK tadi. Menurut data valid hasil analisis lo, apakah kasus ini butuh intervensi dini dari sekolah atau tidak? Spill jawabannya dong!'
+      : 'Nah, lo udah liat kan datanya? Sekarang coba inget postingan viral tadi. Menurut data valid hasil analisis lo, klaim itu riil (benar) atau hoaks (misleading)? Spill jawabannya dong!'
   )
 
   useEffect(() => {
@@ -42,14 +54,16 @@ export default function VerificationScreen({ onCorrect, onWrong, guidedMode }: V
     if (!selected) return
     setSubmitted(true)
     if (selected === 'hoaks') {
-      // Jawaban benar — tapi bukan hoaks murni, misleading
+      // Jawaban benar
       setTimeout(() => onCorrect(), 1200)
     } else {
       setIsWrong(true)
       setDiraMsg(
-        guidedMode
-          ? `Hmm, coba deh lo liat mean = ${STATS.mean} jam. Masa iya itu di atas 8 jam? Gak riil banget kan? 🤔`
-          : 'Coba liat lagi mean yang lo dapet. Apa mayoritas siswa emang beneran habisin >8 jam? Gak kan?'
+        levelId === 2
+          ? `Coba cek lagi histogram dan data statistika lo. Ada kelompok korban yang mengalami perundungan secara terus-menerus dengan intensitas tinggi (14-16 kali). Apakah itu berarti intervensi sekolah tidak diperlukan? 🔍`
+          : guidedMode
+            ? `Hmm, coba deh lo liat mean = ${STATS.mean} jam. Masa iya itu di atas 8 jam? Gak riil banget kan? 🤔`
+            : 'Coba liat lagi mean yang lo dapet. Apa mayoritas siswa emang beneran habisin >8 jam? Gak kan?'
       )
       setShowDira(true)
     }
@@ -261,11 +275,21 @@ export default function VerificationScreen({ onCorrect, onWrong, guidedMode }: V
               color: 'var(--text-primary)',
             }}>
               <div style={{ marginBottom: '4px', color: 'var(--text-primary)' }}>
-                Disukai oleh <strong>edukasi.kompas</strong> dan <strong>lainnya</strong>
+                {levelId === 2 ? (
+                  <span>Laporan masuk tanggal: <strong>14 Juli 2026</strong></span>
+                ) : (
+                  <span>Disukai oleh <strong>edukasi.kompas</strong> dan <strong>lainnya</strong></span>
+                )}
               </div>
-              <div>
-                <strong>pinterpolitik</strong> Sebuah studi terbaru mengungkap fakta mencengangkan: remaja Indonesia rata-rata menghabiskan lebih dari 8 jam sehari di media sosial!... <span style={{ color: 'var(--text-primary)', cursor: 'pointer' }}>selengkapnya</span>
-              </div>
+              {levelId === 2 ? (
+                <div>
+                  <strong>guru.bk.laporan</strong> Hasil kuesioner menunjukkan adanya laporan insiden cyberbullying. Detektif literasi data, periksa distribusi frekuensinya untuk memberikan keputusan intervensi... <span style={{ color: 'var(--text-primary)', cursor: 'pointer' }}>selengkapnya</span>
+                </div>
+              ) : (
+                <div>
+                  <strong>pinterpolitik</strong> Sebuah studi terbaru mengungkap fakta mencengangkan: remaja Indonesia rata-rata menghabiskan lebih dari 8 jam sehari di media sosial!... <span style={{ color: 'var(--text-primary)', cursor: 'pointer' }}>selengkapnya</span>
+                </div>
+              )}
             </div>
           </motion.div>
 
@@ -283,19 +307,32 @@ export default function VerificationScreen({ onCorrect, onWrong, guidedMode }: V
               fontSize: 'clamp(10px, 1.7vh, 13px)',
             }}
           >
-            <span style={{ color: 'var(--text-secondary)', fontWeight: 700 }}>📊 Datamu:</span>
-            <span style={{ color: 'var(--accent)', fontWeight: 800 }}>Mean = {STATS.mean} jam</span>
-            <span style={{ color: 'var(--text-muted)' }}>·</span>
-            <span style={{ color: 'var(--text-primary)', fontWeight: 700 }}>25/35 siswa ≤ 8 jam</span>
-            <span style={{ color: 'var(--text-muted)' }}>·</span>
-            <span style={{ color: 'var(--text-secondary)', fontWeight: 600 }}>n = {STATS.n} siswa</span>
+            {levelId === 2 ? (
+              <>
+                <span style={{ color: 'var(--text-secondary)', fontWeight: 700 }}>📊 Datamu:</span>
+                <span style={{ color: 'var(--accent)', fontWeight: 800 }}>Mean = {STATS.mean} kali</span>
+                <span style={{ color: 'var(--text-muted)' }}>·</span>
+                <span style={{ color: 'var(--text-primary)', fontWeight: 700 }}>10/30 siswa (2-4 kali)</span>
+                <span style={{ color: 'var(--text-muted)' }}>·</span>
+                <span style={{ color: 'var(--text-secondary)', fontWeight: 600 }}>5/30 siswa (14-16 kali)</span>
+              </>
+            ) : (
+              <>
+                <span style={{ color: 'var(--text-secondary)', fontWeight: 700 }}>📊 Datamu:</span>
+                <span style={{ color: 'var(--accent)', fontWeight: 800 }}>Mean = {STATS.mean} jam</span>
+                <span style={{ color: 'var(--text-muted)' }}>·</span>
+                <span style={{ color: 'var(--text-primary)', fontWeight: 700 }}>25/35 siswa ≤ 8 jam</span>
+                <span style={{ color: 'var(--text-muted)' }}>·</span>
+                <span style={{ color: 'var(--text-secondary)', fontWeight: 600 }}>n = {STATS.n} siswa</span>
+              </>
+            )}
           </motion.div>
         </div>
 
         {/* Right Column */}
         <div style={{ flex: 1.2, display: 'flex', flexDirection: 'column', gap: '14px', justifyContent: 'center', minWidth: 0 }}>
           <h3 style={{ margin: 0, fontSize: 'clamp(14px, 2.5vh, 18px)', fontWeight: 800, color: 'var(--text-primary)', textAlign: isMobile ? 'center' : 'left' }}>
-            Apakah klaim tersebut benar atau hoaks?
+            {levelId === 2 ? 'Apa kesimpulan penyelidikan yang paling tepat?' : 'Apakah klaim tersebut benar atau hoaks?'}
           </h3>
 
           {/* ── Choice Buttons / Error Feedback ── */}
@@ -319,10 +356,10 @@ export default function VerificationScreen({ onCorrect, onWrong, guidedMode }: V
                     padding: 'clamp(12px, 2vh, 16px)',
                     borderRadius: '14px',
                     border: selected === 'benar'
-                      ? '2px solid var(--accent)'
+                      ? (levelId === 2 ? '2px solid var(--danger)' : '2px solid var(--accent)')
                       : '2px solid rgba(255,255,255,0.12)',
                     background: selected === 'benar'
-                      ? 'var(--accent-dim)'
+                      ? (levelId === 2 ? 'rgba(239,68,68,0.06)' : 'var(--accent-dim)')
                       : 'rgba(14, 131, 136, 0.04)',
                     color: 'var(--text-primary)',
                     cursor: submitted ? 'default' : 'pointer',
@@ -332,16 +369,18 @@ export default function VerificationScreen({ onCorrect, onWrong, guidedMode }: V
                     textAlign: 'left',
                   }}
                 >
-                  <span style={{ fontSize: '28px' }}>✅</span>
+                  <span style={{ fontSize: '28px' }}>{levelId === 2 ? '❌' : '✅'}</span>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
                     <span style={{
                       fontWeight: 900,
                       fontSize: '15px',
-                      color: selected === 'benar' ? 'var(--accent)' : 'var(--text-muted)',
+                      color: selected === 'benar' ? (levelId === 2 ? 'var(--danger)' : 'var(--accent)') : 'var(--text-muted)',
                       letterSpacing: '0.5px',
-                    }}>BENAR</span>
+                    }}>
+                      {levelId === 2 ? 'TIDAK BUTUH INTERVENSI' : 'BENAR'}
+                    </span>
                     <span style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 600 }}>
-                      Klaim didukung data
+                      {levelId === 2 ? 'Data menunjukkan cyberbullying sangat rendah' : 'Klaim didukung data'}
                     </span>
                   </div>
                 </motion.button>
@@ -356,10 +395,10 @@ export default function VerificationScreen({ onCorrect, onWrong, guidedMode }: V
                     padding: 'clamp(12px, 2vh, 16px)',
                     borderRadius: '14px',
                     border: selected === 'hoaks'
-                      ? '2px solid var(--danger)'
+                      ? (levelId === 2 ? '2px solid var(--accent)' : '2px solid var(--danger)')
                       : '2px solid rgba(255,255,255,0.12)',
                     background: selected === 'hoaks'
-                      ? 'var(--danger-dim)'
+                      ? (levelId === 2 ? 'var(--accent-dim)' : 'rgba(239,68,68,0.06)')
                       : 'rgba(14, 131, 136, 0.04)',
                     color: 'var(--text-primary)',
                     cursor: submitted ? 'default' : 'pointer',
@@ -369,16 +408,18 @@ export default function VerificationScreen({ onCorrect, onWrong, guidedMode }: V
                     textAlign: 'left',
                   }}
                 >
-                  <span style={{ fontSize: '28px' }}>❌</span>
+                  <span style={{ fontSize: '28px' }}>{levelId === 2 ? '✅' : '❌'}</span>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
                     <span style={{
                       fontWeight: 900,
                       fontSize: '15px',
-                      color: selected === 'hoaks' ? 'var(--danger)' : 'var(--text-muted)',
+                      color: selected === 'hoaks' ? (levelId === 2 ? 'var(--accent)' : 'var(--danger)') : 'var(--text-muted)',
                       letterSpacing: '0.5px',
-                    }}>HOAKS / MISLEADING</span>
+                    }}>
+                      {levelId === 2 ? 'BUTUH INTERVENSI DINI' : 'HOAKS / MISLEADING'}
+                    </span>
                     <span style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 600 }}>
-                      Klaim tidak sesuai data
+                      {levelId === 2 ? 'Ada kelompok korban perundungan ekstrem berulang' : 'Klaim tidak sesuai data'}
                     </span>
                   </div>
                 </motion.button>

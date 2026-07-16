@@ -1,8 +1,6 @@
-'use client'
-
 import { useState, useCallback, useEffect } from 'react'
 import { motion, AnimatePresence, PanInfo } from 'framer-motion'
-import { screenTimeData, CLASS_LABELS, getClassIndex, CORRECT_TABLE } from '../_data/level1'
+import { getLevelData } from '../_data'
 import { useGameStore } from '@/lib/store/gameStore'
 
 interface DataPoint {
@@ -22,6 +20,7 @@ interface DraggableHistogramProps {
   forceStack?: boolean
   placedIndices?: number[]
   onPlacedChange?: (indices: number[]) => void
+  levelId?: number
 }
 
 // Scattered positions — percentage-based so they adapt to container size
@@ -42,43 +41,53 @@ const SCATTERED_POSITIONS = [
 
 const CLASS_COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#EC4899', '#8B5CF6']
 
-
-// Indices of items to pre-place as a balanced scaffold for both modes
-// ~2-3 items left to drag from main classes, and 1 item left to drag from minor classes,
-// so the student can learn the categorization process without getting fatigued.
-// screenTimeData = [1,2,2,2,3,3,3,3,3, 4,4,4,4,5,5,5,5,6,6,6, 7,7,7,7,8,9, 10,11,12, 13,14,15, 16,17,18]
-// idx:              0 1 2 3 4 5 6 7 8  9 10 11 12 ...
-const PREPLACED_INDICES = new Set([
-  0, 1, 2, 4, 5, 6,       // class 0 (1-3): val=1,2,2,3,3,3 (leaves 2,3,3 to drag)
-  9, 10, 11, 13, 14, 15, 17, 18, // class 1 (4-6): val=4,4,4,5,5,5,6,6 (leaves 4,5,6 to drag)
-  20, 21, 23, 24,         // class 2 (7-9): val=7,7,7,8 (leaves 7,9 to drag)
-  26, 28,                 // class 3 (10-12): val=10,12 (leaves 11 to drag)
-  29, 31,                 // class 4 (13-15): val=13,15 (leaves 14 to drag)
-  32, 34,                 // class 5 (16-18): val=16,18 (leaves 17 to drag)
-])
-
-function initDataPoints(mode: Mode, readOnly: boolean): DataPoint[] {
-  return screenTimeData.map((val, idx) => {
+function initDataPoints(
+  rawData: number[],
+  getClassIndex: (val: number) => number,
+  preplacedSet: Set<number>,
+  readOnly: boolean
+): DataPoint[] {
+  return rawData.map((val, idx) => {
     const cIdx = getClassIndex(val)
-    const isPreplaced = readOnly || PREPLACED_INDICES.has(idx)
+    const isPreplaced = readOnly || preplacedSet.has(idx)
     return { id: `dp-${idx}`, val, classIdx: cIdx, placed: isPreplaced, originalIdx: idx }
   })
 }
 
-
 export default function DraggableHistogram({
   mode, onSubmit, readOnly = false, forceStack = false,
-  placedIndices, onPlacedChange,
+  placedIndices, onPlacedChange, levelId = 1,
 }: DraggableHistogramProps) {
   const answers = useGameStore(state => state.answers)
   const intervalKelas = answers?.intervalKelas as { kelasInterval: string, tepiBawah: number, tepiAtas: number }[] | undefined
 
-  const ticks = intervalKelas && intervalKelas.length === 6 
+  const levelData = getLevelData(levelId)
+  const screenTimeData = levelData.rawData
+  const CLASS_LABELS = levelData.classLabels
+  const getClassIndex = levelData.getClassIndex
+  const CORRECT_TABLE = levelData.correctTable
+
+  const PREPLACED_INDICES = levelId === 2
+    ? new Set([0, 1, 3, 4, 6, 7, 9, 11, 13, 14, 16, 17, 19, 20, 22, 24, 25, 27, 29])
+    : new Set([
+        0, 1, 2, 4, 5, 6,       // class 0 (1-3): val=1,2,2,3,3,3 (leaves 2,3,3 to drag)
+        9, 10, 11, 13, 14, 15, 17, 18, // class 1 (4-6): val=4,4,4,5,5,5,6,6 (leaves 4,5,6 to drag)
+        20, 21, 23, 24,         // class 2 (7-9): val=7,7,7,8 (leaves 7,9 to drag)
+        26, 28,                 // class 3 (10-12): val=10,12 (leaves 11 to drag)
+        29, 31,                 // class 4 (13-15): val=13,15 (leaves 14 to drag)
+        32, 34,                 // class 5 (16-18): val=16,18 (leaves 17 to drag)
+      ])
+
+  const defaultTicks = levelId === 2
+    ? ['1.5', '4.5', '7.5', '10.5', '13.5', '16.5']
+    : ['0.5', '3.5', '6.5', '9.5', '12.5', '15.5', '18.5']
+
+  const ticks = intervalKelas && intervalKelas.length === (levelId === 2 ? 5 : 6)
     ? [
         intervalKelas[0].tepiBawah.toFixed(1),
         ...intervalKelas.map(item => item.tepiAtas.toFixed(1))
       ]
-    : ['0.5', '3.5', '6.5', '9.5', '12.5', '15.5', '18.5']
+    : defaultTicks
 
   const [isNarrow, setIsNarrow] = useState(false)
   const [isShortViewport, setIsShortViewport] = useState(false)
@@ -103,7 +112,9 @@ export default function DraggableHistogram({
   // isUltraCompact → landscape phone specifically (short & wide)
   const isUltraCompact = !isNarrow && isShortViewport && !forceStack
 
-  const [dataPoints, setDataPoints] = useState<DataPoint[]>(() => initDataPoints(mode, readOnly))
+  const [dataPoints, setDataPoints] = useState<DataPoint[]>(() =>
+    initDataPoints(screenTimeData, getClassIndex, PREPLACED_INDICES, readOnly)
+  )
 
   useEffect(() => {
     if (placedIndices) {

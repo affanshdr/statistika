@@ -30,6 +30,7 @@ export async function GET(req: NextRequest) {
           orderBy: { createdAt: 'desc' },
           take: 1,
         },
+        reflectionSubmissions: true,
       },
       orderBy: { createdAt: 'desc' },
     })

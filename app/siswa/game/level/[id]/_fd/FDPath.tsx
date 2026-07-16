@@ -9,7 +9,7 @@ import BadgeUnlock from '../../../_components/BadgeUnlock'
 import MythBustedStamp from '../../../_components/MythBustedStamp'
 import VerdictScreen from '../../../_components/VerdictScreen'
 import TeamGateButton from '../../../_components/TeamGateButton'
-import { BADGES, STATS } from '../../../_data/level1'
+import { getLevelData } from '../../../_data'
 import { useRouter } from 'next/navigation'
 import { useGameRealtime } from '@/lib/hooks/useGameRealtime'
 import IntervalKelasPhase from '../../../_components/IntervalKelasPhase'
@@ -38,11 +38,16 @@ interface FDPathProps {
   teamId?: string | null
   studentId?: string
   studentName?: string
+  levelId?: number
 }
 
-export default function FDPath({ teamId = null, studentId, studentName }: FDPathProps) {
+export default function FDPath({ teamId = null, studentId, studentName, levelId = 1 }: FDPathProps) {
   const router = useRouter()
   const { addXP, isCompleted, completeLevel, unlockBadge, incrementMistake, mistakeCount, sessionStartTime } = useGameStore()
+  const levelData = getLevelData(levelId)
+  const BADGES = levelData.badges
+  const STATS = levelData.stats
+  const unitText = levelId === 2 ? 'kali' : 'jam'
 
   const [step, setStep] = useState<GameStep>(0)
   const [pendingBadges, setPendingBadges] = useState<PendingBadge[]>([])
@@ -265,7 +270,8 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
       // FD: hanya red flash, tanpa life lost — eksplorasi mandiri
       setFlashWrong(true)
       setTimeout(() => setFlashWrong(false), 600)
-      setDiraMsg('Oops, ada data yang nyasar masuk ke kelas yang salah nih! Coba recheck lagi — inget intervalnya: 1-4, 5-8, 9-12, 13-16, 17-20 jam. Angka yang kegedean atau kekecilan musti ditaruh di kelas yang beda ya. Semangat lo pasti bisa! 💪')
+      const classHint = levelId === 2 ? '2-4, 5-7, 8-10, 11-13, 14-16 kali' : '1-3, 4-6, 7-9, 10-12, 13-15, 16-18 jam'
+      setDiraMsg(`Oops, ada data yang nyasar masuk ke kelas yang salah nih! Coba recheck lagi — inget intervalnya: ${classHint}. Angka yang kegedean atau kekecilan musti ditaruh di kelas yang beda ya. Semangat lo pasti bisa! 💪`)
       setShowDira(true)
     }
   }
@@ -327,14 +333,15 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
   // ── STEP 1.5: Verifikasi salah → hint dari DiRA ──
   const handleVerificationWrong = () => {
     incrementMistake()
-    setDiraMsg(`Hmm, coba perhatiin deh, mean = ${STATS.mean} jam. Masa itu lebih dari 8 jam? Gak riil kan? 🤔`)
+    const unit = levelId === 2 ? 'kali' : 'jam'
+    setDiraMsg(`Hmm, coba perhatiin deh, mean = ${STATS.mean} ${unit}. Masa itu lebih dari 8 jam? Gak riil kan? 🤔`)
     setShowDira(true)
   }
 
   // ── STEP 4: MythBusted complete → finish level ──
   const handleMythBustedComplete = () => {
-    addXP(15, 'Menyelesaikan Level 1', 4)
-    completeLevel(1)
+    addXP(15, `Menyelesaikan Level ${levelId}`, 4)
+    completeLevel(levelId)
   }
 
   // Chat sending handler
@@ -363,12 +370,12 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
 
   useEffect(() => {
     if (isCompleted && sessionActiveRef.current) {
-      const t = setTimeout(() => router.push('/siswa/game/results/1'), 1200)
+      const t = setTimeout(() => router.push(`/siswa/game/results/${levelId}`), 1200)
       return () => clearTimeout(t)
     }
-  }, [isCompleted, router])
+  }, [isCompleted, router, levelId])
 
-  const STEP_LABELS = ['Batas Kelas', 'Histogram', 'Analisis', 'Verifikasi', 'Selesai']
+  const STEP_LABELS = ['Batas Kelas', 'Histogram', 'Analisis', 'Kesimpulan', 'Selesai']
   const displayStep = step
 
   if (teamId && syncLoading && chatMessages.length === 0 && teamMembers.length === 0) {
@@ -432,6 +439,7 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
                   hasVotedInterval={(teamReadyVotes['gate_interval_done'] ?? []).includes(studentId ?? '')}
                   teamMembers={teamMembers}
                   teamReadyVotes={teamReadyVotes}
+                  levelId={levelId}
                 />
               </motion.div>
             )}
@@ -449,6 +457,7 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
                       onSubmit={handleHistogramSubmit}
                       placedIndices={teamId ? placedIndices : undefined}
                       onPlacedChange={teamId ? handlePlacedChange : undefined}
+                      levelId={levelId}
                     />
                   </div>
                 </div>
@@ -475,6 +484,7 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
                         mode="FD"
                         readOnly={true}
                         placedIndices={teamId ? placedIndices : undefined}
+                        levelId={levelId}
                       />
                     </div>
 
@@ -483,11 +493,11 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
                       <div style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 700, marginBottom: '10px', letterSpacing: '1px' }}>📈 STATISTIK DASAR DISTRIBUSI</div>
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px' }}>
                         {[
-                          { label: 'Mean (Rata-rata)', val: `${STATS.mean} jam` },
-                          { label: 'Median', val: `${STATS.median} jam` },
-                          { label: 'Min', val: `${STATS.min} jam` },
-                          { label: 'Max', val: `${STATS.max} jam` },
-                          { label: 'Range (Jangkauan)', val: `${STATS.range} jam` },
+                          { label: 'Mean (Rata-rata)', val: `${STATS.mean} ${unitText}` },
+                          { label: 'Median', val: `${STATS.median} ${unitText}` },
+                          { label: 'Min', val: `${STATS.min} ${unitText}` },
+                          { label: 'Max', val: `${STATS.max} ${unitText}` },
+                          { label: 'Range (Jangkauan)', val: `${STATS.range} ${unitText}` },
                           { label: 'n (Sampel)', val: `${STATS.n} siswa` },
                         ].map(({ label, val }) => (
                           <div key={label} style={{ textAlign: 'center', padding: '8px', background: 'rgba(217,119,6,0.04)', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.05)' }}>
@@ -507,7 +517,7 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
                       studentId={studentId}
                       members={teamMembers}
                       readyVotes={teamReadyVotes}
-                      label="Lanjut: Verifikasi Berita →"
+                      label={levelId === 2 ? 'Lanjut: Kesimpulan Investigasi →' : 'Lanjut: Verifikasi Berita →'}
                       onVote={() => { addXP(20, 'Analisis distribusi FD tepat', 2); setShowDira(false) }}
                       onVoteSuccess={(votes, stepVal) => {
                         setTeamReadyVotes(votes)
@@ -525,7 +535,7 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
                       disabled={submitting}
                       style={{ width: '100%', marginTop: '8px' }}
                     >
-                      Lanjut: Verifikasi Berita →
+                      {levelId === 2 ? 'Lanjut: Kesimpulan Investigasi →' : 'Lanjut: Verifikasi Berita →'}
                     </button>
                   )}
                 </div>
@@ -538,14 +548,17 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
                 <div className="game-card" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                   <div>
                     <div style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 800, letterSpacing: '1px', marginBottom: '6px' }}>
-                      TAHAP C — VERIFIKASI BERITA
+                      {levelId === 2 ? 'TAHAP C — KESIMPULAN INVESTIGASI' : 'TAHAP C — VERIFIKASI BERITA'}
                     </div>
-                    <h2 style={{ margin: 0, fontSize: '20px' }}>Berdasarkan Datamu — Benar atau Hoaks?</h2>
+                    <h2 style={{ margin: 0, fontSize: '20px' }}>
+                      {levelId === 2 ? 'Berdasarkan Datamu — Apa Kesimpulan Penyelidikan?' : 'Berdasarkan Datamu — Benar atau Hoaks?'}
+                    </h2>
                   </div>
                   <VerdictScreen
                     onCorrect={handleVerificationCorrect}
                     onWrong={handleVerificationWrong}
                     guidedMode={true}
+                    levelId={levelId}
                   />
                 </div>
               </motion.div>

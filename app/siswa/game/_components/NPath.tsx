@@ -2,155 +2,13 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import Image from 'next/image'
+import { useGameStore } from '@/lib/store/gameStore'
 
 // ─── Vertical Hallway dimensions ──────────────────────────────────────────────
 const VW = 800
 const VH = 350
 const SPEED = 1.35
-const TOTAL_N = 35
-
-type DoorId = 'A' | 'B' | 'C'
-
-interface QuizDoor {
-  id: string
-  label: string
-  color: string
-  quizQ: string
-  quizA: number | string
-  hint: string
-  count: number
-  choices?: readonly (number | string)[]
-  fdContext?: string
-}
-
-const DOORS = [
-  { id: 'A' as DoorId, label: 'Pintu A (Kiri)', x: 175, y: 220,
-    color: '#818cf8', quizQ: '3 × 3 = ?', quizA: 9, hint: '3 dikali 3 sama dengan 9', count: 9 },
-  { id: 'B' as DoorId, label: 'Pintu B (Tengah)', x: 400, y: 180,
-    color: '#00ADB5', quizQ: '3 × 5 = ?', quizA: 15, hint: '3 dikali 5 sama dengan 15', count: 15 },
-  { id: 'C' as DoorId, label: 'Pintu C (Kanan)', x: 625, y: 220,
-    color: '#f472b6', quizQ: '8 + 3 = ?', quizA: 11, hint: '8 ditambah 3 sama dengan 11', count: 11 },
-] as const
-
-const CLASS_DOORS = [
-  // Room A (total 9) - Topik: Statistika (Bloom Level 2: Memahami)
-  { 
-    id: 'A1', roomId: 'A' as DoorId, label: 'Kelas VII-1', x: 52.5, y: 213, color: '#818cf8', 
-    quizQ: 'Data screen time 5 siswa: 2, 4, 3, 8, 1 jam. Berapa rentang datanya?', 
-    quizA: 7, choices: [5, 6, 7, 8] as const,
-    fdContext: '💡 Ingat: rentang = nilai terbesar − nilai terkecil',
-    hint: 'Kurangkan nilai terbesar (8) dengan nilai terkecil (1) untuk mendapatkan rentang.', count: 3 
-  },
-  { 
-    id: 'A2', roomId: 'A' as DoorId, label: 'Kelas VII-2', x: 140, y: 186, color: '#818cf8', 
-    quizQ: 'Tepi bawah kelas interval 4–6 adalah?', 
-    quizA: 3.5, choices: [3, 3.5, 4, 4.5] as const,
-    fdContext: '💡 Ingat: tepi bawah = batas bawah − 0.5',
-    hint: 'Kurangi batas bawah kelas (4) dengan 0.5.', count: 3 
-  },
-  { 
-    id: 'A3', roomId: 'A' as DoorId, label: 'Kelas VII-3', x: 227.5, y: 160, color: '#818cf8', 
-    quizQ: 'Rentang = 17, Banyak Kelas = 6. Panjang kelas interval dibulatkan ke atas adalah?', 
-    quizA: 3, choices: [2, 3, 4, 5] as const,
-    fdContext: '💡 Ingat: panjang kelas = rentang ÷ banyak kelas, bulatkan ke atas.',
-    hint: 'Bagi nilai rentang dengan banyak kelas, lalu bulatkan hasilnya ke atas.', count: 3 
-  },
-
-  // Room B (total 15) - Topik: Etika Media Sosial (Bloom Level 4: Menganalisis)
-  { 
-    id: 'B1', roomId: 'B' as DoorId, label: 'Kelas VIII-1', x: 320, y: 145, color: '#00ADB5', 
-    quizQ: 'Kamu menerima berita viral yang belum terverifikasi. Tindakan paling etis adalah?', 
-    quizA: 'Verifikasi dulu', choices: ['Langsung share', 'Verifikasi dulu', 'Screenshot & sebar', 'Abaikan saja'] as const,
-    fdContext: '💡 Pikirkan dampaknya terhadap orang lain',
-    hint: 'Cari tindakan yang memastikan kebenaran informasi sebelum membagikannya.', count: 5 
-  },
-  { 
-    id: 'B2', roomId: 'B' as DoorId, label: 'Kelas VIII-2', x: 400, y: 145, color: '#00ADB5', 
-    quizQ: 'Seseorang memposting foto orang lain tanpa izin untuk konten viral. Ini termasuk pelanggaran?', 
-    quizA: 'Kedua-duanya', choices: ['Privasi', 'Hak cipta', 'Kedua-duanya', 'Bukan pelanggaran'] as const,
-    fdContext: '💡 Pikirkan mengenai kepemilikan dan privasi hak orang lain',
-    hint: 'Memposting foto orang lain melanggar ranah pribadi sekaligus kepemilikan ciptaan.', count: 5 
-  },
-  { 
-    id: 'B3', roomId: 'B' as DoorId, label: 'Kelas VIII-3', x: 480, y: 145, color: '#00ADB5', 
-    quizQ: 'Konten yang sengaja dibuat untuk memancing emosi negatif di media sosial disebut?', 
-    quizA: 'Clickbait', choices: ['Clickbait', 'Hoax', 'Meme', 'Spam'] as const,
-    fdContext: '💡 Pikirkan tujuan pembuat konten yang ingin menarik perhatian emosional secara instan',
-    hint: 'Istilah ini merujuk pada pancingan tautan atau umpan klik untuk memicu reaksi emosi cepat.', count: 5 
-  },
-
-  // Room C (total 11) - Topik: Literasi Digital (Bloom Level 3-4: Mengaplikasikan & Menganalisis)
-  { 
-    id: 'C1', roomId: 'C' as DoorId, label: 'Kelas IX-1', x: 572.5, y: 160, color: '#f472b6', 
-    quizQ: 'Ciri utama berita hoax yang paling umum adalah?', 
-    quizA: 'Sumber tidak jelas', choices: ['Sumber tidak jelas', 'Ada foto', 'Ada tanggal', 'Ditulis wartawan'] as const,
-    fdContext: '💡 Perhatikan kredibilitas pembuat informasi',
-    hint: 'Berita bohong biasanya tidak menyebutkan asal-usul kredibel atau pihak penanggung jawab.', count: 4 
-  },
-  { 
-    id: 'C2', roomId: 'C' as DoorId, label: 'Kelas IX-2', x: 660, y: 186, color: '#f472b6', 
-    quizQ: 'Langkah pertama yang benar saat menemukan informasi mencurigakan di internet adalah?', 
-    quizA: 'Cek sumber asli', choices: ['Cek sumber asli', 'Tanya teman', 'Langsung percaya', 'Share ke grup'] as const,
-    fdContext: '💡 Telusuri keaslian data sebelum bertindak',
-    hint: 'Selalu lakukan konfirmasi kebenaran ke situs atau pihak pertama yang merilis informasi.', count: 4 
-  },
-  { 
-    id: 'C3', roomId: 'C' as DoorId, label: 'Kelas IX-3', x: 747.5, y: 213, color: '#f472b6', 
-    quizQ: 'Jika tepi bawah kelas pertama 0.5 dan panjang kelas 3, tepi atas kelas pertama adalah?', 
-    quizA: 3.5, choices: [3.5, 3, 4, 4.5] as const,
-    fdContext: '💡 Ingat: tepi atas = tepi bawah + panjang kelas',
-    hint: 'Jumlahkan tepi bawah kelas pertama dengan panjang kelasnya.', count: 3 
-  },
-] as const
-
-const DATA_CIRCLES = [
-  // Zone A - Ruang A (total 9)
-  { id: 'a1', d: 'A', classId: 'A1', x: 40, y: 70 },
-  { id: 'a2', d: 'A', classId: 'A1', x: 60, y: 70 },
-  { id: 'a3', d: 'A', classId: 'A1', x: 50, y: 95 },
-  
-  { id: 'a4', d: 'A', classId: 'A2', x: 120, y: 70 },
-  { id: 'a5', d: 'A', classId: 'A2', x: 140, y: 70 },
-  { id: 'a6', d: 'A', classId: 'A2', x: 130, y: 95 },
-  
-  { id: 'a7', d: 'A', classId: 'A3', x: 200, y: 70 },
-  { id: 'a8', d: 'A', classId: 'A3', x: 220, y: 70 },
-  { id: 'a9', d: 'A', classId: 'A3', x: 210, y: 95 },
-
-  // Zone B - Ruang B (total 15)
-  { id: 'b1', d: 'B', classId: 'B1', x: 310, y: 60 },
-  { id: 'b2', d: 'B', classId: 'B1', x: 330, y: 60 },
-  { id: 'b3', d: 'B', classId: 'B1', x: 320, y: 80 },
-  { id: 'b4', d: 'B', classId: 'B1', x: 310, y: 100 },
-  { id: 'b5', d: 'B', classId: 'B1', x: 330, y: 100 },
-  
-  { id: 'b6', d: 'B', classId: 'B2', x: 390, y: 60 },
-  { id: 'b7', d: 'B', classId: 'B2', x: 410, y: 60 },
-  { id: 'b8', d: 'B', classId: 'B2', x: 400, y: 80 },
-  { id: 'b9', d: 'B', classId: 'B2', x: 390, y: 100 },
-  { id: 'b10', d: 'B', classId: 'B2', x: 410, y: 100 },
-  
-  { id: 'b11', d: 'B', classId: 'B3', x: 470, y: 60 },
-  { id: 'b12', d: 'B', classId: 'B3', x: 490, y: 60 },
-  { id: 'b13', d: 'B', classId: 'B3', x: 480, y: 80 },
-  { id: 'b14', d: 'B', classId: 'B3', x: 470, y: 100 },
-  { id: 'b15', d: 'B', classId: 'B3', x: 490, y: 100 },
-
-  // Zone C - Ruang C (total 11)
-  { id: 'c1', d: 'C', classId: 'C1', x: 560, y: 70 },
-  { id: 'c2', d: 'C', classId: 'C1', x: 580, y: 70 },
-  { id: 'c3', d: 'C', classId: 'C1', x: 570, y: 95 },
-  { id: 'c4', d: 'C', classId: 'C1', x: 570, y: 115 },
-  
-  { id: 'c5', d: 'C', classId: 'C2', x: 640, y: 70 },
-  { id: 'c6', d: 'C', classId: 'C2', x: 660, y: 70 },
-  { id: 'c7', d: 'C', classId: 'C2', x: 650, y: 95 },
-  { id: 'c8', d: 'C', classId: 'C2', x: 650, y: 115 },
-  
-  { id: 'c9', d: 'C', classId: 'C3', x: 720, y: 70 },
-  { id: 'c10', d: 'C', classId: 'C3', x: 740, y: 70 },
-  { id: 'c11', d: 'C', classId: 'C3', x: 730, y: 95 },
-]
 
 const AMBIENT_PARTICLES = [
   { cx: 50, cy: 60, r: 1.2, className: 'particle-drift-1', color: '#818cf8' },
@@ -182,185 +40,19 @@ const AMBIENT_PARTICLES = [
   { cx: 700, cy: 300, r: 0.7, className: 'particle-drift-3', color: '#00ADB5' },
 ] as const;
 
-const CLASS_STUDENTS: Record<string, { teacher: string; comment: string; students: { name: string; time: number }[] }> = {
-  A1: {
-    teacher: 'Bu Sari',
-    comment: 'Wah, Budi ini rajin belajar ya, screen time-nya paling rendah di kelas!',
-    students: [
-      { name: 'Adit', time: 3 },
-      { name: 'Budi', time: 2 },
-      { name: 'Cici', time: 4 },
-    ]
-  },
-  A2: {
-    teacher: 'Pak Bambang',
-    comment: 'Deni ini sepertinya perlu dikurangi nih main HP-nya agar matanya tidak cepat lelah.',
-    students: [
-      { name: 'Deni', time: 5 },
-      { name: 'Evi', time: 3 },
-      { name: 'Fani', time: 2 },
-    ]
-  },
-  A3: {
-    teacher: 'Bu Tina',
-    comment: 'Secara umum, rata-rata screen time siswa di kelas VII-3 ini adalah sekitar 3,6 jam per hari.',
-    students: [
-      { name: 'Gita', time: 4 },
-      { name: 'Hadi', time: 3 },
-      { name: 'Indra', time: 4 },
-    ]
-  },
-  B1: {
-    teacher: 'Bu Rina',
-    comment: 'Hebat sekali, Mira sangat disiplin membatasi penggunaan HP-nya hanya 3 jam sehari!',
-    students: [
-      { name: 'Joko', time: 5 },
-      { name: 'Kiki', time: 4 },
-      { name: 'Lia', time: 6 },
-      { name: 'Mira', time: 3 },
-      { name: 'Niko', time: 5 },
-    ]
-  },
-  B2: {
-    teacher: 'Pak Setiawan',
-    comment: 'Aduh, Tono sepertinya perlu lebih bijak menggunakan HP-nya agar tidak kecanduan game.',
-    students: [
-      { name: 'Oki', time: 4 },
-      { name: 'Putri', time: 5 },
-      { name: 'Rian', time: 3 },
-      { name: 'Santi', time: 4 },
-      { name: 'Tono', time: 6 },
-    ]
-  },
-  B3: {
-    teacher: 'Bu Yuli',
-    comment: 'Rata-rata screen time di kelas VIII-3 ini berkisar 4,2 jam, masih cukup wajar untuk remaja.',
-    students: [
-      { name: 'Umar', time: 5 },
-      { name: 'Vina', time: 4 },
-      { name: 'Wawan', time: 3 },
-      { name: 'Xena', time: 5 },
-      { name: 'Yayan', time: 4 },
-    ]
-  },
-  C1: {
-    teacher: 'Pak Joko',
-    comment: 'Zaki perlu membagi waktu lebih baik karena screen time-nya mencapai 6 jam per hari.',
-    students: [
-      { name: 'Zaki', time: 6 },
-      { name: 'Alma', time: 5 },
-      { name: 'Bimo', time: 4 },
-      { name: 'Dian', time: 5 },
-    ]
-  },
-  C2: {
-    teacher: 'Bu Endang',
-    comment: 'Wah, Elga dan Hana rajin belajar ya, screen time mereka paling rendah di kelas IX-2!',
-    students: [
-      { name: 'Elga', time: 4 },
-      { name: 'Farhan', time: 6 },
-      { name: 'Gani', time: 5 },
-      { name: 'Hana', time: 4 },
-    ]
-  },
-  C3: {
-    teacher: 'Bu Sri',
-    comment: 'Secara keseluruhan, rata-rata screen time di kelas IX-3 adalah 4 jam per hari.',
-    students: [
-      { name: 'Irfan', time: 5 },
-      { name: 'Jihan', time: 4 },
-      { name: 'Koko', time: 3 },
-    ]
-  },
-}
+// Types
+type DoorId = 'A' | 'B' | 'C'
 
-function checkClassCollision(
-  x: number,
-  y: number,
-  door: typeof CLASS_DOORS[number],
-  unlocked: Set<string>,
-  hallwayY: number,
-  startX: number,
-  endX: number,
-  R: number
-): boolean {
-  if (x >= startX - R && x <= endX + R) {
-    if (startX > 15 && x > startX - R && x < startX + R && y < hallwayY) return false
-    if (endX < 780 && x > endX - R && x < endX + R && y < hallwayY) return false
-
-    if (x >= startX && x <= endX) {
-      const insideGap = x >= door.x - 15 && x <= door.x + 15
-      const crossingWall = y > hallwayY - R && y < hallwayY + R
-      if (crossingWall) {
-        if (!unlocked.has(door.id) || !insideGap) {
-          return false
-        }
-      }
-    }
-  }
-  return true
-}
-
-// Walkability: check if character is inside the vertical hallway or unlocked rooms
-function isWalkable(x: number, y: number, unlocked: Set<string>): boolean {
-  const R = 6.0 // player radius padding for landscape map
-
-  if (x < 10 + R || x > 790 - R || y < 30 + R || y > 330 - R) return false
-
-  const leftDiagY = 260 - (x - 10) * (8/27)
-  const rightDiagY = 180 + (x - 520) * (8/27)
-
-  if (x < 280 && y < leftDiagY) {
-    if (!unlocked.has('A')) return false
-    if (x > 280 - R) return false
-    const atDoorA = x >= 160 && x <= 190
-    if (!atDoorA && y > leftDiagY - R) return false
-
-    if (!checkClassCollision(x, y, CLASS_DOORS[0], unlocked, leftDiagY - 35, 10, 95, R)) return false
-    if (!checkClassCollision(x, y, CLASS_DOORS[1], unlocked, leftDiagY - 35, 95, 185, R)) return false
-    if (!checkClassCollision(x, y, CLASS_DOORS[2], unlocked, leftDiagY - 35, 185, 280, R)) return false
-
-    return true
-  }
-
-  if (x > 520 && y < rightDiagY) {
-    if (!unlocked.has('C')) return false
-    if (x < 520 + R) return false
-    const atDoorC = x >= 610 && x <= 640
-    if (!atDoorC && y > rightDiagY - R) return false
-
-    if (!checkClassCollision(x, y, CLASS_DOORS[6], unlocked, rightDiagY - 35, 520, 610, R)) return false
-    if (!checkClassCollision(x, y, CLASS_DOORS[7], unlocked, rightDiagY - 35, 610, 700, R)) return false
-    if (!checkClassCollision(x, y, CLASS_DOORS[8], unlocked, rightDiagY - 35, 700, 790, R)) return false
-
-    return true
-  }
-
-  if (x >= 280 && x <= 520 && y < 180) {
-    if (!unlocked.has('B')) return false
-    if (x < 280 + R || x > 520 - R) return false
-    const atDoorB = x >= 385 && x <= 415
-    if (!atDoorB && y > 180 - R) return false
-
-    if (!checkClassCollision(x, y, CLASS_DOORS[3], unlocked, 145, 280, 360, R)) return false
-    if (!checkClassCollision(x, y, CLASS_DOORS[4], unlocked, 145, 360, 440, R)) return false
-    if (!checkClassCollision(x, y, CLASS_DOORS[5], unlocked, 145, 440, 520, R)) return false
-
-    return true
-  }
-
-  if (x < 280) {
-    const atDoorA = unlocked.has('A') && x >= 160 && x <= 190
-    if (!atDoorA && y < leftDiagY + R) return false
-  } else if (x > 520) {
-    const atDoorC = unlocked.has('C') && x >= 610 && x <= 640
-    if (!atDoorC && y < rightDiagY + R) return false
-  } else {
-    const atDoorB = unlocked.has('B') && x >= 385 && x <= 415
-    if (!atDoorB && y < 180 + R) return false
-  }
-
-  return true
+interface QuizDoor {
+  id: string
+  label: string
+  color: string
+  quizQ: string
+  quizA: number | string
+  hint: string
+  count: number
+  choices?: readonly (number | string)[]
+  fdContext?: string
 }
 
 // ─── Joystick ─────────────────────────────────────────────────────────────────
@@ -875,8 +567,8 @@ function VisualHintModal({ door, onClose }: VisualHintModalProps) {
 }
 
 // ─── Quiz popup ───────────────────────────────────────────────────────────────
-function QuizPopup({ door, isFD, onCorrect, onClose }:
-  { door: QuizDoor; isFD: boolean; onCorrect: () => void; onClose: () => void }) {
+function QuizPopup({ door, isFD, onCorrect, onClose, levelId = 1 }:
+  { door: QuizDoor; isFD: boolean; onCorrect: () => void; onClose: () => void; levelId?: number }) {
   const [shake, setShake] = useState(0)
   const [wrongCount, setWrongCount] = useState(0)
   const [openVisualModal, setOpenVisualModal] = useState(false)
@@ -959,8 +651,14 @@ function QuizPopup({ door, isFD, onCorrect, onClose }:
           }}
         >
           <div>
-            <div style={{ fontSize: 13, fontWeight: 900, letterSpacing: '2px', color: door.color, marginBottom: 8 }}>🔐 {door.label} — Jawab untuk membuka!</div>
-            <p style={{ margin: 0, fontSize: 15, fontWeight: 600, color: '#E2E8F0', lineHeight: 1.6 }}>Di dalam pintu ini tersimpan data screen time. Jawab soal berikut untuk membuka pintu:</p>
+            <div style={{ fontSize: 13, fontWeight: 900, letterSpacing: '2px', color: door.color, marginBottom: 8 }}>
+              {levelId === 2 ? '⚠️ SATPAM / KEAMANAN KORIDOR' : `🔐 ${door.label}`} — {levelId === 2 ? 'Selesaikan Soal PISA!' : 'Jawab untuk membuka!'}
+            </div>
+            <p style={{ margin: 0, fontSize: 15, fontWeight: 600, color: '#E2E8F0', lineHeight: 1.6 }}>
+              {levelId === 2 
+                ? 'Untuk dapat melewati petugas keamanan dan berpindah area sekolah, kamu wajib memecahkan tantangan numerasi PISA ini:'
+                : 'Di dalam pintu ini tersimpan data screen time. Jawab soal berikut untuk membuka pintu:'}
+            </p>
           </div>
           <div style={{ background: `${door.color}11`, border: `1.5px solid ${door.color}33`, borderRadius: 16, padding: '16px 12px', textAlign: 'center' }}>
             <div style={{ fontSize: door.quizQ.length > 20 ? (door.quizQ.length > 50 ? 14 : 16) : 22, fontWeight: 900, color: '#FFFFFF', fontFamily: 'var(--font-data)', lineHeight: 1.4 }}>{door.quizQ}</div>
@@ -1191,7 +889,7 @@ function QuizPopup({ door, isFD, onCorrect, onClose }:
 }
 
 // ─── Counter overlay ──────────────────────────────────────────────────────────
-function CounterResult({ onDone }: { onDone: () => void }) {
+function CounterResult({ onDone, totalN = 35 }: { onDone: () => void; totalN?: number }) {
   const [count, setCount] = useState(0)
   const [done, setDone] = useState(false)
   const [btn, setBtn] = useState(false)
@@ -1201,14 +899,14 @@ function CounterResult({ onDone }: { onDone: () => void }) {
     const id = setInterval(() => {
       c++
       setCount(c)
-      if (c >= TOTAL_N) {
+      if (c >= totalN) {
         clearInterval(id)
         setTimeout(() => setDone(true), 300)
         setTimeout(() => setBtn(true), 1100)
       }
     }, 45)
     return () => clearInterval(id)
-  }, [])
+  }, [totalN])
 
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 600, background: 'rgba(11, 30, 44, 0.92)', backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
@@ -1243,7 +941,7 @@ function CounterResult({ onDone }: { onDone: () => void }) {
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               <div style={{ padding: '16px 20px', borderRadius: 16, background: 'rgba(14, 131, 136, 0.04)', border: '1px solid rgba(14, 131, 136, 0.2)', fontSize: 15, fontWeight: 600, color: '#E2E8F0', lineHeight: 1.7, textAlign: 'left' }}>
                 Kamu telah mengumpulkan seluruh data dari 3 ruangan.<br />
-                Ukuran sampel yang terkumpul adalah <strong style={{ color: '#00ADB5', fontSize: 19 }}>n = {TOTAL_N}</strong>.
+                Ukuran sampel yang terkumpul adalah <strong style={{ color: '#00ADB5', fontSize: 19 }}>n = {totalN}</strong>.
               </div>
               {btn && <button className="game-btn game-btn-primary" style={{ width: '100%', fontSize: 16, fontWeight: 800, padding: '12px 18px' }} onClick={onDone}>Lanjut ke Perhitungan Rentang (R) →</button>}
             </motion.div>
@@ -1254,19 +952,514 @@ function CounterResult({ onDone }: { onDone: () => void }) {
   )
 }
 
-export default function NPath({ onComplete, isFD = true, demoMode = false }: { onComplete: () => void; isFD?: boolean; demoMode?: boolean }) {
+export default function NPath({ onComplete, isFD = true, demoMode = false, levelId = 1 }: { onComplete: () => void; isFD?: boolean; demoMode?: boolean; levelId?: number }) {
+  const TOTAL_N = levelId === 2 ? 30 : 35
+
+  if (levelId === 2) {
+    return <Level2NPath onComplete={onComplete} isFD={isFD} />
+  }
+
+  const DOORS = levelId === 2
+    ? [
+        { id: 'A' as DoorId, label: 'Kantin & Lorong A', x: 175, y: 220,
+          color: '#818cf8', quizQ: 'Rata-rata nilai matematika 5 siswa adalah 80. Jika ditambahkan 1 siswa bernilai 92, berapa rata-rata barunya?', 
+          quizA: 82, choices: [80, 81, 82, 83] as const, hint: 'Total nilai awal = 5 × 80 = 400. Total nilai baru = 400 + 92 = 492. Rata-rata baru = 492 ÷ 6 = 82.', count: 10 },
+        { id: 'B' as DoorId, label: 'Labkom & Lorong B', x: 400, y: 180,
+          color: '#00ADB5', quizQ: 'Berdasarkan grafik sosial media, persentase Instagram adalah 42% dan Facebook 37%. Berapa total persentase gabungan keduanya?', 
+          quizA: 79, choices: [70, 75, 79, 82] as const, hint: 'Jumlahkan langsung persentase Instagram (42%) dan Facebook (37%): 42 + 37 = 79.', count: 10 },
+        { id: 'C' as DoorId, label: 'Lapangan & Koridor C', x: 625, y: 220,
+          color: '#f472b6', quizQ: 'Dari tren kasus cyberbullying, jumlah kasus naik dari 800 (tahun 2018) menjadi 2000 (tahun 2020). Berapa selisih kenaikannya?', 
+          quizA: 1200, choices: [800, 1000, 1200, 1500] as const, hint: 'Kurangkan jumlah kasus tahun 2020 (2000) dengan jumlah kasus tahun 2018 (800): 2000 − 800 = 1200.', count: 10 },
+      ]
+    : [
+        { id: 'A' as DoorId, label: 'Pintu A (Kiri)', x: 175, y: 220,
+          color: '#818cf8', quizQ: '3 × 3 = ?', quizA: 9, hint: '3 dikali 3 sama dengan 9', count: 9 },
+        { id: 'B' as DoorId, label: 'Pintu B (Tengah)', x: 400, y: 180,
+          color: '#00ADB5', quizQ: '3 × 5 = ?', quizA: 15, hint: '3 dikali 5 sama dengan 15', count: 15 },
+        { id: 'C' as DoorId, label: 'Pintu C (Kanan)', x: 625, y: 220,
+          color: '#f472b6', quizQ: '8 + 3 = ?', quizA: 11, hint: '8 ditambah 3 sama dengan 11', count: 11 },
+      ]
+
+  const CLASS_DOORS = levelId === 2
+    ? [
+        { 
+          id: 'A1', roomId: 'A' as DoorId, label: 'Labkom 1', x: 52.5, y: 213, color: '#818cf8', 
+          quizQ: 'Data perlakuan cyberbullying 5 siswa: 2, 5, 3, 10, 4 kali. Berapa rentang datanya?', 
+          quizA: 8, choices: [6, 7, 8, 9] as const,
+          fdContext: '💡 Ingat: rentang = nilai terbesar − nilai terkecil',
+          hint: 'Kurangkan nilai terbesar (10) dengan nilai terkecil (2) untuk mendapatkan rentang.', count: 3 
+        },
+        { 
+          id: 'A2', roomId: 'A' as DoorId, label: 'Lorong A', x: 140, y: 186, color: '#818cf8', 
+          quizQ: 'Tepi bawah kelas interval 2–4 adalah?', 
+          quizA: 1.5, choices: [1, 1.5, 2, 2.5] as const,
+          fdContext: '💡 Ingat: tepi bawah = batas bawah − 0.5',
+          hint: 'Kurangi batas bawah kelas (2) dengan 0.5.', count: 3 
+        },
+        { 
+          id: 'A3', roomId: 'A' as DoorId, label: 'Lapangan Sekolah', x: 227.5, y: 160, color: '#818cf8', 
+          quizQ: 'Rentang = 14, Banyak Kelas = 5. Panjang kelas interval dibulatkan ke atas adalah?', 
+          quizA: 3, choices: [2, 3, 4, 5] as const,
+          fdContext: '💡 Ingat: panjang kelas = rentang ÷ banyak kelas, bulatkan ke atas.',
+          hint: 'Bagi nilai rentang dengan banyak kelas, lalu bulatkan hasilnya ke atas.', count: 4 
+        },
+        { 
+          id: 'B1', roomId: 'B' as DoorId, label: 'Kantin Sekolah', x: 320, y: 145, color: '#00ADB5', 
+          quizQ: 'Temanmu terus-menerus dikirimi pesan ejekan kasar di grup chat. Ini termasuk tindakan?', 
+          quizA: 'Cyberbullying', choices: ['Candaan', 'Cyberbullying', 'Meme lucu', 'Diskusi'] as const,
+          fdContext: '💡 Pikirkan dampak psikologis dari tindakan tersebut',
+          hint: 'Pelecehan atau intimidasi di ruang digital secara berulang disebut cyberbullying.', count: 3 
+        },
+        { 
+          id: 'B2', roomId: 'B' as DoorId, label: 'Labkom 2', x: 400, y: 145, color: '#00ADB5', 
+          quizQ: 'Seseorang menyebarkan rumor bohong tentang dirimu secara online. Tindakan terbaik adalah?', 
+          quizA: 'Laporkan bukti', choices: ['Balas membully', 'Abaikan saja', 'Hapus akun', 'Laporkan bukti'] as const,
+          fdContext: '💡 Penting untuk menyimpan riwayat kejadian secara legal',
+          hint: 'Menyimpan bukti chat dan melaporkan ke guru/pihak berwenang adalah jalan terbaik.', count: 3 
+        },
+        { 
+          id: 'B3', roomId: 'B' as DoorId, label: 'Lorong B', x: 480, y: 145, color: '#00ADB5', 
+          quizQ: 'Pelaku cyberbullying merasa berani karena identitasnya tersembunyi. Ini disebut?', 
+          quizA: 'Disinhibisi online', choices: ['Disinhibisi online', 'Empati digital', 'Konektivitas', 'Sosialisasi'] as const,
+          fdContext: '💡 Istilah ini merujuk pada hilangnya kekangan sosial secara online',
+          hint: 'Perilaku lebih berani/bebas di internet karena merasa anonim disebut disinhibisi online.', count: 4 
+        },
+        { 
+          id: 'C1', roomId: 'C' as DoorId, label: 'Lapangan Olahraga', x: 572.5, y: 160, color: '#f472b6', 
+          quizQ: 'Melihat cyberbullying tetapi mendiamkannya tanpa menolong korban disebut sebagai?', 
+          quizA: 'Bystander pasif', choices: ['Upstander aktif', 'Bystander pasif', 'Mediator', 'Provokator'] as const,
+          fdContext: '💡 Pikirkan istilah penonton pasif',
+          hint: 'Orang yang menyaksikan bullying tetapi diam saja disebut bystander pasif.', count: 3 
+        },
+        { 
+          id: 'C2', roomId: 'C' as DoorId, label: 'Koperasi Siswa', x: 660, y: 186, color: '#f472b6', 
+          quizQ: 'Langkah utama sekolah dalam mencegah cyberbullying secara sistemik adalah?', 
+          quizA: 'Edukasi literasi', choices: ['Menyita semua HP', 'Edukasi literasi', 'Menghukum siswa', 'Menutup lab komputer'] as const,
+          fdContext: '💡 Pencegahan terbaik berbasis pada pemahaman perilaku',
+          hint: 'Mendidik siswa tentang etika digital dan literasi internet adalah pencegahan terbaik.', count: 3 
+        },
+        { 
+          id: 'C3', roomId: 'C' as DoorId, label: 'Kantin Utama', x: 747.5, y: 213, color: '#f472b6', 
+          quizQ: 'Jika tepi bawah kelas pertama 1.5 dan panjang kelas 3, tepi atas kelas pertama adalah?', 
+          quizA: 4.5, choices: [3.5, 4, 4.5, 5] as const,
+          fdContext: '💡 Ingat: tepi atas = tepi bawah + panjang kelas',
+          hint: 'Jumlahkan tepi bawah kelas pertama dengan panjang kelasnya.', count: 4 
+        },
+      ]
+    : [
+        { 
+          id: 'A1', roomId: 'A' as DoorId, label: 'Kelas VII-1', x: 52.5, y: 213, color: '#818cf8', 
+          quizQ: 'Data screen time 5 siswa: 2, 4, 3, 8, 1 jam. Berapa rentang datanya?', 
+          quizA: 7, choices: [5, 6, 7, 8] as const,
+          fdContext: '💡 Ingat: rentang = nilai terbesar − nilai terkecil',
+          hint: 'Kurangkan nilai terbesar (8) dengan nilai terkecil (1) untuk mendapatkan rentang.', count: 3 
+        },
+        { 
+          id: 'A2', roomId: 'A' as DoorId, label: 'Kelas VII-2', x: 140, y: 186, color: '#818cf8', 
+          quizQ: 'Tepi bawah kelas interval 4–6 adalah?', 
+          quizA: 3.5, choices: [3, 3.5, 4, 4.5] as const,
+          fdContext: '💡 Ingat: tepi bawah = batas bawah − 0.5',
+          hint: 'Kurangi batas bawah kelas (4) dengan 0.5.', count: 3 
+        },
+        { 
+          id: 'A3', roomId: 'A' as DoorId, label: 'Kelas VII-3', x: 227.5, y: 160, color: '#818cf8', 
+          quizQ: 'Rentang = 17, Banyak Kelas = 6. Panjang kelas interval dibulatkan ke atas adalah?', 
+          quizA: 3, choices: [2, 3, 4, 5] as const,
+          fdContext: '💡 Ingat: panjang kelas = rentang ÷ banyak kelas, bulatkan ke atas.',
+          hint: 'Bagi nilai rentang dengan banyak kelas, lalu bulatkan hasilnya ke atas.', count: 3 
+        },
+        { 
+          id: 'B1', roomId: 'B' as DoorId, label: 'Kelas VIII-1', x: 320, y: 145, color: '#00ADB5', 
+          quizQ: 'Kamu menerima berita viral yang belum terverifikasi. Tindakan paling etis adalah?', 
+          quizA: 'Verifikasi dulu', choices: ['Langsung share', 'Verifikasi dulu', 'Screenshot & sebar', 'Abaikan saja'] as const,
+          fdContext: '💡 Pikirkan dampaknya terhadap orang lain',
+          hint: 'Cari tindakan yang memastikan kebenaran informasi sebelum membagikannya.', count: 5 
+        },
+        { 
+          id: 'B2', roomId: 'B' as DoorId, label: 'Kelas VIII-2', x: 400, y: 145, color: '#00ADB5', 
+          quizQ: 'Seseorang memposting foto orang lain tanpa izin untuk konten viral. Ini termasuk pelanggaran?', 
+          quizA: 'Kedua-duanya', choices: ['Privasi', 'Hak cipta', 'Kedua-duanya', 'Bukan pelanggaran'] as const,
+          fdContext: '💡 Pikirkan mengenai kepemilikan dan privasi hak orang lain',
+          hint: 'Memposting foto orang lain melanggar ranah pribadi sekaligus kepemilikan ciptaan.', count: 5 
+        },
+        { 
+          id: 'B3', roomId: 'B' as DoorId, label: 'Kelas VIII-3', x: 480, y: 145, color: '#00ADB5', 
+          quizQ: 'Konten yang sengaja dibuat untuk memancing emosi negatif di media sosial disebut?', 
+          quizA: 'Clickbait', choices: ['Clickbait', 'Hoax', 'Meme', 'Spam'] as const,
+          fdContext: '💡 Pikirkan tujuan pembuat konten yang ingin menarik perhatian emosional secara instan',
+          hint: 'Istilah ini merujuk pada pancingan tautan atau umpan klik untuk memicu reaksi emosi cepat.', count: 5 
+        },
+        { 
+          id: 'C1', roomId: 'C' as DoorId, label: 'Kelas IX-1', x: 572.5, y: 160, color: '#f472b6', 
+          quizQ: 'Ciri utama berita hoax yang paling umum adalah?', 
+          quizA: 'Sumber tidak jelas', choices: ['Sumber tidak jelas', 'Ada foto', 'Ada tanggal', 'Ditulis wartawan'] as const,
+          hint: 'Berita bohong biasanya tidak menyebutkan asal-usul kredibel atau pihak penanggung jawab.', count: 4 
+        },
+        { 
+          id: 'C2', roomId: 'C' as DoorId, label: 'Kelas IX-2', x: 660, y: 186, color: '#f472b6', 
+          quizQ: 'Langkah pertama yang benar saat menemukan informasi mencurigakan di internet adalah?', 
+          quizA: 'Cek sumber asli', choices: ['Cek sumber asli', 'Tanya teman', 'Langsung percaya', 'Share ke grup'] as const,
+          hint: 'Selalu lakukan konfirmasi kebenaran ke situs atau pihak pertama yang merilis informasi.', count: 4 
+        },
+        { 
+          id: 'C3', roomId: 'C' as DoorId, label: 'Kelas IX-3', x: 747.5, y: 213, color: '#f472b6', 
+          quizQ: 'Jika tepi bawah kelas pertama 0.5 dan panjang kelas 3, tepi atas kelas pertama adalah?', 
+          quizA: 3.5, choices: [3.5, 3, 4, 4.5] as const,
+          fdContext: '💡 Ingat: tepi atas = tepi bawah + panjang kelas',
+          hint: 'Jumlahkan tepi bawah kelas pertama dengan panjang kelasnya.', count: 3 
+        },
+      ]
+
+  const DATA_CIRCLES = levelId === 2
+    ? [
+        { id: 'a1', d: 'A', classId: 'A1', x: 40, y: 70 },
+        { id: 'a2', d: 'A', classId: 'A1', x: 60, y: 70 },
+        { id: 'a3', d: 'A', classId: 'A1', x: 50, y: 95 },
+        { id: 'a4', d: 'A', classId: 'A2', x: 120, y: 70 },
+        { id: 'a5', d: 'A', classId: 'A2', x: 140, y: 70 },
+        { id: 'a6', d: 'A', classId: 'A2', x: 130, y: 95 },
+        { id: 'a7', d: 'A', classId: 'A3', x: 200, y: 70 },
+        { id: 'a8', d: 'A', classId: 'A3', x: 220, y: 70 },
+        { id: 'a9', d: 'A', classId: 'A3', x: 210, y: 95 },
+        { id: 'a10', d: 'A', classId: 'A3', x: 210, y: 115 },
+        { id: 'b1', d: 'B', classId: 'B1', x: 310, y: 60 },
+        { id: 'b2', d: 'B', classId: 'B1', x: 330, y: 60 },
+        { id: 'b3', d: 'B', classId: 'B1', x: 320, y: 80 },
+        { id: 'b4', d: 'B', classId: 'B2', x: 390, y: 60 },
+        { id: 'b5', d: 'B', classId: 'B2', x: 410, y: 60 },
+        { id: 'b6', d: 'B', classId: 'B2', x: 400, y: 80 },
+        { id: 'b7', d: 'B', classId: 'B3', x: 470, y: 60 },
+        { id: 'b8', d: 'B', classId: 'B3', x: 490, y: 60 },
+        { id: 'b9', d: 'B', classId: 'B3', x: 480, y: 80 },
+        { id: 'b10', d: 'B', classId: 'B3', x: 480, y: 100 },
+        { id: 'c1', d: 'C', classId: 'C1', x: 560, y: 70 },
+        { id: 'c2', d: 'C', classId: 'C1', x: 580, y: 70 },
+        { id: 'c3', d: 'C', classId: 'C1', x: 570, y: 95 },
+        { id: 'c4', d: 'C', classId: 'C2', x: 640, y: 70 },
+        { id: 'c5', d: 'C', classId: 'C2', x: 660, y: 70 },
+        { id: 'c6', d: 'C', classId: 'C2', x: 650, y: 95 },
+        { id: 'c7', d: 'C', classId: 'C3', x: 720, y: 70 },
+        { id: 'c8', d: 'C', classId: 'C3', x: 740, y: 70 },
+        { id: 'c9', d: 'C', classId: 'C3', x: 730, y: 95 },
+        { id: 'c10', d: 'C', classId: 'C3', x: 730, y: 115 },
+      ]
+    : [
+        { id: 'a1', d: 'A', classId: 'A1', x: 40, y: 70 },
+        { id: 'a2', d: 'A', classId: 'A1', x: 60, y: 70 },
+        { id: 'a3', d: 'A', classId: 'A1', x: 50, y: 95 },
+        { id: 'a4', d: 'A', classId: 'A2', x: 120, y: 70 },
+        { id: 'a5', d: 'A', classId: 'A2', x: 140, y: 70 },
+        { id: 'a6', d: 'A', classId: 'A2', x: 130, y: 95 },
+        { id: 'a7', d: 'A', classId: 'A3', x: 200, y: 70 },
+        { id: 'a8', d: 'A', classId: 'A3', x: 220, y: 70 },
+        { id: 'a9', d: 'A', classId: 'A3', x: 210, y: 95 },
+        { id: 'b1', d: 'B', classId: 'B1', x: 310, y: 60 },
+        { id: 'b2', d: 'B', classId: 'B1', x: 330, y: 60 },
+        { id: 'b3', d: 'B', classId: 'B1', x: 320, y: 80 },
+        { id: 'b4', d: 'B', classId: 'B1', x: 310, y: 100 },
+        { id: 'b5', d: 'B', classId: 'B1', x: 330, y: 100 },
+        { id: 'b6', d: 'B', classId: 'B2', x: 390, y: 60 },
+        { id: 'b7', d: 'B', classId: 'B2', x: 410, y: 60 },
+        { id: 'b8', d: 'B', classId: 'B2', x: 400, y: 80 },
+        { id: 'b9', d: 'B', classId: 'B2', x: 390, y: 100 },
+        { id: 'b10', d: 'B', classId: 'B2', x: 410, y: 100 },
+        { id: 'b11', d: 'B', classId: 'B3', x: 470, y: 60 },
+        { id: 'b12', d: 'B', classId: 'B3', x: 490, y: 60 },
+        { id: 'b13', d: 'B', classId: 'B3', x: 480, y: 80 },
+        { id: 'b14', d: 'B', classId: 'B3', x: 470, y: 100 },
+        { id: 'b15', d: 'B', classId: 'B3', x: 490, y: 100 },
+        { id: 'c1', d: 'C', classId: 'C1', x: 560, y: 70 },
+        { id: 'c2', d: 'C', classId: 'C1', x: 580, y: 70 },
+        { id: 'c3', d: 'C', classId: 'C1', x: 570, y: 95 },
+        { id: 'c4', d: 'C', classId: 'C1', x: 570, y: 115 },
+        { id: 'c5', d: 'C', classId: 'C2', x: 640, y: 70 },
+        { id: 'c6', d: 'C', classId: 'C2', x: 660, y: 70 },
+        { id: 'c7', d: 'C', classId: 'C2', x: 650, y: 95 },
+        { id: 'c8', d: 'C', classId: 'C2', x: 650, y: 115 },
+        { id: 'c9', d: 'C', classId: 'C3', x: 720, y: 70 },
+        { id: 'c10', d: 'C', classId: 'C3', x: 740, y: 70 },
+        { id: 'c11', d: 'C', classId: 'C3', x: 730, y: 95 },
+      ]
+
+  const CLASS_STUDENTS: any = levelId === 2
+    ? {
+        A1: {
+          teacher: 'Bu Sari',
+          comment: 'Di kelas VII-1, tingkat perlakuan cyberbullying sangat rendah, rata-rata hanya 2 kali per semester.',
+          students: [
+            { name: 'Adit', time: 2 },
+            { name: 'Budi', time: 2 },
+            { name: 'Cici', time: 2 },
+          ]
+        },
+        A2: {
+          teacher: 'Pak Bambang',
+          comment: 'Kejadian cyberbullying di kelas VII-2 masih tergolong rendah, berkisar antara 2 sampai 4 kali.',
+          students: [
+            { name: 'Deni', time: 2 },
+            { name: 'Evi', time: 3 },
+            { name: 'Fani', time: 4 },
+          ]
+        },
+        A3: {
+          teacher: 'Bu Tina',
+          comment: 'Rata-rata siswa di kelas VII-3 mengalami cyberbullying sebanyak 4 kali per semester.',
+          students: [
+            { name: 'Gita', time: 4 },
+            { name: 'Hadi', time: 4 },
+            { name: 'Indra', time: 4 },
+            { name: 'Jojo', time: 4 },
+          ]
+        },
+        B1: {
+          teacher: 'Bu Rina',
+          comment: 'Beberapa siswa di kelas VIII-1 mulai melaporkan tindakan cyberbullying berkisar 5 sampai 6 kali.',
+          students: [
+            { name: 'Kiki', time: 5 },
+            { name: 'Lia', time: 6 },
+            { name: 'Mira', time: 6 },
+          ]
+        },
+        B2: {
+          teacher: 'Pak Setiawan',
+          comment: 'Di kelas VIII-2, frekuensi cyberbullying berkisar antara 7 hingga 9 kali per semester.',
+          students: [
+            { name: 'Oki', time: 7 },
+            { name: 'Putri', time: 8 },
+            { name: 'Rian', time: 9 },
+          ]
+        },
+        B3: {
+          teacher: 'Bu Yuli',
+          comment: 'Sebagian siswa di kelas VIII-3 mengalami perlakuan tidak menyenangkan di medsos hingga 10 kali.',
+          students: [
+            { name: 'Umar', time: 9 },
+            { name: 'Vina', time: 10 },
+            { name: 'Wawan', time: 10 },
+            { name: 'Xena', time: 10 },
+          ]
+        },
+        C1: {
+          teacher: 'Pak Joko',
+          comment: 'Kelas IX-1 menunjukkan intensitas sedang hingga tinggi dengan frekuensi cyberbullying mencapai 12 kali.',
+          students: [
+            { name: 'Zaki', time: 11 },
+            { name: 'Alma', time: 12 },
+            { name: 'Bimo', time: 12 },
+          ]
+        },
+        C2: {
+          teacher: 'Bu Endang',
+          comment: 'Di kelas IX-2, terdapat siswa yang mengalami cyberbullying cukup intensif hingga 14 kali.',
+          students: [
+            { name: 'Elga', time: 13 },
+            { name: 'Farhan', time: 13 },
+            { name: 'Gani', time: 14 },
+          ]
+        },
+        C3: {
+          teacher: 'Bu Sri',
+          comment: 'Sangat memprihatinkan, ada kelompok siswa di kelas IX-3 yang mengalami perlakuan ekstrem hingga 16 kali!',
+          students: [
+            { name: 'Irfan', time: 15 },
+            { name: 'Jihan', time: 16 },
+            { name: 'Koko', time: 16 },
+            { name: 'Lulu', time: 16 },
+          ]
+        },
+      }
+    : {
+        A1: {
+          teacher: 'Bu Sari',
+          comment: 'Wah, Budi ini rajin belajar ya, screen time-nya paling rendah di kelas!',
+          students: [
+            { name: 'Adit', time: 3 },
+            { name: 'Budi', time: 2 },
+            { name: 'Cici', time: 4 },
+          ]
+        },
+        A2: {
+          teacher: 'Pak Bambang',
+          comment: 'Deni ini sepertinya perlu dikurangi nih main HP-nya agar matanya tidak cepat lelah.',
+          students: [
+            { name: 'Deni', time: 5 },
+            { name: 'Evi', time: 3 },
+            { name: 'Fani', time: 2 },
+          ]
+        },
+        A3: {
+          teacher: 'Bu Tina',
+          comment: 'Secara umum, rata-rata screen time siswa di kelas VII-3 ini adalah sekitar 3,6 jam per hari.',
+          students: [
+            { name: 'Gita', time: 4 },
+            { name: 'Hadi', time: 3 },
+            { name: 'Indra', time: 4 },
+          ]
+        },
+        B1: {
+          teacher: 'Bu Rina',
+          comment: 'Hebat sekali, Mira sangat disiplin membatasi penggunaan HP-nya hanya 3 jam sehari!',
+          students: [
+            { name: 'Joko', time: 5 },
+            { name: 'Kiki', time: 4 },
+            { name: 'Lia', time: 6 },
+            { name: 'Mira', time: 3 },
+            { name: 'Niko', time: 5 },
+          ]
+        },
+        B2: {
+          teacher: 'Pak Setiawan',
+          comment: 'Aduh, Tono sepertinya perlu lebih bijak menggunakan HP-nya agar tidak kecanduan game.',
+          students: [
+            { name: 'Oki', time: 4 },
+            { name: 'Putri', time: 5 },
+            { name: 'Rian', time: 3 },
+            { name: 'Santi', time: 4 },
+            { name: 'Tono', time: 6 },
+          ]
+        },
+        B3: {
+          teacher: 'Bu Yuli',
+          comment: 'Rata-rata screen time di kelas VIII-3 ini berkisar 4,2 jam, masih cukup wajar untuk remaja.',
+          students: [
+            { name: 'Umar', time: 5 },
+            { name: 'Vina', time: 4 },
+            { name: 'Wawan', time: 3 },
+            { name: 'Xena', time: 5 },
+            { name: 'Yayan', time: 4 },
+          ]
+        },
+        C1: {
+          teacher: 'Pak Joko',
+          comment: 'Zaki perlu membagi waktu lebih baik karena screen time-nya mencapai 6 jam per hari.',
+          students: [
+            { name: 'Zaki', time: 6 },
+            { name: 'Alma', time: 5 },
+            { name: 'Bimo', time: 4 },
+            { name: 'Dian', time: 5 },
+          ]
+        },
+        C2: {
+          teacher: 'Bu Endang',
+          comment: 'Wah, Elga dan Hana rajin belajar ya, screen time mereka paling rendah di kelas IX-2!',
+          students: [
+            { name: 'Elga', time: 4 },
+            { name: 'Farhan', time: 6 },
+            { name: 'Gani', time: 5 },
+            { name: 'Hana', time: 4 },
+          ]
+        },
+        C3: {
+          teacher: 'Bu Sri',
+          comment: 'Secara keseluruhan, rata-rata screen time di kelas IX-3 adalah 4 jam per hari.',
+          students: [
+            { name: 'Irfan', time: 5 },
+            { name: 'Jihan', time: 4 },
+            { name: 'Koko', time: 3 },
+          ]
+        },
+      }
+
+  function checkClassCollision(
+    x: number,
+    y: number,
+    door: any,
+    unlocked: Set<string>,
+    hallwayY: number,
+    startX: number,
+    endX: number,
+    R: number
+  ): boolean {
+    if (x >= startX - R && x <= endX + R) {
+      if (startX > 15 && x > startX - R && x < startX + R && y < hallwayY) return false
+      if (endX < 780 && x > endX - R && x < endX + R && y < hallwayY) return false
+
+      if (x >= startX && x <= endX) {
+        const insideGap = x >= door.x - 15 && x <= door.x + 15
+        const crossingWall = y > hallwayY - R && y < hallwayY + R
+        if (crossingWall) {
+          if (!unlocked.has(door.id) || !insideGap) {
+            return false
+          }
+        }
+      }
+    }
+    return true
+  }
+
+  function isWalkable(x: number, y: number, unlocked: Set<string>): boolean {
+    const R = 6.0
+
+    if (x < 10 + R || x > 790 - R || y < 30 + R || y > 330 - R) return false
+
+    const leftDiagY = 260 - (x - 10) * (8/27)
+    const rightDiagY = 180 + (x - 520) * (8/27)
+
+    if (x < 280 && y < leftDiagY) {
+      if (!unlocked.has('A')) return false
+      if (x > 280 - R) return false
+      const atDoorA = x >= 160 && x <= 190
+      if (!atDoorA && y > leftDiagY - R) return false
+
+      if (!checkClassCollision(x, y, CLASS_DOORS[0], unlocked, leftDiagY - 35, 10, 95, R)) return false
+      if (!checkClassCollision(x, y, CLASS_DOORS[1], unlocked, leftDiagY - 35, 95, 185, R)) return false
+      if (!checkClassCollision(x, y, CLASS_DOORS[2], unlocked, leftDiagY - 35, 185, 280, R)) return false
+
+      return true
+    }
+
+    if (x > 520 && y < rightDiagY) {
+      if (!unlocked.has('C')) return false
+      if (x < 520 + R) return false
+      const atDoorC = x >= 610 && x <= 640
+      if (!atDoorC && y > rightDiagY - R) return false
+
+      if (!checkClassCollision(x, y, CLASS_DOORS[6], unlocked, rightDiagY - 35, 520, 610, R)) return false
+      if (!checkClassCollision(x, y, CLASS_DOORS[7], unlocked, rightDiagY - 35, 610, 700, R)) return false
+      if (!checkClassCollision(x, y, CLASS_DOORS[8], unlocked, rightDiagY - 35, 700, 790, R)) return false
+
+      return true
+    }
+
+    if (x >= 280 && x <= 520 && y < 180) {
+      if (!unlocked.has('B')) return false
+      if (x < 280 + R || x > 520 - R) return false
+      const atDoorB = x >= 385 && x <= 415
+      if (!atDoorB && y > 180 - R) return false
+
+      if (!checkClassCollision(x, y, CLASS_DOORS[3], unlocked, 145, 280, 360, R)) return false
+      if (!checkClassCollision(x, y, CLASS_DOORS[4], unlocked, 145, 360, 440, R)) return false
+      if (!checkClassCollision(x, y, CLASS_DOORS[5], unlocked, 145, 440, 520, R)) return false
+
+      return true
+    }
+
+    if (x < 280) {
+      const atDoorA = unlocked.has('A') && x >= 160 && x <= 190
+      if (!atDoorA && y < leftDiagY + R) return false
+    } else if (x > 520) {
+      const atDoorC = unlocked.has('C') && x >= 610 && x <= 640
+      if (!atDoorC && y < rightDiagY + R) return false
+    } else {
+      const atDoorB = unlocked.has('B') && x >= 385 && x <= 415
+      if (!atDoorB && y < 180 + R) return false
+    }
+
+    return true
+  }
+
   const [charPos, setCharPos] = useState({ x: 400, y: 310 })
   const [unlocked, setUnlocked] = useState<Set<string>>(() => {
     return demoMode ? new Set(['A', 'A1', 'A2', 'A3', 'B1']) : new Set()
   })
   const [justCompletedClassId, setJustCompletedClassId] = useState<string | null>(null)
-  const [activeDoor, setActiveDoor] = useState<typeof DOORS[number] | null>(null)
-  const [nearDoor, setNearDoor] = useState<typeof DOORS[number] | null>(null)
-  const [activeClass, setActiveClass] = useState<typeof CLASS_DOORS[number] | null>(null)
-  const [nearClass, setNearClass] = useState<typeof CLASS_DOORS[number] | null>(null)
+  const [activeDoor, setActiveDoor] = useState<any | null>(null)
+  const [nearDoor, setNearDoor] = useState<any | null>(null)
+  const [activeClass, setActiveClass] = useState<any | null>(null)
+  const [nearClass, setNearClass] = useState<any | null>(null)
   const [visitedRooms, setVisitedRooms] = useState<Set<DoorId>>(new Set())
   const [diraMessageText, setDiraMessageText] = useState<string | null>(null)
-  const [showWaliKelasPopup, setShowWaliKelasPopup] = useState<typeof CLASS_DOORS[number] | null>(null)
+  const [showWaliKelasPopup, setShowWaliKelasPopup] = useState<any | null>(null)
   const [collected, setCollected] = useState<Set<string>>(() => {
     if (demoMode) {
       const initialSet = new Set<string>()
@@ -1486,11 +1679,12 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
       
       const oldSize = prev.size
       const newSize = next.size
+      const halfN = Math.round(TOTAL_N / 2)
       
-      if (oldSize < 18 && newSize >= 18) {
+      if (oldSize < halfN && newSize >= halfN) {
         setMilestoneGlow('50%')
         setTimeout(() => setMilestoneGlow(null), 1800)
-      } else if (oldSize < 35 && newSize >= 35) {
+      } else if (oldSize < TOTAL_N && newSize >= TOTAL_N) {
         setMilestoneGlow('100%')
         setTimeout(() => setMilestoneGlow(null), 2500)
       }
@@ -1515,7 +1709,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
     .filter(cd => unlocked.has(cd.id))
     .flatMap(cd => {
       const info = CLASS_STUDENTS[cd.id]
-      return info ? info.students.map(s => ({ classId: cd.id, name: s.name, time: s.time })) : []
+      return info ? info.students.map((s: { name: string; time: number }) => ({ classId: cd.id, name: s.name, time: s.time })) : []
     })
 
   const scrollRef = useRef<HTMLDivElement | null>(null)
@@ -1647,7 +1841,9 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
 
             {collectedStudents.length === 0 ? (
               <span style={{ color: '#64748B', fontStyle: 'italic', fontSize: '11px', paddingLeft: '4px' }}>
-                Belum ada data terkumpul. Buka gembok kelas untuk mengumpulkan data screen time.
+                {levelId === 2 
+                  ? 'Belum ada data terkumpul. Buka gembok kelas untuk mengumpulkan data perundungan.' 
+                  : 'Belum ada data terkumpul. Buka gembok kelas untuk mengumpulkan data screen time.'}
               </span>
             ) : (
               collectedStudents.map((st, idx) => (
@@ -1672,7 +1868,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                     fontFamily: 'var(--font-data)',
                     flexShrink: 0
                   }}
-                  title={`${st.name} (${st.classId}): ${st.time} jam`}
+                  title={`${st.name} (${st.classId}): ${st.time} ${levelId === 2 ? 'kali' : 'jam'}`}
                 >
                   {st.time}
                 </motion.div>
@@ -2193,10 +2389,10 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
       </div>
 
       <AnimatePresence>
-        {activeDoor && <QuizPopup door={activeDoor} isFD={isFD} onCorrect={handleCorrect} onClose={() => setActiveDoor(null)} />}
+        {activeDoor && <QuizPopup door={activeDoor} isFD={isFD} onCorrect={handleCorrect} onClose={() => setActiveDoor(null)} levelId={levelId} />}
       </AnimatePresence>
       <AnimatePresence>
-        {activeClass && <QuizPopup door={activeClass} isFD={isFD} onCorrect={handleClassCorrect} onClose={() => setActiveClass(null)} />}
+        {activeClass && <QuizPopup door={activeClass} isFD={isFD} onCorrect={handleClassCorrect} onClose={() => setActiveClass(null)} levelId={levelId} />}
       </AnimatePresence>
 
       {/* Wali Kelas Data Table Popup */}
@@ -2235,19 +2431,19 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
 
                 <div style={{ background: 'rgba(11, 30, 44, 0.6)', border: `1px solid ${showWaliKelasPopup.color}33`, borderRadius: 16, overflow: 'hidden' }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, textAlign: 'left', fontFamily: 'monospace' }}>
-                    <thead>
-                      <tr style={{ background: `${showWaliKelasPopup.color}15`, borderBottom: `1px solid ${showWaliKelasPopup.color}22` }}>
-                        <th style={{ padding: '10px 12px', color: '#94A3B8', fontWeight: 800 }}>NAMA SISWA</th>
-                        <th style={{ padding: '10px 12px', color: '#94A3B8', fontWeight: 800 }}>SCREEN TIME</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {info.students.map((st, idx) => (
-                        <tr key={idx} style={{ borderBottom: idx < info.students.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none' }}>
-                          <td style={{ padding: '10px 12px', color: '#FFFFFF', fontWeight: 600 }}>{st.name}</td>
-                          <td style={{ padding: '10px 12px', color: showWaliKelasPopup.color, fontWeight: 800 }}>{st.time} jam/hari</td>
-                        </tr>
-                      ))}
+                     <thead>
+                       <tr style={{ background: `${showWaliKelasPopup.color}15`, borderBottom: `1px solid ${showWaliKelasPopup.color}22` }}>
+                         <th style={{ padding: '10px 12px', color: '#94A3B8', fontWeight: 800 }}>NAMA SISWA</th>
+                         <th style={{ padding: '10px 12px', color: '#94A3B8', fontWeight: 800 }}>{levelId === 2 ? 'CYBERBULLYING' : 'SCREEN TIME'}</th>
+                       </tr>
+                     </thead>
+                     <tbody>
+                       {info.students.map((st: { name: string; time: number }, idx: number) => (
+                         <tr key={idx} style={{ borderBottom: idx < info.students.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none' }}>
+                           <td style={{ padding: '10px 12px', color: '#FFFFFF', fontWeight: 600 }}>{st.name}</td>
+                           <td style={{ padding: '10px 12px', color: showWaliKelasPopup.color, fontWeight: 800 }}>{st.time} {levelId === 2 ? 'kali' : 'jam/hari'}</td>
+                         </tr>
+                       ))}
                     </tbody>
                   </table>
                 </div>
@@ -2261,7 +2457,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                 </div>
 
                 <p style={{ margin: 0, fontSize: 11, color: '#64748B', lineHeight: 1.4, fontWeight: 500, textAlign: 'center' }}>
-                  Wali kelas telah membagikan data screen time di atas. Data ini akan digabungkan ke dalam total sampel eksplorasi.
+                  Wali kelas telah membagikan data {levelId === 2 ? 'cyberbullying' : 'screen time'} di atas. Data ini akan digabungkan ke dalam total sampel eksplorasi.
                 </p>
 
                 <button className="game-btn game-btn-primary" style={{ width: '100%', fontSize: 14, fontWeight: 800, padding: '10px 14px', background: showWaliKelasPopup.color, boxShadow: `0 0 10px ${showWaliKelasPopup.color}33`, color: '#FFFFFF', border: 'none' }} onClick={handleCloseWaliKelas}>
@@ -2356,6 +2552,723 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
       </AnimatePresence>
 
       {showCounter && <CounterResult onDone={onComplete} />}
+    </div>
+  )
+}
+
+const LEVEL2_GATES = [
+  {
+    id: 'gate1',
+    title: 'Satpam Labkom (Akses Lorong)',
+    quizQ: 'Riset Digital Civility Index (Microsoft) menunjukkan 48% pelaku perilaku tidak sopan digital di Indonesia adalah orang asing (stranger). Jika disurvei n = 500 responden, berapakah perkiraan jumlah responden yang menyatakan pelakunya adalah orang asing?',
+    quizA: 240,
+    choices: [200, 240, 250, 300],
+    hint: 'Hitung 48% dari 500 responden: (48 ÷ 100) × 500 = 240.'
+  },
+  {
+    id: 'gate2',
+    title: 'Satpam Lorong (Akses Lapangan)',
+    quizQ: 'Berdasarkan diagram batang platform tempat cyberbullying terjadi, Instagram memiliki persentase 42% sedangkan WhatsApp memiliki 12%. Berapakah selisih persentase kejadian cyberbullying antara kedua platform tersebut?',
+    quizA: 30,
+    choices: [20, 25, 30, 35],
+    hint: 'Kurangkan persentase Instagram (42%) dengan persentase WhatsApp (12%): 42% − 12% = 30%.'
+  },
+  {
+    id: 'gate3',
+    title: 'Satpam Lapangan (Akses Kantin)',
+    quizQ: 'Perhatikan line chart tren kasus cyberbullying di Indonesia. Pada tahun 2018 dilaporkan ~800 kasus, sedangkan pada tahun 2023 dilaporkan ~3750 kasus. Berapakah total kenaikan jumlah kasus yang dilaporkan dari tahun 2018 hingga tahun 2023?',
+    quizA: 2950,
+    choices: [2500, 2800, 2950, 3100],
+    hint: 'Hitung selisih kasus antara tahun 2023 (3750) dan tahun 2018 (800): 3750 − 800 = 2950.'
+  },
+  {
+    id: 'gate4',
+    title: 'Satpam Kantin (Akses Pelaku)',
+    quizQ: 'Berdasarkan infografis jenis-jenis cyberbullying, sebanyak 18,5% responden pernah mengalami penyebaran rahasia (pelanggaran privasi) dan 35,8% pernah dihina/dilecehkan (pelecehan daring). Jika kita menggabungkan persentase kedua jenis gangguan ini, berapakah jumlah persentasenya?',
+    quizA: 54.3,
+    choices: [51.2, 53.5, 54.3, 55.8],
+    hint: 'Jumlahkan persentase pelanggaran privasi (18,5%) dan pelecehan daring (35,8%): 18.5% + 35.8% = 54.3%.'
+  }
+]
+
+function Level2NPath({ onComplete, isFD }: { onComplete: () => void; isFD: boolean }) {
+  const [enteredSchool, setEnteredSchool] = useState(false)
+  const [locationIdx, setLocationIdx] = useState(0)
+  const [collected, setCollected] = useState<Set<string>>(new Set())
+  const [activeStudent, setActiveStudent] = useState<any>(null)
+  
+  const [showDiraGuide, setShowDiraGuide] = useState(false)
+  const [showInterrogation, setShowInterrogation] = useState(false)
+  const [interrogationStep, setInterrogationStep] = useState(0)
+  
+  const [activeGate, setActiveGate] = useState<any>(null)
+  const [selectedGateChoice, setSelectedGateChoice] = useState<any>(null)
+  const [gateSubmitted, setGateSubmitted] = useState(false)
+  const [gateError, setGateError] = useState(false)
+  const [showGateDiraHint, setShowGateDiraHint] = useState(false)
+  const [redCollarInteracted, setRedCollarInteracted] = useState(false)
+
+  const { addXP } = useGameStore()
+  
+  const locations = [
+    {
+      name: 'Labkom / Kelas',
+      color: '#818cf8',
+      desc: 'Laboratorium Komputer Sekolah. Tempat siswa biasa belajar TIK dan mengakses internet sekolah.',
+      students: [
+        { id: 'l1-s1', name: 'Adit', NISN: '3109283741', count: 2, x: 20, y: 35 },
+        { id: 'l1-s2', name: 'Budi', NISN: '3109283742', count: 2, x: 35, y: 65 },
+        { id: 'l1-s3', name: 'Cici', NISN: '3109283743', count: 2, x: 50, y: 25 },
+        { id: 'l1-s4', name: 'Deni', NISN: '3109283744', count: 2, x: 65, y: 70 },
+        { id: 'l1-s5', name: 'Evi',  NISN: '3109283745', count: 3, x: 80, y: 40 },
+        { id: 'l1-s6', name: 'Fani', NISN: '3109283746', count: 4, x: 15, y: 75 },
+        { id: 'l1-s7', name: 'Gita', NISN: '3109283747', count: 4, x: 45, y: 80 },
+        { id: 'l1-s8', name: 'Hadi', NISN: '3109283748', count: 4, x: 55, y: 55 },
+        { id: 'l1-s9', name: 'Indra', NISN: '3109283749', count: 4, x: 70, y: 20 },
+        { id: 'l1-s10', name: 'Jojo', NISN: '3109283750', count: 4, x: 85, y: 75 }
+      ]
+    },
+    {
+      name: 'Lorong Sekolah',
+      color: '#00ADB5',
+      desc: 'Lorong utama antarkelas. Tempat lalu lalang siswa saat jam istirahat dan pergantian pelajaran.',
+      students: [
+        { id: 'l2-s1', name: 'Kiki', NISN: '3109283751', count: 5, x: 25, y: 35 },
+        { id: 'l2-s2', name: 'Lia',  NISN: '3109283752', count: 6, x: 40, y: 70 },
+        { id: 'l2-s3', name: 'Mira', NISN: '3109283753', count: 6, x: 55, y: 30 },
+        { id: 'l2-s4', name: 'Oki',  NISN: '3109283754', count: 7, x: 70, y: 75 },
+        { id: 'l2-s5', name: 'Putri', NISN: '3109283755', count: 8, x: 85, y: 40 },
+        { id: 'l2-s6', name: 'Rian', NISN: '3109283756', count: 9, x: 15, y: 65 },
+        { id: 'l2-s7', name: 'Umar', NISN: '3109283757', count: 9, x: 30, y: 80 },
+        { id: 'l2-s8', name: 'Vina', NISN: '3109283758', count: 10, x: 50, y: 60 },
+        { id: 'l2-s9', name: 'Wawan', NISN: '3109283759', count: 10, x: 65, y: 25 },
+        { id: 'l2-s10', name: 'Xena', NISN: '3109283760', count: 10, x: 75, y: 80 }
+      ]
+    },
+    {
+      name: 'Lapangan Sekolah',
+      color: '#F59E0B',
+      desc: 'Lapangan upacara dan olahraga sekolah. Tempat berkumpul terbuka yang ramai.',
+      students: [
+        { id: 'l3-s1', name: 'Zaki',   NISN: '3109283761', count: 11, x: 20, y: 45 },
+        { id: 'l3-s2', name: 'Alma',   NISN: '3109283762', count: 12, x: 35, y: 75 },
+        { id: 'l3-s3', name: 'Bimo',   NISN: '3109283763', count: 12, x: 50, y: 30 },
+        { id: 'l3-s4', name: 'Elga',   NISN: '3109283764', count: 13, x: 65, y: 65 },
+        { id: 'l3-s5', name: 'Farhan', NISN: '3109283765', count: 13, x: 80, y: 40 },
+        { id: 'l3-s6', name: 'Gani',   NISN: '3109283766', count: 14, x: 45, y: 55 }
+      ]
+    },
+    {
+      name: 'Kantin Sekolah',
+      color: '#EC4899',
+      desc: 'Kantin Utama sekolah. Tempat siswa makan dan bersosialisasi di luar kelas.',
+      students: [
+        { id: 'l4-s1', name: 'Irfan', NISN: '3109283767', count: 15, x: 20, y: 50 },
+        { id: 'l4-s2', name: 'Jihan', NISN: '3109283768', count: 16, x: 40, y: 30 },
+        { id: 'l4-s3', name: 'Koko',  NISN: '3109283769', count: 16, x: 60, y: 70 },
+        { id: 'l4-s4', name: 'Lulu',  NISN: '3109283770', count: 16, x: 80, y: 45 }
+      ]
+    }
+  ]
+
+  const currentLoc = locations[locationIdx]
+  const currentLocCollected = currentLoc.students.every(s => collected.has(s.id))
+  
+  const gates = LEVEL2_GATES
+
+  const handleCollectStudent = (id: string) => {
+    setCollected(prev => {
+      const next = new Set(prev)
+      next.add(id)
+      return next
+    })
+    addXP(5, 'Mengumpulkan data siswa', 1)
+    setActiveStudent(null)
+  }
+
+  const handleOpenGate = () => {
+    setActiveGate(gates[locationIdx])
+    setSelectedGateChoice(null)
+    setGateSubmitted(false)
+    setGateError(false)
+    setShowGateDiraHint(false)
+  }
+
+  const handleGateSubmit = () => {
+    if (!activeGate || selectedGateChoice === null) return
+    setGateSubmitted(true)
+    const isCorrect = selectedGateChoice === activeGate.quizA
+    if (isCorrect) {
+      addXP(25, `Menyelesaikan teka-teki ${activeGate.title}`, 2)
+      setLocationIdx(prev => prev + 1)
+      setActiveGate(null)
+    } else {
+      setGateError(true)
+      useGameStore.getState().incrementMistake()
+      if (isFD) {
+        setShowGateDiraHint(true)
+      }
+      setTimeout(() => {
+        setGateSubmitted(false)
+        setGateError(false)
+      }, 2000)
+    }
+  }
+
+  const handleInterrogationNext = () => {
+    if (interrogationStep < 3) {
+      setInterrogationStep(prev => prev + 1)
+    } else {
+      onComplete()
+    }
+  }
+
+  if (!enteredSchool) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', gap: '20px', minHeight: 'calc(100vh - 120px)' }}>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="game-card game-card-accent"
+          style={{
+            background: 'linear-gradient(145deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.85) 100%)',
+            maxWidth: '480px',
+            width: '100%',
+            padding: '30px',
+            borderRadius: 'var(--radius-lg)',
+            textAlign: 'center',
+            boxShadow: '0 8px 32px rgba(0, 173, 181, 0.15)'
+          }}
+        >
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}>🗺️</div>
+          <span style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 800, letterSpacing: '1.5px', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>
+            PETA WILAYAH KASUS
+          </span>
+          <h2 style={{ margin: '0 0 10px 0', fontSize: '22px', fontWeight: 900 }}>SMA Harapan Nusantara</h2>
+          <p style={{ margin: '0 0 24px 0', fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+            Berdasarkan laporan guru BK, terjadi peningkatan aduan cyberbullying yang mengganggu kenyamanan siswa di sekolah ini. Masuklah untuk memulai penyelidikan lapangan.
+          </p>
+
+          <button
+            onClick={() => setEnteredSchool(true)}
+            className="game-btn game-btn-primary"
+            style={{ width: '100%', padding: '14px', fontSize: '14px', borderRadius: 'var(--radius-md)', cursor: 'pointer' }}
+          >
+            Masuk ke Sekolah →
+          </button>
+        </motion.div>
+      </div>
+    )
+  }
+
+  if (showInterrogation) {
+    const dialogs = [
+      {
+        speaker: 'Riko (Pelaku)',
+        isBully: true,
+        text: 'Iya kak, saya minta maaf. Saya memang pernah mengakses akun sosial media orang lain tanpa izin, menyebarkan foto rahasia mereka ke grup kelas, dan sering mengirim ejekan kasar di grup WhatsApp biar terlihat hebat di depan teman-teman tongkrongan...'
+      },
+      {
+        speaker: 'Detektif (Pemain)',
+        isBully: false,
+        text: 'Kamu sadar tindakanmu itu bisa menghancurkan kesehatan mental dan masa depan korban? Perilaku tidak sopan di media sosial dan penyebaran hoaks bukan cuma melanggar etika siber, tapi juga melanggar hukum UTE yang memiliki konsekuensi pidana nyata!'
+      },
+      {
+        speaker: 'Riko (Pelaku)',
+        isBully: true,
+        text: 'Saya sangat menyesal kak. Saya tidak menyangka dampaknya bisa membuat mental mereka tertekan dan sampai menarik diri dari pergaulan sekolah. Saya berjanji tidak akan mengulanginya lagi dan akan meminta maaf langsung kepada mereka.'
+      },
+      {
+        speaker: 'Detektif (Pemain)',
+        isBully: false,
+        text: 'Bagus. Jadikan penyesalan ini sebagai komitmen perubahan. Jempolmu di media sosial adalah cerminan dirimu. Mulai sekarang selalu lakukan saring sebelum sharing, kembangkan empati digital, dan gunakan internet untuk menyebarkan kebaikan.'
+      }
+    ]
+
+    const curDialog = dialogs[interrogationStep]
+
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', minHeight: 'calc(100vh - 120px)' }}>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="game-card game-card-accent"
+          style={{
+            background: 'linear-gradient(145deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.85) 100%)',
+            maxWidth: '680px',
+            width: '100%',
+            padding: '24px',
+            borderRadius: 'var(--radius-lg)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '20px'
+          }}
+        >
+          <div style={{ borderBottom: '1px solid var(--game-border)', paddingBottom: '12px' }}>
+            <span style={{ fontSize: '11px', color: 'var(--danger)', fontWeight: 800, letterSpacing: '1px', textTransform: 'uppercase' }}>
+              RUANG INTEROGASI KASUS
+            </span>
+            <h2 style={{ margin: '4px 0 0 0', fontSize: '18px', fontWeight: 800 }}>Konfrontasi & Bimbingan Etika Medsos</h2>
+          </div>
+
+          <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start', background: 'rgba(0, 0, 0, 0.25)', padding: '16px', borderRadius: 'var(--radius-md)', border: '1px solid rgba(255,255,255,0.04)' }}>
+            <div style={{
+              width: '50px',
+              height: '50px',
+              borderRadius: '50%',
+              background: curDialog.isBully ? 'rgba(239, 68, 68, 0.15)' : 'rgba(14, 131, 136, 0.15)',
+              border: curDialog.isBully ? '2.5px solid var(--danger)' : '2.5px solid var(--accent)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '22px',
+              flexShrink: 0
+            }}>
+              {curDialog.isBully ? '😡' : '🕵️‍♂️'}
+            </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: '12px', fontWeight: 800, color: curDialog.isBully ? 'var(--danger)' : 'var(--accent)', marginBottom: '4px' }}>
+                {curDialog.speaker}
+              </div>
+              <p style={{ margin: 0, fontSize: '13.5px', color: 'var(--text-primary)', lineHeight: 1.6 }}>
+                {curDialog.text}
+              </p>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', justifyContent: 'flex-end', borderTop: '1px solid var(--game-border)', paddingTop: '16px' }}>
+            <button
+              onClick={handleInterrogationNext}
+              className="game-btn game-btn-primary"
+              style={{ padding: '10px 24px', fontSize: '13px', cursor: 'pointer' }}
+            >
+              {interrogationStep === 3 ? 'Selesaikan Investigasi & Hitung Data ✓' : 'Lanjut →'}
+            </button>
+          </div>
+        </motion.div>
+      </div>
+    )
+  }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', gap: 12, minHeight: 0 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexShrink: 0, paddingBottom: '4px' }}>
+        <div style={{
+          width: '40px', height: '40px', borderRadius: '50%', flexShrink: 0,
+          background: 'rgba(99, 102, 241, 0.2)', border: '1.5px solid rgba(99, 102, 241, 0.4)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: '16px', fontWeight: 900, color: '#a5b4fc',
+        }}>1</div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: '18px', fontWeight: 800, color: '#F8FAFC' }}>Eksplorasi SMA Harapan 🕵️‍♂️</div>
+          <div style={{ fontSize: '12px', color: '#A8A29E', letterSpacing: '1px', textTransform: 'uppercase', fontWeight: 600 }}>Langkah 1 dari 3: Pengumpulan Data</div>
+        </div>
+
+        <div style={{ display: 'flex', gap: '4px' }}>
+          {[1, 2, 3].map(i => (
+            <div key={i} style={{ width: i === 1 ? 20 : 8, height: '8px', borderRadius: '4px', background: i === 1 ? '#a5b4fc' : 'rgba(217,119,6,0.15)', transition: 'all 0.3s' }} />
+          ))}
+        </div>
+      </div>
+
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', borderRadius: 16, border: '1px solid var(--game-border)', minHeight: 0, position: 'relative', background: '#04070a' }}>
+        
+        <div style={{
+          background: 'rgba(11, 30, 44, 0.95)',
+          borderBottom: '1px solid rgba(14, 131, 136, 0.25)',
+          padding: '10px 16px',
+          color: '#F8FAFC',
+          fontFamily: 'monospace',
+          fontSize: '11px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '8px',
+          flexShrink: 0
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+            <div style={{ fontWeight: 'bold', color: 'var(--accent)', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span>📍 LOKASI KASUS:</span>
+              <span style={{ color: currentLoc.color, fontWeight: 'bold' }}>{currentLoc.name.toUpperCase()}</span>
+            </div>
+            
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span>KORBAN TERDATA:</span>
+              <strong style={{ color: '#00ADB5', fontSize: '12px' }}>{collected.size} / 30</strong>
+            </div>
+
+            <div style={{ display: 'flex', gap: '12px' }}>
+              {locations.map((loc, idx) => (
+                <span key={idx} style={{ color: locationIdx === idx ? loc.color : 'var(--text-muted)', fontWeight: locationIdx === idx ? 'bold' : 'normal' }}>
+                  L{idx + 1}: {locations[idx].students.filter(s => collected.has(s.id)).length}/{locations[idx].students.length}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', overflowX: 'auto', padding: '4px', background: 'rgba(0,0,0,0.3)', borderRadius: '6px', minHeight: '30px' }} className="scrollbar-hidden">
+            {collected.size === 0 ? (
+              <span style={{ color: '#64748B', fontStyle: 'italic', fontSize: '10.5px' }}>Belum ada data dicatat. Temui siswa berkalung kuning di area untuk mewawancarai mereka.</span>
+            ) : (
+              Array.from(collected).map(sid => {
+                let count = 0
+                for (const loc of locations) {
+                  const s = loc.students.find(st => st.id === sid)
+                  if (s) { count = s.count; break }
+                }
+                return (
+                  <div key={sid} style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'rgba(14, 131, 136, 0.1)', border: '1px solid var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#FFF', fontWeight: 800, fontSize: '10px', flexShrink: 0 }} title={`Data: ${count} kali`}>
+                    {count}
+                  </div>
+                )
+              })
+            )}
+          </div>
+        </div>
+
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '16px', minHeight: 0, justifyContent: 'space-between', gap: '16px' }}>
+          
+          <div style={{ flex: 1, background: 'rgba(15, 23, 42, 0.5)', border: '1.5px solid var(--game-border)', borderRadius: '12px', padding: '16px', position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+            <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle, rgba(14, 131, 136, 0.08) 1px, transparent 1px)', backgroundSize: '16px 16px', pointerEvents: 'none' }} />
+            
+            <div style={{ zIndex: 2, background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(255,255,255,0.03)', padding: '10px 14px', borderRadius: '8px', maxWidth: '400px' }}>
+              <span style={{ fontSize: '9px', fontWeight: 800, color: currentLoc.color, textTransform: 'uppercase', letterSpacing: '0.8px' }}>PANDUAN LOKASI</span>
+              <p style={{ margin: '2px 0 0 0', fontSize: '12px', color: 'var(--text-secondary)', lineHeight: 1.5 }}>{currentLoc.desc}</p>
+            </div>
+
+            <div style={{ flex: 1, position: 'relative', marginTop: '12px', zIndex: 2, display: 'flex', flexWrap: 'wrap', gap: '12px', alignContent: 'center', alignItems: 'center', justifyContent: 'center' }}>
+              {currentLoc.students.map(s => {
+                const isCollected = collected.has(s.id)
+                return (
+                  <motion.button
+                    key={s.id}
+                    onClick={() => setActiveStudent(s)}
+                    disabled={isCollected}
+                    whileHover={{ scale: isCollected ? 1 : 1.12 }}
+                    style={{
+                      width: '46px',
+                      height: '46px',
+                      borderRadius: '50%',
+                      background: isCollected ? 'rgba(16, 185, 129, 0.08)' : 'rgba(245, 158, 11, 0.15)',
+                      border: isCollected ? '1.5px solid rgba(16, 185, 129, 0.4)' : '2px solid #F59E0B',
+                      boxShadow: isCollected ? 'none' : '0 0 12px rgba(245, 158, 11, 0.3)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '20px',
+                      cursor: isCollected ? 'default' : 'pointer',
+                      position: 'relative'
+                    }}
+                    title={s.name}
+                  >
+                    👤
+                    <div style={{ position: 'absolute', bottom: '-4px', width: '100%', height: '5px', background: isCollected ? '#10B981' : '#F59E0B', borderRadius: '3px' }} />
+                  </motion.button>
+                )
+              })}
+
+              {locationIdx === 3 && currentLocCollected && (
+                <motion.button
+                  onClick={() => {
+                    setRedCollarInteracted(true)
+                    setShowDiraGuide(true)
+                  }}
+                  whileHover={{ scale: 1.15 }}
+                  animate={{ scale: [1, 1.05, 1], boxShadow: ['0 0 10px rgba(239,68,68,0.4)', '0 0 20px rgba(239,68,68,0.8)', '0 0 10px rgba(239,68,68,0.4)'] }}
+                  transition={{ duration: 1.5, repeat: Infinity }}
+                  style={{
+                    width: '54px',
+                    height: '54px',
+                    borderRadius: '50%',
+                    background: 'rgba(239, 68, 68, 0.2)',
+                    border: '2.5px solid #EF4444',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '24px',
+                    cursor: 'pointer',
+                    position: 'relative'
+                  }}
+                  title="Siswa Berkalung Merah"
+                >
+                  👿
+                  <div style={{ position: 'absolute', bottom: '-4px', width: '100%', height: '5px', background: '#EF4444', borderRadius: '3px' }} />
+                </motion.button>
+              )}
+            </div>
+          </div>
+
+          {currentLocCollected && locationIdx < 3 && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              style={{
+                background: 'rgba(239, 68, 68, 0.05)',
+                border: '1.5px dashed rgba(239, 68, 68, 0.4)',
+                borderRadius: '12px',
+                padding: '12px 18px',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}
+            >
+              <div>
+                <div style={{ fontSize: '13px', fontWeight: 800, color: '#EF4444' }}>🚧 SATPAM MEMBLOKIR JALAN!</div>
+                <p style={{ margin: '2px 0 0 0', fontSize: '11px', color: 'var(--text-secondary)' }}>Semua data lokasi ini telah dicatat. Jawab soal satpam untuk membuka akses ke lokasi berikutnya.</p>
+              </div>
+              <button
+                onClick={handleOpenGate}
+                className="game-btn game-btn-danger"
+                style={{ padding: '8px 16px', fontSize: '12px', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+              >
+                Jawab Soal Satpam 🔓
+              </button>
+            </motion.div>
+          )}
+
+        </div>
+      </div>
+
+      <AnimatePresence>
+        {activeStudent && (
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              zIndex: 50,
+              background: 'rgba(4, 7, 10, 0.7)',
+              backdropFilter: 'blur(4px)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '20px'
+            }}
+            onClick={() => setActiveStudent(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.92, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.92, opacity: 0 }}
+              onClick={e => e.stopPropagation()}
+              className="game-card game-card-accent"
+              style={{
+                maxWidth: '380px',
+                width: '100%',
+                padding: '20px',
+                background: 'var(--game-card)',
+                borderRadius: 'var(--radius-md)'
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '14px' }}>
+                <div style={{ width: '42px', height: '42px', borderRadius: '50%', background: 'rgba(245, 158, 11, 0.1)', border: '1.5px solid #F59E0B', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px' }}>
+                  👤
+                </div>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 800 }}>{activeStudent.name}</h3>
+                  <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'monospace' }}>NISN: {activeStudent.NISN}</span>
+                </div>
+              </div>
+
+              <p style={{ margin: '0 0 18px 0', fontSize: '12.5px', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                Siswa berkalung kuning ini melaporkan telah mengalami perlakuan tidak menyenangkan/cyberbullying sebanyak <strong style={{ color: '#F59E0B', fontSize: '14px', fontFamily: 'var(--font-data)' }}>{activeStudent.count} kali</strong> di media sosial dalam satu semester terakhir.
+              </p>
+
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button
+                  onClick={() => setActiveStudent(null)}
+                  className="game-btn game-btn-secondary"
+                  style={{ flex: 1, padding: '8px 12px', fontSize: '12px', cursor: 'pointer' }}
+                >
+                  Batal
+                </button>
+                <button
+                  onClick={() => handleCollectStudent(activeStudent.id)}
+                  className="game-btn game-btn-primary"
+                  style={{ flex: 2, padding: '8px 12px', fontSize: '12px', background: '#F59E0B', boxShadow: 'none', cursor: 'pointer' }}
+                >
+                  Catat Frekuensi Korban ✓
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {activeGate && (
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              zIndex: 100,
+              background: 'rgba(4, 7, 10, 0.85)',
+              backdropFilter: 'blur(6px)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '20px'
+            }}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="game-card game-card-accent"
+              style={{
+                maxWidth: '480px',
+                width: '100%',
+                padding: '24px',
+                background: 'var(--game-card)',
+                borderRadius: 'var(--radius-lg)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '16px'
+              }}
+            >
+              <div>
+                <span style={{ fontSize: '10px', color: 'var(--danger)', fontWeight: 800, letterSpacing: '1px', textTransform: 'uppercase' }}>
+                  TEKA-TEKI SATPAM (SOAL BERGAYA PISA)
+                </span>
+                <h3 style={{ margin: '4px 0 0 0', fontSize: '16px', fontWeight: 800 }}>{activeGate.title}</h3>
+              </div>
+
+              <div style={{ fontSize: '13px', color: 'var(--text-primary)', lineHeight: 1.6, background: 'rgba(0,0,0,0.2)', padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.03)' }}>
+                {activeGate.quizQ}
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px' }}>
+                {activeGate.choices.map((choice: any, idx: number) => {
+                  const isSelected = selectedGateChoice === choice
+                  return (
+                    <button
+                      key={idx}
+                      onClick={() => {
+                        if (gateSubmitted) return
+                        setSelectedGateChoice(choice)
+                      }}
+                      disabled={gateSubmitted}
+                      style={{
+                        padding: '12px',
+                        borderRadius: '10px',
+                        border: isSelected ? '2px solid var(--danger)' : '1.5px solid var(--game-border)',
+                        background: isSelected ? 'rgba(239, 68, 68, 0.1)' : 'rgba(255,255,255,0.02)',
+                        color: isSelected ? '#FFFFFF' : 'var(--text-secondary)',
+                        fontSize: '13px',
+                        fontWeight: isSelected ? 'bold' : 'normal',
+                        cursor: gateSubmitted ? 'default' : 'pointer',
+                        transition: 'all 0.15s'
+                      }}
+                    >
+                      {choice}
+                    </button>
+                  )
+                })}
+              </div>
+
+              {gateSubmitted && gateError && (
+                <div style={{ padding: '8px 12px', borderRadius: '8px', background: 'rgba(239,68,68,0.1)', border: '1px solid var(--danger)', color: 'var(--danger)', fontSize: '11px', textAlign: 'center', fontWeight: 'bold' }}>
+                  ❌ Jawaban salah! Coba hitung lagi secara teliti.
+                </div>
+              )}
+
+              {showGateDiraHint && (
+                <div style={{ display: 'flex', gap: '10px', background: 'rgba(14, 131, 136, 0.08)', border: '1px solid var(--accent)', padding: '10px 14px', borderRadius: '10px' }}>
+                  <img src="/dira-avatar.png" alt="Dira" style={{ width: '28px', height: '28px', borderRadius: '50%' }} />
+                  <div style={{ fontSize: '11.5px', color: 'var(--text-primary)', lineHeight: 1.5 }}>
+                    <strong style={{ color: 'var(--accent)' }}>Dira: </strong>
+                    {activeGate.hint}
+                  </div>
+                </div>
+              )}
+
+              <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+                {!showGateDiraHint && isFD && (
+                  <button
+                    onClick={() => setShowGateDiraHint(true)}
+                    className="game-btn game-btn-secondary"
+                    style={{ flex: 1, padding: '10px', fontSize: '12px', cursor: 'pointer' }}
+                  >
+                    Tanya Hint 💡
+                  </button>
+                )}
+                <button
+                  onClick={handleGateSubmit}
+                  disabled={selectedGateChoice === null || gateSubmitted}
+                  className="game-btn game-btn-primary"
+                  style={{ flex: 2, padding: '10px', fontSize: '12px', background: 'var(--danger)', boxShadow: 'none', cursor: 'pointer' }}
+                >
+                  {gateSubmitted && !gateError ? 'Memeriksa...' : 'Kirim Jawaban →'}
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showDiraGuide && (
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              zIndex: 110,
+              background: 'rgba(4, 7, 10, 0.7)',
+              backdropFilter: 'blur(4px)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '20px'
+            }}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="game-card game-card-accent"
+              style={{
+                maxWidth: '440px',
+                width: '100%',
+                padding: '24px',
+                background: 'var(--game-card)',
+                borderRadius: 'var(--radius-lg)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '16px'
+              }}
+            >
+              <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                <img src="/dira-avatar.png" alt="Dira" style={{ width: '42px', height: '42px', borderRadius: '50%', border: '1.5px solid var(--accent)' }} />
+                <div>
+                  <span style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 800, letterSpacing: '0.8px' }}>DEK. DIRA</span>
+                  <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: 'var(--text-primary)', lineHeight: 1.6 }}>
+                    "Temuan yang bagus, siswa yang memakai kalung merah bukan korban Cyberbullying melainkan pelaku. Bawa dia ke ruang investigasi dan tanyakan apa saja bentuk Cyberbullying yang pernah ia lakukan."
+                  </p>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '8px', borderTop: '1px solid var(--game-border)', paddingTop: '14px', marginTop: '6px' }}>
+                <button
+                  onClick={() => setShowDiraGuide(false)}
+                  className="game-btn game-btn-secondary"
+                  style={{ flex: 1, padding: '9px 12px', fontSize: '12px', cursor: 'pointer' }}
+                >
+                  Kembali
+                </button>
+                <button
+                  onClick={() => {
+                    setShowDiraGuide(false)
+                    setShowInterrogation(true)
+                  }}
+                  className="game-btn game-btn-primary"
+                  style={{ flex: 2, padding: '9px 12px', fontSize: '12px', cursor: 'pointer' }}
+                >
+                  Bawa ke Ruang Investigasi 🔐
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
     </div>
   )
 }

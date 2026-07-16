@@ -1,23 +1,32 @@
 'use client'
 
-import Navbar from '@/components/landing/Navbar'
-import HeroSection from '@/components/landing/HeroSection'
-import ProgressSection from '@/components/landing/ProgressSection'
-import FeatureSection from '@/components/landing/FeatureSection'
-import StatsSection from '@/components/landing/StatsSection'
-import CTASection from '@/components/landing/CTASection'
-import FooterSection from '@/components/landing/FooterSection'
+import Navbar from '@/components/Navbar'
+import Hero from '@/components/Hero'
+import JourneyMap from '@/components/JourneyMap'
+import MissionCards from '@/components/MissionCards'
+import AboutSection from '@/components/AboutSection'
+import Footer from '@/components/Footer'
 
 export default function LandingPage() {
   return (
-    <main className="bg-[#060D1F] min-h-screen overflow-x-hidden">
+    <main className="bg-[#0a1420] min-h-screen overflow-x-hidden text-[#e8dcc8] font-sans selection:bg-[#c9a961]/30 selection:text-white">
+      {/* ── Sticky Navigation Bar ── */}
       <Navbar />
-      <HeroSection />
-      <ProgressSection />
-      <FeatureSection />
-      <StatsSection />
-      <CTASection />
-      <FooterSection />
+
+      {/* ── Hero Section ── */}
+      <Hero />
+
+      {/* ── Perjalanan Investigasi (Journey Map) ── */}
+      <JourneyMap />
+
+      {/* ── Misi Investigasi (Mission Cards) ── */}
+      <MissionCards />
+
+      {/* ── Tentang Kami & Kritik/Saran (Combined Section 4) ── */}
+      <AboutSection />
+
+      {/* ── Footer ── */}
+      <Footer />
     </main>
   )
 }

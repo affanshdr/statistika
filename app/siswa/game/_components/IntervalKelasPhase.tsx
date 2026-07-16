@@ -5,36 +5,6 @@ import { motion, AnimatePresence, PanInfo } from 'framer-motion'
 import { useGameStore } from '@/lib/store/gameStore'
 import DiRA from './DiRA'
 
-// Define the 6 class intervals
-const CLASSES = [
-  { label: '1-3', tb: 0.5, ta: 3.5, color: '#3B82F6' },
-  { label: '4-6', tb: 3.5, ta: 6.5, color: '#10B981' },
-  { label: '7-9', tb: 6.5, ta: 9.5, color: '#F59E0B' },
-  { label: '10-12', tb: 9.5, ta: 12.5, color: '#EF4444' },
-  { label: '13-15', tb: 12.5, ta: 15.5, color: '#EC4899' },
-  { label: '16-18', tb: 15.5, ta: 18.5, color: '#8B5CF6' }
-]
-
-// The 12 slots mapping
-// Even indices (0, 2, 4, 6, 8, 10) are Tepi Bawah (Tb) for classes 0 to 5
-// Odd indices (1, 3, 5, 7, 9, 11) are Tepi Atas (Ta) for classes 0 to 5
-const CORRECT_VALUES = [
-  0.5, 3.5, // Class 1
-  3.5, 6.5, // Class 2
-  6.5, 9.5, // Class 3
-  9.5, 12.5, // Class 4
-  12.5, 15.5, // Class 5
-  15.5, 18.5 // Class 6
-]
-
-// Draggable pool values
-const CORRECT_POOL = [
-  0.5, 3.5, 3.5, 6.5, 6.5, 9.5, 9.5, 12.5, 12.5, 15.5, 15.5, 18.5
-]
-const DISTRACTORS = [
-  1.0, 4.0, 7.0, 10.0, 13.0, 16.0
-]
-
 interface IntervalKelasPhaseProps {
   isFD: boolean
   teamId?: string | null
@@ -45,6 +15,7 @@ interface IntervalKelasPhaseProps {
   teamMembers?: { id: string; name: string }[]
   teamReadyVotes?: Record<string, string[]>
   demoMode?: boolean
+  levelId?: number
 }
 
 interface PoolItem {
@@ -61,9 +32,40 @@ export default function IntervalKelasPhase({
   hasVotedInterval = false,
   teamMembers = [],
   teamReadyVotes = {},
-  demoMode = false
+  demoMode = false,
+  levelId = 1
 }: IntervalKelasPhaseProps) {
   const { setAnswer, addXP, incrementMistake } = useGameStore()
+
+  // Define components dynamically based on levelId
+  const CLASSES = levelId === 2
+    ? [
+        { label: '2-4', tb: 1.5, ta: 4.5, color: '#3B82F6' },
+        { label: '5-7', tb: 4.5, ta: 7.5, color: '#10B981' },
+        { label: '8-10', tb: 7.5, ta: 10.5, color: '#F59E0B' },
+        { label: '11-13', tb: 10.5, ta: 13.5, color: '#EF4444' },
+        { label: '14-16', tb: 13.5, ta: 16.5, color: '#EC4899' }
+      ]
+    : [
+        { label: '1-3', tb: 0.5, ta: 3.5, color: '#3B82F6' },
+        { label: '4-6', tb: 3.5, ta: 6.5, color: '#10B981' },
+        { label: '7-9', tb: 6.5, ta: 9.5, color: '#F59E0B' },
+        { label: '10-12', tb: 9.5, ta: 12.5, color: '#EF4444' },
+        { label: '13-15', tb: 12.5, ta: 15.5, color: '#EC4899' },
+        { label: '16-18', tb: 15.5, ta: 18.5, color: '#8B5CF6' }
+      ]
+
+  const CORRECT_VALUES = levelId === 2
+    ? [1.5, 4.5, 4.5, 7.5, 7.5, 10.5, 10.5, 13.5, 13.5, 16.5]
+    : [0.5, 3.5, 3.5, 6.5, 6.5, 9.5, 9.5, 12.5, 12.5, 15.5, 15.5, 18.5]
+
+  const CORRECT_POOL = levelId === 2
+    ? [1.5, 4.5, 4.5, 7.5, 7.5, 10.5, 10.5, 13.5, 13.5, 16.5]
+    : [0.5, 3.5, 3.5, 6.5, 6.5, 9.5, 9.5, 12.5, 12.5, 15.5, 15.5, 18.5]
+
+  const DISTRACTORS = levelId === 2
+    ? [2.0, 5.0, 8.0, 11.0, 14.0]
+    : [1.0, 4.0, 7.0, 10.0, 13.0, 16.0]
   
   // Game state
   const [stage, setStage] = useState<1 | 2>(demoMode ? 2 : 1)
@@ -74,8 +76,10 @@ export default function IntervalKelasPhase({
 
   // Drag and drop states
   const [pool, setPool] = useState<PoolItem[]>([])
-  const [filledSlots, setFilledSlots] = useState<(number | null)[]>(
-    [0.5, 3.5, 3.5, 6.5, 6.5, 9.5, null, null, null, null, null, null]
+  const [filledSlots, setFilledSlots] = useState<(number | null)[]>(() =>
+    levelId === 2
+      ? [1.5, 4.5, 4.5, 7.5, 7.5, 10.5, null, null, null, null]
+      : [0.5, 3.5, 3.5, 6.5, 6.5, 9.5, null, null, null, null, null, null]
   )
   const [shakeSlotIdx, setShakeSlotIdx] = useState<number | null>(null)
   const [toastMsg, setToastMsg] = useState<string | null>(null)
@@ -87,7 +91,9 @@ export default function IntervalKelasPhase({
       ...CORRECT_POOL.map((v, i) => ({ id: `correct-${i}-${v}`, val: v })),
       ...DISTRACTORS.map((v, i) => ({ id: `distractor-${i}-${v}`, val: v }))
     ]
-    const prefilled = [0.5, 3.5, 3.5, 6.5, 6.5, 9.5]
+    const prefilled = levelId === 2
+      ? [1.5, 4.5, 4.5, 7.5, 7.5, 10.5]
+      : [0.5, 3.5, 3.5, 6.5, 6.5, 9.5]
     prefilled.forEach(val => {
       const idx = initialItems.findIndex(item => item.val === val)
       if (idx !== -1) {
@@ -97,7 +103,7 @@ export default function IntervalKelasPhase({
     // Simple shuffle
     const shuffled = [...initialItems].sort(() => Math.random() - 0.5)
     setPool(shuffled)
-  }, [])
+  }, [levelId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Handle stage 1 separation click
   const handleSeparateClasses = () => {
@@ -177,7 +183,7 @@ export default function IntervalKelasPhase({
         }
       }
     }
-  }, [incrementMistake])
+  }, [incrementMistake, CORRECT_VALUES, DISTRACTORS])
 
   // Completed check
   const allCorrect = filledSlots.every((val, idx) => val === CORRECT_VALUES[idx])

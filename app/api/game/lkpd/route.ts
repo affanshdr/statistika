@@ -111,6 +111,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({
       lkpdCompleted: session.lkpdCompleted,
+      postTestCompleted: session.postTestCompleted,
       lkpdAnswers: session.lkpdAnswers,
       updatedAt: session.createdAt,
     })

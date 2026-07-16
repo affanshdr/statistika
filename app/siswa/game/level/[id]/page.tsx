@@ -12,6 +12,7 @@ import OrientationGuard from '../../_components/OrientationGuard'
 import PregameFormula from '../../_components/PregameFormula'
 import NPath from '../../_components/NPath'
 import TeamLobby from '../../_components/TeamLobby'
+import InfographicReader from '../../_components/InfographicReader'
 import '../../game.css'
 
 function LevelPageInner({
@@ -20,6 +21,7 @@ function LevelPageInner({
   params: Promise<{ id: string }>
 }) {
   const { id } = use(params)
+  const levelId = parseInt(id) || 1
   const router = useRouter()
   const searchParams = useSearchParams()
   const demoMode = searchParams.get('demoMode') === 'true'
@@ -29,8 +31,8 @@ function LevelPageInner({
   const [phase, setPhase] = useState<'cutscene' | 'formula' | 'lobby' | 'game'>(
     demoMode ? (demoStep === 'interval' || demoStep === 'histogram' ? 'game' : 'formula') : 'cutscene'
   )
-  const [pregameStep, setPregameStep] = useState<'exploration' | 'minmax' | 'panjangkelas'>(
-    demoMode ? (demoStep === 'minmax' ? 'minmax' : 'exploration') : 'exploration'
+  const [pregameStep, setPregameStep] = useState<'infographic' | 'exploration' | 'minmax' | 'panjangkelas'>(
+    demoMode ? (demoStep === 'minmax' ? 'minmax' : 'exploration') : (levelId === 2 ? 'infographic' : 'exploration')
   )
   const [cutscenePhase, setCutscenePhase] = useState<'comments' | 'mentor'>('comments')
   const [hydrated, setHydrated] = useState(false)
@@ -110,8 +112,8 @@ function LevelPageInner({
     )
   }
 
-  // Only Level 1 exists
-  if (id !== '1') {
+  // Only Level 1 & 2 exists
+  if (id !== '1' && id !== '2') {
     return (
       <div className="game-root" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', flexDirection: 'column', gap: '16px' }}>
         <div style={{ fontSize: '48px' }}>🚧</div>
@@ -142,6 +144,7 @@ function LevelPageInner({
                 studentId={studentInfo?.id}
                 teamMembers={undefined}
                 onComplete={() => setPhase('formula')}
+                levelId={levelId}
               />
             )}
           </AnimatePresence>
@@ -158,11 +161,20 @@ function LevelPageInner({
                 padding: '16px 20px', height: '100%', overflow: pregameStep === 'exploration' ? 'hidden' : 'auto',
               }}
             >
+              {pregameStep === 'infographic' && (
+                <InfographicReader
+                  studentId={studentInfo?.id ?? ''}
+                  levelId={levelId}
+                  onComplete={() => setPregameStep('exploration')}
+                />
+              )}
+
               {pregameStep === 'exploration' && (
                 <NPath
                   isFD={resolvedStyle === 'FD'}
                   onComplete={() => setPregameStep('minmax')}
                   demoMode={demoMode}
+                  levelId={parseInt(id)}
                 />
               )}
 
@@ -173,6 +185,7 @@ function LevelPageInner({
                   teamMembers={undefined}
                   initialSub={demoMode && demoStep === 'rentang' ? 'rentang' : 'intro'}
                   onComplete={() => setPregameStep('panjangkelas')}
+                  levelId={parseInt(id)}
                 />
               )}
 
@@ -185,6 +198,7 @@ function LevelPageInner({
                   onComplete={async () => {
                     setPhase('game')
                   }}
+                  levelId={parseInt(id)}
                 />
               )}
             </motion.div>
@@ -199,9 +213,9 @@ function LevelPageInner({
               style={{ flex: 1, display: 'flex', flexDirection: 'column' }}
             >
               {resolvedStyle === 'FI' ? (
-                <FIPath demoMode={demoMode} demoStep={demoStep} />
+                <FIPath demoMode={demoMode} demoStep={demoStep} levelId={parseInt(id)} />
               ) : (
-                <FDPath teamId={null} studentId={studentInfo?.id} studentName={studentInfo?.name} />
+                <FDPath teamId={null} studentId={studentInfo?.id} studentName={studentInfo?.name} levelId={parseInt(id)} />
               )}
             </motion.div>
           )}

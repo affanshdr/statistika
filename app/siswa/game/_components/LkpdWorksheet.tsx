@@ -77,6 +77,8 @@ export default function LkpdWorksheet({
   // Validation State (Green check or Red cross)
   const [showValidation, setShowValidation] = useState(false)
   const [isValidated, setIsValidated] = useState(false)
+  const [hoverPrev, setHoverPrev] = useState(false)
+  const [hoverNext, setHoverNext] = useState(false)
 
   // Populate initial answers if in readOnly mode or reviewing
   useEffect(() => {
@@ -675,19 +677,7 @@ export default function LkpdWorksheet({
               </div>
             </div>
 
-            {/* Validation Feedback & Action */}
-            {!readOnly && (
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
-                <button
-                  type="button"
-                  onClick={handleVerify}
-                  className="game-btn game-btn-secondary"
-                  style={{ padding: '8px 16px', fontSize: '13px' }}
-                >
-                  Periksa Jawaban
-                </button>
-              </div>
-            )}
+
           </motion.div>
         )}
 
@@ -931,19 +921,7 @@ export default function LkpdWorksheet({
               </div>
             </div>
 
-            {/* Validation & Action */}
-            {!readOnly && (
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
-                <button
-                  type="button"
-                  onClick={handleVerify}
-                  className="game-btn game-btn-secondary"
-                  style={{ padding: '8px 16px', fontSize: '13px' }}
-                >
-                  Periksa Jawaban
-                </button>
-              </div>
-            )}
+
           </motion.div>
         )}
 
@@ -1061,43 +1039,57 @@ export default function LkpdWorksheet({
             type="button"
             onClick={handlePrevPage}
             disabled={currentPage === 1}
-            className="game-btn game-btn-secondary"
+            onMouseEnter={() => setHoverPrev(true)}
+            onMouseLeave={() => setHoverPrev(false)}
             style={{
               flex: 1,
               padding: '12px 16px',
-              fontSize: '13px',
+              fontSize: '14px',
+              fontWeight: 800,
               minHeight: '44px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              opacity: currentPage === 1 ? 0.4 : 1,
-              border: `2px solid ${creamTheme.borderDark}`,
+              background: hoverPrev && currentPage !== 1 ? '#0F172A' : '#FFFFFF',
+              color: hoverPrev && currentPage !== 1 ? '#FAF5E4' : '#0F172A',
+              border: `2.5px solid ${creamTheme.borderDark}`,
+              borderRadius: '8px',
               cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+              opacity: currentPage === 1 ? 0.4 : 1,
+              boxShadow: hoverPrev && currentPage !== 1 ? 'none' : '3px 3px 0px rgba(15, 23, 42, 0.9)',
+              transition: 'all 0.15s ease',
             }}
           >
             Halaman Sebelumnya
           </button>
           
-          <button
-            type="button"
-            onClick={handleNextPage}
-            disabled={currentPage === 4}
-            className="game-btn game-btn-secondary"
-            style={{
-              flex: 1,
-              padding: '12px 16px',
-              fontSize: '13px',
-              minHeight: '44px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              opacity: currentPage === 4 ? 0.4 : 1,
-              border: `2px solid ${creamTheme.borderDark}`,
-              cursor: currentPage === 4 ? 'not-allowed' : 'pointer',
-            }}
-          >
-            Halaman Berikutnya
-          </button>
+          {currentPage !== 4 && (
+            <button
+              type="button"
+              onClick={handleNextPage}
+              onMouseEnter={() => setHoverNext(true)}
+              onMouseLeave={() => setHoverNext(false)}
+              style={{
+                flex: 1,
+                padding: '12px 16px',
+                fontSize: '14px',
+                fontWeight: 800,
+                minHeight: '44px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: hoverNext ? '#0F172A' : '#FFFFFF',
+                color: hoverNext ? '#FAF5E4' : '#0F172A',
+                border: `2.5px solid ${creamTheme.borderDark}`,
+                borderRadius: '8px',
+                cursor: 'pointer',
+                boxShadow: hoverNext ? 'none' : '3px 3px 0px rgba(15, 23, 42, 0.9)',
+                transition: 'all 0.15s ease',
+              }}
+            >
+              Halaman Berikutnya
+            </button>
+          )}
         </div>
 
       </div>

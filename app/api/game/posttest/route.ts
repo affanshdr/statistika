@@ -10,16 +10,29 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Data tidak lengkap' }, { status: 400 })
     }
 
-    // 1. Cari sesi game terbaru untuk siswa dan level ini
-    const latestSession = await prisma.gameSession.findFirst({
+    // 1. Cari sesi game terbaru untuk siswa dan level ini (utamakan yang lkpdCompleted: true)
+    let latestSession = await prisma.gameSession.findFirst({
       where: {
         studentId,
         levelId: Number(levelId),
+        lkpdCompleted: true,
       },
       orderBy: {
         createdAt: 'desc',
       },
     })
+
+    if (!latestSession) {
+      latestSession = await prisma.gameSession.findFirst({
+        where: {
+          studentId,
+          levelId: Number(levelId),
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+      })
+    }
 
     if (!latestSession) {
       return NextResponse.json(

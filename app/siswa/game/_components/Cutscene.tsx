@@ -10,6 +10,7 @@ interface CutsceneProps {
   teamId?: string | null
   studentId?: string
   teamMembers?: { id: string; name: string }[]
+  levelId?: number
 }
 
 const NARASI = [
@@ -87,8 +88,8 @@ function TypewriterText({ text, onDone }: { text: string; onDone: () => void }) 
   )
 }
 
-export default function Cutscene({ onComplete, onPhaseChange, teamId, studentId, teamMembers }: CutsceneProps) {
-  const [phase, setPhase] = useState<'comments' | 'mentor'>('comments')
+export default function Cutscene({ onComplete, onPhaseChange, teamId, studentId, teamMembers, levelId = 1 }: CutsceneProps) {
+  const [phase, setPhase] = useState<'comments' | 'mentor'>(levelId === 2 ? 'mentor' : 'comments')
   const [visibleComments, setVisibleComments] = useState(1)
   const [isMuted, setIsMuted] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
@@ -692,7 +693,9 @@ export default function Cutscene({ onComplete, onPhaseChange, teamId, studentId,
                   fontFamily: 'var(--font-ui)',
                 }}>
                   <TypewriterText
-                    text="Wait a minute... Benar nggak sih klaim viral ini? Jangan langsung kemakan emosi netizen di komen deh. Kita ada data riil screen time dari 35 siswa acak. Yuk, kita uji biar valid no cap!"
+                    text={levelId === 2 
+                      ? "Halo Detektif, selamat kamu sudah berhasil menyelesaikan Level 1! Untuk meningkatkan pemahamanmu terkait materi ukuran pemusatan data, investigasilah kasus Cyberbullying di Indonesia. Baca dan pahamilah beberapa infografis terpercaya berikut ini."
+                      : "Wait a minute... Benar nggak sih klaim viral ini? Jangan langsung kemakan emosi netizen di komen deh. Kita ada data riil screen time dari 35 siswa acak. Yuk, kita uji biar valid no cap!"}
                     onDone={() => setMentorTypingDone(true)}
                   />
                 </p>

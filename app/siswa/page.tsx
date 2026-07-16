@@ -64,21 +64,21 @@ const LEVELS = [
     id: 1,
     icon: '📊',
     title: 'Level 1 (The Viral Myth)',
-    desc: '',
+    desc: 'Buktikan kebenaran di balik infografis viral mengenai screen time remaja dengan merancang histogram yang akurat.',
     tags: ['Distribusi Frekuensi', 'Histogram', 'Analisis Kritis'],
     locked: false,
     xpMax: 0,
-    locationName: '',
+    locationName: 'Ruang Kelas X',
   },
   {
     id: 2,
-    icon: '🗳️',
-    title: 'Kasus: Polling Pilkada',
-    desc: 'Segera hadir di lokasi ini. Pelajari sampling & representasi data populasi.',
-    tags: [],
+    icon: '🕵️',
+    title: 'Level 2 (Cyberbullying Investigation)',
+    desc: 'Investigasi kasus perundungan digital di sekolah dengan menganalisis ukuran pemusatan data (Mean, Median, Modus) dan data pencilan (outliers).',
+    tags: ['Mean, Median, Modus', 'Outliers', 'Analisis Kasus'],
     locked: true,
     xpMax: 0,
-    locationName: 'Kantor KPU Kota',
+    locationName: 'Laboratorium Komputer',
   },
   {
     id: 3,
@@ -569,7 +569,7 @@ export default function SiswaPage() {
             margin: '0 auto',
           }}>
             {LEVELS.map(level => {
-              const isUnlocked = !level.locked
+              const isUnlocked = unlockedLevelIds.includes(level.id)
               
               return (
                 <div
@@ -1560,29 +1560,21 @@ export default function SiswaPage() {
         <div style={{
           position: 'fixed',
           inset: 0,
-          background: 'rgba(250,246,238, 0.85)',
-          backdropFilter: 'blur(12px)',
+          background: '#FFFFFF',
           display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
+          flexDirection: 'column',
           zIndex: 200,
-          padding: '20px',
         }}>
           <motion.div
-            initial={{ scale: 0.95, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            className="modal-scrollbar"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             style={{
-              background: 'rgba(255,255,255, 0.95)',
-              border: `1px solid ${isFI ? 'rgba(59,130,246,0.3)' : 'rgba(217,119,6, 0.25)'}`,
-              borderRadius: '24px',
-              padding: '28px',
               width: '100%',
-              maxWidth: '600px',
-              maxHeight: 'calc(100vh - 40px)',
-              overflowY: 'auto',
+              height: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              padding: '24px 40px',
               position: 'relative',
-              boxShadow: '0 20px 60px rgba(0,0,0,0.7), 0 0 40px rgba(217,119,6, 0.08)',
             }}
           >
             {!gatingLevelId && (
@@ -1590,17 +1582,32 @@ export default function SiswaPage() {
                 onClick={() => setShowBookletModal(false)}
                 style={{
                   position: 'absolute',
-                  top: '20px',
-                  right: '20px',
-                  background: 'none',
-                  border: 'none',
-                  color: 'rgba(255, 255, 255, 0.4)',
+                  top: '24px',
+                  right: '40px',
+                  background: '#F3F8F9',
+                  border: '2px solid #387B7E',
+                  borderRadius: '50%',
+                  width: '44px',
+                  height: '44px',
+                  color: '#78716C',
                   fontSize: '20px',
                   cursor: 'pointer',
                   zIndex: 10,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'all 0.2s',
                 }}
-                onMouseEnter={e => e.currentTarget.style.color = '#ff6b6b'}
-                onMouseLeave={e => e.currentTarget.style.color = 'rgba(255, 255, 255, 0.4)'}
+                onMouseEnter={e => {
+                  e.currentTarget.style.color = '#FFFFFF'
+                  e.currentTarget.style.background = '#DC2626'
+                  e.currentTarget.style.borderColor = '#DC2626'
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.color = '#78716C'
+                  e.currentTarget.style.background = '#F3F8F9'
+                  e.currentTarget.style.borderColor = '#387B7E'
+                }}
               >
                 ✕
               </button>
@@ -1615,91 +1622,113 @@ export default function SiswaPage() {
         <div style={{
           position: 'fixed',
           inset: 0,
-          background: 'rgba(250,246,238, 0.85)',
-          backdropFilter: 'blur(12px)',
+          background: '#FFFFFF',
           display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
+          flexDirection: 'column',
           zIndex: 200,
-          padding: '20px',
         }}>
           <motion.div
-            initial={{ scale: 0.95, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             style={{
-              background: 'rgba(255,255,255, 0.95)',
-              border: `1px solid ${isFI ? 'rgba(59,130,246,0.3)' : 'rgba(217,119,6, 0.25)'}`,
-              borderRadius: '24px',
-              padding: '28px',
               width: '100%',
-              maxWidth: '640px',
-              position: 'relative',
-              boxShadow: '0 8px 30px rgba(180,120,40,0.1)',
+              height: '100%',
               display: 'flex',
               flexDirection: 'column',
-              gap: '20px',
+              padding: '24px 40px',
+              position: 'relative',
             }}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '24px' }}>🎥</span>
+            {/* Header row */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2.5px solid #387B7E', paddingBottom: '16px', marginBottom: '24px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <span style={{ fontSize: '32px' }}>🎥</span>
                 <div>
-                  <div style={{ fontSize: '11px', color: isFI ? '#2563EB' : '#D97706', fontWeight: 800, letterSpacing: '1px' }}>VIDEO PEMBELAJARAN</div>
-                  <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 800 }}>Mean, Median, & Modus Data Kelompok</h3>
+                  <div style={{ fontSize: '12px', color: '#387B7E', fontWeight: 800, letterSpacing: '1px' }}>VIDEO PEMBELAJARAN</div>
+                  <h3 style={{ margin: 0, fontSize: '24px', fontWeight: 900, color: '#0F172A' }}>Mean, Median, & Modus Data Kelompok</h3>
                 </div>
               </div>
               {!gatingLevelId && (
                 <button
                   onClick={() => setShowVideoModal(false)}
                   style={{
-                    background: 'none',
-                    border: 'none',
+                    background: '#F3F8F9',
+                    border: '2px solid #387B7E',
+                    borderRadius: '50%',
+                    width: '44px',
+                    height: '44px',
                     color: '#78716C',
                     fontSize: '20px',
                     cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'all 0.2s',
                   }}
-                  onMouseEnter={e => e.currentTarget.style.color = '#DC2626'}
-                  onMouseLeave={e => e.currentTarget.style.color = '#78716C'}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.color = '#FFFFFF'
+                    e.currentTarget.style.background = '#DC2626'
+                    e.currentTarget.style.borderColor = '#DC2626'
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.color = '#78716C'
+                    e.currentTarget.style.background = '#F3F8F9'
+                    e.currentTarget.style.borderColor = '#387B7E'
+                  }}
                 >
                   ✕
                 </button>
               )}
             </div>
 
-            <div style={{ width: '100%', position: 'relative', paddingBottom: '56.25%', height: 0 }}>
-              <iframe
-                style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', borderRadius: '12px', border: '1px solid rgba(180,140,80,0.15)' }}
-                src="https://www.youtube.com/embed/UqWLcTirNjU"
-                title="Video Pembelajaran Statistika"
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowFullScreen
-              ></iframe>
+            {/* Video Container centered */}
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '20px', maxWidth: '1100px', width: '100%', margin: '0 auto' }}>
+              <div style={{ width: '100%', position: 'relative', paddingBottom: '56.25%', height: 0, borderRadius: '16px', overflow: 'hidden', border: '3px solid #387B7E', boxShadow: '8px 8px 0px rgba(56, 123, 126, 0.25)' }}>
+                <iframe
+                  style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
+                  src="https://www.youtube.com/embed/UqWLcTirNjU"
+                  title="Video Pembelajaran Statistika"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                ></iframe>
+              </div>
+
+              <div style={{ display: 'flex', width: '100%', gap: '24px', alignItems: 'center', marginTop: '12px' }}>
+                <div style={{ flex: 1, fontSize: '14px', color: '#475569', lineHeight: 1.6 }}>
+                  Tonton video pembelajaran dari channel Matematika Hebat di atas untuk memahami dasar-dasar perhitungan statistika deskriptif pada data kelompok sebelum kamu memulai investigasi kasus!
+                </div>
+
+                <button
+                  onClick={handleVideoComplete}
+                  style={{
+                    padding: '14px 32px',
+                    borderRadius: '12px',
+                    background: '#387B7E',
+                    border: '2.5px solid #1E293B',
+                    color: '#fff',
+                    fontSize: '14px',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    boxShadow: '4px 4px 0px #1E293B',
+                    transition: 'all 0.15s ease',
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.background = '#2C6264'
+                    e.currentTarget.style.boxShadow = '2px 2px 0px #1E293B'
+                    e.currentTarget.style.transform = 'translate(2px, 2px)'
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.background = '#387B7E'
+                    e.currentTarget.style.boxShadow = '4px 4px 0px #1E293B'
+                    e.currentTarget.style.transform = 'none'
+                  }}
+                >
+                  ✅ Selesai Menonton & Simpan Progress
+                </button>
+              </div>
             </div>
 
-            <div style={{ fontSize: '13px', color: '#78716C', lineHeight: 1.5 }}>
-              Tonton video pembelajaran dari channel Matematika Hebat di atas untuk memahami dasar-dasar perhitungan statistika deskriptif pada data kelompok sebelum kamu memulai investigasi kasus!
-            </div>
-
-            <button
-              onClick={handleVideoComplete}
-              style={{
-                padding: '14px',
-                borderRadius: '14px',
-                background: isFI ? 'linear-gradient(90deg, #3b82f6, #60a5fa)' : 'linear-gradient(90deg, #D97706, #EA580C)',
-                border: 'none',
-                color: '#fff',
-                fontSize: '14px',
-                fontWeight: 800,
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-                boxShadow: isFI ? '0 4px 20px rgba(59,130,246,0.3)' : '0 4px 20px rgba(217,119,6,0.3)',
-              }}
-              onMouseEnter={e => e.currentTarget.style.filter = 'brightness(1.15)'}
-              onMouseLeave={e => e.currentTarget.style.filter = 'none'}
-            >
-              ✅ Selesai Menonton & Simpan Progress
-            </button>
           </motion.div>
         </div>
       )}

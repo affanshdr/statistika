@@ -2,18 +2,13 @@
 
 import { useState, useCallback, useRef, useEffect, memo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { screenTimeData, STATS } from '../_data/level1'
+import { getLevelData } from '../_data'
 import { useGameStore } from '@/lib/store/gameStore'
 import DiraPopup, { DiraPopupStep } from './DiraPopup'
 import NPath from './NPath'
 import { useGameRealtime, type PlayerPresence } from '@/lib/hooks/useGameRealtime'
 
 // ─── Constants ───────────────────────────────────────────────────────────────
-const CORRECT_MAX = Math.max(...screenTimeData)  // 18
-const CORRECT_MIN = Math.min(...screenTimeData)  // 1
-const CORRECT_R = CORRECT_MAX - CORRECT_MIN   // 17
-const CORRECT_N = STATS.n                     // 35
-const CORRECT_K = 6                           // 1 + 3.3 * log10(35) lock to 6
 const ACC = '#6366F1'
 const GREEN = '#00ADB5'
 const RED = '#EF4444'
@@ -191,6 +186,7 @@ interface Props {
   studentId?: string
   teamMembers?: { id: string; name: string }[]
   initialSub?: SubScreen
+  levelId?: number
 }
 
 // Colors for team members on the maze
@@ -541,7 +537,45 @@ const MazeBackground = memo(({ visitedCells }: { visitedCells: Set<string> }) =>
 MazeBackground.displayName = 'MazeBackground'
 
 // ─── Main component ───────────────────────────────────────────────────────────
-export default function PregameFormula({ onComplete, teamId, studentId, teamMembers, initialSub = 'intro' }: Props) {
+export default function PregameFormula({ onComplete, teamId, studentId, teamMembers, initialSub = 'intro', levelId = 1 }: Props) {
+  const levelData = getLevelData(levelId)
+  const screenTimeData = levelData.rawData
+  const CORRECT_MAX = Math.max(...screenTimeData)
+  const CORRECT_MIN = Math.min(...screenTimeData)
+  const CORRECT_R = CORRECT_MAX - CORRECT_MIN
+  const CORRECT_N = levelData.stats.n
+  const CORRECT_K = levelData.stats.numClasses
+
+  const RENTANG_MAZE_NODES = levelId === 2
+    ? [
+        { val: 2, col: 3, row: 3 },
+        { val: 3, col: 13, row: 1 },
+        { val: 4, col: 24, row: 1 },
+        { val: 5, col: 1, row: 9 },
+        { val: 6, col: 9, row: 5 },
+        { val: 9, col: 1, row: 13 },
+        { val: 11, col: 24, row: 5 },
+        { val: 13, col: 24, row: 9 },
+        { val: 10, col: 11, row: 11 },
+        { val: 12, col: 24, row: 13 },
+        { val: 16, col: 21, row: 13 },
+        { val: 8, col: 11, row: 7 },
+      ]
+    : [
+        { val: 1, col: 3, row: 3 },
+        { val: 3, col: 13, row: 1 },
+        { val: 4, col: 24, row: 1 },
+        { val: 5, col: 1, row: 9 },
+        { val: 7, col: 9, row: 5 },
+        { val: 9, col: 1, row: 13 },
+        { val: 11, col: 24, row: 5 },
+        { val: 13, col: 24, row: 9 },
+        { val: 15, col: 11, row: 11 },
+        { val: 17, col: 24, row: 13 },
+        { val: 18, col: 21, row: 13 },
+        { val: 10, col: 11, row: 7 },
+      ]
+
   const cognitiveStyle = useGameStore(s => s.cognitiveStyle)
   const isFD = cognitiveStyle === 'FD'
 

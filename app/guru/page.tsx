@@ -31,6 +31,15 @@ interface Student {
   leaderboard?: { totalXp: number } | null
   gameSessions?: { xpEarned: number; createdAt: string; lkpdCompleted?: boolean; lkpdAnswers?: any }[]
   createdAt?: string
+  reflectionSubmissions?: {
+    id: string
+    studentId: string
+    levelId: number
+    content: string
+    score: number | null
+    teacherFeedback: string | null
+    createdAt: string
+  }[]
 }
 
 interface KnowledgeItem {
@@ -223,6 +232,51 @@ export default function GuruPage() {
     setViewingLkpdStudent(s)
     setViewingLkpdAnswers(answers)
     setShowLkpdModal(true)
+  }
+
+  // Reflection Viewer Modal
+  const [showReflectionReviewModal, setShowReflectionReviewModal] = useState(false)
+  const [viewingReflectionStudent, setViewingReflectionStudent] = useState<Student | null>(null)
+  const [viewingReflectionSub, setViewingReflectionSub] = useState<any>(null)
+  const [reflectionScore, setReflectionScore] = useState<string>('')
+  const [reflectionFeedback, setReflectionFeedback] = useState<string>('')
+  const [reflectionSaving, setReflectionSaving] = useState(false)
+
+  const openViewReflection = (s: Student, sub: any) => {
+    setViewingReflectionStudent(s)
+    setViewingReflectionSub(sub)
+    setReflectionScore(sub.score !== null && sub.score !== undefined ? String(sub.score) : '')
+    setReflectionFeedback(sub.teacherFeedback ?? '')
+    setShowReflectionReviewModal(true)
+  }
+
+  const handleSaveReflectionReview = async () => {
+    if (!viewingReflectionSub) return
+    setReflectionSaving(true)
+    try {
+      const res = await fetch('/api/game/reflection', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: viewingReflectionSub.id,
+          score: reflectionScore ? parseInt(reflectionScore) : null,
+          teacherFeedback: reflectionFeedback,
+        }),
+      })
+      if (res.ok) {
+        if (selectedClassId) {
+          fetchClassStudents(selectedClassId)
+        }
+        setShowReflectionReviewModal(false)
+      } else {
+        alert('Gagal menyimpan penilaian refleksi.')
+      }
+    } catch (err) {
+      console.error(err)
+      alert('Terjadi kesalahan koneksi.')
+    } finally {
+      setReflectionSaving(false)
+    }
   }
 
 
@@ -1806,6 +1860,192 @@ export default function GuruPage() {
                 studentName={viewingLkpdStudent.name}
                 studentClass={viewingLkpdStudent.classroom?.name}
               />
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Modal Penilaian Refleksi */}
+      <AnimatePresence>
+        {showReflectionReviewModal && viewingReflectionStudent && viewingReflectionSub && (
+          <div
+            style={{
+              position: 'fixed',
+              inset: 0,
+              background: 'rgba(15, 23, 42, 0.65)',
+              backdropFilter: 'blur(4px)',
+              zIndex: 9999,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '20px',
+            }}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              style={{
+                background: '#FAF5E4',
+                borderRadius: '24px',
+                width: '100%',
+                maxWidth: '600px',
+                maxHeight: '90vh',
+                overflowY: 'auto',
+                border: '3px solid #1E293B',
+                boxShadow: '12px 12px 0px rgba(15, 23, 42, 0.9)',
+                position: 'relative',
+                padding: '24px',
+                color: '#1E293B'
+              }}
+            >
+              {/* Close Button */}
+              <button
+                onClick={() => {
+                  setShowReflectionReviewModal(false)
+                  setViewingReflectionStudent(null)
+                  setViewingReflectionSub(null)
+                }}
+                style={{
+                  position: 'absolute',
+                  top: '16px',
+                  right: '16px',
+                  background: '#FFF',
+                  border: '2px solid #1E293B',
+                  borderRadius: '50%',
+                  width: '32px',
+                  height: '32px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontWeight: 'bold',
+                  zIndex: 10,
+                  boxShadow: '2px 2px 0px #1E293B',
+                }}
+              >
+                ✕
+              </button>
+
+              <div style={{ marginBottom: '20px', borderBottom: '2px solid #1E293B', paddingBottom: '10px' }}>
+                <h2 style={{ fontSize: '20px', fontWeight: 900, color: '#0D9488', margin: 0 }}>
+                  Penilaian Refleksi Investigasi
+                </h2>
+                <p style={{ fontSize: '13px', color: '#475569', margin: '4px 0 0' }}>
+                  Siswa: <strong>{viewingReflectionStudent.name}</strong> ({viewingReflectionStudent.classroom?.name})
+                </p>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div>
+                  <label style={{ fontSize: '11px', fontWeight: 800, color: '#475569', letterSpacing: '0.8px', display: 'block', marginBottom: '6px' }}>
+                    JAWABAN REFLEKSI SISWA:
+                  </label>
+                  <div style={{
+                    background: '#FFF',
+                    border: '2px solid #1E293B',
+                    borderRadius: '12px',
+                    padding: '14px',
+                    fontSize: '13.5px',
+                    lineHeight: 1.6,
+                    minHeight: '100px',
+                    whiteSpace: 'pre-wrap'
+                  }}>
+                    {viewingReflectionSub.content}
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr', gap: '16px' }}>
+                  <div>
+                    <label style={{ fontSize: '11px', fontWeight: 800, color: '#475569', letterSpacing: '0.8px', display: 'block', marginBottom: '6px' }}>
+                      NILAI (0-100):
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      value={reflectionScore}
+                      onChange={e => setReflectionScore(e.target.value)}
+                      placeholder="Belum dinilai"
+                      style={{
+                        width: '100%',
+                        padding: '10px 12px',
+                        fontSize: '14px',
+                        fontWeight: 'bold',
+                        border: '2px solid #1E293B',
+                        borderRadius: '10px',
+                        background: '#FFF',
+                        color: '#1C1917',
+                        outline: 'none'
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '11px', fontWeight: 800, color: '#475569', letterSpacing: '0.8px', display: 'block', marginBottom: '6px' }}>
+                      UMPAN BALIK GURU:
+                    </label>
+                    <input
+                      type="text"
+                      value={reflectionFeedback}
+                      onChange={e => setReflectionFeedback(e.target.value)}
+                      placeholder="Tulis umpan balik..."
+                      style={{
+                        width: '100%',
+                        padding: '10px 12px',
+                        fontSize: '13.5px',
+                        border: '2px solid #1E293B',
+                        borderRadius: '10px',
+                        background: '#FFF',
+                        color: '#1C1917',
+                        outline: 'none'
+                      }}
+                    />
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: '12px', marginTop: '10px' }}>
+                  <button
+                    onClick={() => {
+                      setShowReflectionReviewModal(false)
+                      setViewingReflectionStudent(null)
+                      setViewingReflectionSub(null)
+                    }}
+                    style={{
+                      flex: 1,
+                      padding: '12px',
+                      borderRadius: '12px',
+                      border: '2px solid #1E293B',
+                      background: '#FFF',
+                      color: '#1C1917',
+                      fontSize: '13px',
+                      fontWeight: 800,
+                      cursor: 'pointer',
+                      boxShadow: '4px 4px 0px #1E293B'
+                    }}
+                  >
+                    Batal
+                  </button>
+                  <button
+                    onClick={handleSaveReflectionReview}
+                    disabled={reflectionSaving}
+                    style={{
+                      flex: 2,
+                      padding: '12px',
+                      borderRadius: '12px',
+                      border: '2px solid #1E293B',
+                      background: '#0D9488',
+                      color: '#FFF',
+                      fontSize: '13px',
+                      fontWeight: 900,
+                      cursor: 'pointer',
+                      boxShadow: '4px 4px 0px #1E293B',
+                      opacity: reflectionSaving ? 0.7 : 1
+                    }}
+                  >
+                    {reflectionSaving ? 'Menyimpan...' : 'Simpan Penilaian'}
+                  </button>
+                </div>
+              </div>
             </motion.div>
           </div>
         )}

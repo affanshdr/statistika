@@ -31,8 +31,8 @@ const ALL_IMAGE_PAGES: {
 // ─── Level metadata for locked placeholder ────────────────────────────────────
 const LEVEL_META: Record<number, { title: string; icon: string; hint: string }> = {
   2: {
-    title: 'Kasus: Polling Pilkada',
-    icon: '🗳️',
+    title: 'Level 2 (Cyberbullying Investigation)',
+    icon: '🕵️',
     hint: 'Selesaikan Level 1 untuk membuka materi ini',
   },
   3: {
@@ -46,7 +46,7 @@ const ALL_LEVEL_IDS = [1, 2, 3]
 
 export default function DetektivBooklet({ mode, onComplete, unlockedLevelIds }: DetektivBookletProps) {
   const isFD = mode === 'FD'
-  const accentColor = isFD ? '#00ADB5' : '#2563EB'
+  const accentColor = '#387B7E'
 
   // Content pages from unlocked levels only
   const contentPages = ALL_IMAGE_PAGES.filter(p => unlockedLevelIds.includes(p.levelId))
@@ -92,7 +92,7 @@ export default function DetektivBooklet({ mode, onComplete, unlockedLevelIds }: 
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0', height: '100%' }}>
 
       {/* ── Header ── */}
-      <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '14px' }}>
+      <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '14px', paddingRight: '60px' }}>
         <div style={{
           width: '40px', height: '40px', borderRadius: '10px', flexShrink: 0,
           background: `${accentColor}18`, border: `1px solid ${accentColor}40`,
@@ -104,15 +104,15 @@ export default function DetektivBooklet({ mode, onComplete, unlockedLevelIds }: 
           <div style={{ fontSize: '10px', color: accentColor, fontWeight: 800, letterSpacing: '1.5px' }}>
             BUKU SAKU DETEKTIF
           </div>
-          <h2 style={{ margin: 0, fontSize: '15px', fontWeight: 800, color: 'var(--text-primary)' }}>
+          <h2 style={{ margin: 0, fontSize: '15px', fontWeight: 800, color: '#0F172A' }}>
             {page?.caption ?? (lockedMeta ? lockedMeta.title : 'Buku Saku')}
           </h2>
         </div>
         {/* Page counter */}
         <div style={{
           flexShrink: 0, padding: '4px 12px', borderRadius: '20px',
-          background: 'rgba(14, 131, 136, 0.1)', border: '1px solid rgba(14, 131, 136, 0.1)',
-          fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)',
+          background: 'rgba(56, 123, 126, 0.1)', border: '1px solid rgba(56, 123, 126, 0.1)',
+          fontSize: '12px', fontWeight: 700, color: '#475569',
           fontFamily: 'monospace',
         }}>
           {currentIndex + 1} / {totalPages}
@@ -122,7 +122,7 @@ export default function DetektivBooklet({ mode, onComplete, unlockedLevelIds }: 
       {/* ── Progress bar ── */}
       <div style={{
         width: '100%', height: '3px', borderRadius: '2px',
-        background: 'rgba(14, 131, 136, 0.1)', marginBottom: '16px', overflow: 'hidden',
+        background: 'rgba(56, 123, 126, 0.1)', marginBottom: '16px', overflow: 'hidden',
       }}>
         <motion.div
           animate={{ width: `${((currentIndex + 1) / totalPages) * 100}%` }}
@@ -154,6 +154,9 @@ export default function DetektivBooklet({ mode, onComplete, unlockedLevelIds }: 
                   title={isZoomed ? 'Klik untuk perkecil' : 'Klik untuk perbesar'}
                   style={{
                     width: '100%',
+                    maxWidth: '850px',
+                    maxHeight: 'calc(100vh - 230px)',
+                    margin: '0 auto',
                     borderRadius: '14px',
                     overflow: 'hidden',
                     border: `1px solid ${accentColor}25`,
@@ -161,6 +164,9 @@ export default function DetektivBooklet({ mode, onComplete, unlockedLevelIds }: 
                     cursor: 'zoom-in',
                     transition: 'box-shadow 0.3s',
                     background: 'var(--game-card)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
                   }}
                   onMouseEnter={e => { e.currentTarget.style.boxShadow = `0 4px 40px rgba(0,0,0,0.6), 0 0 30px ${accentColor}25` }}
                   onMouseLeave={e => { e.currentTarget.style.boxShadow = `0 4px 30px rgba(0,0,0,0.5), 0 0 20px ${accentColor}10` }}
@@ -170,7 +176,9 @@ export default function DetektivBooklet({ mode, onComplete, unlockedLevelIds }: 
                     src={page.image}
                     alt={page.alt}
                     style={{
-                      width: '100%',
+                      maxWidth: '100%',
+                      maxHeight: 'calc(100vh - 232px)',
+                      width: 'auto',
                       height: 'auto',
                       display: 'block',
                       objectFit: 'contain',
@@ -197,9 +205,9 @@ export default function DetektivBooklet({ mode, onComplete, unlockedLevelIds }: 
                     background: `${accentColor}08`, border: `1px solid ${accentColor}25`,
                   }}>
                     <img src="/dira-avatar.png" alt="DiRA" style={{ width: '28px', height: '28px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
-                    <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.75)', lineHeight: 1.6 }}>
+                    <div style={{ fontSize: '12px', color: '#1E293B', lineHeight: 1.6 }}>
                       <strong style={{ color: accentColor }}>DiRA: </strong>
-                      Pelajari gambar rangkuman ini dengan seksama sebelum memulai game ya! Semua rumus yang kamu butuhkan ada di sini. Kalau ada yang kurang paham, tanya aku lewat menu Tanya DiRA! 😊
+                      Pelajari gambar rangkuman ini dengan seksama sebelum memulai game ya! Semua rumus yang kamu butuhkan ada di sini. Kalau ada yang kurang paham, tanya aku lewat menu Tanya DiRA!
                     </div>
                   </div>
                 )}
@@ -213,7 +221,7 @@ export default function DetektivBooklet({ mode, onComplete, unlockedLevelIds }: 
               }}>
                 <div style={{
                   width: '80px', height: '80px', borderRadius: '50%',
-                  background: 'rgba(14, 131, 136, 0.04)', border: '1.5px solid rgba(14, 131, 136, 0.12)',
+                  background: 'rgba(56, 123, 126, 0.04)', border: '1.5px solid rgba(56, 123, 126, 0.12)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '36px',
                 }}>
                   🔒
@@ -222,17 +230,17 @@ export default function DetektivBooklet({ mode, onComplete, unlockedLevelIds }: 
                   <div style={{ fontSize: '10px', fontWeight: 800, color: '#EF4444', letterSpacing: '1.5px', marginBottom: '8px' }}>
                     MATERI TERKUNCI
                   </div>
-                  <h3 style={{ margin: '0 0 8px 0', fontSize: '20px', fontWeight: 800, color: 'var(--text-primary)' }}>
+                  <h3 style={{ margin: '0 0 8px 0', fontSize: '20px', fontWeight: 800, color: '#0F172A' }}>
                     {lockedMeta.icon} {lockedMeta.title}
                   </h3>
-                  <p style={{ margin: 0, fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+                  <p style={{ margin: 0, fontSize: '13px', color: '#475569', lineHeight: 1.6 }}>
                     {lockedMeta.hint}
                   </p>
                 </div>
                 <div style={{
                   padding: '14px 20px', borderRadius: '14px',
-                  background: 'rgba(14, 131, 136, 0.03)', border: '1px solid rgba(14, 131, 136, 0.08)',
-                  fontSize: '12px', color: 'var(--text-secondary)', textAlign: 'center', lineHeight: 1.6,
+                  background: 'rgba(56, 123, 126, 0.03)', border: '1px solid rgba(56, 123, 126, 0.08)',
+                  fontSize: '12px', color: '#475569', textAlign: 'center', lineHeight: 1.6,
                 }}>
                   🗝️ Buku saku untuk level ini akan terbuka secara otomatis<br />
                   setelah kamu menyelesaikan level sebelumnya.
@@ -275,7 +283,7 @@ export default function DetektivBooklet({ mode, onComplete, unlockedLevelIds }: 
                 onClick={() => setIsZoomed(false)}
                 style={{
                   position: 'fixed', top: '20px', right: '20px',
-                  background: 'rgba(14, 131, 136, 0.1)', border: '1px solid #A8A29E',
+                  background: 'rgba(56, 123, 126, 0.1)', border: '1px solid #A8A29E',
                   borderRadius: '50%', width: '40px', height: '40px',
                   color: 'var(--text-primary)', fontSize: '18px', cursor: 'pointer',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -292,7 +300,7 @@ export default function DetektivBooklet({ mode, onComplete, unlockedLevelIds }: 
       <div style={{
         display: 'flex', gap: '10px', alignItems: 'center',
         marginTop: '16px', paddingTop: '14px',
-        borderTop: '1px solid rgba(14, 131, 136, 0.1)',
+        borderTop: '1px solid rgba(56, 123, 126, 0.1)',
       }}>
         {/* Prev */}
         <button
@@ -300,16 +308,16 @@ export default function DetektivBooklet({ mode, onComplete, unlockedLevelIds }: 
           disabled={currentIndex === 0}
           style={{
             padding: '10px 16px', borderRadius: '12px',
-            border: '1px solid rgba(14, 131, 136, 0.1)',
-            background: currentIndex === 0 ? 'rgba(14, 131, 136, 0.03)' : 'rgba(14, 131, 136, 0.12)',
-            color: currentIndex === 0 ? 'var(--text-muted)' : 'rgba(255,255,255,0.7)',
+            border: '1px solid rgba(56, 123, 126, 0.15)',
+            background: currentIndex === 0 ? 'rgba(56, 123, 126, 0.03)' : 'rgba(56, 123, 126, 0.12)',
+            color: currentIndex === 0 ? '#94A3B8' : '#0F172A',
             fontSize: '13px', fontWeight: 700,
             cursor: currentIndex === 0 ? 'not-allowed' : 'pointer',
             display: 'flex', alignItems: 'center', gap: '6px',
             transition: 'all 0.2s', flexShrink: 0,
           }}
-          onMouseEnter={e => { if (currentIndex > 0) e.currentTarget.style.background = 'rgba(14, 131, 136, 0.1)' }}
-          onMouseLeave={e => { if (currentIndex > 0) e.currentTarget.style.background = 'rgba(14, 131, 136, 0.12)' }}
+          onMouseEnter={e => { if (currentIndex > 0) e.currentTarget.style.background = 'rgba(56, 123, 126, 0.1)' }}
+          onMouseLeave={e => { if (currentIndex > 0) e.currentTarget.style.background = 'rgba(56, 123, 126, 0.12)' }}
         >
           ← Kembali
         </button>
@@ -338,7 +346,7 @@ export default function DetektivBooklet({ mode, onComplete, unlockedLevelIds }: 
             onClick={onComplete}
             style={{
               padding: '10px 18px', borderRadius: '12px', border: 'none',
-              background: `linear-gradient(90deg, ${accentColor}, ${accentColor === '#00ADB5' ? '#0E8388' : '#8B5CF6'})`,
+              background: `linear-gradient(90deg, ${accentColor}, #2C6264)`,
               color: '#fff',
               fontSize: '13px', fontWeight: 800, cursor: 'pointer',
               display: 'flex', alignItems: 'center', gap: '6px',

@@ -7,7 +7,7 @@ import { useGameStore } from '@/lib/store/gameStore'
 import BadgeUnlock from '../../../_components/BadgeUnlock'
 import MythBustedStamp from '../../../_components/MythBustedStamp'
 import VerdictScreen from '../../../_components/VerdictScreen'
-import { BADGES, STATS } from '../../../_data/level1'
+import { getLevelData } from '../../../_data'
 import { useRouter } from 'next/navigation'
 import IntervalKelasPhase from '../../../_components/IntervalKelasPhase'
 
@@ -18,9 +18,12 @@ type GameStep = 0 | 1 | 2 | 3 | 4
 
 interface PendingBadge { icon: string; name: string; desc: string; id: string }
 
-export default function FIPath({ demoMode = false, demoStep = null }: { demoMode?: boolean; demoStep?: string | null }) {
+export default function FIPath({ demoMode = false, demoStep = null, levelId = 1 }: { demoMode?: boolean; demoStep?: string | null; levelId?: number }) {
   const router = useRouter()
   const { addXP, isCompleted, completeLevel, unlockBadge, incrementMistake, mistakeCount, sessionStartTime, xp } = useGameStore()
+  const levelData = getLevelData(levelId)
+  const BADGES = levelData.badges
+  const STATS = levelData.stats
 
   const [step, setStep] = useState<GameStep>(
     demoMode ? (demoStep === 'histogram' ? 1 : 0) : 0
@@ -33,7 +36,7 @@ export default function FIPath({ demoMode = false, demoStep = null }: { demoMode
   // Tahap B state
   const [submitting, setSubmitting] = useState(false)
 
-  const awardBadge = useCallback((badge: typeof BADGES[keyof typeof BADGES]) => {
+  const awardBadge = useCallback((badge: any) => {
     unlockBadge(badge.id)
     setPendingBadges(prev => [...prev, badge])
   }, [unlockBadge])
@@ -78,6 +81,9 @@ export default function FIPath({ demoMode = false, demoStep = null }: { demoMode
     addXP(bonus, 'FI Multiplier ×1.5', 3)
     awardBadge(BADGES.MYTHBUST)
 
+    // Save verdict to store so results page reads it correctly
+    useGameStore.getState().setVerdict(levelData.correctVerdict)
+
     setTimeout(() => {
       setStep(4)
       setSubmitting(false)
@@ -91,19 +97,21 @@ export default function FIPath({ demoMode = false, demoStep = null }: { demoMode
 
   // ── STEP 4: Myth Busted complete → finish level ──
   const handleMythBustedComplete = () => {
-    addXP(15, 'Menyelesaikan Level 1', 4)
-    completeLevel(1)
+    addXP(15, `Menyelesaikan Level ${levelId}`, 4)
+    completeLevel(levelId)
   }
 
   useEffect(() => {
     if (isCompleted && sessionActiveRef.current) {
-      const timer = setTimeout(() => router.push('/siswa/game/results/1'), 1200)
+      const timer = setTimeout(() => router.push(`/siswa/game/results/${levelId}`), 1200)
       return () => clearTimeout(timer)
     }
-  }, [isCompleted, router])
+  }, [isCompleted, router, levelId])
 
-  const STEP_LABELS = ['Batas Kelas', 'Histogram', 'Analisis', 'Verifikasi', 'Selesai']
+  const STEP_LABELS = ['Batas Kelas', 'Histogram', 'Analisis', 'Kesimpulan', 'Selesai']
   const displayStep = step
+
+  const unitText = levelId === 2 ? 'kali' : 'jam'
 
   return (
     <div
@@ -131,7 +139,7 @@ export default function FIPath({ demoMode = false, demoStep = null }: { demoMode
         {/* ── STEP 0: Menyusun Interval Kelas ── */}
         {step === 0 && (
           <motion.div key="step0" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }} style={{ width: '100%', flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
-            <IntervalKelasPhase isFD={false} onSubmit={handleIntervalSubmit} demoMode={demoMode} />
+            <IntervalKelasPhase isFD={false} onSubmit={handleIntervalSubmit} demoMode={demoMode} levelId={levelId} />
           </motion.div>
         )}
 
@@ -143,7 +151,7 @@ export default function FIPath({ demoMode = false, demoStep = null }: { demoMode
                 <div>
                   <h2 style={{ margin: 0, fontSize: '24px', fontWeight: 800 }}>Lengkapi histogram</h2>
                 </div>
-                <DraggableHistogram mode="FI" onSubmit={handleHistogramSubmit} />
+                <DraggableHistogram mode="FI" onSubmit={handleHistogramSubmit} levelId={levelId} />
               </div>
             </div>
           </motion.div>
@@ -166,7 +174,7 @@ export default function FIPath({ demoMode = false, demoStep = null }: { demoMode
                 {/* Left: Histogram */}
                 <div style={{ background: 'rgba(217,119,6,0.03)', border: '1px solid var(--game-border)', borderRadius: '14px', padding: '12px' }}>
                   <div style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 700, marginBottom: '8px', letterSpacing: '1px' }}>📊 HISTOGRAM HASIL TAHAP A</div>
-                  <DraggableHistogram mode="FI" readOnly={true} />
+                  <DraggableHistogram mode="FI" readOnly={true} levelId={levelId} />
                 </div>
 
                 {/* Right: Pre-computed stats */}
@@ -174,11 +182,11 @@ export default function FIPath({ demoMode = false, demoStep = null }: { demoMode
                   <div style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 700, marginBottom: '10px', letterSpacing: '1px' }}>📈 STATISTIK DASAR DISTRIBUSI</div>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px' }}>
                     {[
-                      { label: 'Mean (Rata-rata)', val: `${STATS.mean} jam` },
-                      { label: 'Median', val: `${STATS.median} jam` },
-                      { label: 'Min', val: `${STATS.min} jam` },
-                      { label: 'Max', val: `${STATS.max} jam` },
-                      { label: 'Range (Jangkauan)', val: `${STATS.range} jam` },
+                      { label: 'Mean (Rata-rata)', val: `${STATS.mean} ${unitText}` },
+                      { label: 'Median', val: `${STATS.median} ${unitText}` },
+                      { label: 'Min', val: `${STATS.min} ${unitText}` },
+                      { label: 'Max', val: `${STATS.max} ${unitText}` },
+                      { label: 'Range (Jangkauan)', val: `${STATS.range} ${unitText}` },
                       { label: 'n (Sampel)', val: `${STATS.n} siswa` },
                     ].map(({ label, val }) => (
                       <div key={label} style={{ textAlign: 'center', padding: '8px', background: 'rgba(217,119,6,0.04)', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.05)' }}>
@@ -196,7 +204,7 @@ export default function FIPath({ demoMode = false, demoStep = null }: { demoMode
                 disabled={submitting}
                 style={{ width: '100%', marginTop: '8px' }}
               >
-                Lanjut: Verifikasi Berita →
+                {levelId === 2 ? 'Lanjut: Kesimpulan Investigasi →' : 'Lanjut: Verifikasi Berita →'}
               </button>
             </div>
           </motion.div>
@@ -208,14 +216,17 @@ export default function FIPath({ demoMode = false, demoStep = null }: { demoMode
             <div className="game-card" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               <div>
                 <div style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 800, letterSpacing: '1px', marginBottom: '6px' }}>
-                  TAHAP C — VERIFIKASI BERITA
+                  {levelId === 2 ? 'TAHAP C — KESIMPULAN INVESTIGASI' : 'TAHAP C — VERIFIKASI BERITA'}
                 </div>
-                <h2 style={{ margin: 0, fontSize: '20px' }}>Berdasarkan Datamu — Benar atau Hoaks?</h2>
+                <h2 style={{ margin: 0, fontSize: '20px' }}>
+                  {levelId === 2 ? 'Berdasarkan Datamu — Apa Kesimpulan Penyelidikan?' : 'Berdasarkan Datamu — Benar atau Hoaks?'}
+                </h2>
               </div>
               <VerdictScreen
                 onCorrect={handleVerificationCorrect}
                 onWrong={handleVerificationWrong}
                 guidedMode={false}
+                levelId={levelId}
               />
             </div>
           </motion.div>

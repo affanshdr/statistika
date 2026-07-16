@@ -43,6 +43,7 @@ model Student {
   leaderboard  Leaderboard?
   teamMembers  TeamMember[]
   teamMessages TeamMessage[]
+  reflectionSubmissions ReflectionSubmission[]
 
   classroom Classroom @relation(fields: [classroomId], references: [id])
 
@@ -64,6 +65,21 @@ model GeftResult {
   student Student @relation(fields: [studentId], references: [id])
 
   @@map("geft_results")
+}
+
+model ReflectionSubmission {
+  id              String   @id @default(uuid())
+  studentId       String   @map("student_id")
+  levelId         Int      @map("level_id")
+  content         String   @db.Text
+  teacherFeedback String?  @map("teacher_feedback") @db.Text
+  score           Int?
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, levelId])
+  @@map("reflection_submissions")
 }
 
 model GameSession {
