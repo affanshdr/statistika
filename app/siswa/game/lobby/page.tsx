@@ -19,6 +19,7 @@ const LEVELS = [
   {
     id: 1,
     icon: '🎬',
+    thumbnail: '/thumbnails/level1.png',
     title: 'Level 1 (The Viral Myth)',
     desc: 'Sebuah postingan viral mengklaim remaja Indonesia rata-rata >8 jam/hari di medsos. Selidiki kebenarannya.',
     tags: ['Distribusi Frekuensi', 'Histogram', 'Analisis Kritis'],
@@ -28,6 +29,7 @@ const LEVELS = [
   {
     id: 2,
     icon: '🛡️',
+    thumbnail: '/thumbnails/level2.png',
     title: 'Level 2 (Kasus: Cyberbullying)',
     desc: 'Investigasi kasus perundungan siber di sekolah. Kumpulkan data korban, bimbing pelaku siber, dan analisis pemusatan data.',
     tags: ['Mean', 'Median', 'Modus', 'Ukuran Pemusatan'],
@@ -164,8 +166,35 @@ export default function LobbyPage() {
                   onClick={() => isUnlocked && handlePlayLevel(level.id)}
                 >
                   <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
-                    <div style={{ fontSize: '36px', padding: '12px', background: 'rgba(217,119,6,0.06)', borderRadius: '14px', flexShrink: 0 }}>
-                      {level.icon}
+                    <div style={{
+                      width: '80px',
+                      height: '80px',
+                      borderRadius: '14px',
+                      overflow: 'hidden',
+                      flexShrink: 0,
+                      background: 'rgba(217,119,6,0.06)',
+                      border: '1px solid var(--game-border)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      position: 'relative'
+                    }}>
+                      {level.thumbnail ? (
+                        <img
+                          src={level.thumbnail}
+                          alt={level.title}
+                          style={{
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                            filter: isUnlocked ? 'none' : 'grayscale(100%) opacity(0.4)',
+                          }}
+                        />
+                      ) : (
+                        <span style={{ fontSize: '32px' }}>
+                          {isUnlocked ? level.icon : '🔒'}
+                        </span>
+                      )}
                     </div>
                     <div style={{ flex: 1 }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px', marginBottom: '6px' }}>

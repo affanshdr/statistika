@@ -64,6 +64,7 @@ const LEVELS = [
   {
     id: 1,
     icon: '📊',
+    thumbnail: '/thumbnails/level1.png',
     title: 'Level 1 (The Viral Myth)',
     desc: '',
     tags: ['Distribusi Frekuensi', 'Histogram', 'Analisis Kritis'],
@@ -74,6 +75,7 @@ const LEVELS = [
   {
     id: 2,
     icon: '🛡️',
+    thumbnail: '/thumbnails/level2.png',
     title: 'Level 2 (Kasus: Cyberbullying)',
     desc: 'Investigasi kasus perundungan siber di sekolah. Kumpulkan data korban, bimbing pelaku, dan analisis pemusatan data.',
     tags: ['Mean', 'Median', 'Modus', 'Ukuran Pemusatan'],
@@ -845,28 +847,56 @@ export default function SiswaPage() {
                           )}
                         </div>
 
-                        {/* Central Icon inside frame */}
+                        {/* Central Photo Content inside frame */}
                         <div style={{
                           display: 'flex',
                           justifyContent: 'center',
                           position: 'relative',
+                          width: '100%',
+                          marginTop: '4px',
+                          marginBottom: '4px',
                         }}>
-                          <div style={{
-                            width: isMobile ? '32px' : '44px',
-                            height: isMobile ? '32px' : '44px',
-                            borderRadius: '50%',
-                            background: isUnlocked
-                              ? 'rgba(0, 0, 0, 0.04)' // subtle contrast background
-                              : 'rgba(148, 163, 184, 0.1)',
-                            border: `1.5px solid ${frameAccent}`,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            fontSize: isMobile ? '16px' : '22px',
-                            zIndex: 2,
-                          }}>
-                            {level.icon}
-                          </div>
+                          {level.thumbnail ? (
+                            <div style={{
+                              width: '100%',
+                              height: isMobile ? '50px' : '70px',
+                              borderRadius: '6px',
+                              overflow: 'hidden',
+                              border: `1.5px solid ${frameAccent}`,
+                              background: '#F1F5F9',
+                              zIndex: 2,
+                              position: 'relative',
+                              boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.1)',
+                            }}>
+                              <img
+                                src={level.thumbnail}
+                                alt={level.title}
+                                style={{
+                                  width: '100%',
+                                  height: '100%',
+                                  objectFit: 'cover',
+                                  filter: isUnlocked ? 'none' : 'grayscale(100%) opacity(0.4)',
+                                }}
+                              />
+                            </div>
+                          ) : (
+                            <div style={{
+                              width: isMobile ? '32px' : '44px',
+                              height: isMobile ? '32px' : '44px',
+                              borderRadius: '50%',
+                              background: isUnlocked
+                                ? 'rgba(0, 0, 0, 0.04)' // subtle contrast background
+                                : 'rgba(148, 163, 184, 0.1)',
+                              border: `1.5px solid ${frameAccent}`,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              fontSize: isMobile ? '16px' : '22px',
+                              zIndex: 2,
+                            }}>
+                              {isUnlocked ? level.icon : '🔒'}
+                            </div>
+                          )}
                         </div>
 
                         {/* Case Tags (Badges inside frame) */}
