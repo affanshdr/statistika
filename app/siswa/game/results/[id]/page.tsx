@@ -4,7 +4,8 @@ import { use, useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useGameStore } from '@/lib/store/gameStore'
-import { getLevelData } from '../../_data'
+import * as Level1Data from '../../_data/level1'
+import * as Level2Data from '../../_data/level2'
 import '../../game.css'
 import LkpdWorksheet from '../../_components/LkpdWorksheet'
 
@@ -18,8 +19,13 @@ export default function ResultsPage({
 }) {
   const { id } = use(params)
   const levelId = parseInt(id) || 1
-  const levelData = getLevelData(levelId)
-  const BADGE_DEFS = Object.values(levelData.badges)
+  const isLevel2 = levelId === 2
+  
+  const levelData = isLevel2 ? Level2Data : Level1Data
+  const config = isLevel2 ? Level2Data.LEVEL2_CONFIG : Level1Data.LEVEL1_CONFIG
+  const correctVerdict = levelData.CORRECT_VERDICT
+  const verdictExplanation = levelData.VERDICT_EXPLANATION
+  const badgesDef = Object.values(levelData.BADGES)
 
   const router = useRouter()
   const store = useGameStore()
@@ -32,7 +38,10 @@ export default function ResultsPage({
   const [lkpdCompleted, setLkpdCompleted] = useState(false)
   const [checkingLkpd, setCheckingLkpd] = useState(true)
 
-  const isCorrect = store.verdictAnswer === levelData.correctVerdict
+  const [hasViewedBukuSaku, setHasViewedBukuSaku] = useState(false)
+  const [showBukuSakuModal, setShowBukuSakuModal] = useState(false)
+
+  const isCorrect = store.verdictAnswer === correctVerdict
 
   useEffect(() => {
     setWindowSize({ width: window.innerWidth, height: window.innerHeight })
@@ -46,25 +55,14 @@ export default function ResultsPage({
           
           // Check if LKPD is already completed
           fetch(`/api/game/lkpd?studentId=${s.id}&levelId=${levelId}`)
-            .then(async (res) => {
+            .then((res) => {
               if (res.ok) {
-                const data = await res.json()
                 setLkpdCompleted(true)
-                if (data.postTestCompleted) {
-                  setShowContent(true)
-                  setCheckingLkpd(false)
-                } else {
-                  // Force redirect to Post Test before showing results
-                  router.push(`/siswa/game/posttest/${levelId}`)
-                }
-              } else {
-                setCheckingLkpd(false)
+                setShowContent(true)
               }
             })
-            .catch((err) => {
-              console.error(err)
-              setCheckingLkpd(false)
-            })
+            .catch(console.error)
+            .finally(() => setCheckingLkpd(false))
         } else {
           setCheckingLkpd(false)
         }
@@ -91,13 +89,13 @@ export default function ResultsPage({
       if (res.ok) {
         const data = await res.json()
         if (data.xpAdded) {
-          store.addXP(data.xpAdded, `Mengisi LKPD Level ${levelId}`, 10)
+          store.addXP(data.xpAdded, 'Mengisi LKPD Level 1', 10)
         }
         setLkpdCompleted(true)
         if (isCorrect) setConfetti(true)
         setTimeout(() => {
           setConfetti(false)
-          router.push(`/siswa/game/posttest/${levelId}`)
+          setShowContent(true)
         }, 2500)
       } else {
         alert('Gagal mengirim LKPD. Silakan coba lagi.')
@@ -125,7 +123,7 @@ export default function ResultsPage({
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         studentId: student.id,
-        levelId,
+        levelId: levelId,
         cognitiveStyle: store.cognitiveStyle,
         xpEarned: store.xp,
         livesRemaining: store.lives,
@@ -147,7 +145,9 @@ export default function ResultsPage({
     }).catch(console.error)
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const newBadges = store.badges.map(id => BADGE_DEFS.find(b => b.id === id)).filter(Boolean)
+  const newBadges = store.badges
+    .map(badgeId => badgesDef.find(b => b.id === badgeId))
+    .filter(Boolean)
 
   const handleDownloadBukuSaku = async () => {
     try {
@@ -157,7 +157,7 @@ export default function ResultsPage({
       const blobUrl = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = blobUrl
-      a.download = 'Buku Saku Level 1.jpeg'
+      a.download = `Buku Saku Level ${levelId}.jpeg`
       document.body.appendChild(a)
       a.click()
       document.body.removeChild(a)
@@ -263,7 +263,7 @@ export default function ResultsPage({
             {isCorrect ? 'Investigasi Selesai!' : 'Level Selesai'}
           </h1>
           <p style={{ color: 'var(--text-secondary)', fontSize: '14px', margin: '0 0 4px' }}>
-            {levelData.config.title}
+            {config.title}
           </p>
         </motion.div>
 
@@ -295,11 +295,11 @@ export default function ResultsPage({
                         animate={{ scale: 1, rotate: 0 }}
                         transition={{ delay: 0.15 + i * 0.1, type: 'spring', stiffness: 300 }}
                         style={{
-                           textAlign: 'center', padding: '16px 20px',
-                           background: 'var(--accent-dim)',
-                           border: '1px solid var(--game-border-accent)',
-                           borderRadius: '16px', minWidth: '110px',
-                           flex: '1 1 110px', maxWidth: '160px',
+                          textAlign: 'center', padding: '16px 20px',
+                          background: 'var(--accent-dim)',
+                          border: '1px solid var(--game-border-accent)',
+                          borderRadius: '16px', minWidth: '110px',
+                          flex: '1 1 110px', maxWidth: '160px',
                         }}
                       >
                         <div style={{ fontSize: '34px', marginBottom: '6px' }}>{badge.icon}</div>
@@ -321,7 +321,6 @@ export default function ResultsPage({
                 <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 800, letterSpacing: '1.5px', marginBottom: '4px' }}>
                   🔍 ANALISIS VERDICT
                 </div>
-                {/* Apa itu verdict */}
                 <p style={{ margin: '0 0 16px', fontSize: '12px', color: '#94A3B8', lineHeight: 1.5 }}>
                   <strong style={{ color: '#CBD5E1' }}>Verdict</strong> adalah kesimpulan akhir dari analisis data — apakah klaim berita bisa dipercaya, menyesatkan, atau hoaks berdasarkan bukti statistik yang kamu temukan.
                 </p>
@@ -334,9 +333,9 @@ export default function ResultsPage({
                     border: `1px solid ${isCorrect ? 'rgba(217,119,6,0.25)' : 'rgba(239,68,68,0.25)'}`,
                     borderRadius: '12px', minWidth: '130px',
                   }}>
-                    <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 800, marginBottom: '6px', letterSpacing: '1px' }}>VERDICTMU</div>
+                    <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 800, letterSpacing: '1px', marginBottom: '6px' }}>VERDICTMU</div>
                     <div style={{ fontWeight: 800, fontSize: '15px', color: isCorrect ? 'var(--accent)' : 'var(--danger)' }}>
-                      {store.verdictAnswer === 'INTERVENTION_NEEDED' ? 'INTERVENSI DINI ⚠️' : store.verdictAnswer ?? '—'} {isCorrect ? '✅' : '❌'}
+                      {store.verdictAnswer ?? '—'} {isCorrect ? '✅' : '❌'}
                     </div>
                   </div>
                   {/* Verdict benar */}
@@ -346,9 +345,9 @@ export default function ResultsPage({
                     border: '1px solid rgba(217,119,6,0.25)',
                     borderRadius: '12px', minWidth: '130px',
                   }}>
-                    <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 800, marginBottom: '6px', letterSpacing: '1px' }}>VERDICT BENAR</div>
+                    <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 800, letterSpacing: '1px', marginBottom: '6px' }}>VERDICT BENAR</div>
                     <div style={{ fontWeight: 800, fontSize: '15px', color: 'var(--accent)' }}>
-                      {levelData.correctVerdict === 'MISLEADING' ? 'MISLEADING ⚠️' : 'INTERVENSI DINI ⚠️'}
+                      {isLevel2 ? 'SERIOUS_PROBLEM ⚠️' : 'MISLEADING ⚠️'}
                     </div>
                   </div>
                 </div>
@@ -358,7 +357,7 @@ export default function ResultsPage({
                   border: '1px solid var(--game-border-accent)', borderRadius: '10px',
                   fontSize: '13px', lineHeight: 1.7, color: '#F8FAFC',
                 }}
-                  dangerouslySetInnerHTML={{ __html: `<strong>Penjelasan:</strong> ${levelData.verdictExplanation}` }}
+                  dangerouslySetInnerHTML={{ __html: `<strong>Penjelasan:</strong> ${verdictExplanation}` }}
                 />
               </motion.div>
 
@@ -372,16 +371,7 @@ export default function ResultsPage({
                 <div style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 800, letterSpacing: '1.5px', marginBottom: '12px' }}>
                   📌 RINGKASAN INVESTIGASI
                 </div>
-                {levelId === 2 ? (
-                  <>
-                    <p style={{ margin: '0 0 10px', fontSize: '13px', lineHeight: 1.75, color: '#F1F5F9' }}>
-                      Dalam investigasi ini, kamu menganalisis sebaran frekuensi kasus perundungan siber (cyberbullying) yang dialami oleh <strong>30 siswa</strong>.
-                    </p>
-                    <p style={{ margin: '0 0 10px', fontSize: '13px', lineHeight: 1.75, color: '#F1F5F9' }}>
-                      Setelah menyusun <strong>histogram distribusi frekuensi</strong> dan menghitung statistik dasar (mean 8.30 dan median 8.50), kamu menemukan bahwa meskipun sebagian besar korban berada di frekuensi rendah, terdapat kelompok minoritas (16.7%) yang mengalaminya secara berulang secara ekstrem (14-16 kali). Penyelidikan ini membuktikan perlunya <strong>intervensi dini</strong> di sekolah.
-                    </p>
-                  </>
-                ) : (
+                {!isLevel2 ? (
                   <>
                     <p style={{ margin: '0 0 10px', fontSize: '13px', lineHeight: 1.75, color: '#F1F5F9' }}>
                       Dalam investigasi ini, kamu menganalisis data <em>screen time</em> dari <strong>35 siswa</strong> untuk memverifikasi klaim viral:{' '}
@@ -391,11 +381,23 @@ export default function ResultsPage({
                       Setelah menyusun <strong>histogram distribusi frekuensi</strong> dan menghitung statistik dasar, ditemukan bahwa nilai mean sebenarnya jauh di bawah 8 jam. Klaim tersebut terbukti{' '}
                       <strong style={{ color: 'var(--warning)' }}>MISLEADING</strong> — angka yang digunakan dalam berita distorsi oleh data ekstrem (outlier).
                     </p>
+                    <p style={{ margin: 0, fontSize: '13px', lineHeight: 1.75, color: '#F1F5F9' }}>
+                      Ini adalah contoh nyata <strong>sampling bias</strong> dan manipulasi statistik dalam berita viral. Kemampuan membaca data seperti ini adalah senjata utama seorang detektif literasi digital!
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p style={{ margin: '0 0 10px', fontSize: '13px', lineHeight: 1.75, color: '#F1F5F9' }}>
+                      Dalam investigasi ini, kamu mengumpulkan data kasus cyberbullying dari <strong>30 korban</strong> di berbagai lokasi sekolah untuk memahami penyebaran masalah perundungan siber.
+                    </p>
+                    <p style={{ margin: '0 0 10px', fontSize: '13px', lineHeight: 1.75, color: '#F1F5F9' }}>
+                      Setelah menghitung nilai Mean (8.3), Median (8.5), dan Modus (4), disimpulkan bahwa cyberbullying di sekolah adalah <strong style={{ color: 'var(--warning)' }}>MASALAH SERIUS (SERIOUS PROBLEM)</strong> yang menyebar luas, karena mayoritas korban mengalami tingkat perundungan yang tinggi meskipun nilai paling umumnya (modus) bernilai rendah.
+                    </p>
+                    <p style={{ margin: 0, fontSize: '13px', lineHeight: 1.75, color: '#F1F5F9' }}>
+                      Penyelidikan ini memberikan bimbingan bagi pelaku dan kesadaran pentingnya etika media sosial serta literasi digital untuk menghentikan mata rantai cyberbullying di sekolah.
+                    </p>
                   </>
                 )}
-                <p style={{ margin: 0, fontSize: '13px', lineHeight: 1.75, color: '#F1F5F9' }}>
-                  Ini adalah contoh nyata pentingnya literasi data dan statistik untuk memecahkan masalah di dunia nyata secara objektif. Kemampuan membaca data seperti ini adalah senjata utama seorang detektif literasi digital!
-                </p>
               </motion.div>
 
               {/* ── Download Buku Saku ── */}
@@ -418,28 +420,58 @@ export default function ResultsPage({
                       Simpan rangkuman konsep statistika, rumus kunci, dan tips membaca data sebagai referensimu!
                     </p>
                   </div>
-                  <motion.button
-                    whileHover={{ scale: 1.04 }}
-                    whileTap={{ scale: 0.96 }}
-                    onClick={handleDownloadBukuSaku}
-                    style={{
-                      flexShrink: 0,
-                      padding: '12px 22px',
-                      borderRadius: '12px',
-                      border: 'none',
-                      background: 'linear-gradient(90deg, #D97706, #EA580C)',
-                      color: '#fff',
-                      fontSize: '13px',
-                      fontWeight: 800,
-                      cursor: 'pointer',
-                      boxShadow: '0 4px 20px rgba(217,119,6,0.35)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '6px',
-                    }}
-                  >
-                    ⬇ Download PNG
-                  </motion.button>
+                  <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexShrink: 0, flexWrap: 'wrap' }}>
+                    <motion.button
+                      whileHover={{ scale: 1.04 }}
+                      whileTap={{ scale: 0.96 }}
+                      onClick={() => {
+                        setShowBukuSakuModal(true)
+                        setHasViewedBukuSaku(true)
+                      }}
+                      style={{
+                        padding: '12px 22px',
+                        borderRadius: '12px',
+                        border: '1px solid var(--accent)',
+                        background: 'rgba(14, 131, 136, 0.1)',
+                        color: 'var(--accent)',
+                        fontSize: '13px',
+                        fontWeight: 800,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                      }}
+                    >
+                      👁️ Lihat
+                    </motion.button>
+
+                    <motion.button
+                      whileHover={hasViewedBukuSaku ? { scale: 1.04 } : {}}
+                      whileTap={hasViewedBukuSaku ? { scale: 0.96 } : {}}
+                      onClick={hasViewedBukuSaku ? handleDownloadBukuSaku : undefined}
+                      disabled={!hasViewedBukuSaku}
+                      style={{
+                        padding: '12px 22px',
+                        borderRadius: '12px',
+                        border: 'none',
+                        background: hasViewedBukuSaku 
+                          ? 'linear-gradient(90deg, #D97706, #EA580C)' 
+                          : 'rgba(255, 255, 255, 0.05)',
+                        color: hasViewedBukuSaku ? '#fff' : 'var(--text-muted)',
+                        fontSize: '13px',
+                        fontWeight: 800,
+                        cursor: hasViewedBukuSaku ? 'pointer' : 'not-allowed',
+                        boxShadow: hasViewedBukuSaku ? '0 4px 20px rgba(217,119,6,0.35)' : 'none',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        opacity: hasViewedBukuSaku ? 1 : 0.5,
+                        transition: 'all 0.2s',
+                      }}
+                    >
+                      ⬇️ Download PNG
+                    </motion.button>
+                  </div>
                 </div>
               </motion.div>
 
@@ -487,6 +519,93 @@ export default function ResultsPage({
         </AnimatePresence>
 
       </div>
+
+      {/* Buku Saku Modal Overlay */}
+      {showBukuSakuModal && (
+        <div 
+          onClick={() => setShowBukuSakuModal(false)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 9999,
+            background: 'rgba(11, 30, 44, 0.85)',
+            backdropFilter: 'blur(8px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '20px',
+          }}
+        >
+          <div 
+            onClick={e => e.stopPropagation()}
+            style={{
+              maxWidth: '600px',
+              width: '100%',
+              background: '#0F2338',
+              border: '2px solid rgba(14, 131, 136, 0.4)',
+              boxShadow: '0 20px 40px rgba(0, 0, 0, 0.6), var(--accent-glow)',
+              borderRadius: '24px',
+              padding: '24px',
+              position: 'relative',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '20px',
+            }}
+          >
+            {/* Modal Header */}
+            <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: 'var(--accent)' }}>
+                📖 Buku Saku Detektif
+              </h3>
+              <button 
+                onClick={() => setShowBukuSakuModal(false)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#94A3B8',
+                  fontSize: '20px',
+                  cursor: 'pointer',
+                  fontWeight: 700,
+                }}
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Modal Image */}
+            <div style={{ width: '100%', borderRadius: '12px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)' }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img 
+                src="https://tmdbqikqflbeqaqllxge.supabase.co/storage/v1/object/public/Asset/Buku%20Saku.jpeg" 
+                alt="Buku Saku" 
+                style={{ width: '100%', height: 'auto', display: 'block' }}
+              />
+            </div>
+
+            {/* Modal Actions */}
+            <div style={{ display: 'flex', gap: '12px', width: '100%' }}>
+              <button
+                onClick={() => setShowBukuSakuModal(false)}
+                className="game-btn game-btn-secondary"
+                style={{ flex: 1, padding: '12px' }}
+              >
+                Tutup
+              </button>
+              <button
+                onClick={() => {
+                  handleDownloadBukuSaku()
+                }}
+                className="game-btn game-btn-primary"
+                style={{ flex: 1, padding: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+              >
+                ⬇️ Download PNG
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   )
 }

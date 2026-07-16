@@ -174,7 +174,7 @@ export async function POST(req: NextRequest) {
       // Read current team to merge votes
       const currentTeam = await prisma.team.findUnique({
         where: { id: teamId },
-        select: { readyVotes: true, members: { select: { studentId: true } } },
+        select: { readyVotes: true, members: { select: { studentId: true } }, levelId: true },
       })
       if (!currentTeam) {
         return NextResponse.json({ error: 'Tim tidak ditemukan' }, { status: 404 })
@@ -203,7 +203,10 @@ export async function POST(req: NextRequest) {
           updateData.readyVotes = votes
         } else if (GATE_STEP_MAP[gate]) {
           // Step gates (in-game) — advance currentStep (and optionally isCorrect/verdictAnswer)
-          const stepData = GATE_STEP_MAP[gate]
+          const stepData = { ...GATE_STEP_MAP[gate] }
+          if (gate === 'gate_verdict_done' && currentTeam?.levelId === 2) {
+            stepData.verdictAnswer = 'SERIOUS_PROBLEM'
+          }
           Object.assign(updateData, stepData)
           if (stepData.isCorrect) updateData.status = 'COMPLETED'
           votes[gate] = []

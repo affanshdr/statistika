@@ -51,6 +51,14 @@ export default function FDPath({ teamId = null, studentId, studentName, levelId 
 
   const [step, setStep] = useState<GameStep>(0)
   const [pendingBadges, setPendingBadges] = useState<PendingBadge[]>([])
+
+  useEffect(() => {
+    const handleSkipGameStep = () => {
+      setStep(prev => (prev < 4 ? (prev + 1) as GameStep : prev))
+    }
+    window.addEventListener('skip-game-step', handleSkipGameStep)
+    return () => window.removeEventListener('skip-game-step', handleSkipGameStep)
+  }, [])
   
   // Multiplayer states
   const [placedIndices, setPlacedIndices] = useState<number[]>([])

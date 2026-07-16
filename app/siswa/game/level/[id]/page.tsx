@@ -13,6 +13,7 @@ import PregameFormula from '../../_components/PregameFormula'
 import NPath from '../../_components/NPath'
 import TeamLobby from '../../_components/TeamLobby'
 import InfographicReader from '../../_components/InfographicReader'
+import Level2Path from './Level2Path'
 import '../../game.css'
 
 function LevelPageInner({
@@ -41,6 +42,23 @@ function LevelPageInner({
   const [teamMembers, setTeamMembers] = useState<{ id: string; name: string }[]>([])
   const [studentInfo, setStudentInfo] = useState<{ id: string; name: string } | null>(null)
   const didResetRef = useRef(false)
+
+  const handleSkip = () => {
+    if (phase === 'cutscene') {
+      setPhase('formula')
+      setPregameStep('exploration')
+    } else if (phase === 'formula') {
+      if (pregameStep === 'exploration') {
+        setPregameStep('minmax')
+      } else if (pregameStep === 'minmax') {
+        setPregameStep('panjangkelas')
+      } else if (pregameStep === 'panjangkelas') {
+        setPhase('game')
+      }
+    } else if (phase === 'game') {
+      window.dispatchEvent(new CustomEvent('skip-game-step'))
+    }
+  }
 
   // Hydrate store + load student info from localStorage
   useEffect(() => {
@@ -112,7 +130,7 @@ function LevelPageInner({
     )
   }
 
-  // Only Level 1 & 2 exists
+  // Only Level 1 and Level 2 exist
   if (id !== '1' && id !== '2') {
     return (
       <div className="game-root" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', flexDirection: 'column', gap: '16px' }}>
@@ -127,11 +145,32 @@ function LevelPageInner({
 
   if (!resolvedStyle) return null
 
+  // Level 2 Path rendering
+  if (id === '2') {
+    return (
+      <OrientationGuard lockScreen={true}>
+        <div className="game-root game-level-root" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: '#0B1E2C', color: '#F8FAFC' }}>
+          <GameHeader isBlurred={false} />
+          <div className="game-level-content-wrapper" style={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative' }}>
+            <Level2Path
+              cognitiveStyle={resolvedStyle}
+              teamId={null}
+              studentId={studentInfo?.id}
+              studentName={studentInfo?.name}
+              demoMode={demoMode}
+            />
+          </div>
+        </div>
+      </OrientationGuard>
+    )
+  }
+
   return (
     <OrientationGuard lockScreen={true}>
       <div className="game-root game-level-root">
         <GameHeader
           isBlurred={phase === 'cutscene' && cutscenePhase === 'mentor'}
+          onSkip={handleSkip}
         />
 
         <div className="game-level-content-wrapper" style={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative' }}>

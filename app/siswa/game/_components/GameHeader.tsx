@@ -5,9 +5,10 @@ import { useGameStore } from '@/lib/store/gameStore'
 
 interface GameHeaderProps {
   isBlurred?: boolean
+  onSkip?: () => void
 }
 
-export default function GameHeader({ isBlurred = false }: GameHeaderProps) {
+export default function GameHeader({ isBlurred = false, onSkip }: GameHeaderProps) {
   const { currentLevel, resetLevel } = useGameStore()
   const [isMobile, setIsMobile] = useState(false)
   const [isLandscape, setIsLandscape] = useState(false)
@@ -81,7 +82,39 @@ export default function GameHeader({ isBlurred = false }: GameHeaderProps) {
           </div>
         </div>
 
-
+        {/* Temporary Dev/Skip button */}
+        {onSkip && (
+          <button
+            onClick={onSkip}
+            style={{
+              background: 'rgba(239, 68, 68, 0.15)',
+              border: '1px solid rgba(239, 68, 68, 0.4)',
+              borderRadius: '8px',
+              color: '#f87171',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '6px 12px',
+              fontSize: '12px',
+              fontWeight: 700,
+              gap: '6px',
+              transition: 'all 0.2s',
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.background = 'rgba(239, 68, 68, 0.25)'
+              e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.8)'
+              e.currentTarget.style.color = '#ef4444'
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.background = 'rgba(239, 68, 68, 0.15)'
+              e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.4)'
+              e.currentTarget.style.color = '#f87171'
+            }}
+          >
+            ⏭️ Skip
+          </button>
+        )}
 
       </header>
 

@@ -20,19 +20,19 @@ const LEVELS = [
     id: 1,
     icon: '📊',
     title: 'Level 1 (The Viral Myth)',
-    desc: 'Buktikan kebenaran di balik infografis viral mengenai screen time remaja dengan merancang histogram yang akurat.',
+    desc: 'Sebuah postingan viral mengklaim remaja Indonesia rata-rata >8 jam/hari di medsos. Selidiki kebenarannya.',
     tags: ['Distribusi Frekuensi', 'Histogram', 'Analisis Kritis'],
     locked: false,
     xpMax: 100,
   },
   {
     id: 2,
-    icon: '🕵️',
-    title: 'Level 2 (Cyberbullying Investigation)',
-    desc: 'Investigasi kasus perundungan digital di sekolah dengan menganalisis ukuran pemusatan data (Mean, Median, Modus) dan data pencilan (outliers).',
-    tags: ['Mean, Median, Modus', 'Outliers', 'Analisis Kasus'],
-    locked: true,
-    xpMax: 150,
+    icon: '🛡️',
+    title: 'Level 2 (Kasus: Cyberbullying)',
+    desc: 'Investigasi kasus perundungan siber di sekolah. Kumpulkan data korban, bimbing pelaku siber, dan analisis pemusatan data.',
+    tags: ['Mean', 'Median', 'Modus', 'Ukuran Pemusatan'],
+    locked: false,
+    xpMax: 0,
   },
   { id: 3, icon: '🌡️', title: 'Kasus: Anomali Cuaca', desc: 'Segera hadir', tags: [], locked: true, xpMax: 0 },
 ]
@@ -78,7 +78,7 @@ export default function LobbyPage() {
   const isFI = (student?.geftResult?.cognitiveStyle || cognitiveStyle) === 'FI'
 
   if (loading) return (
-    <div className="game-root" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
+    <div className="game-root" style={{ display: 'flex', alignItems: 'center', justifycontent: 'center', minHeight: '100vh' }}>
       <motion.div
         animate={{ rotate: 360 }}
         transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
@@ -150,28 +150,27 @@ export default function LobbyPage() {
             🗂️ Kasus Investigasi Aktif
           </h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-            {LEVELS.filter(level => level.id === 1 || level.id === 2).map((level, i) => {
-              const isLocked = level.id === 2 ? !completedLevels.includes(1) : false
-              
+            {LEVELS.filter(level => level.id <= 2).map((level, i) => {
+              const isUnlocked = level.id === 1 || completedLevels.includes(level.id - 1)
               return (
                 <motion.div
                   key={level.id}
-                  className={`level-card ${isLocked ? 'locked' : ''}`}
+                  className={`level-card ${!isUnlocked ? 'locked' : ''}`}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.08 }}
-                  onClick={() => !isLocked && handlePlayLevel(level.id)}
+                  onClick={() => isUnlocked && handlePlayLevel(level.id)}
                 >
                   <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
                     <div style={{ fontSize: '36px', padding: '12px', background: 'rgba(217,119,6,0.06)', borderRadius: '14px', flexShrink: 0 }}>
                       {level.icon}
                     </div>
                     <div style={{ flex: 1 }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px', marginBottom: '6px' }}>
+                      <div style={{ display: 'flex', justifycontent: 'space-between', alignItems: 'flex-start', gap: '8px', marginBottom: '6px' }}>
                         <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '1px' }}>LEVEL {level.id}</div>
-                        {!isLocked && level.xpMax > 0 && <div style={{ fontSize: '12px', color: 'var(--accent)', fontWeight: 700 }}>Max {level.xpMax} XP</div>}
+                        {isUnlocked && level.xpMax > 0 && <div style={{ fontSize: '12px', color: 'var(--accent)', fontWeight: 700 }}>Max {level.xpMax} XP</div>}
                       </div>
-                      <h4 style={{ margin: '0 0 6px', fontSize: '15px', fontWeight: 800, color: isLocked ? 'var(--text-muted)' : '#fff' }}>
+                      <h4 style={{ margin: '0 0 6px', fontSize: '15px', fontWeight: 800, color: !isUnlocked ? 'var(--text-muted)' : '#fff' }}>
                         {level.title}
                       </h4>
                       {level.desc && (
@@ -191,7 +190,7 @@ export default function LobbyPage() {
                     </div>
                   </div>
 
-                  {!isLocked && (
+                  {isUnlocked && (
                     <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid var(--game-border)' }}>
                       <button
                         className="game-btn game-btn-primary"

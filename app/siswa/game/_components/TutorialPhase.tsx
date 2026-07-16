@@ -581,24 +581,80 @@ export default function TutorialPhase({ mode, onComplete }: TutorialPhaseProps) 
         </motion.div>
       </AnimatePresence>
 
-      {/* Slide dots */}
-      <div style={{ display: 'flex', gap: '8px', marginTop: '24px' }}>
-        {SLIDES.map((_, i) => (
-          <div
-            key={i}
-            style={{
-              width: i === slideIndex ? '20px' : '6px',
-              height: '6px',
-              borderRadius: '3px',
-              background: i < slideIndex
-                ? 'rgba(217,119,6,0.5)'
-                : i === slideIndex
-                  ? 'var(--accent)'
-                  : 'rgba(255,255,255,0.12)',
-              transition: 'all 0.3s',
-            }}
-          />
-        ))}
+      {/* Slide navigation: prev · dots · next */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginTop: '24px' }}>
+        {/* Prev button */}
+        <motion.button
+          whileHover={{ scale: slideIndex > 0 ? 1.1 : 1 }}
+          whileTap={{ scale: slideIndex > 0 ? 0.95 : 1 }}
+          onClick={() => slideIndex > 0 && setSlideIndex(i => i - 1)}
+          style={{
+            width: '36px',
+            height: '36px',
+            borderRadius: '50%',
+            border: '1px solid',
+            borderColor: slideIndex > 0 ? 'var(--accent)' : 'rgba(255,255,255,0.1)',
+            background: slideIndex > 0 ? 'rgba(217,119,6,0.12)' : 'rgba(255,255,255,0.03)',
+            color: slideIndex > 0 ? 'var(--accent)' : 'rgba(255,255,255,0.2)',
+            fontSize: '16px',
+            cursor: slideIndex > 0 ? 'pointer' : 'default',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            transition: 'all 0.2s',
+            flexShrink: 0,
+          }}
+        >
+          ‹
+        </motion.button>
+
+        {/* Dots */}
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          {SLIDES.map((_, i) => (
+            <motion.div
+              key={i}
+              onClick={() => setSlideIndex(i)}
+              whileHover={{ scale: 1.3 }}
+              style={{
+                width: i === slideIndex ? '20px' : '6px',
+                height: '6px',
+                borderRadius: '3px',
+                background: i < slideIndex
+                  ? 'rgba(217,119,6,0.5)'
+                  : i === slideIndex
+                    ? 'var(--accent)'
+                    : 'rgba(255,255,255,0.12)',
+                transition: 'all 0.3s',
+                cursor: 'pointer',
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Next button */}
+        <motion.button
+          whileHover={{ scale: slideIndex < SLIDES.length - 1 ? 1.1 : 1 }}
+          whileTap={{ scale: slideIndex < SLIDES.length - 1 ? 0.95 : 1 }}
+          onClick={() => slideIndex < SLIDES.length - 1 && setSlideIndex(i => i + 1)}
+          style={{
+            width: '36px',
+            height: '36px',
+            borderRadius: '50%',
+            border: '1px solid',
+            borderColor: slideIndex < SLIDES.length - 1 ? 'var(--accent)' : 'rgba(255,255,255,0.1)',
+            background: slideIndex < SLIDES.length - 1 ? 'rgba(217,119,6,0.12)' : 'rgba(255,255,255,0.03)',
+            color: slideIndex < SLIDES.length - 1 ? 'var(--accent)' : 'rgba(255,255,255,0.2)',
+            fontSize: '16px',
+            cursor: slideIndex < SLIDES.length - 1 ? 'pointer' : 'default',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            transition: 'all 0.2s',
+            flexShrink: 0,
+          }}
+        >
+          ›
+        </motion.button>
       </div>
     </motion.div>
   )

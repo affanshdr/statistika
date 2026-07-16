@@ -29,6 +29,14 @@ export default function FIPath({ demoMode = false, demoStep = null, levelId = 1 
     demoMode ? (demoStep === 'histogram' ? 1 : 0) : 0
   )
   const [pendingBadges, setPendingBadges] = useState<PendingBadge[]>([])
+
+  useEffect(() => {
+    const handleSkipGameStep = () => {
+      setStep(prev => (prev < 4 ? (prev + 1) as GameStep : prev))
+    }
+    window.addEventListener('skip-game-step', handleSkipGameStep)
+    return () => window.removeEventListener('skip-game-step', handleSkipGameStep)
+  }, [])
   // Track if isCompleted came from this active session (not stale persist)
   const sessionActiveRef = useRef(false)
   useEffect(() => { sessionActiveRef.current = true }, [])
