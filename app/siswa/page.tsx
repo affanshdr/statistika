@@ -1736,29 +1736,30 @@ export default function SiswaPage() {
           <div style={{
             position: 'fixed',
             inset: 0,
-            background: 'rgba(250,246,238, 0.85)',
+            background: 'rgba(11, 30, 44, 0.85)',
             backdropFilter: 'blur(12px)',
             display: 'flex',
-            alignItems: 'center',
+            alignItems: 'flex-start',
             justifyContent: 'center',
             zIndex: 200,
             padding: '20px',
+            overflowY: 'auto',
           }}>
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               className="modal-scrollbar"
               style={{
-                background: 'rgba(255,255,255, 0.95)',
-                border: `1px solid ${isFI ? 'rgba(59,130,246,0.3)' : 'rgba(217,119,6, 0.25)'}`,
+                background: '#0F2338',
+                border: `1px solid ${isFI ? 'rgba(59,130,246,0.3)' : 'rgba(14, 131, 136, 0.25)'}`,
                 borderRadius: '24px',
                 padding: '28px',
                 width: '100%',
                 maxWidth: '600px',
-                maxHeight: 'calc(100vh - 40px)',
-                overflowY: 'auto',
+                margin: 'auto',
                 position: 'relative',
-                boxShadow: '0 20px 60px rgba(0,0,0,0.7), 0 0 40px rgba(217,119,6, 0.08)',
+                boxShadow: '0 20px 40px rgba(0, 0, 0, 0.5), var(--accent-glow)',
+                color: '#F8FAFC',
               }}
             >
               {!gatingLevelId && (
@@ -1770,13 +1771,13 @@ export default function SiswaPage() {
                     right: '20px',
                     background: 'none',
                     border: 'none',
-                    color: 'rgba(255, 255, 255, 0.4)',
+                    color: '#94A3B8',
                     fontSize: '20px',
                     cursor: 'pointer',
                     zIndex: 10,
                   }}
                   onMouseEnter={e => e.currentTarget.style.color = '#ff6b6b'}
-                  onMouseLeave={e => e.currentTarget.style.color = 'rgba(255, 255, 255, 0.4)'}
+                  onMouseLeave={e => e.currentTarget.style.color = '#94A3B8'}
                 >
                   ✕
                 </button>
@@ -1791,37 +1792,40 @@ export default function SiswaPage() {
           <div style={{
             position: 'fixed',
             inset: 0,
-            background: 'rgba(250,246,238, 0.85)',
+            background: 'rgba(11, 30, 44, 0.85)',
             backdropFilter: 'blur(12px)',
             display: 'flex',
-            alignItems: 'center',
+            alignItems: 'flex-start',
             justifyContent: 'center',
             zIndex: 200,
             padding: '20px',
+            overflowY: 'auto',
           }}>
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               style={{
-                background: 'rgba(255,255,255, 0.95)',
-                border: `1px solid ${isFI ? 'rgba(59,130,246,0.3)' : 'rgba(217,119,6, 0.25)'}`,
+                background: '#0F2338',
+                border: `1px solid ${isFI ? 'rgba(59,130,246,0.3)' : 'rgba(14, 131, 136, 0.25)'}`,
                 borderRadius: '24px',
                 padding: '28px',
                 width: '100%',
                 maxWidth: '640px',
+                margin: 'auto',
                 position: 'relative',
-                boxShadow: '0 8px 30px rgba(180,120,40,0.1)',
+                boxShadow: '0 20px 40px rgba(0, 0, 0, 0.5), var(--accent-glow)',
                 display: 'flex',
                 flexDirection: 'column',
                 gap: '20px',
+                color: '#F8FAFC',
               }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <span style={{ fontSize: '24px' }}>🎥</span>
                   <div>
-                    <div style={{ fontSize: '11px', color: isFI ? '#2563EB' : '#D97706', fontWeight: 800, letterSpacing: '1px' }}>VIDEO PEMBELAJARAN</div>
-                    <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 800 }}>Mean, Median, & Modus Data Kelompok</h3>
+                    <div style={{ fontSize: '11px', color: isFI ? '#60A5FA' : '#00ADB5', fontWeight: 800, letterSpacing: '1px' }}>VIDEO PEMBELAJARAN</div>
+                    <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: '#F8FAFC' }}>Mean, Median, & Modus Data Kelompok</h3>
                   </div>
                 </div>
                 {!gatingLevelId && (
@@ -1830,12 +1834,12 @@ export default function SiswaPage() {
                     style={{
                       background: 'none',
                       border: 'none',
-                      color: '#78716C',
+                      color: '#94A3B8',
                       fontSize: '20px',
                       cursor: 'pointer',
                     }}
                     onMouseEnter={e => e.currentTarget.style.color = '#DC2626'}
-                    onMouseLeave={e => e.currentTarget.style.color = '#78716C'}
+                    onMouseLeave={e => e.currentTarget.style.color = '#94A3B8'}
                   >
                     ✕
                   </button>
@@ -1844,7 +1848,7 @@ export default function SiswaPage() {
 
               <div style={{ width: '100%', position: 'relative', paddingBottom: '56.25%', height: 0 }}>
                 <iframe
-                  style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', borderRadius: '12px', border: '1px solid rgba(180,140,80,0.15)' }}
+                  style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', borderRadius: '12px', border: '1px solid rgba(14,131,136,0.15)' }}
                   src="https://www.youtube.com/embed/UqWLcTirNjU"
                   title="Video Pembelajaran Statistika"
                   frameBorder="0"
@@ -1853,7 +1857,7 @@ export default function SiswaPage() {
                 ></iframe>
               </div>
 
-              <div style={{ fontSize: '13px', color: '#78716C', lineHeight: 1.5 }}>
+              <div style={{ fontSize: '13px', color: '#94A3B8', lineHeight: 1.5 }}>
                 Tonton video pembelajaran dari channel Matematika Hebat di atas untuk memahami dasar-dasar perhitungan statistika deskriptif pada data kelompok sebelum kamu memulai investigasi kasus!
               </div>
 
@@ -1862,14 +1866,14 @@ export default function SiswaPage() {
                 style={{
                   padding: '14px',
                   borderRadius: '14px',
-                  background: isFI ? 'linear-gradient(90deg, #3b82f6, #60a5fa)' : 'linear-gradient(90deg, #D97706, #EA580C)',
+                  background: isFI ? 'linear-gradient(90deg, #2563eb, #1d4ed8)' : 'linear-gradient(90deg, #0e8388, #00adb5)',
                   border: 'none',
                   color: '#fff',
                   fontSize: '14px',
                   fontWeight: 800,
                   cursor: 'pointer',
                   transition: 'all 0.2s',
-                  boxShadow: isFI ? '0 4px 20px rgba(59,130,246,0.3)' : '0 4px 20px rgba(217,119,6,0.3)',
+                  boxShadow: isFI ? '0 4px 20px rgba(37,99,235,0.3)' : '0 4px 20px rgba(14, 131, 136, 0.3)',
                 }}
                 onMouseEnter={e => e.currentTarget.style.filter = 'brightness(1.15)'}
                 onMouseLeave={e => e.currentTarget.style.filter = 'none'}

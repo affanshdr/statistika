@@ -38,6 +38,9 @@ export default function ResultsPage({
   const [lkpdCompleted, setLkpdCompleted] = useState(false)
   const [checkingLkpd, setCheckingLkpd] = useState(true)
 
+  const [hasViewedBukuSaku, setHasViewedBukuSaku] = useState(false)
+  const [showBukuSakuModal, setShowBukuSakuModal] = useState(false)
+
   const isCorrect = store.verdictAnswer === correctVerdict
 
   useEffect(() => {
@@ -417,28 +420,58 @@ export default function ResultsPage({
                       Simpan rangkuman konsep statistika, rumus kunci, dan tips membaca data sebagai referensimu!
                     </p>
                   </div>
-                  <motion.button
-                    whileHover={{ scale: 1.04 }}
-                    whileTap={{ scale: 0.96 }}
-                    onClick={handleDownloadBukuSaku}
-                    style={{
-                      flexShrink: 0,
-                      padding: '12px 22px',
-                      borderRadius: '12px',
-                      border: 'none',
-                      background: 'linear-gradient(90deg, #D97706, #EA580C)',
-                      color: '#fff',
-                      fontSize: '13px',
-                      fontWeight: 800,
-                      cursor: 'pointer',
-                      boxShadow: '0 4px 20px rgba(217,119,6,0.35)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '6px',
-                    }}
-                  >
-                    ⬇ Download PNG
-                  </motion.button>
+                  <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexShrink: 0, flexWrap: 'wrap' }}>
+                    <motion.button
+                      whileHover={{ scale: 1.04 }}
+                      whileTap={{ scale: 0.96 }}
+                      onClick={() => {
+                        setShowBukuSakuModal(true)
+                        setHasViewedBukuSaku(true)
+                      }}
+                      style={{
+                        padding: '12px 22px',
+                        borderRadius: '12px',
+                        border: '1px solid var(--accent)',
+                        background: 'rgba(14, 131, 136, 0.1)',
+                        color: 'var(--accent)',
+                        fontSize: '13px',
+                        fontWeight: 800,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                      }}
+                    >
+                      👁️ Lihat
+                    </motion.button>
+
+                    <motion.button
+                      whileHover={hasViewedBukuSaku ? { scale: 1.04 } : {}}
+                      whileTap={hasViewedBukuSaku ? { scale: 0.96 } : {}}
+                      onClick={hasViewedBukuSaku ? handleDownloadBukuSaku : undefined}
+                      disabled={!hasViewedBukuSaku}
+                      style={{
+                        padding: '12px 22px',
+                        borderRadius: '12px',
+                        border: 'none',
+                        background: hasViewedBukuSaku 
+                          ? 'linear-gradient(90deg, #D97706, #EA580C)' 
+                          : 'rgba(255, 255, 255, 0.05)',
+                        color: hasViewedBukuSaku ? '#fff' : 'var(--text-muted)',
+                        fontSize: '13px',
+                        fontWeight: 800,
+                        cursor: hasViewedBukuSaku ? 'pointer' : 'not-allowed',
+                        boxShadow: hasViewedBukuSaku ? '0 4px 20px rgba(217,119,6,0.35)' : 'none',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        opacity: hasViewedBukuSaku ? 1 : 0.5,
+                        transition: 'all 0.2s',
+                      }}
+                    >
+                      ⬇️ Download PNG
+                    </motion.button>
+                  </div>
                 </div>
               </motion.div>
 
@@ -486,6 +519,93 @@ export default function ResultsPage({
         </AnimatePresence>
 
       </div>
+
+      {/* Buku Saku Modal Overlay */}
+      {showBukuSakuModal && (
+        <div 
+          onClick={() => setShowBukuSakuModal(false)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 9999,
+            background: 'rgba(11, 30, 44, 0.85)',
+            backdropFilter: 'blur(8px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '20px',
+          }}
+        >
+          <div 
+            onClick={e => e.stopPropagation()}
+            style={{
+              maxWidth: '600px',
+              width: '100%',
+              background: '#0F2338',
+              border: '2px solid rgba(14, 131, 136, 0.4)',
+              boxShadow: '0 20px 40px rgba(0, 0, 0, 0.6), var(--accent-glow)',
+              borderRadius: '24px',
+              padding: '24px',
+              position: 'relative',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '20px',
+            }}
+          >
+            {/* Modal Header */}
+            <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: 'var(--accent)' }}>
+                📖 Buku Saku Detektif
+              </h3>
+              <button 
+                onClick={() => setShowBukuSakuModal(false)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#94A3B8',
+                  fontSize: '20px',
+                  cursor: 'pointer',
+                  fontWeight: 700,
+                }}
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Modal Image */}
+            <div style={{ width: '100%', borderRadius: '12px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)' }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img 
+                src="https://tmdbqikqflbeqaqllxge.supabase.co/storage/v1/object/public/Asset/Buku%20Saku.jpeg" 
+                alt="Buku Saku" 
+                style={{ width: '100%', height: 'auto', display: 'block' }}
+              />
+            </div>
+
+            {/* Modal Actions */}
+            <div style={{ display: 'flex', gap: '12px', width: '100%' }}>
+              <button
+                onClick={() => setShowBukuSakuModal(false)}
+                className="game-btn game-btn-secondary"
+                style={{ flex: 1, padding: '12px' }}
+              >
+                Tutup
+              </button>
+              <button
+                onClick={() => {
+                  handleDownloadBukuSaku()
+                }}
+                className="game-btn game-btn-primary"
+                style={{ flex: 1, padding: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+              >
+                ⬇️ Download PNG
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   )
 }
