@@ -226,8 +226,8 @@ export default function MythBustedStamp({ onComplete }: MythBustedStampProps) {
                 <strong style={{ color: '#FFFFFF' }}>merusak nilai rata-rata (mean)</strong> secara matematis?
               </p>
               <p style={{ margin: 0, fontSize: '13px', color: '#94A3B8', lineHeight: 1.6 }}>
-                Sebelum kita lanjut ke Kasus Level 2, kamu wajib membuka{' '}
-                <strong style={{ color: '#00ADB5' }}>&apos;Buku Saku Detektif&apos;</strong> di bawah ini untuk memperkuat senjata analisismu!&quot;
+                Sebelum kita lanjut ke Kasus Level 2, kamu wajib mengisi{' '}
+                <strong style={{ color: '#00ADB5' }}>&apos;E-LKPD&apos;</strong> di bawah ini untuk memperkuat senjata analisismu!&quot;
               </p>
             </motion.div>
 
@@ -252,7 +252,7 @@ export default function MythBustedStamp({ onComplete }: MythBustedStampProps) {
                 letterSpacing: '0.5px',
               }}
             >
-              📖 Buka Buku Saku Detektif →
+              📝 Buka E-LKPD →
             </motion.button>
           </motion.div>
         )}

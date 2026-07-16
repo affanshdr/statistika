@@ -7,6 +7,7 @@ import { useGameStore } from '@/lib/store/gameStore'
 import * as Level1Data from '../../_data/level1'
 import * as Level2Data from '../../_data/level2'
 import '../../game.css'
+import LkpdWorksheet from '../../_components/LkpdWorksheet'
 
 import dynamic from 'next/dynamic'
 const ReactConfetti = dynamic(() => import('react-confetti'), { ssr: false })
@@ -32,14 +33,75 @@ export default function ResultsPage({
   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 })
   const [confetti, setConfetti] = useState(false)
   const [showContent, setShowContent] = useState(false)
+  
+  const [studentInfo, setStudentInfo] = useState<any>(null)
+  const [lkpdCompleted, setLkpdCompleted] = useState(false)
+  const [checkingLkpd, setCheckingLkpd] = useState(true)
 
   const isCorrect = store.verdictAnswer === correctVerdict
 
   useEffect(() => {
     setWindowSize({ width: window.innerWidth, height: window.innerHeight })
-    if (isCorrect) setConfetti(true)
-    setTimeout(() => { setConfetti(false); setShowContent(true) }, 2500)
-  }, [isCorrect])
+    
+    if (typeof window !== 'undefined') {
+      try {
+        const raw = localStorage.getItem('student')
+        if (raw) {
+          const s = JSON.parse(raw)
+          setStudentInfo(s)
+          
+          // Check if LKPD is already completed
+          fetch(`/api/game/lkpd?studentId=${s.id}&levelId=${levelId}`)
+            .then((res) => {
+              if (res.ok) {
+                setLkpdCompleted(true)
+                setShowContent(true)
+              }
+            })
+            .catch(console.error)
+            .finally(() => setCheckingLkpd(false))
+        } else {
+          setCheckingLkpd(false)
+        }
+      } catch (e) {
+        setCheckingLkpd(false)
+      }
+    }
+  }, [levelId])
+
+  const handleLkpdSubmit = async (answers: any) => {
+    if (!studentInfo?.id) return
+
+    try {
+      const res = await fetch('/api/game/lkpd', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          studentId: studentInfo.id,
+          levelId,
+          answers,
+        }),
+      })
+
+      if (res.ok) {
+        const data = await res.json()
+        if (data.xpAdded) {
+          store.addXP(data.xpAdded, 'Mengisi LKPD Level 1', 10)
+        }
+        setLkpdCompleted(true)
+        if (isCorrect) setConfetti(true)
+        setTimeout(() => {
+          setConfetti(false)
+          setShowContent(true)
+        }, 2500)
+      } else {
+        alert('Gagal mengirim LKPD. Silakan coba lagi.')
+      }
+    } catch (e) {
+      console.error(e)
+      alert('Terjadi kesalahan saat mengirim LKPD.')
+    }
+  }
 
   // Save session to DB + update leaderboard once
   useEffect(() => {
@@ -101,6 +163,43 @@ export default function ResultsPage({
       // Fallback: open in new tab
       window.open('https://tmdbqikqflbeqaqllxge.supabase.co/storage/v1/object/public/Asset/Buku%20Saku.jpeg', '_blank')
     }
+  }
+
+  if (checkingLkpd) {
+    return (
+      <div className="game-root" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', flexDirection: 'column', gap: '12px' }}>
+        <p style={{ color: 'var(--text-secondary)', fontSize: '13px', fontWeight: 600 }}>Memuat data LKPD...</p>
+      </div>
+    )
+  }
+
+  if (!lkpdCompleted) {
+    return (
+      <div className="game-root" style={{ minHeight: '100vh', padding: '32px 16px', overflowY: 'auto' }}>
+        {confetti && (
+          <ReactConfetti
+            width={windowSize.width}
+            height={windowSize.height}
+            colors={['#D97706', '#EA580C', '#FFD700', '#FF6B35', '#fff']}
+            numberOfPieces={200}
+            gravity={0.15}
+          />
+        )}
+        <div style={{ textAlign: 'center', marginBottom: '28px' }}>
+          <h1 style={{ fontSize: '26px', fontWeight: 900, color: '#F8FAFC', margin: '0 0 6px' }}>
+            Investigasi Selesai!
+          </h1>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '14px', margin: 0 }}>
+            Lengkapi LKPD di bawah ini untuk merangkum penyelidikanmu sebelum melihat lencana investigasi.
+          </p>
+        </div>
+        <LkpdWorksheet
+          studentName={studentInfo?.name}
+          studentClass={studentInfo?.classroom?.name || 'X'}
+          onSubmit={handleLkpdSubmit}
+        />
+      </div>
+    )
   }
 
   return (
