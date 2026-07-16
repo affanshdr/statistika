@@ -41,6 +41,23 @@ function LevelPageInner({
   const [studentInfo, setStudentInfo] = useState<{ id: string; name: string } | null>(null)
   const didResetRef = useRef(false)
 
+  const handleSkip = () => {
+    if (phase === 'cutscene') {
+      setPhase('formula')
+      setPregameStep('exploration')
+    } else if (phase === 'formula') {
+      if (pregameStep === 'exploration') {
+        setPregameStep('minmax')
+      } else if (pregameStep === 'minmax') {
+        setPregameStep('panjangkelas')
+      } else if (pregameStep === 'panjangkelas') {
+        setPhase('game')
+      }
+    } else if (phase === 'game') {
+      window.dispatchEvent(new CustomEvent('skip-game-step'))
+    }
+  }
+
   // Hydrate store + load student info from localStorage
   useEffect(() => {
     if (!didResetRef.current) {
@@ -151,6 +168,7 @@ function LevelPageInner({
       <div className="game-root game-level-root">
         <GameHeader
           isBlurred={phase === 'cutscene' && cutscenePhase === 'mentor'}
+          onSkip={handleSkip}
         />
 
         <div className="game-level-content-wrapper" style={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative' }}>
