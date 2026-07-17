@@ -862,7 +862,7 @@ function VisualHintModal({ door, onClose }: VisualHintModalProps) {
 
         {/* Buttons */}
         <div style={{ display: 'flex', gap: 12 }}>
-          <button className="game-btn game-btn-secondary" style={{ flex: 1, padding: '10px 14px', fontSize: 13 }} onClick={onClose}>Tutup</button>
+          <button className="game-btn game-btn-secondary" style={{ flex: 1, padding: '10px 14px', fontSize: 13, background: 'rgba(239, 68, 68, 0.08)', border: '1.5px solid #EF4444', color: '#EF4444' }} onClick={onClose}>Tutup</button>
           {hintStep < 3 && (
             <button className="game-btn game-btn-primary" style={{ flex: 1.5, padding: '10px 14px', fontSize: 13 }} onClick={() => setHintStep(curr => (curr + 1) as any)}>
               Lanjut →
@@ -1158,7 +1158,7 @@ function QuizPopup({ door, isFD, onCorrect, onClose }:
           )}
 
           <div style={{ display: 'flex', gap: 12 }}>
-            <button className="game-btn game-btn-secondary" style={{ flex: 1, fontSize: 15, fontWeight: 800, padding: '10px 14px' }} onClick={onClose}>Kembali</button>
+            <button className="game-btn game-btn-secondary" style={{ flex: 1, fontSize: 15, fontWeight: 800, padding: '10px 14px', background: 'rgba(239, 68, 68, 0.08)', border: '1.5px solid #EF4444', color: '#EF4444' }} onClick={onClose}>Kembali</button>
             <button
               className="game-btn game-btn-primary"
               style={{
@@ -1574,48 +1574,35 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
           gap: '8px',
           flexShrink: 0
         }}>
-          {/* Row 1: Header Text & Stats */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+          {/* Row 1: Consolidated Header & Stats */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', flexWrap: 'wrap', gap: '8px' }}>
             <div style={{ fontWeight: 'bold', color: '#00ADB5', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span>📊</span> <span>INDIKATOR DATA EXPLORASI</span>
+              <span>📊</span> <span>PROGRESS INVESTIGASI</span>
             </div>
             
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, fontWeight: 700 }}>
               <span style={{ color: '#94A3B8' }}>DATA TERKUMPUL:</span>
-              <motion.strong
+              <motion.span
                 animate={milestoneGlow ? {
-                  scale: [1, 1.25, 1],
+                  scale: [1, 1.15, 1],
                   color: ['#00ADB5', '#FFFFFF', '#00ADB5'],
-                  textShadow: [
-                    '0 0 0px rgba(0, 173, 181, 0)',
-                    '0 0 12px rgba(0, 173, 181, 0.8)',
-                    '0 0 0px rgba(0, 173, 181, 0)'
-                  ]
                 } : {}}
                 transition={{ duration: 1.2 }}
-                style={{ color: '#00ADB5', fontSize: '13px', display: 'inline-block' }}
+                style={{ color: '#00ADB5', display: 'inline-flex', alignItems: 'center', gap: 10 }}
               >
-                {n} / {TOTAL_N}
-              </motion.strong>
-            </div>
-
-            <div style={{ display: 'flex', gap: 16 }}>
-              {(() => {
-                const getCount = (rId: string) => CLASS_DOORS.filter(cd => cd.roomId === rId && unlocked.has(cd.id)).length
-                return (
-                  <>
-                    <span style={{ opacity: currentRoomId === 'A' ? 1 : 0.6, color: currentRoomId === 'A' ? '#818cf8' : '#94A3B8', fontWeight: currentRoomId === 'A' ? 'bold' : 'normal' }}>
-                      VII: {getCount('A')}/3
+                <span style={{ fontSize: '13px' }}>{n} / {TOTAL_N}</span>
+                <span style={{ color: '#334155', fontWeight: 'normal' }}>|</span>
+                {(() => {
+                  const getCount = (rId: string) => CLASS_DOORS.filter(cd => cd.roomId === rId && unlocked.has(cd.id)).length
+                  return (
+                    <span style={{ display: 'flex', gap: 10, fontSize: '10px' }}>
+                      <span style={{ color: '#818cf8', opacity: currentRoomId === 'A' ? 1 : 0.65 }}>VII: {getCount('A')}/3</span>
+                      <span style={{ color: '#00ADB5', opacity: currentRoomId === 'B' ? 1 : 0.65 }}>VIII: {getCount('B')}/3</span>
+                      <span style={{ color: '#f472b6', opacity: currentRoomId === 'C' ? 1 : 0.65 }}>IX: {getCount('C')}/3</span>
                     </span>
-                    <span style={{ opacity: currentRoomId === 'B' ? 1 : 0.6, color: currentRoomId === 'B' ? '#00ADB5' : '#94A3B8', fontWeight: currentRoomId === 'B' ? 'bold' : 'normal' }}>
-                      VIII: {getCount('B')}/3
-                    </span>
-                    <span style={{ opacity: currentRoomId === 'C' ? 1 : 0.6, color: currentRoomId === 'C' ? '#f472b6' : '#94A3B8', fontWeight: currentRoomId === 'C' ? 'bold' : 'normal' }}>
-                      IX: {getCount('C')}/3
-                    </span>
-                  </>
-                )
-              })()}
+                  )
+                })()}
+              </motion.span>
             </div>
           </div>
 
@@ -1687,21 +1674,21 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
             {/* Grid Pattern & Room Gradient Defs */}
             <defs>
               <pattern id="grid-pattern" width="24" height="24" patternUnits="userSpaceOnUse">
-                <circle cx="2" cy="2" r="1" fill="rgba(0, 173, 181, 0.05)" />
-                <path d="M 24 0 L 0 0 0 24" fill="none" stroke="rgba(0, 173, 181, 0.025)" strokeWidth="0.5" />
+                <circle cx="2" cy="2" r="1" fill="rgba(0, 173, 181, 0.02)" />
+                <path d="M 24 0 L 0 0 0 24" fill="none" stroke="rgba(0, 173, 181, 0.012)" strokeWidth="0.5" />
               </pattern>
 
               {/* Room Gradients (Depth & Diferensiasi) */}
               <radialGradient id="room-a-grad" cx="20%" cy="30%" r="70%">
-                <stop offset="0%" stopColor="#0c173d" stopOpacity="0.8" />
+                <stop offset="0%" stopColor="#0e152d" stopOpacity="0.3" />
                 <stop offset="100%" stopColor="#04070a" stopOpacity="1" />
               </radialGradient>
               <radialGradient id="room-b-grad" cx="50%" cy="30%" r="70%">
-                <stop offset="0%" stopColor="#052427" stopOpacity="0.8" />
+                <stop offset="0%" stopColor="#071d1f" stopOpacity="0.3" />
                 <stop offset="100%" stopColor="#04070a" stopOpacity="1" />
               </radialGradient>
               <radialGradient id="room-c-grad" cx="80%" cy="30%" r="70%">
-                <stop offset="0%" stopColor="#2c0b22" stopOpacity="0.8" />
+                <stop offset="0%" stopColor="#200a1b" stopOpacity="0.3" />
                 <stop offset="100%" stopColor="#04070a" stopOpacity="1" />
               </radialGradient>
 
@@ -1754,6 +1741,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                 fill={p.color}
                 className={p.className}
                 pointerEvents="none"
+                opacity={0.08}
               />
             ))}
 
@@ -1761,7 +1749,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
             <polygon points="10,260 280,180 520,180 790,260 790,330 10,330" fill="url(#grid-pattern)" />
 
             {/* Facility Outer boundary */}
-            <rect x={10} y={30} width={780} height={300} fill="none" stroke="#ffffff" strokeWidth={1.5} rx={12} />
+            <rect x={10} y={30} width={780} height={300} fill="none" stroke="#334155" strokeWidth={0.8} rx={12} />
 
             {/* Room completion glow effect on the dividing walls */}
             {isRoomACompleted && (
@@ -1786,76 +1774,76 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
 
             {/* Glowing lines for wall boundaries */}
             {/* Left diagonal wall */}
-            <line x1={10} y1={260} x2={280} y2={180} stroke="#ffffff" strokeWidth={1.5} />
+            <line x1={10} y1={260} x2={280} y2={180} stroke="#334155" strokeWidth={0.8} />
             {/* Right diagonal wall */}
-            <line x1={520} y1={180} x2={790} y2={260} stroke="#ffffff" strokeWidth={1.5} />
+            <line x1={520} y1={180} x2={790} y2={260} stroke="#334155" strokeWidth={0.8} />
             {/* Center horizontal wall */}
-            <line x1={280} y1={180} x2={520} y2={180} stroke="#ffffff" strokeWidth={1.5} />
+            <line x1={280} y1={180} x2={520} y2={180} stroke="#334155" strokeWidth={0.8} />
             {/* Left vertical hallway wall */}
-            <line x1={280} y1={30} x2={280} y2={180} stroke="#ffffff" strokeWidth={1.5} />
+            <line x1={280} y1={30} x2={280} y2={180} stroke="#334155" strokeWidth={0.8} />
             {/* Right vertical hallway wall */}
-            <line x1={520} y1={30} x2={520} y2={180} stroke="#ffffff" strokeWidth={1.5} />
+            <line x1={520} y1={30} x2={520} y2={180} stroke="#334155" strokeWidth={0.8} />
 
             {/* Room A Classroom dividers */}
             {unlocked.has('A') && (
               <>
                 {/* Vertical Wall A1/A2 */}
-                <line x1={95} y1={30} x2={95} y2={260 - 85 * (8/27) - 35} stroke="#ffffff" strokeWidth={1.5} />
+                <line x1={95} y1={30} x2={95} y2={260 - 85 * (8/27) - 35} stroke="#334155" strokeWidth={0.8} />
                 {/* Vertical Wall A2/A3 */}
-                <line x1={185} y1={30} x2={185} y2={260 - 175 * (8/27) - 35} stroke="#ffffff" strokeWidth={1.5} />
+                <line x1={185} y1={30} x2={185} y2={260 - 175 * (8/27) - 35} stroke="#334155" strokeWidth={0.8} />
 
                 {/* Horizontal walls with gaps */}
-                <line x1={10} y1={225} x2={37.5} y2={225 - 27.5 * (8/27)} stroke="#ffffff" strokeWidth={1.5} />
-                <line x1={67.5} y1={225 - 57.5 * (8/27)} x2={95} y2={260 - 85 * (8/27) - 35} stroke="#ffffff" strokeWidth={1.5} />
-                {!unlocked.has('A1') && <line x1={37.5} y1={225 - 27.5 * (8/27)} x2={67.5} y2={225 - 57.5 * (8/27)} stroke="#ffffff" strokeWidth={1.5} />}
+                <line x1={10} y1={225} x2={37.5} y2={225 - 27.5 * (8/27)} stroke="#334155" strokeWidth={0.8} />
+                <line x1={67.5} y1={225 - 57.5 * (8/27)} x2={95} y2={260 - 85 * (8/27) - 35} stroke="#334155" strokeWidth={0.8} />
+                {!unlocked.has('A1') && <line x1={37.5} y1={225 - 27.5 * (8/27)} x2={67.5} y2={225 - 57.5 * (8/27)} stroke="#334155" strokeWidth={0.8} />}
 
-                <line x1={95} y1={260 - 85 * (8/27) - 35} x2={125} y2={225 - 115 * (8/27)} stroke="#ffffff" strokeWidth={1.5} />
-                <line x1={155} y1={225 - 145 * (8/27)} x2={185} y2={260 - 175 * (8/27) - 35} stroke="#ffffff" strokeWidth={1.5} />
-                {!unlocked.has('A2') && <line x1={125} y1={225 - 115 * (8/27)} x2={155} y2={225 - 145 * (8/27)} stroke="#ffffff" strokeWidth={1.5} />}
+                <line x1={95} y1={260 - 85 * (8/27) - 35} x2={125} y2={225 - 115 * (8/27)} stroke="#334155" strokeWidth={0.8} />
+                <line x1={155} y1={225 - 145 * (8/27)} x2={185} y2={260 - 175 * (8/27) - 35} stroke="#334155" strokeWidth={0.8} />
+                {!unlocked.has('A2') && <line x1={125} y1={225 - 115 * (8/27)} x2={155} y2={225 - 145 * (8/27)} stroke="#334155" strokeWidth={0.8} />}
 
-                <line x1={185} y1={260 - 175 * (8/27) - 35} x2={212.5} y2={225 - 202.5 * (8/27)} stroke="#ffffff" strokeWidth={1.5} />
-                <line x1={242.5} y1={225 - 232.5 * (8/27)} x2={280} y2={145} stroke="#ffffff" strokeWidth={1.5} />
-                {!unlocked.has('A3') && <line x1={212.5} y1={225 - 202.5 * (8/27)} x2={242.5} y2={225 - 232.5 * (8/27)} stroke="#ffffff" strokeWidth={1.5} />}
+                <line x1={185} y1={260 - 175 * (8/27) - 35} x2={212.5} y2={225 - 202.5 * (8/27)} stroke="#334155" strokeWidth={0.8} />
+                <line x1={242.5} y1={225 - 232.5 * (8/27)} x2={280} y2={145} stroke="#334155" strokeWidth={0.8} />
+                {!unlocked.has('A3') && <line x1={212.5} y1={225 - 202.5 * (8/27)} x2={242.5} y2={225 - 232.5 * (8/27)} stroke="#334155" strokeWidth={0.8} />}
               </>
             )}
 
             {/* Room B Classroom dividers */}
             {unlocked.has('B') && (
               <>
-                <line x1={360} y1={30} x2={360} y2={145} stroke="#ffffff" strokeWidth={1.5} />
-                <line x1={440} y1={30} x2={440} y2={145} stroke="#ffffff" strokeWidth={1.5} />
+                <line x1={360} y1={30} x2={360} y2={145} stroke="#334155" strokeWidth={0.8} />
+                <line x1={440} y1={30} x2={440} y2={145} stroke="#334155" strokeWidth={0.8} />
 
-                <line x1={280} y1={145} x2={305} y2={145} stroke="#ffffff" strokeWidth={1.5} />
-                <line x1={335} y1={145} x2={360} y2={145} stroke="#ffffff" strokeWidth={1.5} />
-                {!unlocked.has('B1') && <line x1={305} y1={145} x2={335} y2={145} stroke="#ffffff" strokeWidth={1.5} />}
+                <line x1={280} y1={145} x2={305} y2={145} stroke="#334155" strokeWidth={0.8} />
+                <line x1={335} y1={145} x2={360} y2={145} stroke="#334155" strokeWidth={0.8} />
+                {!unlocked.has('B1') && <line x1={305} y1={145} x2={335} y2={145} stroke="#334155" strokeWidth={0.8} />}
 
-                <line x1={360} y1={145} x2={385} y2={145} stroke="#ffffff" strokeWidth={1.5} />
-                <line x1={415} y1={145} x2={440} y2={145} stroke="#ffffff" strokeWidth={1.5} />
-                {!unlocked.has('B2') && <line x1={385} y1={145} x2={415} y2={145} stroke="#ffffff" strokeWidth={1.5} />}
+                <line x1={360} y1={145} x2={385} y2={145} stroke="#334155" strokeWidth={0.8} />
+                <line x1={415} y1={145} x2={440} y2={145} stroke="#334155" strokeWidth={0.8} />
+                {!unlocked.has('B2') && <line x1={385} y1={145} x2={415} y2={145} stroke="#334155" strokeWidth={0.8} />}
 
-                <line x1={440} y1={145} x2={465} y2={145} stroke="#ffffff" strokeWidth={1.5} />
-                <line x1={495} y1={145} x2={520} y2={145} stroke="#ffffff" strokeWidth={1.5} />
-                {!unlocked.has('B3') && <line x1={465} y1={145} x2={495} y2={145} stroke="#ffffff" strokeWidth={1.5} />}
+                <line x1={440} y1={145} x2={465} y2={145} stroke="#334155" strokeWidth={0.8} />
+                <line x1={495} y1={145} x2={520} y2={145} stroke="#334155" strokeWidth={0.8} />
+                {!unlocked.has('B3') && <line x1={465} y1={145} x2={495} y2={145} stroke="#334155" strokeWidth={0.8} />}
               </>
             )}
 
             {/* Room C Classroom dividers */}
             {unlocked.has('C') && (
               <>
-                <line x1={610} y1={30} x2={610} y2={145 + 90 * (8/27)} stroke="#ffffff" strokeWidth={1.5} />
-                <line x1={700} y1={30} x2={700} y2={145 + 180 * (8/27)} stroke="#ffffff" strokeWidth={1.5} />
+                <line x1={610} y1={30} x2={610} y2={145 + 90 * (8/27)} stroke="#334155" strokeWidth={0.8} />
+                <line x1={700} y1={30} x2={700} y2={145 + 180 * (8/27)} stroke="#334155" strokeWidth={0.8} />
 
-                <line x1={520} y1={145} x2={557.5} y2={145 + 37.5 * (8/27)} stroke="#ffffff" strokeWidth={1.5} />
-                <line x1={587.5} y1={145 + 67.5 * (8/27)} x2={610} y2={145 + 90 * (8/27)} stroke="#ffffff" strokeWidth={1.5} />
-                {!unlocked.has('C1') && <line x1={557.5} y1={145 + 37.5 * (8/27)} x2={587.5} y2={145 + 67.5 * (8/27)} stroke="#ffffff" strokeWidth={1.5} />}
+                <line x1={520} y1={145} x2={557.5} y2={145 + 37.5 * (8/27)} stroke="#334155" strokeWidth={0.8} />
+                <line x1={587.5} y1={145 + 67.5 * (8/27)} x2={610} y2={145 + 90 * (8/27)} stroke="#334155" strokeWidth={0.8} />
+                {!unlocked.has('C1') && <line x1={557.5} y1={145 + 37.5 * (8/27)} x2={587.5} y2={145 + 67.5 * (8/27)} stroke="#334155" strokeWidth={0.8} />}
 
-                <line x1={610} y1={145 + 90 * (8/27)} x2={645} y2={145 + 125 * (8/27)} stroke="#ffffff" strokeWidth={1.5} />
-                <line x1={675} y1={145 + 155 * (8/27)} x2={700} y2={145 + 180 * (8/27)} stroke="#ffffff" strokeWidth={1.5} />
-                {!unlocked.has('C2') && <line x1={645} y1={145 + 125 * (8/27)} x2={675} y2={145 + 155 * (8/27)} stroke="#ffffff" strokeWidth={1.5} />}
+                <line x1={610} y1={145 + 90 * (8/27)} x2={645} y2={145 + 125 * (8/27)} stroke="#334155" strokeWidth={0.8} />
+                <line x1={675} y1={145 + 155 * (8/27)} x2={700} y2={145 + 180 * (8/27)} stroke="#334155" strokeWidth={0.8} />
+                {!unlocked.has('C2') && <line x1={645} y1={145 + 125 * (8/27)} x2={675} y2={145 + 155 * (8/27)} stroke="#334155" strokeWidth={0.8} />}
 
-                <line x1={700} y1={145 + 180 * (8/27)} x2={732.5} y2={145 + 212.5 * (8/27)} stroke="#ffffff" strokeWidth={1.5} />
-                <line x1={762.5} y1={145 + 242.5 * (8/27)} x2={790} y2={225} stroke="#ffffff" strokeWidth={1.5} />
-                {!unlocked.has('C3') && <line x1={732.5} y1={145 + 212.5 * (8/27)} x2={762.5} y2={145 + 242.5 * (8/27)} stroke="#ffffff" strokeWidth={1.5} />}
+                <line x1={700} y1={145 + 180 * (8/27)} x2={732.5} y2={145 + 212.5 * (8/27)} stroke="#334155" strokeWidth={0.8} />
+                <line x1={762.5} y1={145 + 242.5 * (8/27)} x2={790} y2={225} stroke="#334155" strokeWidth={0.8} />
+                {!unlocked.has('C3') && <line x1={732.5} y1={145 + 212.5 * (8/27)} x2={762.5} y2={145 + 242.5 * (8/27)} stroke="#334155" strokeWidth={0.8} />}
               </>
             )}
 
@@ -1873,11 +1861,11 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
               return (
                 <g key={door.id} style={{ cursor: open ? 'default' : 'pointer' }}
                   onClick={e => { e.stopPropagation(); if (!open) setUnlocked(p => new Set([...p, door.id])) }}>
-                  {near && <circle cx={door.x} cy={door.y} r={22} fill={`${door.color}15`} stroke={`${door.color}44`} strokeWidth={0.6} />}
+                  {near && <circle cx={door.x} cy={door.y} r={22} fill="rgba(245, 158, 11, 0.15)" stroke="rgba(245, 158, 11, 0.44)" strokeWidth={0.6} />}
                   <rect x={rx} y={ry} width={42} height={26} rx={6}
-                    fill={open ? `${door.color}25` : '#111827'} stroke={near ? '#FFFFFF' : door.color} strokeWidth={1} />
+                    fill={open ? `${door.color}25` : '#111827'} stroke={near ? '#FFFFFF' : open ? door.color : '#f59e0b'} strokeWidth={1} />
                   <text x={door.x} y={door.y + 1.5} textAnchor="middle" dominantBaseline="middle" fontSize={16}>{open ? '🔓' : '🔒'}</text>
-                  <text x={door.x} y={door.y - 20} textAnchor="middle" fontSize={11.5} fontWeight="bold" fill={door.color} fontFamily="monospace">{door.label}</text>
+                  <text x={door.x} y={door.y - 20} textAnchor="middle" fontSize={11.5} fontWeight="bold" fill={open ? door.color : '#f59e0b'} fontFamily="monospace">{door.label}</text>
                 </g>
               )
             })}
@@ -1904,7 +1892,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                     y1={cardY + cardH / 2} 
                     x2={door.x} 
                     y2={door.y - 8} 
-                    stroke={open && !isJustCompleted ? '#475569' : door.color} 
+                    stroke={open && !isJustCompleted ? '#475569' : '#f59e0b'} 
                     strokeWidth={1} 
                     strokeDasharray="2,3" 
                     opacity={isJustCompleted ? 0.4 : open ? 0.08 : 0.4} 
@@ -1917,12 +1905,12 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                       cx={door.x}
                       cy={door.y}
                       r={12}
-                      fill={`${door.color}15`}
+                      fill="rgba(245, 158, 11, 0.12)"
                       animate={isJustCompleted 
-                        ? { scale: [1, 1.6, 1], fill: [`${door.color}33`, '#10B981', `${door.color}22`] } 
+                        ? { scale: [1, 1.6, 1], fill: ['rgba(245, 158, 11, 0.25)', '#10B981', 'rgba(245, 158, 11, 0.15)'] } 
                         : near 
-                          ? { scale: [1, 1.4, 1], fill: [`${door.color}22`, `${door.color}66`, `${door.color}22`] } 
-                          : { scale: [0.95, 1.05, 0.95], fill: [`${door.color}10`, `${door.color}22`, `${door.color}10`] }
+                          ? { scale: [1, 1.4, 1], fill: ['rgba(245, 158, 11, 0.22)', 'rgba(245, 158, 11, 0.66)', 'rgba(245, 158, 11, 0.22)'] } 
+                          : { scale: [0.95, 1.05, 0.95], fill: ['rgba(245, 158, 11, 0.1)', 'rgba(245, 158, 11, 0.22)', 'rgba(245, 158, 11, 0.10)'] }
                       }
                       transition={{ duration: isJustCompleted ? 1.2 : 1.5, repeat: isJustCompleted ? 0 : Infinity, ease: 'easeInOut' }}
                     />
@@ -1977,7 +1965,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                       cy={door.y}
                       r={7.5}
                       fill={isJustCompleted ? '#10b981' : open ? 'rgba(100, 116, 139, 0.15)' : '#0f2338'}
-                      stroke={isJustCompleted ? '#FFFFFF' : near ? '#FFFFFF' : open ? 'rgba(16, 185, 129, 0.25)' : door.color}
+                      stroke={isJustCompleted ? '#FFFFFF' : near ? '#FFFFFF' : open ? 'rgba(16, 185, 129, 0.25)' : '#f59e0b'}
                       strokeWidth={near ? 1.5 : 1}
                       opacity={open && !isJustCompleted ? 0.65 : 1}
                       style={{ transition: 'all 0.3s' }}
@@ -2004,7 +1992,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                       height={cardH + 5} 
                       rx={8} 
                       fill="none" 
-                      stroke={`${door.color}45`} 
+                      stroke="rgba(245, 158, 11, 0.4)" 
                       strokeWidth={1.2} 
                     />
                   )}
@@ -2016,13 +2004,13 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                     rx={6}
                     animate={isJustCompleted ? {
                       fill: ['rgba(17, 24, 39, 0.85)', 'rgba(16, 185, 129, 0.95)', 'rgba(15, 35, 56, 0.65)'],
-                      stroke: [door.color, '#FFFFFF', 'rgba(16, 185, 129, 0.45)'],
+                      stroke: ['#f59e0b', '#FFFFFF', 'rgba(16, 185, 129, 0.45)'],
                       scale: [1, 1.08, 1],
                     } : {}}
                     transition={{ duration: 1.2, ease: "easeInOut" }}
                     style={{ transformOrigin: `${door.x}px ${cardY}px` }}
                     fill={open && !isJustCompleted ? 'rgba(15, 23, 42, 0.4)' : 'rgba(17, 24, 39, 0.85)'}
-                    stroke={near ? '#FFFFFF' : open && !isJustCompleted ? 'rgba(16, 185, 129, 0.2)' : `${door.color}77`}
+                    stroke={near ? '#FFFFFF' : open && !isJustCompleted ? 'rgba(16, 185, 129, 0.2)' : 'rgba(245, 158, 11, 0.45)'}
                     strokeWidth={near ? 1.5 : 1}
                     opacity={open && !isJustCompleted ? 0.55 : 1}
                   />
@@ -2046,7 +2034,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                     dominantBaseline="middle" 
                     fontSize={6.5} 
                     fontWeight="bold" 
-                    fill={isJustCompleted ? '#FFFFFF' : open ? '#475569' : `${door.color}dd`} 
+                    fill={isJustCompleted ? '#FFFFFF' : open ? '#475569' : '#f59e0b'} 
                     fontFamily="var(--font-data)" 
                     letterSpacing="0.4px"
                     opacity={open && !isJustCompleted ? 0.6 : 1}
@@ -2105,7 +2093,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                       height={22}
                       rx={11}
                       fill="rgba(15, 23, 42, 0.95)"
-                      stroke={nearDoor.color}
+                      stroke="#f59e0b"
                       strokeWidth={1.5}
                       style={{ filter: 'drop-shadow(0px 4px 6px rgba(0,0,0,0.5))' }}
                     />
@@ -2146,7 +2134,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                       height={22}
                       rx={11}
                       fill="rgba(15, 23, 42, 0.95)"
-                      stroke={nearClass.color}
+                      stroke="#f59e0b"
                       strokeWidth={1.5}
                       style={{ filter: 'drop-shadow(0px 4px 6px rgba(0,0,0,0.5))' }}
                     />

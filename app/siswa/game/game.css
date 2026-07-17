@@ -534,8 +534,9 @@
   transition: all 0.3s;
 }
 .step-dot.active {
-  width: 24px;
-  border-radius: 4px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
   background: var(--accent);
   box-shadow: var(--accent-glow);
 }

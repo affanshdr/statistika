@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Outfit, Plus_Jakarta_Sans } from "next/font/google";
+import { Outfit, Plus_Jakarta_Sans, Caveat } from "next/font/google";
 import "./globals.css";
 import NetworkStatusBanner from "@/components/NetworkStatusBanner";
 
@@ -11,6 +11,12 @@ const outfit = Outfit({
 const plusJakartaSans = Plus_Jakarta_Sans({
   variable: "--font-plus-jakarta-sans",
   subsets: ["latin"],
+});
+
+const caveat = Caveat({
+  variable: "--font-caveat",
+  subsets: ["latin"],
+  weight: ["400", "700"],
 });
 
 export const metadata: Metadata = {
@@ -33,7 +39,7 @@ export default function RootLayout({
   return (
     <html
       lang="id"
-      className={`${outfit.variable} ${plusJakartaSans.variable} h-full antialiased`}
+      className={`${outfit.variable} ${plusJakartaSans.variable} ${caveat.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         {children}

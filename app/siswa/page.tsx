@@ -81,7 +81,7 @@ const LEVELS = [
     tags: ['Mean', 'Median', 'Modus', 'Ukuran Pemusatan'],
     locked: false,
     xpMax: 0,
-    locationName: 'Sekolah Menengah',
+    locationName: '',
   },
   {
     id: 3,
@@ -140,13 +140,15 @@ export default function SiswaPage() {
       setCognitiveStyle(s.geftResult.cognitiveStyle)
     }
 
-    // Show greeting once per browser session (right after login).
-    // sessionStorage resets when the tab is closed, so a new login always shows it again.
-    if (s.diagnosticLevel && s.geftResult?.cognitiveStyle) {
+    // Show cognitive style modal first right after login, then queue the greeting modal.
+    if (s.geftResult?.cognitiveStyle) {
       const alreadyShown = sessionStorage.getItem('greeting_shown')
       const justFinishedGeft = sessionStorage.getItem('show_cognitive_style_first_time')
       if (!alreadyShown) {
-        setShowGreeting(true)
+        setShowCognitiveModal(true)
+        if (s.diagnosticLevel) {
+          sessionStorage.setItem('show_greeting_after_cognitive', '1')
+        }
         sessionStorage.setItem('greeting_shown', '1')
       } else if (justFinishedGeft) {
         setShowCognitiveModal(true)
@@ -388,6 +390,15 @@ export default function SiswaPage() {
     }
   }
 
+  const handleCloseCognitive = () => {
+    setShowCognitiveModal(false)
+    const showGreetingAfter = sessionStorage.getItem('show_greeting_after_cognitive')
+    if (showGreetingAfter) {
+      setShowGreeting(true)
+      sessionStorage.removeItem('show_greeting_after_cognitive')
+    }
+  }
+
   const resolvedStyle = student?.geftResult?.cognitiveStyle || cognitiveStyle || 'FI'
   const isFI = resolvedStyle === 'FI'
 
@@ -407,7 +418,7 @@ export default function SiswaPage() {
         minHeight: '100dvh',
         overflow: 'hidden',
         position: 'relative',
-        background: '#0b1e2c',
+        background: '#1A0F0A',
         color: '#F8FAFC',
         fontFamily: 'var(--font-sans), sans-serif',
         display: 'flex',
@@ -463,7 +474,7 @@ export default function SiswaPage() {
             justifyContent: 'center',
             padding: isMobile ? '12px' : '24px 32px',
             width: '100%',
-            backgroundImage: 'linear-gradient(rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.25)), url("/backgr.png")',
+            backgroundImage: 'linear-gradient(rgba(44, 26, 16, 0.4), rgba(44, 26, 16, 0.65)), url("/backgr.png")',
             backgroundSize: 'cover',
             backgroundPosition: 'top',
             position: 'relative',
@@ -622,7 +633,7 @@ export default function SiswaPage() {
             style={{
               width: isMobile ? '98%' : '96%',
               maxWidth: '1200px',
-              height: isMobile ? '250px' : '460px',
+              height: isMobile ? '360px' : '520px',
               position: 'relative',
               borderRadius: '8px',
               
@@ -743,282 +754,288 @@ export default function SiswaPage() {
                   <div
                     key={level.id}
                     ref={cardRefs[level.id - 1]}
-                    className={`level-card ${isUnlocked ? 'unlocked' : 'locked'}`}
+                    className={`board-level-card ${isUnlocked ? 'unlocked' : 'locked'}`}
                     onClick={() => isUnlocked && handlePlayLevel(level.id)}
                     onMouseEnter={() => isUnlocked && setHoveredCard(level.id)}
                     onMouseLeave={() => setHoveredCard(null)}
                     style={{
-                      width: isMobile ? '240px' : '310px',
-                      height: isMobile ? '150px' : '180px',
+                      width: isMobile ? '180px' : '240px',
+                      height: isMobile ? '275px' : '355px',
                       margin: '0',
-                      display: 'flex',
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      justifyContent: 'flex-start',
                       position: 'relative',
-                      transform: cardTransform,
+                      transform: isMobile
+                        ? cardTransform
+                        : `${cardTransform} rotate(${
+                            isHovered
+                              ? rotation + (level.id % 2 === 0 ? 0.5 : -0.5)
+                              : rotation * 0.5
+                          }deg) translateY(${isHovered ? -8 : 0}px)`,
+                      transition: 'transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)',
                       flexShrink: 0,
                       cursor: isUnlocked ? 'pointer' : 'default',
                     }}
                   >
-                    {/* Left Child: Camera Viewfinder Frame */}
+                    {/* 1. Paper Background with Ripped Edges (Filtered, containing corner brackets) */}
                     <div style={{
-                      width: isMobile ? '140px' : '170px',
-                      height: isMobile ? '140px' : '170px',
-                      position: 'relative',
-                      // Hover animation only affects the card frame container
-                      transform: isMobile
-                        ? 'none'
-                        : isHovered
-                          ? `rotate(${rotation + (level.id % 2 === 0 ? 0.5 : -0.5)}deg) translateY(-8px)`
-                          : `rotate(${rotation * 0.5}deg)`,
-                      transition: 'transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)',
+                      position: 'absolute',
+                      inset: 0,
+                      background: isUnlocked ? '#FFFFFF' : '#F1F5F9', // Solid white background
+                      border: '1px solid rgba(0, 0, 0, 0.08)',
+                      borderRadius: '4px',
+                      boxShadow: isHovered 
+                        ? '0 12px 28px rgba(0,0,0,0.18)' 
+                        : '0 4px 12px rgba(0,0,0,0.1)',
+                      transition: 'box-shadow 0.3s',
+                      filter: 'url(#tornEdge) url(#paperGrain)', // Apply torn edge & paper grain only to the background paper
+                      zIndex: 1,
                     }}>
-                      {/* 1. Paper Background with Ripped Edges (Filtered, containing corner brackets) */}
+                      {/* Viewfinder Corner Brackets (Warped/torn together with the paper) */}
+                      {/* Top-Left Corner */}
+                      <div style={{ position: 'absolute', top: '-2px', left: '-2px', width: '12px', height: '12px', borderTop: `2.5px solid ${isUnlocked ? '#5C4033' : '#8C7A6B'}`, borderLeft: `2.5px solid ${isUnlocked ? '#5C4033' : '#8C7A6B'}`, borderTopLeftRadius: '3px', pointerEvents: 'none', zIndex: 2 }} />
+                      {/* Top-Right Corner */}
+                      <div style={{ position: 'absolute', top: '-2px', right: '-2px', width: '12px', height: '12px', borderTop: `2.5px solid ${isUnlocked ? '#5C4033' : '#8C7A6B'}`, borderRight: `2.5px solid ${isUnlocked ? '#5C4033' : '#8C7A6B'}`, borderTopRightRadius: '3px', pointerEvents: 'none', zIndex: 2 }} />
+                      {/* Bottom-Left Corner */}
+                      <div style={{ position: 'absolute', bottom: '-2px', left: '-2px', width: '12px', height: '12px', borderBottom: `2.5px solid ${isUnlocked ? '#5C4033' : '#8C7A6B'}`, borderLeft: `2.5px solid ${isUnlocked ? '#5C4033' : '#8C7A6B'}`, borderBottomLeftRadius: '3px', pointerEvents: 'none', zIndex: 2 }} />
+                      {/* Bottom-Right Corner */}
+                      <div style={{ position: 'absolute', bottom: '-2px', right: '-2px', width: '12px', height: '12px', borderBottom: `2.5px solid ${isUnlocked ? '#5C4033' : '#8C7A6B'}`, borderRight: `2.5px solid ${isUnlocked ? '#5C4033' : '#8C7A6B'}`, borderBottomRightRadius: '3px', pointerEvents: 'none', zIndex: 2 }} />
+                    </div>
+
+                    {/* 2. Push-pin on top center */}
+                    <div style={{
+                      position: 'absolute',
+                      top: isMobile ? '-20px' : '-28px',
+                      left: '50%',
+                      transform: 'translateX(-50%) rotate(12deg)',
+                      zIndex: 10,
+                      filter: 'drop-shadow(0px 8px 6px rgba(0,0,0,0.3))',
+                      pointerEvents: 'none',
+                    }}>
+                      <svg width={isMobile ? "44" : "54"} height={isMobile ? "50" : "66"} viewBox="0 0 24 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <ellipse cx="10" cy="22" rx="4" ry="2" fill="rgba(0,0,0,0.2)" transform="rotate(-15 10 22)" />
+                        <path d="M12 14L10 24" stroke="#64748B" strokeWidth="2.5" strokeLinecap="round" />
+                        <path d="M6 6C6 4.89543 6.89543 4 8 4H16C17.1046 4 18 4.89543 18 6V11C18 11.85 17.3 12.5 16.5 12.8L12.5 14.5L8.5 12.8C7.7 12.5 7 11.8 7 11V6Z" fill={isUnlocked ? '#DC2626' : '#64748B'} />
+                        <path d="M9 5H15V6H9V5Z" fill={isUnlocked ? '#EF4444' : '#94A3B8'} />
+                        <path d="M12 4C13.1 4 14 3.1 14 2H10C10 3.1 10.9 4 12 4Z" fill={isUnlocked ? '#991B1B' : '#475569'} />
+                        <circle cx="10" cy="8" r="1.5" fill="rgba(255,255,255,0.4)" />
+                      </svg>
+                    </div>
+
+                    {/* 3. Card Content Layer (Renders on top, zIndex: 5) */}
+                    <div style={{
+                      position: 'absolute',
+                      inset: 0,
+                      padding: isMobile ? '10px' : '14px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between',
+                      zIndex: 5,
+                    }}>
+                      {/* Lock Status indicator */}
                       <div style={{
                         position: 'absolute',
-                        inset: 0,
-                        background: isUnlocked ? '#FFFFFF' : '#F1F5F9', // Solid white background
-                        border: '1px solid rgba(0, 0, 0, 0.08)',
-                        borderRadius: '4px',
-                        boxShadow: isHovered 
-                          ? '0 12px 28px rgba(0,0,0,0.18)' 
-                          : '0 4px 12px rgba(0,0,0,0.1)',
-                        transition: 'box-shadow 0.3s',
-                        filter: 'url(#tornEdge) url(#paperGrain)', // Apply torn edge & paper grain only to the background paper
-                        zIndex: 1,
+                        top: isMobile ? '10px' : '14px',
+                        right: isMobile ? '10px' : '14px',
+                        zIndex: 12,
+                        height: '14px',
                       }}>
-                        {/* Viewfinder Corner Brackets (Warped/torn together with the paper) */}
-                        {/* Top-Left Corner */}
-                        <div style={{ position: 'absolute', top: '-2px', left: '-2px', width: '12px', height: '12px', borderTop: `2.5px solid ${frameAccent}`, borderLeft: `2.5px solid ${frameAccent}`, borderTopLeftRadius: '3px', pointerEvents: 'none', zIndex: 2 }} />
-                        {/* Top-Right Corner */}
-                        <div style={{ position: 'absolute', top: '-2px', right: '-2px', width: '12px', height: '12px', borderTop: `2.5px solid ${frameAccent}`, borderRight: `2.5px solid ${frameAccent}`, borderTopRightRadius: '3px', pointerEvents: 'none', zIndex: 2 }} />
-                        {/* Bottom-Left Corner */}
-                        <div style={{ position: 'absolute', bottom: '-2px', left: '-2px', width: '12px', height: '12px', borderBottom: `2.5px solid ${frameAccent}`, borderLeft: `2.5px solid ${frameAccent}`, borderBottomLeftRadius: '3px', pointerEvents: 'none', zIndex: 2 }} />
-                        {/* Bottom-Right Corner */}
-                        <div style={{ position: 'absolute', bottom: '-2px', right: '-2px', width: '12px', height: '12px', borderBottom: `2.5px solid ${frameAccent}`, borderRight: `2.5px solid ${frameAccent}`, borderBottomRightRadius: '3px', pointerEvents: 'none', zIndex: 2 }} />
-                      </div>
-
-                      {/* 2. Push-pin on top center (Sits outside of the torn filter so it remains perfectly crisp) */}
-                      <div style={{
-                        position: 'absolute',
-                        top: isMobile ? '-24px' : '-32px',
-                        left: '50%',
-                        transform: 'translateX(-50%) rotate(12deg)',
-                        zIndex: 10,
-                        filter: 'drop-shadow(0px 8px 6px rgba(0,0,0,0.3))',
-                        pointerEvents: 'none',
-                      }}>
-                        <svg width={isMobile ? "48" : "60"} height={isMobile ? "54" : "72"} viewBox="0 0 24 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <ellipse cx="10" cy="22" rx="4" ry="2" fill="rgba(0,0,0,0.2)" transform="rotate(-15 10 22)" />
-                          <path d="M12 14L10 24" stroke="#64748B" strokeWidth="2.5" strokeLinecap="round" />
-                          <path d="M6 6C6 4.89543 6.89543 4 8 4H16C17.1046 4 18 4.89543 18 6V11C18 11.85 17.3 12.5 16.5 12.8L12.5 14.5L8.5 12.8C7.7 12.5 7 11.8 7 11V6Z" fill={isUnlocked ? '#DC2626' : '#64748B'} />
-                          <path d="M9 5H15V6H9V5Z" fill={isUnlocked ? '#EF4444' : '#94A3B8'} />
-                          <path d="M12 4C13.1 4 14 3.1 14 2H10C10 3.1 10.9 4 12 4Z" fill={isUnlocked ? '#991B1B' : '#475569'} />
-                          <circle cx="10" cy="8" r="1.5" fill="rgba(255,255,255,0.4)" />
-                        </svg>
-                      </div>
-
-                      {/* 3. Card Content Layer (Renders on top, zIndex: 5, NO filter so icons, tags, buttons & text remain sharp) */}
-                      <div style={{
-                        position: 'absolute',
-                        inset: 0,
-                        padding: isMobile ? '10px' : '14px',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'space-between',
-                        zIndex: 5,
-                      }}>
-                        {/* Frame Inner Header - LOCK tag */}
-                        <div style={{ display: 'flex', justifyContent: 'flex-end', height: '10px' }}>
-                          {!isUnlocked && (
-                            <span style={{
-                              fontSize: '8px',
-                              fontWeight: 800,
-                              color: '#EF4444',
-                              background: 'rgba(239, 68, 68, 0.1)',
-                              border: '1px solid rgba(239, 68, 68, 0.3)',
-                              padding: '1px 4px',
-                              borderRadius: '3px',
-                              textTransform: 'uppercase',
-                            }}>
-                              🔒 LOCK
-                            </span>
-                          )}
-                        </div>
-
-                        {/* Central Photo Content inside frame */}
-                        <div style={{
-                          display: 'flex',
-                          justifyContent: 'center',
-                          position: 'relative',
-                          width: '100%',
-                          marginTop: '4px',
-                          marginBottom: '4px',
-                        }}>
-                          {level.thumbnail ? (
-                            <div style={{
-                              width: '100%',
-                              height: isMobile ? '50px' : '70px',
-                              borderRadius: '6px',
-                              overflow: 'hidden',
-                              border: `1.5px solid ${frameAccent}`,
-                              background: '#F1F5F9',
-                              zIndex: 2,
-                              position: 'relative',
-                              boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.1)',
-                            }}>
-                              <img
-                                src={level.thumbnail}
-                                alt={level.title}
-                                style={{
-                                  width: '100%',
-                                  height: '100%',
-                                  objectFit: 'cover',
-                                  filter: isUnlocked ? 'none' : 'grayscale(100%) opacity(0.4)',
-                                }}
-                              />
-                            </div>
-                          ) : (
-                            <div style={{
-                              width: isMobile ? '32px' : '44px',
-                              height: isMobile ? '32px' : '44px',
-                              borderRadius: '50%',
-                              background: isUnlocked
-                                ? 'rgba(0, 0, 0, 0.04)' // subtle contrast background
-                                : 'rgba(148, 163, 184, 0.1)',
-                              border: `1.5px solid ${frameAccent}`,
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              fontSize: isMobile ? '16px' : '22px',
-                              zIndex: 2,
-                            }}>
-                              {isUnlocked ? level.icon : '🔒'}
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Case Tags (Badges inside frame) */}
-                        {isUnlocked && level.tags.length > 0 && (
-                          <div style={{
-                            display: 'flex',
-                            gap: '4px',
-                            flexWrap: 'wrap',
-                            justifyContent: 'center',
+                        {!isUnlocked && (
+                          <span style={{
+                            fontSize: isMobile ? '8.5px' : '10.5px',
+                            fontWeight: 800,
+                            color: '#EF4444',
+                            background: 'rgba(239, 68, 68, 0.1)',
+                            border: '1px solid rgba(239, 68, 68, 0.3)',
+                            padding: '2px 5px',
+                            borderRadius: '3px',
+                            textTransform: 'uppercase',
                           }}>
-                            {level.tags.slice(0, 2).map(tag => (
-                              <span
-                                key={tag}
-                                style={{
-                                  fontSize: '7.5px',
-                                  background: 'rgba(0, 0, 0, 0.03)',
-                                  border: `1px solid ${frameAccent}33`,
-                                  borderRadius: '3px',
-                                  padding: '2px 4px',
-                                  color: frameAccent,
-                                  fontWeight: 700,
-                                  whiteSpace: 'nowrap',
-                                }}
-                              >
-                                {tag}
-                              </span>
-                            ))}
-                          </div>
+                            🔒 LOCK
+                          </span>
                         )}
+                      </div>
 
-                        {/* Frame Action Button (Mulai Penyelidikan) */}
-                        <div style={{ marginTop: '4px' }}>
-                          {isUnlocked ? (
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                handlePlayLevel(level.id)
-                              }}
+                      {/* Photo Viewport */}
+                      <div style={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        position: 'relative',
+                        width: '100%',
+                        marginTop: '4px',
+                      }}>
+                        {level.thumbnail ? (
+                          <div style={{
+                            width: '100%',
+                            height: isMobile ? '80px' : '120px',
+                            borderRadius: '4px',
+                            overflow: 'hidden',
+                            border: `1px solid rgba(0, 0, 0, 0.15)`,
+                            background: '#F1F5F9',
+                            zIndex: 2,
+                            position: 'relative',
+                            boxShadow: '0 2px 5px rgba(0,0,0,0.15)',
+                          }}>
+                            <img
+                              src={level.thumbnail}
+                              alt={level.title}
                               style={{
                                 width: '100%',
-                                padding: '6px',
-                                borderRadius: '4px',
-                                border: 'none',
-                                background: frameAccent,
-                                color: '#FFFFFF',
-                                fontSize: '9.5px',
-                                fontWeight: 800,
-                                cursor: 'pointer',
-                                boxShadow: `0 2px 8px ${frameAccent}44`,
-                                transition: 'all 0.2s',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                gap: '3px',
+                                height: '100%',
+                                objectFit: 'cover',
+                                filter: isUnlocked ? 'none' : 'grayscale(100%) opacity(0.4)',
                               }}
-                              onMouseEnter={e => e.currentTarget.style.filter = 'brightness(1.15)'}
-                              onMouseLeave={e => e.currentTarget.style.filter = 'none'}
+                            />
+                          </div>
+                        ) : (
+                          <div style={{
+                            width: '100%',
+                            height: isMobile ? '80px' : '120px',
+                            borderRadius: '4px',
+                            background: isUnlocked
+                              ? 'rgba(0, 0, 0, 0.04)'
+                              : 'rgba(148, 163, 184, 0.1)',
+                            border: `1.5px solid ${isUnlocked ? '#5C4033' : '#8C7A6B'}`,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: isMobile ? '24px' : '36px',
+                            zIndex: 2,
+                          }}>
+                            {isUnlocked ? level.icon : '🔒'}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Polaroid Caption Area */}
+                      <div style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: '100%',
+                        margin: '2px 0',
+                      }}>
+                        <span style={{
+                          fontSize: isMobile ? '9px' : '11px',
+                          fontWeight: 900,
+                          fontFamily: 'monospace',
+                          color: isUnlocked ? '#5C4033' : '#8C7A6B',
+                          letterSpacing: '1px',
+                          textAlign: 'center',
+                          textTransform: 'uppercase',
+                        }}>
+                          GALLERY 0{level.id}
+                        </span>
+                        
+                        <h3 style={{
+                          fontFamily: 'var(--font-caveat), cursive',
+                          fontSize: isMobile ? '18px' : '23px',
+                          fontWeight: 700,
+                          color: isUnlocked ? '#1E293B' : '#64748B',
+                          margin: '2px 0',
+                          lineHeight: '1.15',
+                          textAlign: 'center',
+                        }}>
+                          {level.title}
+                        </h3>
+
+                        {level.locationName && (
+                          <span style={{
+                            fontSize: isMobile ? '9px' : '11px',
+                            color: isUnlocked ? '#4B5563' : '#8290A6',
+                            fontWeight: 600,
+                            textAlign: 'center',
+                          }}>
+                            📍 {level.locationName}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Case Badges */}
+                      {isUnlocked && level.tags.length > 0 && (
+                        <div style={{
+                          display: 'flex',
+                          gap: '4px',
+                          flexWrap: 'wrap',
+                          justifyContent: 'center',
+                          margin: '2px 0',
+                        }}>
+                          {level.tags.slice(0, 2).map(tag => (
+                            <span
+                              key={tag}
+                              style={{
+                                fontSize: isMobile ? '9px' : '10.5px',
+                                background: 'rgba(14, 131, 136, 0.04)',
+                                border: '1px solid rgba(14, 131, 136, 0.25)',
+                                borderRadius: '3px',
+                                padding: '2.5px 5px',
+                                color: '#0A7E8C',
+                                fontWeight: 700,
+                                whiteSpace: 'nowrap',
+                              }}
                             >
-                              <span>Investigasi</span>
-                              <span>→</span>
-                            </button>
-                          ) : (
-                            <div style={{
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Action Button */}
+                      <div style={{ width: '100%', marginTop: '2px' }}>
+                        {isUnlocked ? (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handlePlayLevel(level.id)
+                            }}
+                            style={{
                               width: '100%',
-                              padding: '6px',
+                              padding: '8px',
                               borderRadius: '4px',
-                              background: 'rgba(148, 163, 184, 0.05)',
-                              border: '1px solid rgba(148, 163, 184, 0.15)',
-                              color: 'rgba(0, 0, 0, 0.3)',
-                              fontSize: '9.5px',
-                              fontWeight: 700,
-                              textAlign: 'center',
+                              border: 'none',
+                              background: '#B84A39',
+                              color: '#FFFFFF',
+                              fontSize: isMobile ? '10px' : '12px',
+                              fontWeight: 800,
+                              cursor: 'pointer',
+                              boxShadow: '0 2px 8px rgba(184, 74, 57, 0.3)',
+                              transition: 'all 0.2s',
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
                               gap: '3px',
-                            }}>
-                              <span>🔒 Locked</span>
-                            </div>
-                          )}
-                        </div>
+                            }}
+                            onMouseEnter={e => {
+                              e.currentTarget.style.filter = 'brightness(1.15)';
+                              e.currentTarget.style.background = '#A23E2F';
+                            }}
+                            onMouseLeave={e => {
+                              e.currentTarget.style.filter = 'none';
+                              e.currentTarget.style.background = '#B84A39';
+                            }}
+                          >
+                            <span>Investigasi</span>
+                            <span>→</span>
+                          </button>
+                        ) : (
+                          <div style={{
+                            width: '100%',
+                            padding: '8px',
+                            borderRadius: '4px',
+                            background: 'rgba(148, 163, 184, 0.05)',
+                            border: '1px solid rgba(148, 163, 184, 0.15)',
+                            color: 'rgba(0, 0, 0, 0.3)',
+                            fontSize: isMobile ? '10px' : '12px',
+                            fontWeight: 700,
+                            textAlign: 'center',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '3px',
+                          }}>
+                            <span>🔒 Locked</span>
+                          </div>
+                        )}
                       </div>
-                    </div>
-
-                    {/* Right Child: HUD Labels Outside Frame (Dark Slate / Black Ink look on Corkboard) */}
-                    <div style={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'flex-start',
-                      marginLeft: isMobile ? '8px' : '14px',
-                      maxWidth: isMobile ? '90px' : '120px',
-                      flexShrink: 0,
-                      textAlign: 'left',
-                      pointerEvents: 'none',
-                    }}>
-                      <span style={{
-                        fontSize: '9px',
-                        fontWeight: 900,
-                        fontFamily: 'monospace',
-                        color: isUnlocked ? frameAccent : '#64748B',
-                        letterSpacing: '1px',
-                      }}>
-                        GALLERY 0{level.id}
-                      </span>
-                      <h3 style={{
-                        fontSize: isMobile ? '10px' : '12px',
-                        fontWeight: 800,
-                        color: isUnlocked ? '#0F172A' : '#64748B', // Black/dark slate color for active level titles
-                        margin: '3px 0 1px 0',
-                        lineHeight: '1.2',
-                      }}>
-                        {level.title}
-                      </h3>
-                      {level.locationName && (
-                        <span style={{
-                          fontSize: '8.5px',
-                          color: isUnlocked ? '#475569' : '#8290A6', // Dark gray color for active locations
-                          fontWeight: 600,
-                        }}>
-                          📍 {level.locationName}
-                        </span>
-                      )}
                     </div>
                   </div>
                 )
@@ -1349,7 +1366,7 @@ export default function SiswaPage() {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              onClick={() => setShowCognitiveModal(false)}
+              onClick={handleCloseCognitive}
               style={{
                 position: 'fixed', inset: 0, zIndex: 300,
                 background: 'rgba(11, 30, 44, 0.85)', backdropFilter: 'blur(12px)',
@@ -1383,7 +1400,7 @@ export default function SiswaPage() {
                     </h3>
                   </div>
                   <button
-                    onClick={() => setShowCognitiveModal(false)}
+                    onClick={handleCloseCognitive}
                     style={{ background: 'none', border: 'none', color: '#A8A29E', fontSize: '20px', cursor: 'pointer', padding: '4px' }}
                     onMouseEnter={e => e.currentTarget.style.color = '#DC2626'}
                     onMouseLeave={e => e.currentTarget.style.color = '#A8A29E'}
@@ -1422,7 +1439,7 @@ export default function SiswaPage() {
                 </div>
 
                 <button
-                  onClick={() => setShowCognitiveModal(false)}
+                  onClick={handleCloseCognitive}
                   style={{
                     marginTop: '20px', width: '100%', padding: '14px',
                     borderRadius: '14px',
@@ -2188,10 +2205,10 @@ export default function SiswaPage() {
           background: rgba(255, 255, 255, 0.35);
         }
 
-        .level-card {
+        .board-level-card {
           transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .level-card.locked {
+        .board-level-card.locked {
           opacity: 0.65;
         }
 

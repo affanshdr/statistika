@@ -281,30 +281,33 @@ export default function DraggableHistogram({
           paddingLeft: '0px', paddingBottom: '0px',
           position: 'relative',
         }}>
-          {CORRECT_TABLE.map((row, i) => (
-            <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', height: '100%' }}>
-              <motion.div
-                initial={{ height: 0 }}
-                animate={{ height: `${(row.f / maxF) * 100}%` }}
-                transition={{ delay: i * 0.15, duration: 0.7, ease: 'easeOut' }}
-                style={{
-                  width: '100%', borderRadius: '0px',
-                  background: `linear-gradient(180deg, ${CLASS_COLORS[i]}99 0%, ${CLASS_COLORS[i]}55 100%)`,
-                  border: `1px solid ${CLASS_COLORS[i]}88`,
-                  display: 'flex', alignItems: 'flex-start', justifyContent: 'center', paddingTop: '4px',
-                  boxShadow: `0 0 8px ${CLASS_COLORS[i]}44`,
-                }}
-              >
-                <span style={{ fontSize: '11px', fontWeight: 800, color: '#000000' }}>f={row.f}</span>
-              </motion.div>
-            </div>
-          ))}
+          {CORRECT_TABLE.map((row, i) => {
+            const colOpacity = 0.35 + 0.55 * (row.f / maxF)
+            return (
+              <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', height: '100%' }}>
+                <motion.div
+                  initial={{ height: 0 }}
+                  animate={{ height: `${(row.f / maxF) * 100}%` }}
+                  transition={{ delay: i * 0.15, duration: 0.7, ease: 'easeOut' }}
+                  style={{
+                    width: '100%', borderRadius: '0px',
+                    background: `rgba(0, 173, 181, ${colOpacity})`,
+                    border: `1px solid rgba(0, 173, 181, ${Math.min(1.0, colOpacity + 0.15)})`,
+                    display: 'flex', alignItems: 'flex-start', justifyContent: 'center', paddingTop: '4px',
+                    boxShadow: `0 0 8px rgba(0, 173, 181, 0.25)`,
+                  }}
+                >
+                  <span style={{ fontSize: '15px', fontWeight: 800, color: '#ffffff', textShadow: '0px 1px 2px rgba(0,0,0,0.7)' }}>f={row.f}</span>
+                </motion.div>
+              </div>
+            )
+          })}
         </div>
         {/* Tepi Kelas ticks at boundaries */}
         <div style={{
           width: '100%',
-          marginTop: '4px',
-          height: '14px',
+          marginTop: '6px',
+          height: '20px',
           position: 'relative',
           flexShrink: 0,
         }}>
@@ -312,7 +315,7 @@ export default function DraggableHistogram({
             <span
               key={idx}
               style={{
-                fontSize: '8px',
+                fontSize: '12px',
                 color: '#78716C',
                 fontWeight: 700,
                 fontFamily: 'var(--font-data)',
@@ -323,12 +326,11 @@ export default function DraggableHistogram({
                 textAlign: 'center',
               }}
             >
-              
               {tick}
             </span>
           ))}
         </div>
-        <div style={{ textAlign: 'center', fontSize: '10px', color: '#A8A29E', fontWeight: 700, letterSpacing: '1px', marginTop: '6px' }}>
+        <div style={{ textAlign: 'center', fontSize: '12px', color: '#A8A29E', fontWeight: 700, letterSpacing: '1.5px', marginTop: '6px' }}>
           SCREEN TIME (JAM/HARI)
         </div>
       </div>
@@ -455,14 +457,14 @@ export default function DraggableHistogram({
                       style={{
                         // flex-item sizing
                         flexShrink: 0,
-                        padding: isUltraCompact ? '3px 7px' : '4px 10px',
+                        padding: isUltraCompact ? '4px 8px' : '5px 12px',
                         borderRadius: '50px',
                         background: isSelected
                           ? `linear-gradient(135deg, ${col} 0%, #fff 130%)`
                           : `linear-gradient(135deg, ${col}dd 0%, ${col}88 100%)`,
                         border: isSelected ? '2px solid #fff' : `1.5px solid ${col}66`,
                         color: isSelected ? '#000' : '#fff',
-                        fontSize: isUltraCompact ? '10px' : '11px',
+                        fontSize: isUltraCompact ? '12px' : '13.5px',
                         fontWeight: 800,
                         cursor: 'grab',
                         userSelect: 'none',
@@ -478,7 +480,7 @@ export default function DraggableHistogram({
                         fontFamily: 'var(--font-data)',
                         whiteSpace: 'nowrap',
                         transition: 'box-shadow 0.15s, background 0.15s, border 0.15s',
-                        minWidth: isUltraCompact ? '24px' : '28px',
+                        minWidth: isUltraCompact ? '28px' : '32px',
                         textAlign: 'center',
                       }}
                     >
@@ -531,7 +533,7 @@ export default function DraggableHistogram({
                         }}
                         style={{
                           pointerEvents: 'auto',
-                          padding: '5px 12px',
+                          padding: '6px 14px',
                           borderRadius: '50px',
                           background: isSelected
                             ? `linear-gradient(135deg, ${col} 0%, #fff 130%)`
@@ -540,7 +542,7 @@ export default function DraggableHistogram({
                             ? '2px solid #fff'
                             : `1.5px solid ${col}66`,
                           color: isSelected ? '#000' : '#fff',
-                          fontSize: '12px',
+                          fontSize: '15px',
                           fontWeight: 800,
                           cursor: 'grab',
                           userSelect: 'none',
@@ -585,7 +587,7 @@ export default function DraggableHistogram({
             <div style={{
               position: 'absolute', left: 2, top: '50%',
               transform: 'translateY(-50%) rotate(-90deg)',
-              fontSize: '7px', color: '#A8A29E',
+              fontSize: '12px', color: '#A8A29E',
               fontWeight: 800, letterSpacing: '1.5px', whiteSpace: 'nowrap',
             }}>
               FREKUENSI
@@ -604,9 +606,13 @@ export default function DraggableHistogram({
               const placed      = placedByClass[i]
               const isError     = flashError === i
               const isTarget    = selectedPoint?.classIdx === i
-              const col         = CLASS_COLORS[i]
+              const col         = '#00ADB5'
               const isMatchDrag = false
               const shouldHighlightColumn = showVisualHighlight && correctSlotIdx === i
+
+              // Calculate opacity based on frequency f
+              const f           = placed.length
+              const colOpacity  = f === 0 ? 0.25 : 0.35 + 0.55 * (f / 11)
 
               return (
                 <motion.div
@@ -692,13 +698,14 @@ export default function DraggableHistogram({
                             width: '100%',
                             height: isUltraCompact ? 'calc((100% - 16px) / 13)' : isCompact ? 'calc((100% - 22px) / 13)' : 'calc((100% - 38px) / 13)',
                             flexShrink: 0,
-                            background: `linear-gradient(180deg, ${col}cc 0%, ${col}88 100%)`,
-                            border: `1px solid ${col}44`,
+                            background: `rgba(0, 173, 181, ${colOpacity})`,
+                            border: `1px solid rgba(0, 173, 181, ${Math.min(1.0, colOpacity + 0.15)})`,
                             borderRadius: '0px',
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            fontSize: isUltraCompact ? '6.5px' : isCompact ? '7.5px' : '8px',
+                            fontSize: isUltraCompact ? '10px' : isCompact ? '11.5px' : '13px',
                             fontWeight: 800,
-                            color: '#000000',
+                            color: '#ffffff',
+                            textShadow: '0px 1px 2px rgba(0, 0, 0, 0.7)',
                           }}
                         >
                           {dp.val}
@@ -726,7 +733,7 @@ export default function DraggableHistogram({
 
                     {placed.length > 0 && (
                       <div style={{
-                        fontSize: '10px', fontWeight: 800, color: col,
+                        fontSize: '15px', fontWeight: 800, color: col,
                         marginBottom: '2px', flexShrink: 0,
                       }}>
                         f = {placed.length}
@@ -742,8 +749,8 @@ export default function DraggableHistogram({
           {/* Tepi Kelas ticks at boundaries */}
           <div style={{
             width: '100%',
-            marginTop: '4px',
-            height: '14px',
+            marginTop: '6px',
+            height: '20px',
             position: 'relative',
             flexShrink: 0,
           }}>
@@ -751,7 +758,7 @@ export default function DraggableHistogram({
               <span
                 key={idx}
                 style={{
-                  fontSize: '8px',
+                  fontSize: '12px',
                   color: '#94A3B8',
                   fontWeight: 700,
                   fontFamily: 'var(--font-data)',
@@ -769,9 +776,9 @@ export default function DraggableHistogram({
 
           {/* X-axis title */}
           <div style={{
-            textAlign: 'center', fontSize: '7.5px',
+            textAlign: 'center', fontSize: '12px',
             color: '#94A3B8', fontWeight: 800,
-            letterSpacing: '1px', marginTop: '3px', flexShrink: 0,
+            letterSpacing: '1.5px', marginTop: '6px', flexShrink: 0,
           }}>
             SCREEN TIME (JAM/HARI)
           </div>
