@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import PlayerCharacter from './PlayerCharacter'
 
 // ─── Vertical Hallway dimensions ──────────────────────────────────────────────
 const VW = 800
@@ -301,7 +302,7 @@ function checkClassCollision(
   return true
 }
 
-// Walkability: check if character is inside the vertical hallway or unlocked rooms
+// Walkability: check if character is inside the vertical hallway or open rooms
 function isWalkable(x: number, y: number, unlocked: Set<string>): boolean {
   const R = 6.0 // player radius padding for landscape map
 
@@ -311,10 +312,7 @@ function isWalkable(x: number, y: number, unlocked: Set<string>): boolean {
   const rightDiagY = 180 + (x - 520) * (8/27)
 
   if (x < 280 && y < leftDiagY) {
-    if (!unlocked.has('A')) return false
     if (x > 280 - R) return false
-    const atDoorA = x >= 160 && x <= 190
-    if (!atDoorA && y > leftDiagY - R) return false
 
     if (!checkClassCollision(x, y, CLASS_DOORS[0], unlocked, leftDiagY - 35, 10, 95, R)) return false
     if (!checkClassCollision(x, y, CLASS_DOORS[1], unlocked, leftDiagY - 35, 95, 185, R)) return false
@@ -324,10 +322,7 @@ function isWalkable(x: number, y: number, unlocked: Set<string>): boolean {
   }
 
   if (x > 520 && y < rightDiagY) {
-    if (!unlocked.has('C')) return false
     if (x < 520 + R) return false
-    const atDoorC = x >= 610 && x <= 640
-    if (!atDoorC && y > rightDiagY - R) return false
 
     if (!checkClassCollision(x, y, CLASS_DOORS[6], unlocked, rightDiagY - 35, 520, 610, R)) return false
     if (!checkClassCollision(x, y, CLASS_DOORS[7], unlocked, rightDiagY - 35, 610, 700, R)) return false
@@ -337,27 +332,13 @@ function isWalkable(x: number, y: number, unlocked: Set<string>): boolean {
   }
 
   if (x >= 280 && x <= 520 && y < 180) {
-    if (!unlocked.has('B')) return false
     if (x < 280 + R || x > 520 - R) return false
-    const atDoorB = x >= 385 && x <= 415
-    if (!atDoorB && y > 180 - R) return false
 
     if (!checkClassCollision(x, y, CLASS_DOORS[3], unlocked, 145, 280, 360, R)) return false
     if (!checkClassCollision(x, y, CLASS_DOORS[4], unlocked, 145, 360, 440, R)) return false
     if (!checkClassCollision(x, y, CLASS_DOORS[5], unlocked, 145, 440, 520, R)) return false
 
     return true
-  }
-
-  if (x < 280) {
-    const atDoorA = unlocked.has('A') && x >= 160 && x <= 190
-    if (!atDoorA && y < leftDiagY + R) return false
-  } else if (x > 520) {
-    const atDoorC = unlocked.has('C') && x >= 610 && x <= 640
-    if (!atDoorC && y < rightDiagY + R) return false
-  } else {
-    const atDoorB = unlocked.has('B') && x >= 385 && x <= 415
-    if (!atDoorB && y < 180 + R) return false
   }
 
   return true
@@ -1257,7 +1238,7 @@ function CounterResult({ onDone }: { onDone: () => void }) {
 export default function NPath({ onComplete, isFD = true, demoMode = false }: { onComplete: () => void; isFD?: boolean; demoMode?: boolean }) {
   const [charPos, setCharPos] = useState({ x: 400, y: 310 })
   const [unlocked, setUnlocked] = useState<Set<string>>(() => {
-    return demoMode ? new Set(['A', 'A1', 'A2', 'A3', 'B1']) : new Set()
+    return demoMode ? new Set(['A', 'B', 'C', 'A1', 'A2', 'A3', 'B1']) : new Set(['A', 'B', 'C'])
   })
   const [justCompletedClassId, setJustCompletedClassId] = useState<string | null>(null)
   const [activeDoor, setActiveDoor] = useState<typeof DOORS[number] | null>(null)
@@ -1280,6 +1261,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
   const [showCounter, setShowCounter] = useState(demoMode ? true : false)
   const [roomMilestoneText, setRoomMilestoneText] = useState<string | null>(null)
   const [milestoneGlow, setMilestoneGlow] = useState<'50%' | '100%' | null>(null)
+  const [moveDir, setMoveDir] = useState({ x: 0, y: 0 })
 
   const charPosRef = useRef({ x: 400, y: 310 })
 
@@ -1399,7 +1381,9 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
         if (d) { nx += d.x; ny += d.y }
       })
       const len = Math.sqrt(nx * nx + ny * ny)
-      dirRef.current = len > 0 ? { x: nx / len, y: ny / len } : { x: 0, y: 0 }
+      const nextDir = len > 0 ? { x: nx / len, y: ny / len } : { x: 0, y: 0 }
+      dirRef.current = nextDir
+      setMoveDir(nextDir)
     }
 
     const onKeyDown = (e: KeyboardEvent) => {
@@ -1441,6 +1425,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
       window.removeEventListener('keydown', onKeyDown)
       window.removeEventListener('keyup', onKeyUp)
       dirRef.current = { x: 0, y: 0 }
+      setMoveDir({ x: 0, y: 0 })
     }
   }, [diraMessageText])
 
@@ -1851,28 +1836,8 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
             <circle cx={400} cy={310} r={20} fill="rgba(14, 131, 136, 0.08)" stroke="rgba(14, 131, 136, 0.3)" strokeWidth={1} />
             <text x={400} y={313.5} textAnchor="middle" fill="#00ADB5" fontSize={9.5} fontWeight="900" fontFamily="monospace">MULAI</text>
 
-            {/* Connecting doors */}
-            {DOORS.map(door => {
-              const open = unlocked.has(door.id)
-              const near = nearDoor?.id === door.id && !open
-              const rx = door.x - 21
-              const ry = door.y - 13
-
-              return (
-                <g key={door.id} style={{ cursor: open ? 'default' : 'pointer' }}
-                  onClick={e => { e.stopPropagation(); if (!open) setUnlocked(p => new Set([...p, door.id])) }}>
-                  {near && <circle cx={door.x} cy={door.y} r={22} fill="rgba(245, 158, 11, 0.15)" stroke="rgba(245, 158, 11, 0.44)" strokeWidth={0.6} />}
-                  <rect x={rx} y={ry} width={42} height={26} rx={6}
-                    fill={open ? `${door.color}25` : '#111827'} stroke={near ? '#FFFFFF' : open ? door.color : '#f59e0b'} strokeWidth={1} />
-                  <text x={door.x} y={door.y + 1.5} textAnchor="middle" dominantBaseline="middle" fontSize={16}>{open ? '🔓' : '🔒'}</text>
-                  <text x={door.x} y={door.y - 20} textAnchor="middle" fontSize={11.5} fontWeight="bold" fill={open ? door.color : '#f59e0b'} fontFamily="monospace">{door.label}</text>
-                </g>
-              )
-            })}
-
-            {/* Class doors (rendered inside rooms once unlocked in a small Card layout) */}
+            {/* Class doors (rendered inside rooms in a small Card layout) */}
             {CLASS_DOORS.map(door => {
-              if (!unlocked.has(door.roomId)) return null
               const open = unlocked.has(door.id)
               const near = nearClass?.id === door.id && !open
               const isJustCompleted = justCompletedClassId === door.id
@@ -2047,27 +2012,13 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
             })}
 
             {/* Player Character */}
-            <defs>
-              <radialGradient id="char-grad" cx="35%" cy="35%" r="65%">
-                <stop offset="0%" stopColor="#ffffff" />
-                <stop offset="50%" stopColor="#00ADB5" />
-                <stop offset="100%" stopColor="#1e1b4b" />
-              </radialGradient>
-            </defs>
-
-            {/* Pulsing outer glow aura for the avatar */}
-            <motion.circle
-              cx={charPos.x}
-              cy={charPos.y}
-              r={14}
-              fill="rgba(0, 240, 255, 0.22)"
-              animate={{ scale: [1, 1.35, 1], opacity: [0.35, 0.7, 0.35] }}
-              transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-              pointerEvents="none"
+            <PlayerCharacter
+              x={charPos.x}
+              y={charPos.y}
+              dir={moveDir}
+              size={32}
+              label="Kamu"
             />
-
-            <circle cx={charPos.x} cy={charPos.y} r={7.0} fill="url(#char-grad)" filter="url(#avatar-super-glow)" />
-            <text x={charPos.x} y={charPos.y - 11} textAnchor="middle" fontSize={8} fontWeight="bold" fill="#ffffff" fontFamily="var(--font-ui)" style={{ letterSpacing: '0.5px', filter: 'drop-shadow(0 1px 3px rgba(0,0,0,0.9))' }}>Kamu</text>
 
             {/* Quick Click floating helper buttons rendered directly inside the SVG */}
             <AnimatePresence>
@@ -2169,7 +2120,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
 
           {/* Joystick */}
           <div style={{ position: 'absolute', bottom: 12, left: 12, zIndex: 20 }}>
-            <Joystick onDir={(x, y) => { dirRef.current = { x, y } }} />
+            <Joystick onDir={(x, y) => { const nextDir = { x, y }; dirRef.current = nextDir; setMoveDir(nextDir); }} />
           </div>
         </div>
       </div>

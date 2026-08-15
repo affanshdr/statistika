@@ -6,6 +6,7 @@ import { screenTimeData, STATS } from '../_data/level1'
 import { useGameStore } from '@/lib/store/gameStore'
 import DiraPopup, { DiraPopupStep } from './DiraPopup'
 import NPath from './NPath'
+import PlayerCharacter from './PlayerCharacter'
 import { useGameRealtime, type PlayerPresence } from '@/lib/hooks/useGameRealtime'
 
 // ─── Constants ───────────────────────────────────────────────────────────────
@@ -705,6 +706,7 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
   showFDIntroPopupRef.current = showFDIntroPopup
   const [rentangDone, setRentangDone] = useState(false)
   const dirRef = useRef({ x: 0, y: 0 })
+  const [moveDir, setMoveDir] = useState({ x: 0, y: 0 })
   const animRef = useRef<number | null>(null)
   const mapRef = useRef<HTMLDivElement>(null)
   const slotRRef = useRef<HTMLDivElement>(null)
@@ -822,7 +824,9 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
       let nx = 0, ny = 0
       held.forEach(k => { const d = KEYS[k]; if (d) { nx += d.x; ny += d.y } })
       const len = Math.sqrt(nx * nx + ny * ny)
-      dirRef.current = len > 0 ? { x: nx / len, y: ny / len } : { x: 0, y: 0 }
+      const nextDir = len > 0 ? { x: nx / len, y: ny / len } : { x: 0, y: 0 }
+      dirRef.current = nextDir
+      setMoveDir(nextDir)
     }
     const down = (e: KeyboardEvent) => {
       if (showFDIntroPopupRef.current) {
@@ -1788,19 +1792,13 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                       })}
 
                       {/* Player character (self) */}
-                      <defs>
-                        <radialGradient id="cg-rentang" cx="35%" cy="35%" r="65%">
-                          <stop offset="0%" stopColor="#ffffff" />
-                          <stop offset="60%" stopColor="var(--accent,#D97706)" />
-                          <stop offset="100%" stopColor="#4f46e5" />
-                        </radialGradient>
-                        <filter id="glow-rentang" x="-80%" y="-80%" width="260%" height="260%">
-                          <feGaussianBlur stdDeviation="1.2" result="b" />
-                          <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
-                        </filter>
-                      </defs>
-                      <circle cx={charPos.x} cy={charPos.y} r={2.5} fill="url(#cg-rentang)" filter="url(#glow-rentang)" />
-                      <text x={charPos.x} y={charPos.y - 4} textAnchor="middle" fontSize={2.5} fill="rgba(255,255,255,0.7)" fontFamily="var(--font-data)">Kamu</text>
+                      <PlayerCharacter
+                        x={charPos.x}
+                        y={charPos.y}
+                        dir={moveDir}
+                        size={14}
+                        label="Kamu"
+                      />
 
                       {/* Teammate characters — one per member, colored distinctly */}
                       {teamMembers && teamMembers.filter(m => m.id !== studentId).map((m, idx) => {

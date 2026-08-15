@@ -178,7 +178,34 @@ export default function ResultsPage({
 
   if (!lkpdCompleted) {
     return (
-      <div className="game-root" style={{ minHeight: '100vh', padding: '32px 16px', overflowY: 'auto' }}>
+      <div className="game-root" style={{ minHeight: '100vh', paddingBottom: '32px' }}>
+        {/* Header */}
+        <header style={{
+          padding: '16px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.08)', background: 'rgba(11, 30, 44, 0.95)', backdropFilter: 'blur(20px)',
+          position: 'sticky', top: 0, zIndex: 100,
+          color: '#F8FAFC',
+          marginBottom: '24px',
+        }}>
+          <div style={{ fontWeight: 800, fontSize: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <motion.img
+              src="/dira-avatar.png"
+              alt="DiRA"
+              style={{ height: '32px', objectFit: 'contain' }}
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+            />
+            E-LKPD Investigasi
+          </div>
+          <button
+            className="game-btn game-btn-secondary"
+            style={{ fontSize: '13px', padding: '8px 16px' }}
+            onClick={() => router.push('/siswa')}
+          >
+            ← Dashboard
+          </button>
+        </header>
+
         {confetti && (
           <ReactConfetti
             width={windowSize.width}
@@ -188,7 +215,7 @@ export default function ResultsPage({
             gravity={0.15}
           />
         )}
-        <div style={{ textAlign: 'center', marginBottom: '28px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '28px', padding: '0 16px' }}>
           <h1 style={{ fontSize: '26px', fontWeight: 900, color: '#F8FAFC', margin: '0 0 6px' }}>
             Investigasi Selesai!
           </h1>
@@ -196,11 +223,13 @@ export default function ResultsPage({
             Lengkapi LKPD di bawah ini untuk merangkum penyelidikanmu sebelum melihat lencana investigasi.
           </p>
         </div>
-        <LkpdWorksheet
-          studentName={studentInfo?.name}
-          studentClass={studentInfo?.classroom?.name || 'X'}
-          onSubmit={handleLkpdSubmit}
-        />
+        <div style={{ padding: '0 16px' }}>
+          <LkpdWorksheet
+            studentName={studentInfo?.name}
+            studentClass={studentInfo?.classroom?.name || 'X'}
+            onSubmit={handleLkpdSubmit}
+          />
+        </div>
       </div>
     )
   }

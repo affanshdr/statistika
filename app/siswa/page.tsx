@@ -115,7 +115,6 @@ export default function SiswaPage() {
   // Navigation & Study Modals State
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [showBookletModal, setShowBookletModal] = useState(false)
-  const [showVideoModal, setShowVideoModal] = useState(false)
   const [showGatingModal, setShowGatingModal] = useState(false)
   const [gatingLevelId, setGatingLevelId] = useState<number | null>(null)
   const [gatingStep, setGatingStep] = useState<1 | 2>(1)
@@ -126,7 +125,7 @@ export default function SiswaPage() {
   const [teamRefreshing, setTeamRefreshing] = useState(false)
 
   // Game store variables
-  const { cognitiveStyle, setCognitiveStyle, startLevel, resetLevel, completedLevels, setTeamId } = useGameStore()
+  const { cognitiveStyle, setCognitiveStyle, startLevel, resetLevel, completedLevels, completedPostTests = [], setTeamId } = useGameStore()
 
   useEffect(() => {
     const data = localStorage.getItem('student')
@@ -360,18 +359,6 @@ export default function SiswaPage() {
   const handleBookletComplete = async () => {
     localStorage.setItem('has_read_booklet', 'true')
     setShowBookletModal(false)
-    if (gatingLevelId) {
-      setShowGatingModal(false)
-      const activeStyle = student?.geftResult?.cognitiveStyle || cognitiveStyle || 'FI'
-      // FD matching bypassed to run as single-player
-      proceedToGame(gatingLevelId, activeStyle)
-      setGatingLevelId(null)
-    }
-  }
-
-  const handleVideoComplete = async () => {
-    localStorage.setItem('has_watched_video', 'true')
-    setShowVideoModal(false)
     if (gatingLevelId) {
       setShowGatingModal(false)
       const activeStyle = student?.geftResult?.cognitiveStyle || cognitiveStyle || 'FI'
@@ -734,6 +721,7 @@ export default function SiswaPage() {
               position: 'relative',
             }}>
               {LEVELS.map(level => {
+                const isCompleted = completedLevels.includes(level.id)
                 const isUnlocked = !level.locked
                 const isHovered = hoveredCard === level.id
                 const rotation = level.id === 1 ? -2.5 : level.id === 2 ? 2 : -1
@@ -865,7 +853,7 @@ export default function SiswaPage() {
                         {level.thumbnail ? (
                           <div style={{
                             width: '100%',
-                            height: isMobile ? '80px' : '120px',
+                            height: isMobile ? (isCompleted ? '60px' : '80px') : (isCompleted ? '95px' : '120px'),
                             borderRadius: '4px',
                             overflow: 'hidden',
                             border: `1px solid rgba(0, 0, 0, 0.15)`,
@@ -888,7 +876,7 @@ export default function SiswaPage() {
                         ) : (
                           <div style={{
                             width: '100%',
-                            height: isMobile ? '80px' : '120px',
+                            height: isMobile ? (isCompleted ? '60px' : '80px') : (isCompleted ? '95px' : '120px'),
                             borderRadius: '4px',
                             background: isUnlocked
                               ? 'rgba(0, 0, 0, 0.04)'
@@ -951,7 +939,7 @@ export default function SiswaPage() {
                       </div>
 
                       {/* Case Badges */}
-                      {isUnlocked && level.tags.length > 0 && (
+                      {!isCompleted && isUnlocked && level.tags.length > 0 && (
                         <div style={{
                           display: 'flex',
                           gap: '4px',
@@ -982,40 +970,99 @@ export default function SiswaPage() {
                       {/* Action Button */}
                       <div style={{ width: '100%', marginTop: '2px' }}>
                         {isUnlocked ? (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              handlePlayLevel(level.id)
-                            }}
-                            style={{
-                              width: '100%',
-                              padding: '8px',
-                              borderRadius: '4px',
-                              border: 'none',
-                              background: '#B84A39',
-                              color: '#FFFFFF',
-                              fontSize: isMobile ? '10px' : '12px',
-                              fontWeight: 800,
-                              cursor: 'pointer',
-                              boxShadow: '0 2px 8px rgba(184, 74, 57, 0.3)',
-                              transition: 'all 0.2s',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              gap: '3px',
-                            }}
-                            onMouseEnter={e => {
-                              e.currentTarget.style.filter = 'brightness(1.15)';
-                              e.currentTarget.style.background = '#A23E2F';
-                            }}
-                            onMouseLeave={e => {
-                              e.currentTarget.style.filter = 'none';
-                              e.currentTarget.style.background = '#B84A39';
-                            }}
-                          >
-                            <span>Investigasi</span>
-                            <span>→</span>
-                          </button>
+                          isCompleted ? (
+                            <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '6px' }} onClick={e => e.stopPropagation()}>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  router.push(`/siswa/game/results/${level.id}`)
+                                }}
+                                style={{
+                                  width: '100%',
+                                  padding: '7px',
+                                  borderRadius: '4px',
+                                  border: 'none',
+                                  background: '#0E8388',
+                                  color: '#FFFFFF',
+                                  fontSize: isMobile ? '9.5px' : '11px',
+                                  fontWeight: 800,
+                                  cursor: 'pointer',
+                                  boxShadow: '0 2px 6px rgba(14, 131, 136, 0.25)',
+                                  transition: 'all 0.2s',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  gap: '3px',
+                                }}
+                                onMouseEnter={e => e.currentTarget.style.filter = 'brightness(1.15)'}
+                                onMouseLeave={e => e.currentTarget.style.filter = 'none'}
+                              >
+                                <span>📝 E-LKPD &amp; Hasil</span>
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  router.push(`/siswa/game/posttest/${level.id}`)
+                                }}
+                                style={{
+                                  width: '100%',
+                                  padding: '7px',
+                                  borderRadius: '4px',
+                                  border: completedPostTests.includes(level.id) ? '1px solid rgba(14, 131, 136, 0.3)' : 'none',
+                                  background: completedPostTests.includes(level.id) ? 'rgba(14, 131, 136, 0.1)' : '#D97706',
+                                  color: completedPostTests.includes(level.id) ? '#0E8388' : '#FFFFFF',
+                                  fontSize: isMobile ? '9.5px' : '11px',
+                                  fontWeight: 800,
+                                  cursor: 'pointer',
+                                  boxShadow: completedPostTests.includes(level.id) ? 'none' : '0 2px 6px rgba(217, 119, 6, 0.25)',
+                                  transition: 'all 0.2s',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  gap: '3px',
+                                }}
+                                onMouseEnter={e => e.currentTarget.style.filter = 'brightness(1.15)'}
+                                onMouseLeave={e => e.currentTarget.style.filter = 'none'}
+                              >
+                                <span>{completedPostTests.includes(level.id) ? '✅ Post Test Selesai' : '🛡️ Mulai Post Test'}</span>
+                              </button>
+                            </div>
+                          ) : (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handlePlayLevel(level.id)
+                              }}
+                              style={{
+                                width: '100%',
+                                padding: '8px',
+                                borderRadius: '4px',
+                                border: 'none',
+                                background: '#B84A39',
+                                color: '#FFFFFF',
+                                fontSize: isMobile ? '10px' : '12px',
+                                fontWeight: 800,
+                                cursor: 'pointer',
+                                boxShadow: '0 2px 8px rgba(184, 74, 57, 0.3)',
+                                transition: 'all 0.2s',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '3px',
+                              }}
+                              onMouseEnter={e => {
+                                e.currentTarget.style.filter = 'brightness(1.15)';
+                                e.currentTarget.style.background = '#A23E2F';
+                              }}
+                              onMouseLeave={e => {
+                                e.currentTarget.style.filter = 'none';
+                                e.currentTarget.style.background = '#B84A39';
+                              }}
+                            >
+                              <span>Investigasi</span>
+                              <span>→</span>
+                            </button>
+                          )
                         ) : (
                           <div style={{
                             width: '100%',
@@ -1673,7 +1720,7 @@ export default function SiswaPage() {
                   <button
                     onClick={() => {
                       setIsSidebarOpen(false)
-                      setShowVideoModal(true)
+                      router.push('/siswa/video')
                     }}
                     className="sidebar-btn"
                     style={{
@@ -1834,102 +1881,7 @@ export default function SiswaPage() {
           </div>
         )}
 
-        {/* Modal Video Pembelajaran */}
-        {showVideoModal && (
-          <div style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(11, 30, 44, 0.85)',
-            backdropFilter: 'blur(12px)',
-            display: 'flex',
-            alignItems: 'flex-start',
-            justifyContent: 'center',
-            zIndex: 200,
-            padding: '20px',
-            overflowY: 'auto',
-          }}>
-            <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              style={{
-                background: '#0F2338',
-                border: `1px solid ${isFI ? 'rgba(59,130,246,0.3)' : 'rgba(14, 131, 136, 0.25)'}`,
-                borderRadius: '24px',
-                padding: '28px',
-                width: '100%',
-                maxWidth: '640px',
-                margin: 'auto',
-                position: 'relative',
-                boxShadow: '0 20px 40px rgba(0, 0, 0, 0.5), var(--accent-glow)',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '20px',
-                color: '#F8FAFC',
-              }}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ fontSize: '24px' }}>🎥</span>
-                  <div>
-                    <div style={{ fontSize: '11px', color: isFI ? '#60A5FA' : '#00ADB5', fontWeight: 800, letterSpacing: '1px' }}>VIDEO PEMBELAJARAN</div>
-                    <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: '#F8FAFC' }}>Mean, Median, & Modus Data Kelompok</h3>
-                  </div>
-                </div>
-                {!gatingLevelId && (
-                  <button
-                    onClick={() => setShowVideoModal(false)}
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      color: '#94A3B8',
-                      fontSize: '20px',
-                      cursor: 'pointer',
-                    }}
-                    onMouseEnter={e => e.currentTarget.style.color = '#DC2626'}
-                    onMouseLeave={e => e.currentTarget.style.color = '#94A3B8'}
-                  >
-                    ✕
-                  </button>
-                )}
-              </div>
 
-              <div style={{ width: '100%', position: 'relative', paddingBottom: '56.25%', height: 0 }}>
-                <iframe
-                  style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', borderRadius: '12px', border: '1px solid rgba(14,131,136,0.15)' }}
-                  src="https://www.youtube.com/embed/UqWLcTirNjU"
-                  title="Video Pembelajaran Statistika"
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  allowFullScreen
-                ></iframe>
-              </div>
-
-              <div style={{ fontSize: '13px', color: '#94A3B8', lineHeight: 1.5 }}>
-                Tonton video pembelajaran dari channel Matematika Hebat di atas untuk memahami dasar-dasar perhitungan statistika deskriptif pada data kelompok sebelum kamu memulai investigasi kasus!
-              </div>
-
-              <button
-                onClick={handleVideoComplete}
-                style={{
-                  padding: '14px',
-                  borderRadius: '14px',
-                  background: isFI ? 'linear-gradient(90deg, #2563eb, #1d4ed8)' : 'linear-gradient(90deg, #0e8388, #00adb5)',
-                  border: 'none',
-                  color: '#fff',
-                  fontSize: '14px',
-                  fontWeight: 800,
-                  cursor: 'pointer',
-                  transition: 'all 0.2s',
-                  boxShadow: isFI ? '0 4px 20px rgba(37,99,235,0.3)' : '0 4px 20px rgba(14, 131, 136, 0.3)',
-                }}
-                onMouseEnter={e => e.currentTarget.style.filter = 'brightness(1.15)'}
-                onMouseLeave={e => e.currentTarget.style.filter = 'none'}
-              >
-                ✅ Selesai Menonton & Simpan Progress
-              </button>
-            </motion.div>
-          </div>
-        )}
 
         {/* Gating / Direction Modal */}
         {showGatingModal && (
@@ -2093,7 +2045,7 @@ export default function SiswaPage() {
                     <button
                       onClick={() => {
                         setShowGatingModal(false)
-                        setShowVideoModal(true)
+                        router.push(`/siswa/video?fromLevel=${gatingLevelId}`)
                       }}
                       className="pulsing-btn-green"
                       style={{
