@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react'
 import { motion, AnimatePresence, PanInfo } from 'framer-motion'
-import { screenTimeData, STATS } from '../_data/level1'
+import { screenTimeData, STATS } from '@/app/siswa/game/_data/level1'
 
 const CHIP_COLOR = '#6366F1'
 
@@ -10,7 +10,7 @@ const CORRECT_MIN = Math.min(...screenTimeData) // 1
 const CORRECT_MAX = Math.max(...screenTimeData) // 18
 
 // Unique values only, shuffled once at module load
-const UNIQUE_VALS: number[] = Array.from(new Set(screenTimeData)).sort(() => Math.random() - 0.5)
+const UNIQUE_VALS: number[] = (Array.from(new Set(screenTimeData)) as number[]).sort(() => Math.random() - 0.5)
 
 interface Chip {
   id: string

@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect } from 'react'
 import { motion, AnimatePresence, PanInfo } from 'framer-motion'
-import { screenTimeData, CLASS_LABELS, getClassIndex, CORRECT_TABLE } from '../_data/level1'
+import { screenTimeData, CLASS_LABELS, getClassIndex, CORRECT_TABLE } from '@/app/siswa/game/_data/level1'
 import { useGameStore } from '@/lib/store/gameStore'
 
 interface DataPoint {
@@ -42,19 +42,13 @@ const SCATTERED_POSITIONS = [
 
 const CLASS_COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#EC4899', '#8B5CF6']
 
-
-// Indices of items to pre-place as a balanced scaffold for both modes
-// ~2-3 items left to drag from main classes, and 1 item left to drag from minor classes,
-// so the student can learn the categorization process without getting fatigued.
-// screenTimeData = [1,2,2,2,3,3,3,3,3, 4,4,4,4,5,5,5,5,6,6,6, 7,7,7,7,8,9, 10,11,12, 13,14,15, 16,17,18]
-// idx:              0 1 2 3 4 5 6 7 8  9 10 11 12 ...
 const PREPLACED_INDICES = new Set([
-  0, 1, 2, 4, 5, 6,       // class 0 (1-3): val=1,2,2,3,3,3 (leaves 2,3,3 to drag)
-  9, 10, 11, 13, 14, 15, 17, 18, // class 1 (4-6): val=4,4,4,5,5,5,6,6 (leaves 4,5,6 to drag)
-  20, 21, 23, 24,         // class 2 (7-9): val=7,7,7,8 (leaves 7,9 to drag)
-  26, 28,                 // class 3 (10-12): val=10,12 (leaves 11 to drag)
-  29, 31,                 // class 4 (13-15): val=13,15 (leaves 14 to drag)
-  32, 34,                 // class 5 (16-18): val=16,18 (leaves 17 to drag)
+  0, 1, 2, 4, 5, 6,       // class 0 (1-3)
+  9, 10, 11, 13, 14, 15, 17, 18, // class 1 (4-6)
+  20, 21, 23, 24,         // class 2 (7-9)
+  26, 28,                 // class 3 (10-12)
+  29, 31,                 // class 4 (13-15)
+  32, 34,                 // class 5 (16-18)
 ])
 
 function initDataPoints(mode: Mode, readOnly: boolean): DataPoint[] {
@@ -64,7 +58,6 @@ function initDataPoints(mode: Mode, readOnly: boolean): DataPoint[] {
     return { id: `dp-${idx}`, val, classIdx: cIdx, placed: isPreplaced, originalIdx: idx }
   })
 }
-
 
 export default function DraggableHistogram({
   mode, onSubmit, readOnly = false, forceStack = false,
@@ -86,7 +79,6 @@ export default function DraggableHistogram({
   useEffect(() => {
     const check = () => {
       setIsNarrow(window.innerWidth < 768)
-      // "Short" catches landscape phones (~350-450px height) even though width > 768
       setIsShortViewport(window.innerHeight < 520)
     }
     check()
@@ -94,13 +86,8 @@ export default function DraggableHistogram({
     return () => window.removeEventListener('resize', check)
   }, [])
 
-  // stackLayout → column direction: pool on top, histogram below (portrait phones only)
   const stackLayout = isNarrow || forceStack
-
-  // isCompact → small bars + chip pool: any small screen (portrait OR landscape phone)
   const isCompact = isNarrow || isShortViewport || forceStack
-
-  // isUltraCompact → landscape phone specifically (short & wide)
   const isUltraCompact = !isNarrow && isShortViewport && !forceStack
 
   const [dataPoints, setDataPoints] = useState<DataPoint[]>(() => initDataPoints(mode, readOnly))
@@ -160,22 +147,17 @@ export default function DraggableHistogram({
     })
   }, [])
 
-  // Called when Framer Motion starts a drag gesture on a data point
   const handleDragStart = useCallback((dp: DataPoint) => () => {
     setSelectedPoint(null)
     setDraggingId(dp.id)
   }, [])
 
-  // Called when Framer Motion ends a drag gesture
-  // Uses the native PointerEvent / MouseEvent for accurate client coords,
-  // then elementFromPoint to detect which histogram slot is under the cursor.
   const handleDragEnd = useCallback((dp: DataPoint) => (
     event: MouseEvent | TouchEvent | PointerEvent,
     _info: PanInfo,
   ) => {
     setDraggingId(null)
 
-    // Extract client (viewport) coordinates from the native event
     let clientX: number, clientY: number
     if ('changedTouches' in event && event.changedTouches.length > 0) {
       clientX = event.changedTouches[0].clientX
@@ -185,7 +167,6 @@ export default function DraggableHistogram({
       clientY = (event as MouseEvent | PointerEvent).clientY
     }
 
-    // Temporarily hide the dragged badge so elementFromPoint sees what's beneath it
     const dragEl = document.getElementById(dp.id)
     const savedPE = dragEl?.style.pointerEvents ?? ''
     if (dragEl) dragEl.style.pointerEvents = 'none'
@@ -223,7 +204,6 @@ export default function DraggableHistogram({
     }
   }, [onPlacedChange, handleWrongAttempt])
 
-  // Tap-to-select then tap-slot to place (alternative to drag)
   const onTapPoint = (dp: DataPoint) => {
     if (draggingId) return
     setSelectedPoint(prev => prev?.id === dp.id ? null : dp)
@@ -261,15 +241,9 @@ export default function DraggableHistogram({
 
   const allPlaced     = dataPoints.every(dp => dp.placed)
   const activePool    = dataPoints.filter(dp => !dp.placed)
-  const remainByClass = CLASS_LABELS.map((_, ci) => dataPoints.filter(dp => !dp.placed && dp.classIdx === ci).length)
   const placedByClass = CLASS_LABELS.map((_, ci) => dataPoints.filter(dp => dp.placed && dp.classIdx === ci))
   const isDraggingAny = !!draggingId
-  // The DataPoint currently being dragged — used to highlight the matching histogram column
-  const draggingPoint = isDraggingAny
-    ? dataPoints.find(dp => dp.id === draggingId) ?? null
-    : null
 
-  // ── READ-ONLY: reference histogram ──────────────────────────────────────────
   if (readOnly) {
     const maxF = Math.max(...CORRECT_TABLE.map(r => r.f))
     return (
@@ -303,7 +277,6 @@ export default function DraggableHistogram({
             )
           })}
         </div>
-        {/* Tepi Kelas ticks at boundaries */}
         <div style={{
           width: '100%',
           marginTop: '6px',
@@ -337,11 +310,8 @@ export default function DraggableHistogram({
     )
   }
 
-  // ── INTERACTIVE ──────────────────────────────────────────────────────────────
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1, minHeight: 0 }}>
-
-      {/* Unified workspace card — pool + histogram as one surface */}
       <div style={{
         display: 'flex',
         flexDirection: stackLayout ? 'column' : 'row',
@@ -350,20 +320,11 @@ export default function DraggableHistogram({
         borderRadius: '16px',
         background: 'rgba(255,255,255,0.012)',
         border: '1px solid rgba(14, 131, 136, 0.15)',
-        // overflow: 'visible' during drag so the chip is not clipped when crossing
-        // from the pool side into the histogram side.
         overflow: isDraggingAny ? 'visible' : 'hidden',
       }}>
-
-        {/* ── LEFT: Data Pool ─────────────────────────────────────────────────── */}
-        {/*
-          Width/height logic:
-          - Portrait phone (stackLayout): full width, fixed 160px (chips don't need scatter height)
-          - Landscape phone (!stackLayout, isCompact): 36% – histogram needs more room
-          - Desktop (!stackLayout, !isCompact): 40% (scatter needs breathing room)
-        */}
+        {/* LEFT: Data Pool */}
         <div style={{
-        flex: stackLayout ? 'none' : isUltraCompact ? '0 0 28%' : isCompact ? '0 0 36%' : '0 0 40%',
+          flex: stackLayout ? 'none' : isUltraCompact ? '0 0 28%' : isCompact ? '0 0 36%' : '0 0 40%',
           height: stackLayout ? '160px' : '100%',
           display: 'flex', flexDirection: 'column',
           padding: isUltraCompact ? '4px 6px 4px' : isCompact ? '6px 8px 6px' : '10px 12px 8px',
@@ -371,8 +332,6 @@ export default function DraggableHistogram({
           borderRight: stackLayout ? 'none' : '1px solid rgba(14, 131, 136, 0.08)',
           borderBottom: stackLayout ? '1px solid rgba(14, 131, 136, 0.08)' : 'none',
         }}>
-
-          {/* Pool header */}
           <div style={{ flexShrink: 0, marginBottom: '4px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div style={{
               fontSize: '9px', fontWeight: 800, letterSpacing: '1.5px', textTransform: 'uppercase',
@@ -381,19 +340,13 @@ export default function DraggableHistogram({
             }}>
               {allPlaced ? '✅ Semua terkelompokkan' : `📍 Data — ${activePool.length} tersisa`}
             </div>
-
           </div>
 
-          {/* Pool zone — two layouts:
-              Desktop: absolute-scatter (scattered across 2D space, looks premium)
-              Compact: flex-wrap chips (never overlap, works at any size) */}
           <div style={{
             position: 'relative',
             flex: 1,
             minHeight: 0,
-            // During drag: visible so chip is not clipped outside pool bounds.
             overflow: isDraggingAny ? 'visible' : (isCompact ? 'auto' : 'hidden'),
-            // In chip mode we switch to flex layout
             display: isCompact ? 'flex' : 'block',
             flexWrap: isCompact ? 'wrap' : undefined,
             gap: isUltraCompact ? '3px' : isCompact ? '4px' : undefined,
@@ -407,7 +360,6 @@ export default function DraggableHistogram({
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   style={{
-                    // Works for both block (scatter) and flex (chip) parent
                     position: isCompact ? 'static' : 'absolute',
                     inset: isCompact ? undefined : 0,
                     flex: isCompact ? '1 1 100%' : undefined,
@@ -420,10 +372,8 @@ export default function DraggableHistogram({
                   <span style={{ fontSize: '22px' }}>🎯</span>
                   Semua data masuk!
                   <span style={{ fontSize: '10px', opacity: 0.6 }}>Klik Submit ↓</span>
-				</motion.div>
+                </motion.div>
               ) : isCompact ? (
-                // ── COMPACT MODE: flex-wrap chips ──────────────────────────────
-                // Each chip is a draggable pill in normal flow. No overlapping.
                 activePool.map(dp => {
                   const col = '#00ADB5'
                   const isSelected = selectedPoint?.id === dp.id
@@ -453,9 +403,7 @@ export default function DraggableHistogram({
                         boxShadow: `0 14px 36px ${col}66, 0 0 0 2px ${col}`,
                         opacity: 0.97,
                       }}
-
                       style={{
-                        // flex-item sizing
                         flexShrink: 0,
                         padding: isUltraCompact ? '4px 8px' : '5px 12px',
                         borderRadius: '50px',
@@ -472,7 +420,6 @@ export default function DraggableHistogram({
                         display: 'inline-flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        // Elevate when selected or dragging
                         zIndex: isThisDragging ? 1000 : isSelected ? 50 : 1,
                         boxShadow: isSelected
                           ? `0 0 14px ${col}`
@@ -489,7 +436,6 @@ export default function DraggableHistogram({
                   )
                 })
               ) : (
-                // ── DESKTOP MODE: absolute scatter ─────────────────────────────
                 activePool.map(dp => {
                   const pos = SCATTERED_POSITIONS[dp.originalIdx % SCATTERED_POSITIONS.length]
                   const col = '#00ADB5'
@@ -497,8 +443,6 @@ export default function DraggableHistogram({
                   const isThisDragging = draggingId === dp.id
 
                   return (
-                    // Outer wrapper: static absolute position & centering transform.
-                    // The inner motion.div handles the drag offset separately.
                     <div
                       key={dp.id}
                       style={{
@@ -568,12 +512,7 @@ export default function DraggableHistogram({
           </div>
         </div>
 
-        {/* ── RIGHT: Histogram Canvas ──────────────────────────────────────────── */}
-        {/*
-          Height: stacked portrait = 330px fixed; side-by-side = 100% of workspace
-          In compact (landscape phone) side-by-side mode, height = 100% of the
-          workspace card which is itself constrained by the viewport.
-        */}
+        {/* RIGHT: Histogram Canvas */}
         <div style={{
           flex: 1,
           height: stackLayout ? '330px' : '100%',
@@ -581,8 +520,6 @@ export default function DraggableHistogram({
           padding: isUltraCompact ? '4px 4px 2px 8px' : isCompact ? '6px 6px 3px 24px' : '10px 10px 4px 30px',
           position: 'relative',
         }}>
-
-          {/* Y-axis label — hidden on ultraCompact (landscape phone) to save space */}
           {!isUltraCompact && (
             <div style={{
               position: 'absolute', left: 2, top: '50%',
@@ -594,7 +531,6 @@ export default function DraggableHistogram({
             </div>
           )}
 
-          {/* Bar columns */}
           <div style={{
             display: 'flex', gap: '0px', alignItems: 'flex-end',
             flex: 1, minHeight: 0,
@@ -610,7 +546,6 @@ export default function DraggableHistogram({
               const isMatchDrag = false
               const shouldHighlightColumn = showVisualHighlight && correctSlotIdx === i
 
-              // Calculate opacity based on frequency f
               const f           = placed.length
               const colOpacity  = f === 0 ? 0.25 : 0.35 + 0.55 * (f / 11)
 
@@ -644,16 +579,14 @@ export default function DraggableHistogram({
                     alignItems: 'center', height: '100%', justifyContent: 'flex-end',
                     cursor: selectedPoint ? 'pointer' : 'default',
                     borderRadius: '0px', padding: '0px',
-                    position: 'relative', // needed for the drop indicator badge
+                    position: 'relative',
                     background: isError
                       ? 'rgba(239,68,68,0.12)'
                       : isMatchDrag
-                        // Matching class: bright glow in that class colour
                         ? `${col}28`
                         : isTarget
                           ? `${col}12`
                           : isDraggingAny
-                            // Non-matching: dim out so the correct column stands out
                             ? 'rgba(14, 131, 136, 0.03)'
                             : 'transparent',
                     border: '2px solid transparent',
@@ -665,12 +598,9 @@ export default function DraggableHistogram({
                         : 'none',
                     outlineOffset: '-2px',
                     transition: 'background 0.18s, outline 0.18s, border-color 0.18s',
-                    // Scale up the matching column slightly for extra affordance
                     transform: isMatchDrag ? 'scaleY(1.018)' : 'scaleY(1)',
                   }}
                 >
-                  {/* No drag hint overlay badge */}
-
                   <div style={{
                     width: '100%',
                     display: 'flex',
@@ -713,7 +643,6 @@ export default function DraggableHistogram({
                       ))}
                     </AnimatePresence>
 
-                    {/* Empty drop-zone placeholder */}
                     {placed.length === 0 && (
                       <div style={{
                         width: '100%', height: '26px', borderRadius: '0px', flexShrink: 0,
@@ -746,7 +675,6 @@ export default function DraggableHistogram({
             })}
           </div>
 
-          {/* Tepi Kelas ticks at boundaries */}
           <div style={{
             width: '100%',
             marginTop: '6px',
@@ -774,7 +702,6 @@ export default function DraggableHistogram({
             ))}
           </div>
 
-          {/* X-axis title */}
           <div style={{
             textAlign: 'center', fontSize: '12px',
             color: '#94A3B8', fontWeight: 800,
@@ -785,7 +712,6 @@ export default function DraggableHistogram({
         </div>
       </div>
 
-      {/* Hint toast */}
       <AnimatePresence>
         {showTextHint && (
           <motion.div
@@ -806,7 +732,6 @@ export default function DraggableHistogram({
         )}
       </AnimatePresence>
 
-      {/* Submit button */}
       <button
         className="game-btn game-btn-primary"
         onClick={handleSubmit}

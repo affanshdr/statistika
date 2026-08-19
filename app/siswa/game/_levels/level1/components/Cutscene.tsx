@@ -680,8 +680,6 @@ export default function Cutscene({ onComplete, onPhaseChange, teamId, studentId,
                       objectFit: 'contain',
                     }}
                   />
-
-                  {/* Go! Action Speech Bubble removed */}
                 </div>
                 <p style={{
                   margin: 0,

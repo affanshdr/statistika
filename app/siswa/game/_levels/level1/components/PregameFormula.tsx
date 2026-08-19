@@ -2,11 +2,11 @@
 
 import { useState, useCallback, useRef, useEffect, memo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { screenTimeData, STATS } from '../_data/level1'
+import { screenTimeData, STATS } from '@/app/siswa/game/_data/level1'
 import { useGameStore } from '@/lib/store/gameStore'
-import DiraPopup, { DiraPopupStep } from './DiraPopup'
+import DiraPopup, { DiraPopupStep } from '@/app/siswa/game/_components/DiraPopup'
 import NPath from './NPath'
-import PlayerCharacter from './PlayerCharacter'
+import PlayerCharacter from '@/app/siswa/game/_components/PlayerCharacter'
 import { useGameRealtime, type PlayerPresence } from '@/lib/hooks/useGameRealtime'
 
 // ─── Constants ───────────────────────────────────────────────────────────────
@@ -1935,7 +1935,7 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                         flex: 1,
                         paddingRight: '2px'
                       }}>
-                        {screenTimeData.map((val, idx) => (
+                        {screenTimeData.map((val: number, idx: number) => (
                           <div
                             key={idx}
                             style={{

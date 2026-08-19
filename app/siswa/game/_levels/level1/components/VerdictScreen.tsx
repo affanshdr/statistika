@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { STATS } from '../_data/level1'
-import DiRA from './DiRA'
+import { STATS } from '@/app/siswa/game/_data/level1'
+import DiRA from '@/app/siswa/game/_components/DiRA'
 
 interface VerificationScreenProps {
   onCorrect: () => void    // jawaban benar → lanjut MythBusted
@@ -42,7 +42,6 @@ export default function VerificationScreen({ onCorrect, onWrong, guidedMode }: V
     if (!selected) return
     setSubmitted(true)
     if (selected === 'hoaks') {
-      // Jawaban benar — tapi bukan hoaks murni, misleading
       setTimeout(() => onCorrect(), 1200)
     } else {
       setIsWrong(true)
@@ -78,7 +77,6 @@ export default function VerificationScreen({ onCorrect, onWrong, guidedMode }: V
         position: 'relative',
       }}
     >
-      {/* 2-Column layout: Left column has post and data reminder, Right column has question, choices, and submit button */}
       <div style={{
         display: 'flex',
         flexDirection: isMobile ? 'column' : 'row',
@@ -88,7 +86,7 @@ export default function VerificationScreen({ onCorrect, onWrong, guidedMode }: V
       }}>
         {/* Left Column */}
         <div style={{ flex: 1.1, display: 'flex', flexDirection: 'column', gap: '14px', minWidth: 0 }}>
-          {/* ── Viral Post (Mockup Instagram Card) ── */}
+          {/* Viral Post (Mockup Instagram Card) */}
           <motion.div
             initial={{ scale: 0.98, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
@@ -269,7 +267,7 @@ export default function VerificationScreen({ onCorrect, onWrong, guidedMode }: V
             </div>
           </motion.div>
 
-          {/* ── Data reminder strip ── */}
+          {/* Data reminder strip */}
           <motion.div
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
@@ -298,7 +296,6 @@ export default function VerificationScreen({ onCorrect, onWrong, guidedMode }: V
             Apakah klaim tersebut benar atau hoaks?
           </h3>
 
-          {/* ── Choice Buttons / Error Feedback ── */}
           <AnimatePresence mode="wait">
             {!isWrong ? (
               <motion.div
@@ -384,7 +381,6 @@ export default function VerificationScreen({ onCorrect, onWrong, guidedMode }: V
                 </motion.button>
               </motion.div>
             ) : (
-              /* Wrong answer feedback */
               <motion.div
                 key="wrong"
                 initial={{ opacity: 0, scale: 0.95 }}
@@ -417,7 +413,6 @@ export default function VerificationScreen({ onCorrect, onWrong, guidedMode }: V
             )}
           </AnimatePresence>
 
-          {/* ── Submit button ── */}
           {!isWrong && (
             <motion.button
               initial={{ opacity: 0 }}
@@ -446,9 +441,6 @@ export default function VerificationScreen({ onCorrect, onWrong, guidedMode }: V
           )}
         </div>
       </div>
-      
-
-
 
       {showDira && diraMsg && (
         <DiRA message={diraMsg} onDismiss={() => setShowDira(false)} />

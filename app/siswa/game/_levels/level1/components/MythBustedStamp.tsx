@@ -188,7 +188,6 @@ export default function MythBustedStamp({ onComplete }: MythBustedStampProps) {
               transition={{ type: 'spring', stiffness: 300, delay: 0.1 }}
               style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}
             >
-              {/* Agent DIRA image */}
               <motion.img
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}

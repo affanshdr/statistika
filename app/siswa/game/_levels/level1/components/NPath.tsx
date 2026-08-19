@@ -2,12 +2,14 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import PlayerCharacter from './PlayerCharacter'
+import PlayerCharacter from '@/app/siswa/game/_components/PlayerCharacter'
 
-// ─── Vertical Hallway dimensions ──────────────────────────────────────────────
-const VW = 800
-const VH = 350
-const SPEED = 1.35
+// ─── Classroom World Map dimensions ───────────────────────────────────────────
+const WORLD_VW = 1200
+const WORLD_VH = 750
+const VIEW_VW = 640
+const VIEW_VH = 360
+const SPEED = 1.0
 const TOTAL_N = 35
 
 type DoorId = 'A' | 'B' | 'C'
@@ -24,159 +26,103 @@ interface QuizDoor {
   fdContext?: string
 }
 
-const DOORS = [
-  { id: 'A' as DoorId, label: 'Pintu A (Kiri)', x: 175, y: 220,
-    color: '#818cf8', quizQ: '3 × 3 = ?', quizA: 9, hint: '3 dikali 3 sama dengan 9', count: 9 },
-  { id: 'B' as DoorId, label: 'Pintu B (Tengah)', x: 400, y: 180,
-    color: '#00ADB5', quizQ: '3 × 5 = ?', quizA: 15, hint: '3 dikali 5 sama dengan 15', count: 15 },
-  { id: 'C' as DoorId, label: 'Pintu C (Kanan)', x: 625, y: 220,
-    color: '#f472b6', quizQ: '8 + 3 = ?', quizA: 11, hint: '8 ditambah 3 sama dengan 11', count: 11 },
-] as const
+const DOORS: readonly { id: string; x: number; y: number; label: string; color: string; quizQ: string; quizA: number | string; hint: string; count: number }[] = []
 
 const CLASS_DOORS = [
-  // Room A (total 9) - Topik: Statistika (Bloom Level 2: Memahami)
-  { 
-    id: 'A1', roomId: 'A' as DoorId, label: 'Kelas VII-1', x: 52.5, y: 213, color: '#818cf8', 
-    quizQ: 'Data screen time 5 siswa: 2, 4, 3, 8, 1 jam. Berapa rentang datanya?', 
+  // Pintu 1 (Sayap Kiri) - Kelas VII-A
+  {
+    id: 'A1', roomId: 'A' as DoorId, label: 'Kelas VII-A', x: 340, y: 495, color: '#818cf8',
+    quizQ: 'Data screen time 5 siswa: 2, 4, 3, 8, 1 jam. Berapa rentang datanya?',
     quizA: 7, choices: [5, 6, 7, 8] as const,
     fdContext: '💡 Ingat: rentang = nilai terbesar − nilai terkecil',
-    hint: 'Kurangkan nilai terbesar (8) dengan nilai terkecil (1) untuk mendapatkan rentang.', count: 3 
+    hint: 'Kurangkan nilai terbesar (8) dengan nilai terkecil (1) untuk mendapatkan rentang.', count: 7
   },
-  { 
-    id: 'A2', roomId: 'A' as DoorId, label: 'Kelas VII-2', x: 140, y: 186, color: '#818cf8', 
-    quizQ: 'Tepi bawah kelas interval 4–6 adalah?', 
+
+  // Pintu 2 (Lorong Kiri) - Kelas VII-B
+  {
+    id: 'A2', roomId: 'A' as DoorId, label: 'Kelas VII-B', x: 440, y: 495, color: '#6366f1',
+    quizQ: 'Tepi bawah kelas interval 4–6 adalah?',
     quizA: 3.5, choices: [3, 3.5, 4, 4.5] as const,
     fdContext: '💡 Ingat: tepi bawah = batas bawah − 0.5',
-    hint: 'Kurangi batas bawah kelas (4) dengan 0.5.', count: 3 
-  },
-  { 
-    id: 'A3', roomId: 'A' as DoorId, label: 'Kelas VII-3', x: 227.5, y: 160, color: '#818cf8', 
-    quizQ: 'Rentang = 17, Banyak Kelas = 6. Panjang kelas interval dibulatkan ke atas adalah?', 
-    quizA: 3, choices: [2, 3, 4, 5] as const,
-    fdContext: '💡 Ingat: panjang kelas = rentang ÷ banyak kelas, bulatkan ke atas.',
-    hint: 'Bagi nilai rentang dengan banyak kelas, lalu bulatkan hasilnya ke atas.', count: 3 
+    hint: 'Kurangi batas bawah kelas (4) dengan 0.5.', count: 7
   },
 
-  // Room B (total 15) - Topik: Etika Media Sosial (Bloom Level 4: Menganalisis)
-  { 
-    id: 'B1', roomId: 'B' as DoorId, label: 'Kelas VIII-1', x: 320, y: 145, color: '#00ADB5', 
-    quizQ: 'Kamu menerima berita viral yang belum terverifikasi. Tindakan paling etis adalah?', 
+  // Pintu 3 (Gedung Tengah / Pintu Ganda) - Kelas VIII-A
+  {
+    id: 'B1', roomId: 'B' as DoorId, label: 'Kelas VIII-A', x: 720, y: 495, color: '#00ADB5',
+    quizQ: 'Kamu menerima berita viral yang belum terverifikasi. Tindakan paling etis adalah?',
     quizA: 'Verifikasi dulu', choices: ['Langsung share', 'Verifikasi dulu', 'Screenshot & sebar', 'Abaikan saja'] as const,
     fdContext: '💡 Pikirkan dampaknya terhadap orang lain',
-    hint: 'Cari tindakan yang memastikan kebenaran informasi sebelum membagikannya.', count: 5 
-  },
-  { 
-    id: 'B2', roomId: 'B' as DoorId, label: 'Kelas VIII-2', x: 400, y: 145, color: '#00ADB5', 
-    quizQ: 'Seseorang memposting foto orang lain tanpa izin untuk konten viral. Ini termasuk pelanggaran?', 
-    quizA: 'Kedua-duanya', choices: ['Privasi', 'Hak cipta', 'Kedua-duanya', 'Bukan pelanggaran'] as const,
-    fdContext: '💡 Pikirkan mengenai kepemilikan dan privasi hak orang lain',
-    hint: 'Memposting foto orang lain melanggar ranah pribadi sekaligus kepemilikan ciptaan.', count: 5 
-  },
-  { 
-    id: 'B3', roomId: 'B' as DoorId, label: 'Kelas VIII-3', x: 480, y: 145, color: '#00ADB5', 
-    quizQ: 'Konten yang sengaja dibuat untuk memancing emosi negatif di media sosial disebut?', 
-    quizA: 'Clickbait', choices: ['Clickbait', 'Hoax', 'Meme', 'Spam'] as const,
-    fdContext: '💡 Pikirkan tujuan pembuat konten yang ingin menarik perhatian emosional secara instan',
-    hint: 'Istilah ini merujuk pada pancingan tautan atau umpan klik untuk memicu reaksi emosi cepat.', count: 5 
+    hint: 'Cari tindakan yang memastikan kebenaran informasi sebelum membagikannya.', count: 7
   },
 
-  // Room C (total 11) - Topik: Literasi Digital (Bloom Level 3-4: Mengaplikasikan & Menganalisis)
-  { 
-    id: 'C1', roomId: 'C' as DoorId, label: 'Kelas IX-1', x: 572.5, y: 160, color: '#f472b6', 
-    quizQ: 'Ciri utama berita hoax yang paling umum adalah?', 
+  // Pintu 4 (Lorong Kanan) - Kelas VIII-B
+  {
+    id: 'B2', roomId: 'B' as DoorId, label: 'Kelas VIII-B', x: 890, y: 495, color: '#0e8388',
+    quizQ: 'Seseorang memposting foto orang lain tanpa izin untuk konten viral. Ini termasuk pelanggaran?',
+    quizA: 'Kedua-duanya', choices: ['Privasi', 'Hak cipta', 'Kedua-duanya', 'Bukan pelanggaran'] as const,
+    fdContext: '💡 Pikirkan mengenai kepemilikan dan privasi hak orang lain',
+    hint: 'Memposting foto orang lain melanggar ranah pribadi sekaligus kepemilikan ciptaan.', count: 7
+  },
+
+  // Pintu 5 (Sayap Kanan) - Kelas IX
+  {
+    id: 'C1', roomId: 'C' as DoorId, label: 'Kelas IX', x: 1050, y: 525, color: '#f472b6',
+    quizQ: 'Ciri utama berita hoax yang paling umum meupakan?',
     quizA: 'Sumber tidak jelas', choices: ['Sumber tidak jelas', 'Ada foto', 'Ada tanggal', 'Ditulis wartawan'] as const,
     fdContext: '💡 Perhatikan kredibilitas pembuat informasi',
-    hint: 'Berita bohong biasanya tidak menyebutkan asal-usul kredibel atau pihak penanggung jawab.', count: 4 
-  },
-  { 
-    id: 'C2', roomId: 'C' as DoorId, label: 'Kelas IX-2', x: 660, y: 186, color: '#f472b6', 
-    quizQ: 'Langkah pertama yang benar saat menemukan informasi mencurigakan di internet adalah?', 
-    quizA: 'Cek sumber asli', choices: ['Cek sumber asli', 'Tanya teman', 'Langsung percaya', 'Share ke grup'] as const,
-    fdContext: '💡 Telusuri keaslian data sebelum bertindak',
-    hint: 'Selalu lakukan konfirmasi kebenaran ke situs atau pihak pertama yang merilis informasi.', count: 4 
-  },
-  { 
-    id: 'C3', roomId: 'C' as DoorId, label: 'Kelas IX-3', x: 747.5, y: 213, color: '#f472b6', 
-    quizQ: 'Jika tepi bawah kelas pertama 0.5 dan panjang kelas 3, tepi atas kelas pertama adalah?', 
-    quizA: 3.5, choices: [3.5, 3, 4, 4.5] as const,
-    fdContext: '💡 Ingat: tepi atas = tepi bawah + panjang kelas',
-    hint: 'Jumlahkan tepi bawah kelas pertama dengan panjang kelasnya.', count: 3 
+    hint: 'Berita bohong biasanya tidak menyebutkan asal-usul kredibel atau pihak penanggung jawab.', count: 7
   },
 ] as const
 
 const DATA_CIRCLES = [
-  // Zone A - Ruang A (total 9)
+  // Zone A - Ruang A (total 14)
   { id: 'a1', d: 'A', classId: 'A1', x: 40, y: 70 },
   { id: 'a2', d: 'A', classId: 'A1', x: 60, y: 70 },
   { id: 'a3', d: 'A', classId: 'A1', x: 50, y: 95 },
-  
-  { id: 'a4', d: 'A', classId: 'A2', x: 120, y: 70 },
-  { id: 'a5', d: 'A', classId: 'A2', x: 140, y: 70 },
-  { id: 'a6', d: 'A', classId: 'A2', x: 130, y: 95 },
-  
-  { id: 'a7', d: 'A', classId: 'A3', x: 200, y: 70 },
-  { id: 'a8', d: 'A', classId: 'A3', x: 220, y: 70 },
-  { id: 'a9', d: 'A', classId: 'A3', x: 210, y: 95 },
+  { id: 'a4', d: 'A', classId: 'A1', x: 120, y: 70 },
+  { id: 'a5', d: 'A', classId: 'A1', x: 140, y: 70 },
+  { id: 'a6', d: 'A', classId: 'A1', x: 130, y: 95 },
+  { id: 'a7', d: 'A', classId: 'A1', x: 200, y: 70 },
 
-  // Zone B - Ruang B (total 15)
-  { id: 'b1', d: 'B', classId: 'B1', x: 310, y: 60 },
-  { id: 'b2', d: 'B', classId: 'B1', x: 330, y: 60 },
-  { id: 'b3', d: 'B', classId: 'B1', x: 320, y: 80 },
-  { id: 'b4', d: 'B', classId: 'B1', x: 310, y: 100 },
-  { id: 'b5', d: 'B', classId: 'B1', x: 330, y: 100 },
-  
-  { id: 'b6', d: 'B', classId: 'B2', x: 390, y: 60 },
-  { id: 'b7', d: 'B', classId: 'B2', x: 410, y: 60 },
-  { id: 'b8', d: 'B', classId: 'B2', x: 400, y: 80 },
-  { id: 'b9', d: 'B', classId: 'B2', x: 390, y: 100 },
-  { id: 'b10', d: 'B', classId: 'B2', x: 410, y: 100 },
-  
-  { id: 'b11', d: 'B', classId: 'B3', x: 470, y: 60 },
-  { id: 'b12', d: 'B', classId: 'B3', x: 490, y: 60 },
-  { id: 'b13', d: 'B', classId: 'B3', x: 480, y: 80 },
-  { id: 'b14', d: 'B', classId: 'B3', x: 470, y: 100 },
-  { id: 'b15', d: 'B', classId: 'B3', x: 490, y: 100 },
+  { id: 'a8', d: 'A', classId: 'A2', x: 220, y: 70 },
+  { id: 'a9', d: 'A', classId: 'A2', x: 210, y: 95 },
+  { id: 'a10', d: 'A', classId: 'A2', x: 250, y: 70 },
+  { id: 'a11', d: 'A', classId: 'A2', x: 270, y: 70 },
+  { id: 'a12', d: 'A', classId: 'A2', x: 260, y: 95 },
+  { id: 'a13', d: 'A', classId: 'A2', x: 290, y: 70 },
+  { id: 'a14', d: 'A', classId: 'A2', x: 300, y: 95 },
 
-  // Zone C - Ruang C (total 11)
+  // Zone B - Ruang B (total 14)
+  { id: 'b1', d: 'B', classId: 'B1', x: 330, y: 60 },
+  { id: 'b2', d: 'B', classId: 'B1', x: 350, y: 60 },
+  { id: 'b3', d: 'B', classId: 'B1', x: 340, y: 80 },
+  { id: 'b4', d: 'B', classId: 'B1', x: 330, y: 100 },
+  { id: 'b5', d: 'B', classId: 'B1', x: 350, y: 100 },
+  { id: 'b6', d: 'B', classId: 'B1', x: 380, y: 60 },
+  { id: 'b7', d: 'B', classId: 'B1', x: 400, y: 60 },
+
+  { id: 'b8', d: 'B', classId: 'B2', x: 420, y: 80 },
+  { id: 'b9', d: 'B', classId: 'B2', x: 410, y: 100 },
+  { id: 'b10', d: 'B', classId: 'B2', x: 430, y: 100 },
+  { id: 'b11', d: 'B', classId: 'B2', x: 460, y: 60 },
+  { id: 'b12', d: 'B', classId: 'B2', x: 480, y: 60 },
+  { id: 'b13', d: 'B', classId: 'B2', x: 470, y: 80 },
+  { id: 'b14', d: 'B', classId: 'B2', x: 460, y: 100 },
+
+  // Zone C - Ruang C (total 7)
   { id: 'c1', d: 'C', classId: 'C1', x: 560, y: 70 },
   { id: 'c2', d: 'C', classId: 'C1', x: 580, y: 70 },
   { id: 'c3', d: 'C', classId: 'C1', x: 570, y: 95 },
   { id: 'c4', d: 'C', classId: 'C1', x: 570, y: 115 },
-  
-  { id: 'c5', d: 'C', classId: 'C2', x: 640, y: 70 },
-  { id: 'c6', d: 'C', classId: 'C2', x: 660, y: 70 },
-  { id: 'c7', d: 'C', classId: 'C2', x: 650, y: 95 },
-  { id: 'c8', d: 'C', classId: 'C2', x: 650, y: 115 },
-  
-  { id: 'c9', d: 'C', classId: 'C3', x: 720, y: 70 },
-  { id: 'c10', d: 'C', classId: 'C3', x: 740, y: 70 },
-  { id: 'c11', d: 'C', classId: 'C3', x: 730, y: 95 },
+  { id: 'c5', d: 'C', classId: 'C1', x: 640, y: 70 },
+  { id: 'c6', d: 'C', classId: 'C1', x: 660, y: 70 },
+  { id: 'c7', d: 'C', classId: 'C1', x: 650, y: 95 },
 ]
 
 const AMBIENT_PARTICLES = [
   { cx: 50, cy: 60, r: 1.2, className: 'particle-drift-1', color: '#818cf8' },
-  { cx: 120, cy: 110, r: 0.8, className: 'particle-drift-2', color: '#818cf8' },
-  { cx: 180, cy: 50, r: 1.5, className: 'particle-drift-3', color: '#818cf8' },
-  { cx: 220, cy: 120, r: 1.0, className: 'particle-drift-1', color: '#818cf8' },
-  { cx: 90, cy: 150, r: 0.7, className: 'particle-drift-2', color: '#818cf8' },
-  { cx: 260, cy: 90, r: 1.1, className: 'particle-drift-3', color: '#818cf8' },
-
-  { cx: 310, cy: 70, r: 1.3, className: 'particle-drift-2', color: '#00ADB5' },
-  { cx: 350, cy: 120, r: 0.9, className: 'particle-drift-3', color: '#00ADB5' },
-  { cx: 400, cy: 50, r: 1.6, className: 'particle-drift-1', color: '#00ADB5' },
-  { cx: 450, cy: 110, r: 0.8, className: 'particle-drift-2', color: '#00ADB5' },
-  { cx: 490, cy: 60, r: 1.2, className: 'particle-drift-3', color: '#00ADB5' },
-
-  { cx: 550, cy: 120, r: 1.0, className: 'particle-drift-3', color: '#f472b6' },
-  { cx: 600, cy: 50, r: 1.4, className: 'particle-drift-1', color: '#f472b6' },
-  { cx: 650, cy: 110, r: 0.8, className: 'particle-drift-2', color: '#f472b6' },
-  { cx: 700, cy: 60, r: 1.5, className: 'particle-drift-3', color: '#f472b6' },
-  { cx: 750, cy: 130, r: 1.1, className: 'particle-drift-1', color: '#f472b6' },
-  { cx: 580, cy: 90, r: 0.7, className: 'particle-drift-2', color: '#f472b6' },
-  { cx: 680, cy: 150, r: 1.2, className: 'particle-drift-3', color: '#f472b6' },
-
-  { cx: 100, cy: 280, r: 1.0, className: 'particle-drift-1', color: '#00ADB5' },
-  { cx: 220, cy: 310, r: 0.8, className: 'particle-drift-2', color: '#00ADB5' },
+  { cx: 180, cy: 90, r: 0.8, className: 'particle-drift-2', color: '#818cf8' },
   { cx: 340, cy: 290, r: 1.3, className: 'particle-drift-3', color: '#00ADB5' },
   { cx: 460, cy: 320, r: 0.9, className: 'particle-drift-1', color: '#00ADB5' },
   { cx: 580, cy: 280, r: 1.4, className: 'particle-drift-2', color: '#00ADB5' },
@@ -185,160 +131,97 @@ const AMBIENT_PARTICLES = [
 
 const CLASS_STUDENTS: Record<string, { teacher: string; comment: string; students: { name: string; time: number }[] }> = {
   A1: {
-    teacher: 'Bu Sari',
-    comment: 'Wah, Budi ini rajin belajar ya, screen time-nya paling rendah di kelas!',
+    teacher: 'Bu Sari (Wali Kelas VII-A)',
+    comment: 'Selamat datang di Kelas VII-A! Ini adalah sampel 7 data screen time siswa kami.',
     students: [
-      { name: 'Adit', time: 3 },
-      { name: 'Budi', time: 2 },
-      { name: 'Cici', time: 4 },
+      { name: 'Adit', time: 3 }, { name: 'Budi', time: 2 }, { name: 'Cici', time: 4 },
+      { name: 'Deni', time: 5 }, { name: 'Evi', time: 3 }, { name: 'Fani', time: 2 },
+      { name: 'Gita', time: 4 }
     ]
   },
   A2: {
-    teacher: 'Pak Bambang',
-    comment: 'Deni ini sepertinya perlu dikurangi nih main HP-nya agar matanya tidak cepat lelah.',
+    teacher: 'Pak Bambang (Wali Kelas VII-B)',
+    comment: 'Ini data 7 siswa Kelas VII-B. Mari kita gabungkan dengan data VII-A!',
     students: [
-      { name: 'Deni', time: 5 },
-      { name: 'Evi', time: 3 },
-      { name: 'Fani', time: 2 },
-    ]
-  },
-  A3: {
-    teacher: 'Bu Tina',
-    comment: 'Secara umum, rata-rata screen time siswa di kelas VII-3 ini adalah sekitar 3,6 jam per hari.',
-    students: [
-      { name: 'Gita', time: 4 },
-      { name: 'Hadi', time: 3 },
-      { name: 'Indra', time: 4 },
+      { name: 'Hadi', time: 3 }, { name: 'Indra', time: 4 }, { name: 'Joko', time: 5 },
+      { name: 'Kiki', time: 4 }, { name: 'Lia', time: 6 }, { name: 'Mira', time: 3 },
+      { name: 'Niko', time: 5 }
     ]
   },
   B1: {
-    teacher: 'Bu Rina',
-    comment: 'Hebat sekali, Mira sangat disiplin membatasi penggunaan HP-nya hanya 3 jam sehari!',
+    teacher: 'Bu Rina (Wali Kelas VIII-A)',
+    comment: 'Siswa Kelas VIII-A sangat disiplin membatasi waktu layar HP mereka!',
     students: [
-      { name: 'Joko', time: 5 },
-      { name: 'Kiki', time: 4 },
-      { name: 'Lia', time: 6 },
-      { name: 'Mira', time: 3 },
-      { name: 'Niko', time: 5 },
+      { name: 'Oki', time: 4 }, { name: 'Putri', time: 5 }, { name: 'Rian', time: 3 },
+      { name: 'Santi', time: 4 }, { name: 'Tono', time: 6 }, { name: 'Umar', time: 5 },
+      { name: 'Vina', time: 4 }
     ]
   },
   B2: {
-    teacher: 'Pak Setiawan',
-    comment: 'Aduh, Tono sepertinya perlu lebih bijak menggunakan HP-nya agar tidak kecanduan game.',
+    teacher: 'Pak Setiawan (Wali Kelas VIII-B)',
+    comment: 'Data 7 siswa Kelas VIII-B siap dianalisis untuk tabel distribusi frekuensi!',
     students: [
-      { name: 'Oki', time: 4 },
-      { name: 'Putri', time: 5 },
-      { name: 'Rian', time: 3 },
-      { name: 'Santi', time: 4 },
-      { name: 'Tono', time: 6 },
-    ]
-  },
-  B3: {
-    teacher: 'Bu Yuli',
-    comment: 'Rata-rata screen time di kelas VIII-3 ini berkisar 4,2 jam, masih cukup wajar untuk remaja.',
-    students: [
-      { name: 'Umar', time: 5 },
-      { name: 'Vina', time: 4 },
-      { name: 'Wawan', time: 3 },
-      { name: 'Xena', time: 5 },
-      { name: 'Yayan', time: 4 },
+      { name: 'Wawan', time: 3 }, { name: 'Xena', time: 5 }, { name: 'Yayan', time: 4 },
+      { name: 'Zaki', time: 6 }, { name: 'Alma', time: 5 }, { name: 'Bimo', time: 4 },
+      { name: 'Dian', time: 5 }
     ]
   },
   C1: {
-    teacher: 'Pak Joko',
-    comment: 'Zaki perlu membagi waktu lebih baik karena screen time-nya mencapai 6 jam per hari.',
+    teacher: 'Pak Joko (Wali Kelas IX)',
+    comment: 'Lengkap! 7 sampel siswa Kelas IX melengkapi 35 data sampel eksplorasi kita!',
     students: [
-      { name: 'Zaki', time: 6 },
-      { name: 'Alma', time: 5 },
-      { name: 'Bimo', time: 4 },
-      { name: 'Dian', time: 5 },
-    ]
-  },
-  C2: {
-    teacher: 'Bu Endang',
-    comment: 'Wah, Elga dan Hana rajin belajar ya, screen time mereka paling rendah di kelas IX-2!',
-    students: [
-      { name: 'Elga', time: 4 },
-      { name: 'Farhan', time: 6 },
-      { name: 'Gani', time: 5 },
-      { name: 'Hana', time: 4 },
-    ]
-  },
-  C3: {
-    teacher: 'Bu Sri',
-    comment: 'Secara keseluruhan, rata-rata screen time di kelas IX-3 adalah 4 jam per hari.',
-    students: [
-      { name: 'Irfan', time: 5 },
-      { name: 'Jihan', time: 4 },
-      { name: 'Koko', time: 3 },
+      { name: 'Elga', time: 4 }, { name: 'Farhan', time: 6 }, { name: 'Gani', time: 5 },
+      { name: 'Hana', time: 4 }, { name: 'Irfan', time: 5 }, { name: 'Jihan', time: 4 },
+      { name: 'Koko', time: 3 }
     ]
   },
 }
 
-function checkClassCollision(
-  x: number,
-  y: number,
-  door: typeof CLASS_DOORS[number],
-  unlocked: Set<string>,
-  hallwayY: number,
-  startX: number,
-  endX: number,
-  R: number
-): boolean {
-  if (x >= startX - R && x <= endX + R) {
-    if (startX > 15 && x > startX - R && x < startX + R && y < hallwayY) return false
-    if (endX < 780 && x > endX - R && x < endX + R && y < hallwayY) return false
+// 📌 TITIK CUSTOM GARIS MERAH COLLISION (Silakan edit nilai Y untuk tiap koordinat X di sini!)
+export const RED_LINE_POINTS = [
+  { x: 120, y: 580 },
+  { x: 280, y: 580 }, // Tepi Bangku & Tanaman Kiri
+  { x: 430, y: 485 }, // Ambang Pintu 2 (Kelas VII-B)
+  { x: 810, y: 485 }, // Tembok Tengah Gedung (Pintu 3 & 4)
+  { x: 1110, y: 520 }, // Ambang Pintu 5 (Kelas IX)
+  { x: 1110, y: 550 }, // Ambang Pintu 5 (Kelas IX)
+]
 
-    if (x >= startX && x <= endX) {
-      const insideGap = x >= door.x - 15 && x <= door.x + 15
-      const crossingWall = y > hallwayY - R && y < hallwayY + R
-      if (crossingWall) {
-        if (!unlocked.has(door.id) || !insideGap) {
-          return false
-        }
-      }
+// Fungsi otomatis interpolasi Y garis merah berdasarkan titik-titik sudut terurut RED_LINE_POINTS
+function getRedLineY(x: number): number {
+  const sortedPoints = [...RED_LINE_POINTS].sort((a, b) => a.x - b.x)
+  if (x <= sortedPoints[0].x) return sortedPoints[0].y
+  const last = sortedPoints[sortedPoints.length - 1]
+  if (x >= last.x) return last.y
+
+  for (let i = 0; i < sortedPoints.length - 1; i++) {
+    const p1 = sortedPoints[i]
+    const p2 = sortedPoints[i + 1]
+    if (x >= p1.x && x <= p2.x) {
+      const dx = p2.x - p1.x
+      if (dx === 0) return p2.y
+      const t = (x - p1.x) / dx
+      return p1.y + t * (p2.y - p1.y)
     }
   }
-  return true
+  return 520
 }
 
-// Walkability: check if character is inside the vertical hallway or open rooms
+// Walkability: check if character feet base (center, left shoe, right shoe) is strictly inside green area
 function isWalkable(x: number, y: number, unlocked: Set<string>): boolean {
-  const R = 6.0 // player radius padding for landscape map
+  const feetRadiusX = 16.0 // Width radius of player shoes/feet
 
-  if (x < 10 + R || x > 790 - R || y < 30 + R || y > 330 - R) return false
+  // Outer Courtyard Pavement Bounds
+  if (y > 640) return false // bottom dirt curb boundary
+  if (x < 120 + feetRadiusX || x > 1110 - feetRadiusX) return false // outer side garden boundaries
 
-  const leftDiagY = 260 - (x - 10) * (8/27)
-  const rightDiagY = 180 + (x - 520) * (8/27)
+  // Check that Center, Left Shoe, and Right Shoe are ALL below the Red Line!
+  const redLineYCenter = getRedLineY(x)
+  const redLineYLeft = getRedLineY(x - feetRadiusX)
+  const redLineYRight = getRedLineY(x + feetRadiusX)
 
-  if (x < 280 && y < leftDiagY) {
-    if (x > 280 - R) return false
-
-    if (!checkClassCollision(x, y, CLASS_DOORS[0], unlocked, leftDiagY - 35, 10, 95, R)) return false
-    if (!checkClassCollision(x, y, CLASS_DOORS[1], unlocked, leftDiagY - 35, 95, 185, R)) return false
-    if (!checkClassCollision(x, y, CLASS_DOORS[2], unlocked, leftDiagY - 35, 185, 280, R)) return false
-
-    return true
-  }
-
-  if (x > 520 && y < rightDiagY) {
-    if (x < 520 + R) return false
-
-    if (!checkClassCollision(x, y, CLASS_DOORS[6], unlocked, rightDiagY - 35, 520, 610, R)) return false
-    if (!checkClassCollision(x, y, CLASS_DOORS[7], unlocked, rightDiagY - 35, 610, 700, R)) return false
-    if (!checkClassCollision(x, y, CLASS_DOORS[8], unlocked, rightDiagY - 35, 700, 790, R)) return false
-
-    return true
-  }
-
-  if (x >= 280 && x <= 520 && y < 180) {
-    if (x < 280 + R || x > 520 - R) return false
-
-    if (!checkClassCollision(x, y, CLASS_DOORS[3], unlocked, 145, 280, 360, R)) return false
-    if (!checkClassCollision(x, y, CLASS_DOORS[4], unlocked, 145, 360, 440, R)) return false
-    if (!checkClassCollision(x, y, CLASS_DOORS[5], unlocked, 145, 440, 520, R)) return false
-
-    return true
+  if (y < redLineYCenter || y < redLineYLeft || y < redLineYRight) {
+    return false // If ANY part of player shoes penetrates the red line, reject!
   }
 
   return true
@@ -379,7 +262,7 @@ function Joystick({ onDir }: { onDir: (x: number, y: number) => void }) {
 function generateAnswerPool(correctAnswer: number): number[] {
   const pool = new Set<number>()
   pool.add(correctAnswer)
-  
+
   // Distractors must be within range ±2 to ±3 from correctAnswer
   const candidates: number[] = []
   for (let offset = -3; offset <= 3; offset++) {
@@ -390,7 +273,7 @@ function generateAnswerPool(correctAnswer: number): number[] {
       candidates.push(val)
     }
   }
-  
+
   // If we don't have enough candidates (e.g. correctAnswer is very small like 1 or 2), let's expand candidate range to ±1, +4, +5 but always positive.
   if (candidates.length < 3) {
     for (let offset = -3; offset <= 5; offset++) {
@@ -401,14 +284,14 @@ function generateAnswerPool(correctAnswer: number): number[] {
       }
     }
   }
-  
+
   // Shuffle candidates and pick 3 distractors so that total pool size is 4
   const shuffledCandidates = [...candidates].sort(() => Math.random() - 0.5)
   const numDistractors = Math.min(3, shuffledCandidates.length)
   for (let i = 0; i < numDistractors; i++) {
     pool.add(shuffledCandidates[i])
   }
-  
+
   // Fallback: if we still don't have 4 choices, add more positive numbers close by
   let offset = 4
   while (pool.size < 4) {
@@ -422,7 +305,7 @@ function generateAnswerPool(correctAnswer: number): number[] {
     }
     offset++
   }
-  
+
   // Convert to array and shuffle
   return Array.from(pool).sort(() => Math.random() - 0.5)
 }
@@ -430,17 +313,17 @@ function generateAnswerPool(correctAnswer: number): number[] {
 // Helper to get dynamic hint focusing on process
 function getProcessHint(quizQ: string): string {
   const isWordProblem = /[a-zA-Z]{3,}/.test(quizQ) && quizQ.length > 15;
-  
+
   if (isWordProblem) {
     return "Baca ulang soalnya pelan-pelan, angka mana yang perlu dihitung? 🤔";
   }
-  
+
   const hasMult = quizQ.includes('×') || quizQ.includes('*');
   const hasAddSub = quizQ.includes('+') || quizQ.includes('-');
   if (hasMult && hasAddSub) {
     return "Selesaikan perkalian/pembagian terlebih dahulu, baru lakukan penjumlahan/pengurangan 🤔";
   }
-  
+
   if (hasMult) {
     return "Ingat, a × b berarti a dijumlahkan sebanyak b kali 🤔";
   }
@@ -450,7 +333,7 @@ function getProcessHint(quizQ: string): string {
   if (quizQ.includes('+')) {
     return "Coba jumlahkan kedua angka satu per satu 🤔";
   }
-  
+
   return "Coba hitung kembali dengan teliti ya 🤔";
 }
 
@@ -747,7 +630,7 @@ function VisualHintModal({ door, onClose }: VisualHintModalProps) {
   }
 
   return (
-    <div 
+    <div
       style={{
         position: 'fixed',
         inset: 0,
@@ -796,22 +679,22 @@ function VisualHintModal({ door, onClose }: VisualHintModalProps) {
         </div>
 
         {/* Teks Soal Aktif */}
-        <div style={{ 
-          background: 'rgba(0, 173, 181, 0.06)', 
-          border: '1.5px solid rgba(0, 173, 181, 0.25)', 
-          borderRadius: 14, 
-          padding: '10px 14px', 
-          textAlign: 'center' 
+        <div style={{
+          background: 'rgba(0, 173, 181, 0.06)',
+          border: '1.5px solid rgba(0, 173, 181, 0.25)',
+          borderRadius: 14,
+          padding: '10px 14px',
+          textAlign: 'center'
         }}>
           <div style={{ fontSize: '10px', fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>
             SOAL AKTIF
           </div>
-          <div style={{ 
-            fontSize: door.quizQ.length > 30 ? '13px' : '16px', 
-            fontWeight: 900, 
-            color: '#FFFFFF', 
-            fontFamily: 'var(--font-data)', 
-            lineHeight: 1.4 
+          <div style={{
+            fontSize: door.quizQ.length > 30 ? '13px' : '16px',
+            fontWeight: 900,
+            color: '#FFFFFF',
+            fontFamily: 'var(--font-data)',
+            lineHeight: 1.4
           }}>
             {door.quizQ}
           </div>
@@ -945,7 +828,7 @@ function QuizPopup({ door, isFD, onCorrect, onClose }:
           </div>
           <div style={{ background: `${door.color}11`, border: `1.5px solid ${door.color}33`, borderRadius: 16, padding: '16px 12px', textAlign: 'center' }}>
             <div style={{ fontSize: door.quizQ.length > 20 ? (door.quizQ.length > 50 ? 14 : 16) : 22, fontWeight: 900, color: '#FFFFFF', fontFamily: 'var(--font-data)', lineHeight: 1.4 }}>{door.quizQ}</div>
-            
+
             {/* FD Context Hint */}
             {isFD && door.fdContext && (
               <div style={{ marginTop: '10px', fontSize: '12px', color: '#ffb060', fontWeight: 600, lineHeight: 1.5, background: 'rgba(217, 119, 6, 0.08)', border: '1px dashed rgba(217, 119, 6, 0.3)', borderRadius: '8px', padding: '6px 8px' }}>
@@ -1161,9 +1044,9 @@ function QuizPopup({ door, isFD, onCorrect, onClose }:
 
       <AnimatePresence>
         {openVisualModal && (
-          <VisualHintModal 
-            door={door} 
-            onClose={() => setOpenVisualModal(false)} 
+          <VisualHintModal
+            door={door}
+            onClose={() => setOpenVisualModal(false)}
           />
         )}
       </AnimatePresence>
@@ -1236,7 +1119,7 @@ function CounterResult({ onDone }: { onDone: () => void }) {
 }
 
 export default function NPath({ onComplete, isFD = true, demoMode = false }: { onComplete: () => void; isFD?: boolean; demoMode?: boolean }) {
-  const [charPos, setCharPos] = useState({ x: 400, y: 310 })
+  const [charPos, setCharPos] = useState({ x: 650, y: 550 })
   const [unlocked, setUnlocked] = useState<Set<string>>(() => {
     return demoMode ? new Set(['A', 'B', 'C', 'A1', 'A2', 'A3', 'B1']) : new Set(['A', 'B', 'C'])
   })
@@ -1263,7 +1146,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
   const [milestoneGlow, setMilestoneGlow] = useState<'50%' | '100%' | null>(null)
   const [moveDir, setMoveDir] = useState({ x: 0, y: 0 })
 
-  const charPosRef = useRef({ x: 400, y: 310 })
+  const charPosRef = useRef({ x: 650, y: 550 })
 
   const dirRef = useRef({ x: 0, y: 0 })
   const animRef = useRef<number | null>(null)
@@ -1281,23 +1164,20 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
 
   // Compute current room based on position reactively
   let currentRoomId: DoorId | null = null
-  const leftDiagY = 260 - (charPos.x - 10) * (8/27)
-  const rightDiagY = 180 + (charPos.x - 520) * (8/27)
-
-  if (unlocked.has('A') && charPos.x < 280 && charPos.y < leftDiagY) currentRoomId = 'A'
-  if (unlocked.has('B') && charPos.x >= 280 && charPos.x <= 520 && charPos.y < 180) currentRoomId = 'B'
-  if (unlocked.has('C') && charPos.x > 520 && charPos.y < rightDiagY) currentRoomId = 'C'
+  if (charPos.x < 500) currentRoomId = 'A'
+  else if (charPos.x <= 800) currentRoomId = 'B'
+  else currentRoomId = 'C'
 
   // Trigger Dira dialog popup when entering a room for the first time
   useEffect(() => {
     if (currentRoomId && !visitedRooms.has(currentRoomId)) {
       setVisitedRooms(prev => new Set([...prev, currentRoomId!]))
       if (currentRoomId === 'A') {
-        setDiraMessageText("Halo Detektif! Di Ruang A ini terdapat beberapa kelas (VII-1, VII-2, dan VII-3) yang menyimpan data screen time. Yuk, datangi dan buka gembok tiap kelas satu per satu untuk mengumpulkan datanya! 🕵️‍♂️")
+        setDiraMessageText("Halo Detektif! Di Zona VII ini terdapat beberapa kelompok meja yang menyimpan data screen time. Datangi & periksa tiap titik data untuk mengumpulkan datanya! 🕵️‍♂️")
       } else if (currentRoomId === 'B') {
-        setDiraMessageText("Keren! Di Ruang B, datamu tersimpan di kelas VIII-1, VIII-2, dan VIII-3. Selesaikan teka-teki gembok tiap kelas untuk memindai semua data di ruangan ini!")
+        setDiraMessageText("Keren! Di Zona VIII, datamu tersimpan di papan tulis & meja belajar. Jawab tantangannya untuk membuka seluruh data!")
       } else if (currentRoomId === 'C') {
-        setDiraMessageText("Hampir lengkap! Di Ruang C, kunjungi kelas IX-1, IX-2, dan IX-3. Pecahkan teka-teki di masing-masing pintu kelas untuk melengkapi seluruh data screen time siswa!")
+        setDiraMessageText("Hampir lengkap! Di Zona IX, periksa meja & mading kelas untuk melengkapi seluruh data screen time siswa!")
       }
     }
   }, [currentRoomId, visitedRooms])
@@ -1310,7 +1190,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
     for (const d of DOORS) {
       if (unlockedR.current.has(d.id)) continue
       const dist = Math.hypot(d.x - cx, d.y - cy)
-      if (dist < 26 && dist < minDist) {
+      if (dist < 50 && dist < minDist) {
         minDist = dist
         closest = d
       }
@@ -1327,7 +1207,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
       if (!unlockedR.current.has(d.roomId)) continue
       if (unlockedR.current.has(d.id)) continue
       const dist = Math.hypot(d.x - cx, d.y - cy)
-      if (dist < 26 && dist < minDist) {
+      if (dist < 50 && dist < minDist) {
         minDist = dist
         closest = d
       }
@@ -1342,6 +1222,14 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
     }
   }, [collected.size, showCounter])
 
+  // Auto-clamp player Y position if ever above RED_LINE_POINTS (e.g. after user edits RED_LINE_POINTS)
+  useEffect(() => {
+    const redLineY = getRedLineY(charPos.x)
+    if (charPos.y < redLineY) {
+      setCharPos(prev => ({ ...prev, y: redLineY }))
+    }
+  }, [charPos.x, charPos.y])
+
   // Main game tick: movement animation loop
   useEffect(() => {
     const tick = () => {
@@ -1349,12 +1237,16 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
         const { x: dx, y: dy } = dirRef.current
         if (dx || dy) {
           setCharPos(p => {
-            const nx = Math.max(10, Math.min(VW - 10, p.x + dx * SPEED))
-            const ny = Math.max(10, Math.min(VH - 10, p.y + dy * SPEED))
+            const currentRedLineY = getRedLineY(p.x)
+            const safeY = Math.max(p.y, currentRedLineY)
+
+            const nx = Math.max(10, Math.min(WORLD_VW - 10, p.x + dx * SPEED))
+            const ny = Math.max(10, Math.min(WORLD_VH - 10, safeY + dy * SPEED))
+
             if (isWalkable(nx, ny, unlockedR.current)) return { x: nx, y: ny }
-            if (isWalkable(nx, p.y, unlockedR.current)) return { x: nx, y: p.y }
+            if (isWalkable(nx, safeY, unlockedR.current)) return { x: nx, y: safeY }
             if (isWalkable(p.x, ny, unlockedR.current)) return { x: p.x, y: ny }
-            return p
+            return { x: p.x, y: safeY }
           })
         }
       }
@@ -1391,9 +1283,9 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
       const activeClassVal = activeClassR.current
       const nearDoorVal = nearDoorR.current
       const nearClassVal = nearClassR.current
-      
+
       if (activeDoorVal || activeClassVal || diraMessageText || showWaliKelasPopupR.current) {
-        if (e.key === 'Escape') { 
+        if (e.key === 'Escape') {
           e.preventDefault()
           setActiveDoor(null)
           setActiveClass(null)
@@ -1445,12 +1337,12 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
     if (!showWaliKelasPopup) return
     const cid = showWaliKelasPopup.id
     const roomId = showWaliKelasPopup.roomId
-    
+
     // 1. Add class ID to unlocked & check room completion
     setUnlocked(prev => {
       const next = new Set(prev)
       next.add(cid)
-      
+
       const roomClasses = CLASS_DOORS.filter(cd => cd.roomId === roomId)
       const completed = roomClasses.every(cd => next.has(cd.id))
       if (completed) {
@@ -1459,19 +1351,19 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
           setRoomMilestoneText(null)
         }, 2200)
       }
-      
+
       return next
     })
-    
+
     // 2. Add class data circles to collected & check total milestones
     const classCircles = DATA_CIRCLES.filter(c => c.classId === cid)
     setCollected(prev => {
       const next = new Set(prev)
       classCircles.forEach(c => next.add(c.id))
-      
+
       const oldSize = prev.size
       const newSize = next.size
-      
+
       if (oldSize < 18 && newSize >= 18) {
         setMilestoneGlow('50%')
         setTimeout(() => setMilestoneGlow(null), 1800)
@@ -1479,10 +1371,10 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
         setMilestoneGlow('100%')
         setTimeout(() => setMilestoneGlow(null), 2500)
       }
-      
+
       return next
     })
-    
+
     setJustCompletedClassId(cid)
     setTimeout(() => {
       setJustCompletedClassId(null)
@@ -1514,599 +1406,371 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
   }, [unlocked, collectedStudents.length])
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', gap: 12, minHeight: 0 }}>
-      {/* Top Header info */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(10px, 1.8vh, 16px)', flexShrink: 0, paddingBottom: '4px' }}>
-        <div style={{
-          width: 'clamp(32px, 5.5vh, 46px)', height: 'clamp(32px, 5.5vh, 46px)', borderRadius: '50%', flexShrink: 0,
-          background: 'rgba(99, 102, 241, 0.2)', border: '1.5px solid rgba(99, 102, 241, 0.4)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: 'clamp(14px, 2.2vh, 18px)', fontWeight: 900, color: '#a5b4fc',
-        }}>1</div>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 'clamp(16px, 2.8vh, 22px)', fontWeight: 800, color: '#F8FAFC' }}>Eksplorasi Ruangan 🕵️‍♂️</div>
-          <div style={{ fontSize: 'clamp(11px, 1.8vh, 14px)', color: '#A8A29E', letterSpacing: '1px', textTransform: 'uppercase', fontWeight: 600 }}>Langkah 1 dari 3</div>
-        </div>
-        <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-          {[1, 2, 3].map(i => (
-            <div
-              key={i}
-              style={{
-                width: i === 1 ? 20 : 8,
-                height: 'clamp(6px, 1.2vh, 9px)',
-                borderRadius: '3px',
-                background: i === 1 ? '#a5b4fc' : 'rgba(217,119,6,0.15)',
-                transition: 'width 0.3s, background 0.3s',
-              }}
-            />
-          ))}
-        </div>
-      </div>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0 }}>
+      {/* Main Game Viewport Container */}
+      <div style={{ flex: 1, width: '100%', minHeight: 0, position: 'relative', display: 'flex', justifyContent: 'center', alignItems: 'center', borderRadius: 16, overflow: 'hidden', background: '#04070a', border: '1px solid rgba(14, 131, 136, 0.25)' }}>
 
-      {/* Canvas */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', borderRadius: 16, border: '1px solid rgba(14, 131, 136, 0.08)', minHeight: 0, position: 'relative', background: '#04070a' }}>
-        
-        {/* Top Integrated Progress Header Bar */}
+        {/* Floating Glassmorphism Game HUD Overlay inside Viewport */}
         <div style={{
-          background: 'rgba(11, 30, 44, 0.95)',
-          borderBottom: '1px solid rgba(14, 131, 136, 0.25)',
-          padding: '8px 16px',
-          color: '#F8FAFC',
-          fontFamily: 'monospace',
-          fontSize: '11px',
+          position: 'absolute',
+          top: 10,
+          left: 10,
+          right: 10,
+          zIndex: 40,
           display: 'flex',
-          flexDirection: 'column',
-          gap: '8px',
-          flexShrink: 0
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 10,
+          pointerEvents: 'none'
         }}>
-          {/* Row 1: Consolidated Header & Stats */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', flexWrap: 'wrap', gap: '8px' }}>
-            <div style={{ fontWeight: 'bold', color: '#00ADB5', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span>📊</span> <span>PROGRESS INVESTIGASI</span>
-            </div>
-            
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, fontWeight: 700 }}>
-              <span style={{ color: '#94A3B8' }}>DATA TERKUMPUL:</span>
-              <motion.span
-                animate={milestoneGlow ? {
-                  scale: [1, 1.15, 1],
-                  color: ['#00ADB5', '#FFFFFF', '#00ADB5'],
-                } : {}}
-                transition={{ duration: 1.2 }}
-                style={{ color: '#00ADB5', display: 'inline-flex', alignItems: 'center', gap: 10 }}
-              >
-                <span style={{ fontSize: '13px' }}>{n} / {TOTAL_N}</span>
-                <span style={{ color: '#334155', fontWeight: 'normal' }}>|</span>
-                {(() => {
-                  const getCount = (rId: string) => CLASS_DOORS.filter(cd => cd.roomId === rId && unlocked.has(cd.id)).length
-                  return (
-                    <span style={{ display: 'flex', gap: 10, fontSize: '10px' }}>
-                      <span style={{ color: '#818cf8', opacity: currentRoomId === 'A' ? 1 : 0.65 }}>VII: {getCount('A')}/3</span>
-                      <span style={{ color: '#00ADB5', opacity: currentRoomId === 'B' ? 1 : 0.65 }}>VIII: {getCount('B')}/3</span>
-                      <span style={{ color: '#f472b6', opacity: currentRoomId === 'C' ? 1 : 0.65 }}>IX: {getCount('C')}/3</span>
-                    </span>
-                  )
-                })()}
-              </motion.span>
+          {/* Left: Quest Title & Data Counter Card */}
+          <div style={{
+            background: 'rgba(11, 30, 44, 0.85)',
+            backdropFilter: 'blur(12px)',
+            border: '1.5px solid rgba(0, 173, 181, 0.35)',
+            borderRadius: 12,
+            padding: '6px 12px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 10,
+            boxShadow: '0 4px 16px rgba(0, 0, 0, 0.45)',
+            pointerEvents: 'auto'
+          }}>
+            <div style={{ fontSize: '15px' }}>🕵️‍♂️</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ fontSize: '12px', fontWeight: 900, color: '#F8FAFC', letterSpacing: '0.3px' }}>Eksplorasi Ruangan</span>
+              <span style={{ color: 'rgba(255,255,255,0.2)' }}>|</span>
+              <span style={{ fontSize: '11px', fontWeight: 800, color: '#00ADB5', fontFamily: 'monospace' }}>
+                DATA: <span style={{ color: '#FFFFFF' }}>{n} / {TOTAL_N}</span>
+              </span>
             </div>
           </div>
 
-          {/* Row 2: Horizontal Scrollable Raw Data Preview */}
-          <div 
-            ref={scrollRef}
-            style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: '8px', 
-              overflowX: 'auto', 
-              padding: '6px 4px', 
-              width: '100%',
-              minHeight: '38px',
-              background: 'rgba(4, 7, 10, 0.4)',
-              borderRadius: '8px',
-              border: '1px solid rgba(14, 131, 136, 0.1)',
-              scrollbarWidth: 'none', // Firefox
-              msOverflowStyle: 'none' // IE/Edge
-            }}
-            className="scrollbar-hidden"
-          >
-            {/* Scrollbar hide styling for Chrome/Safari */}
-            <style>{`
-              .scrollbar-hidden::-webkit-scrollbar {
-                display: none;
-              }
-            `}</style>
-
-            {collectedStudents.length === 0 ? (
-              <span style={{ color: '#64748B', fontStyle: 'italic', fontSize: '11px', paddingLeft: '4px' }}>
-                Belum ada data terkumpul. Buka gembok kelas untuk mengumpulkan data screen time.
-              </span>
-            ) : (
-              collectedStudents.map((st, idx) => (
+          {/* Center: Scrollable Raw Data Badges Bar (Only when data collected) */}
+          {collectedStudents.length > 0 && (
+            <div
+              ref={scrollRef}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px',
+                overflowX: 'auto',
+                padding: '4px 8px',
+                background: 'rgba(11, 30, 44, 0.8)',
+                backdropFilter: 'blur(8px)',
+                borderRadius: '10px',
+                border: '1px solid rgba(0, 173, 181, 0.25)',
+                pointerEvents: 'auto',
+                scrollbarWidth: 'none',
+                maxWidth: '45%'
+              }}
+              className="scrollbar-hidden"
+            >
+              <style>{`
+                .scrollbar-hidden::-webkit-scrollbar {
+                  display: none;
+                }
+              `}</style>
+              {collectedStudents.map((st, idx) => (
                 <motion.div
                   key={`${st.classId}-${st.name}-${idx}`}
-                  initial={{ scale: 0, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
                   style={{
-                    width: 28,
-                    height: 28,
+                    width: 22,
+                    height: 22,
                     borderRadius: '50%',
-                    background: 'rgba(0, 173, 181, 0.12)',
+                    background: 'rgba(0, 173, 181, 0.25)',
                     border: '1.5px solid #00ADB5',
-                    boxShadow: '0 0 10px rgba(0, 173, 181, 0.25)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     color: '#FFFFFF',
                     fontWeight: 900,
-                    fontSize: '11px',
+                    fontSize: '9.5px',
                     fontFamily: 'var(--font-data)',
                     flexShrink: 0
                   }}
-                  title={`${st.name} (${st.classId}): ${st.time} jam`}
+                  title={`${st.name}: ${st.time} jam`}
                 >
                   {st.time}
                 </motion.div>
-              ))
-            )}
+              ))}
+            </div>
+          )}
+
+          {/* Right: Room Breakdown & Step Indicator */}
+          <div style={{
+            background: 'rgba(11, 30, 44, 0.85)',
+            backdropFilter: 'blur(12px)',
+            border: '1.5px solid rgba(255, 255, 255, 0.12)',
+            borderRadius: 12,
+            padding: '6px 12px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 10,
+            boxShadow: '0 4px 16px rgba(0, 0, 0, 0.45)',
+            pointerEvents: 'auto'
+          }}>
+            <div style={{ display: 'flex', gap: 6, fontSize: '9.5px', fontWeight: 800, fontFamily: 'monospace' }}>
+              <span style={{ color: unlocked.has('A1') ? '#10B981' : '#818cf8' }}>VII-A: {unlocked.has('A1') ? '✓' : '0/1'}</span>
+              <span style={{ color: unlocked.has('A2') ? '#10B981' : '#6366f1' }}>VII-B: {unlocked.has('A2') ? '✓' : '0/1'}</span>
+              <span style={{ color: unlocked.has('B1') ? '#10B981' : '#00ADB5' }}>VIII-A: {unlocked.has('B1') ? '✓' : '0/1'}</span>
+              <span style={{ color: unlocked.has('B2') ? '#10B981' : '#0e8388' }}>VIII-B: {unlocked.has('B2') ? '✓' : '0/1'}</span>
+              <span style={{ color: unlocked.has('C1') ? '#10B981' : '#f472b6' }}>IX: {unlocked.has('C1') ? '✓' : '0/1'}</span>
+            </div>
+            <div style={{ width: 1, height: 14, background: 'rgba(255,255,255,0.15)' }} />
+            <span style={{ fontSize: '10px', color: '#94A3B8', fontWeight: 700, textTransform: 'uppercase' }}>Langkah 1/3</span>
           </div>
         </div>
 
         <div style={{ flex: 1, width: '100%', minHeight: 0, position: 'relative', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-          <svg viewBox={`0 0 ${VW} ${VH}`} preserveAspectRatio="xMidYMid meet" style={{ width: '100%', maxHeight: '100%', aspectRatio: `${VW}/${VH}`, display: 'block' }}>
+          {(() => {
+            const camX = Math.max(0, Math.min(WORLD_VW - VIEW_VW, charPos.x - VIEW_VW / 2))
+            const camY = Math.max(0, Math.min(WORLD_VH - VIEW_VH, charPos.y - VIEW_VH * 0.65))
+            return (
+              <svg viewBox={`${camX} ${camY} ${VIEW_VW} ${VIEW_VH}`} preserveAspectRatio="xMidYMid meet" style={{ width: '100%', maxHeight: '100%', aspectRatio: `${VIEW_VW}/${VIEW_VH}`, display: 'block' }}>
+                <defs>
+                  <filter id="avatar-super-glow" x="-100%" y="-100%" width="300%" height="300%">
+                    <feGaussianBlur stdDeviation="5" result="blur" />
+                    <feComponentTransfer in="blur" result="boost">
+                      <feFuncA type="linear" slope="1.5" />
+                    </feComponentTransfer>
+                    <feMerge>
+                      <feMergeNode in="boost" />
+                      <feMergeNode in="SourceGraphic" />
+                    </feMerge>
+                  </filter>
+                </defs>
 
-            {/* Grid Pattern & Room Gradient Defs */}
-            <defs>
-              <pattern id="grid-pattern" width="24" height="24" patternUnits="userSpaceOnUse">
-                <circle cx="2" cy="2" r="1" fill="rgba(0, 173, 181, 0.02)" />
-                <path d="M 24 0 L 0 0 0 24" fill="none" stroke="rgba(0, 173, 181, 0.012)" strokeWidth="0.5" />
-              </pattern>
+                {/* Main Classroom Background Image with reduced opacity (0.45) for collision inspection */}
+                <image
+                  href="/Assets/Building/Kelas.jpg"
+                  x={0}
+                  y={0}
+                  width={WORLD_VW}
+                  height={WORLD_VH}
+                  preserveAspectRatio="none"
+                  opacity={0.45}
+                />
 
-              {/* Room Gradients (Depth & Diferensiasi) */}
-              <radialGradient id="room-a-grad" cx="20%" cy="30%" r="70%">
-                <stop offset="0%" stopColor="#0e152d" stopOpacity="0.3" />
-                <stop offset="100%" stopColor="#04070a" stopOpacity="1" />
-              </radialGradient>
-              <radialGradient id="room-b-grad" cx="50%" cy="30%" r="70%">
-                <stop offset="0%" stopColor="#071d1f" stopOpacity="0.3" />
-                <stop offset="100%" stopColor="#04070a" stopOpacity="1" />
-              </radialGradient>
-              <radialGradient id="room-c-grad" cx="80%" cy="30%" r="70%">
-                <stop offset="0%" stopColor="#200a1b" stopOpacity="0.3" />
-                <stop offset="100%" stopColor="#04070a" stopOpacity="1" />
-              </radialGradient>
+                {/* Dark Vignette Tint Overlay for Game Mood */}
+                <rect x={0} y={0} width={WORLD_VW} height={WORLD_VH} fill="rgba(4, 7, 10, 0.15)" />
 
-              {/* Avatar super glow filter */}
-              <filter id="avatar-super-glow" x="-100%" y="-100%" width="300%" height="300%">
-                <feGaussianBlur stdDeviation="5" result="blur" />
-                <feComponentTransfer in="blur" result="boost">
-                  <feFuncA type="linear" slope="1.5" />
-                </feComponentTransfer>
-                <feMerge>
-                  <feMergeNode in="boost" />
-                  <feMergeNode in="SourceGraphic" />
-                </feMerge>
-              </filter>
-            </defs>
+                {/* ─── VISUAL COLLISION DEBUGGER OVERLAY (Inspect Collision Geometry) ─── */}
+                {/* 1. Walkable Area Polygon (Neon Green Mesh - Fill Otomatis dari RED_LINE_POINTS) */}
+                <polygon
+                  points={[
+                    ...RED_LINE_POINTS.map(p => `${p.x},${p.y}`),
+                    `${RED_LINE_POINTS[RED_LINE_POINTS.length - 1].x},640`,
+                    `${RED_LINE_POINTS[0].x},640`
+                  ].join(' ')}
+                  fill="rgba(16, 185, 129, 0.18)"
+                  stroke="#10b981"
+                  strokeWidth={2}
+                  strokeDasharray="6,6"
+                />
 
-            <style>{`
-              @keyframes drift1 {
-                0% { transform: translate(0px, 0px); opacity: 0.12; }
-                50% { transform: translate(14px, -20px); opacity: 0.38; }
-                100% { transform: translate(0px, 0px); opacity: 0.12; }
-              }
-              @keyframes drift2 {
-                0% { transform: translate(0px, 0px); opacity: 0.12; }
-                50% { transform: translate(-18px, 14px); opacity: 0.38; }
-                100% { transform: translate(0px, 0px); opacity: 0.12; }
-              }
-              @keyframes drift3 {
-                0% { transform: translate(0px, 0px); opacity: 0.12; }
-                50% { transform: translate(10px, 18px); opacity: 0.32; }
-                100% { transform: translate(0px, 0px); opacity: 0.12; }
-              }
-              .particle-drift-1 { animation: drift1 9s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
-              .particle-drift-2 { animation: drift2 11s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
-              .particle-drift-3 { animation: drift3 13s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
-            `}</style>
+                {/* 2. Red Line Wall Base Boundary (User's Exact Red Line Wall Base) */}
+                <polyline
+                  points={RED_LINE_POINTS.map(p => `${p.x},${p.y}`).join(' ')}
+                  fill="none"
+                  stroke="#ef4444"
+                  strokeWidth={3.5}
+                />
 
-            {/* Room background overlays (desaturated/dim completed rooms, styled gradients for uncompleted rooms) */}
-            <polygon points="10,30 280,30 280,180 10,260" fill={isRoomACompleted ? "rgba(4, 7, 10, 0.65)" : "url(#room-a-grad)"} />
-            <polygon points="280,30 520,30 520,180 280,180" fill={isRoomBCompleted ? "rgba(4, 7, 10, 0.65)" : "url(#room-b-grad)"} />
-            <polygon points="520,30 790,30 790,260 520,180" fill={isRoomCCompleted ? "rgba(4, 7, 10, 0.65)" : "url(#room-c-grad)"} />
+                {/* 3. Obstacle Collision: Bangku & Pot Tanaman Kiri */}
+                <rect x={120} y={510} width={160} height={100} fill="rgba(239, 68, 68, 0.25)" stroke="#ef4444" strokeWidth={1.5} />
+                <text x={200} y={560} textAnchor="middle" fill="#ef4444" fontSize={10} fontWeight="bold">⛔ TEMBOK BANGBKU & POT</text>
 
-            {/* Ambient floating data particles */}
-            {AMBIENT_PARTICLES.map((p, idx) => (
-              <circle
-                key={`p-${idx}`}
-                cx={p.cx}
-                cy={p.cy}
-                r={p.r}
-                fill={p.color}
-                className={p.className}
-                pointerEvents="none"
-                opacity={0.08}
-              />
-            ))}
+                {/* 4. Player Feet Ground Collision Base Line (Garis Pijakan Telapak Sepatu) */}
+                <ellipse cx={charPos.x} cy={charPos.y} rx={22} ry={6} fill="rgba(244, 63, 94, 0.4)" stroke="#f43f5e" strokeWidth={2} />
+                <line x1={charPos.x - 24} y1={charPos.y} x2={charPos.x + 24} y2={charPos.y} stroke="#f43f5e" strokeWidth={2.5} />
+                <text x={charPos.x} y={charPos.y + 18} textAnchor="middle" fill="#f43f5e" fontSize={9} fontWeight="bold">
+                  ({Math.round(charPos.x)}, {Math.round(charPos.y)})
+                </text>
 
-            {/* Starting hallway hub subtle decorative grid pattern */}
-            <polygon points="10,260 280,180 520,180 790,260 790,330 10,330" fill="url(#grid-pattern)" />
-
-            {/* Facility Outer boundary */}
-            <rect x={10} y={30} width={780} height={300} fill="none" stroke="#334155" strokeWidth={0.8} rx={12} />
-
-            {/* Room completion glow effect on the dividing walls */}
-            {isRoomACompleted && (
-              <>
-                <motion.line x1={10} y1={260} x2={280} y2={180} stroke="#818cf8" strokeWidth={3} opacity={0.6} animate={{ opacity: [0.3, 0.8, 0.3] }} transition={{ duration: 1.5, repeat: Infinity }} />
-                <motion.line x1={280} y1={30} x2={280} y2={180} stroke="#818cf8" strokeWidth={3} opacity={0.6} animate={{ opacity: [0.3, 0.8, 0.3] }} transition={{ duration: 1.5, repeat: Infinity }} />
-              </>
-            )}
-            {isRoomBCompleted && (
-              <>
-                <motion.line x1={280} y1={180} x2={520} y2={180} stroke="#00ADB5" strokeWidth={3} opacity={0.6} animate={{ opacity: [0.3, 0.8, 0.3] }} transition={{ duration: 1.5, repeat: Infinity }} />
-                <motion.line x1={280} y1={30} x2={280} y2={180} stroke="#00ADB5" strokeWidth={3} opacity={0.6} animate={{ opacity: [0.3, 0.8, 0.3] }} transition={{ duration: 1.5, repeat: Infinity }} />
-                <motion.line x1={520} y1={30} x2={520} y2={180} stroke="#00ADB5" strokeWidth={3} opacity={0.6} animate={{ opacity: [0.3, 0.8, 0.3] }} transition={{ duration: 1.5, repeat: Infinity }} />
-              </>
-            )}
-            {isRoomCCompleted && (
-              <>
-                <motion.line x1={520} y1={180} x2={790} y2={260} stroke="#f472b6" strokeWidth={3} opacity={0.6} animate={{ opacity: [0.3, 0.8, 0.3] }} transition={{ duration: 1.5, repeat: Infinity }} />
-                <motion.line x1={520} y1={30} x2={520} y2={180} stroke="#f472b6" strokeWidth={3} opacity={0.6} animate={{ opacity: [0.3, 0.8, 0.3] }} transition={{ duration: 1.5, repeat: Infinity }} />
-              </>
-            )}
-
-            {/* Glowing lines for wall boundaries */}
-            {/* Left diagonal wall */}
-            <line x1={10} y1={260} x2={280} y2={180} stroke="#334155" strokeWidth={0.8} />
-            {/* Right diagonal wall */}
-            <line x1={520} y1={180} x2={790} y2={260} stroke="#334155" strokeWidth={0.8} />
-            {/* Center horizontal wall */}
-            <line x1={280} y1={180} x2={520} y2={180} stroke="#334155" strokeWidth={0.8} />
-            {/* Left vertical hallway wall */}
-            <line x1={280} y1={30} x2={280} y2={180} stroke="#334155" strokeWidth={0.8} />
-            {/* Right vertical hallway wall */}
-            <line x1={520} y1={30} x2={520} y2={180} stroke="#334155" strokeWidth={0.8} />
-
-            {/* Room A Classroom dividers */}
-            {unlocked.has('A') && (
-              <>
-                {/* Vertical Wall A1/A2 */}
-                <line x1={95} y1={30} x2={95} y2={260 - 85 * (8/27) - 35} stroke="#334155" strokeWidth={0.8} />
-                {/* Vertical Wall A2/A3 */}
-                <line x1={185} y1={30} x2={185} y2={260 - 175 * (8/27) - 35} stroke="#334155" strokeWidth={0.8} />
-
-                {/* Horizontal walls with gaps */}
-                <line x1={10} y1={225} x2={37.5} y2={225 - 27.5 * (8/27)} stroke="#334155" strokeWidth={0.8} />
-                <line x1={67.5} y1={225 - 57.5 * (8/27)} x2={95} y2={260 - 85 * (8/27) - 35} stroke="#334155" strokeWidth={0.8} />
-                {!unlocked.has('A1') && <line x1={37.5} y1={225 - 27.5 * (8/27)} x2={67.5} y2={225 - 57.5 * (8/27)} stroke="#334155" strokeWidth={0.8} />}
-
-                <line x1={95} y1={260 - 85 * (8/27) - 35} x2={125} y2={225 - 115 * (8/27)} stroke="#334155" strokeWidth={0.8} />
-                <line x1={155} y1={225 - 145 * (8/27)} x2={185} y2={260 - 175 * (8/27) - 35} stroke="#334155" strokeWidth={0.8} />
-                {!unlocked.has('A2') && <line x1={125} y1={225 - 115 * (8/27)} x2={155} y2={225 - 145 * (8/27)} stroke="#334155" strokeWidth={0.8} />}
-
-                <line x1={185} y1={260 - 175 * (8/27) - 35} x2={212.5} y2={225 - 202.5 * (8/27)} stroke="#334155" strokeWidth={0.8} />
-                <line x1={242.5} y1={225 - 232.5 * (8/27)} x2={280} y2={145} stroke="#334155" strokeWidth={0.8} />
-                {!unlocked.has('A3') && <line x1={212.5} y1={225 - 202.5 * (8/27)} x2={242.5} y2={225 - 232.5 * (8/27)} stroke="#334155" strokeWidth={0.8} />}
-              </>
-            )}
-
-            {/* Room B Classroom dividers */}
-            {unlocked.has('B') && (
-              <>
-                <line x1={360} y1={30} x2={360} y2={145} stroke="#334155" strokeWidth={0.8} />
-                <line x1={440} y1={30} x2={440} y2={145} stroke="#334155" strokeWidth={0.8} />
-
-                <line x1={280} y1={145} x2={305} y2={145} stroke="#334155" strokeWidth={0.8} />
-                <line x1={335} y1={145} x2={360} y2={145} stroke="#334155" strokeWidth={0.8} />
-                {!unlocked.has('B1') && <line x1={305} y1={145} x2={335} y2={145} stroke="#334155" strokeWidth={0.8} />}
-
-                <line x1={360} y1={145} x2={385} y2={145} stroke="#334155" strokeWidth={0.8} />
-                <line x1={415} y1={145} x2={440} y2={145} stroke="#334155" strokeWidth={0.8} />
-                {!unlocked.has('B2') && <line x1={385} y1={145} x2={415} y2={145} stroke="#334155" strokeWidth={0.8} />}
-
-                <line x1={440} y1={145} x2={465} y2={145} stroke="#334155" strokeWidth={0.8} />
-                <line x1={495} y1={145} x2={520} y2={145} stroke="#334155" strokeWidth={0.8} />
-                {!unlocked.has('B3') && <line x1={465} y1={145} x2={495} y2={145} stroke="#334155" strokeWidth={0.8} />}
-              </>
-            )}
-
-            {/* Room C Classroom dividers */}
-            {unlocked.has('C') && (
-              <>
-                <line x1={610} y1={30} x2={610} y2={145 + 90 * (8/27)} stroke="#334155" strokeWidth={0.8} />
-                <line x1={700} y1={30} x2={700} y2={145 + 180 * (8/27)} stroke="#334155" strokeWidth={0.8} />
-
-                <line x1={520} y1={145} x2={557.5} y2={145 + 37.5 * (8/27)} stroke="#334155" strokeWidth={0.8} />
-                <line x1={587.5} y1={145 + 67.5 * (8/27)} x2={610} y2={145 + 90 * (8/27)} stroke="#334155" strokeWidth={0.8} />
-                {!unlocked.has('C1') && <line x1={557.5} y1={145 + 37.5 * (8/27)} x2={587.5} y2={145 + 67.5 * (8/27)} stroke="#334155" strokeWidth={0.8} />}
-
-                <line x1={610} y1={145 + 90 * (8/27)} x2={645} y2={145 + 125 * (8/27)} stroke="#334155" strokeWidth={0.8} />
-                <line x1={675} y1={145 + 155 * (8/27)} x2={700} y2={145 + 180 * (8/27)} stroke="#334155" strokeWidth={0.8} />
-                {!unlocked.has('C2') && <line x1={645} y1={145 + 125 * (8/27)} x2={675} y2={145 + 155 * (8/27)} stroke="#334155" strokeWidth={0.8} />}
-
-                <line x1={700} y1={145 + 180 * (8/27)} x2={732.5} y2={145 + 212.5 * (8/27)} stroke="#334155" strokeWidth={0.8} />
-                <line x1={762.5} y1={145 + 242.5 * (8/27)} x2={790} y2={225} stroke="#334155" strokeWidth={0.8} />
-                {!unlocked.has('C3') && <line x1={732.5} y1={145 + 212.5 * (8/27)} x2={762.5} y2={145 + 242.5 * (8/27)} stroke="#334155" strokeWidth={0.8} />}
-              </>
-            )}
-
-            {/* Start Pad */}
-            <circle cx={400} cy={310} r={20} fill="rgba(14, 131, 136, 0.08)" stroke="rgba(14, 131, 136, 0.3)" strokeWidth={1} />
-            <text x={400} y={313.5} textAnchor="middle" fill="#00ADB5" fontSize={9.5} fontWeight="900" fontFamily="monospace">MULAI</text>
-
-            {/* Class doors (rendered inside rooms in a small Card layout) */}
-            {CLASS_DOORS.map(door => {
-              const open = unlocked.has(door.id)
-              const near = nearClass?.id === door.id && !open
-              const isJustCompleted = justCompletedClassId === door.id
-              const cardW = 56
-              const cardH = 38
-              const cardY = door.roomId === 'B' ? 70 : 80
-              const rx = door.x - cardW / 2
-              const ry = cardY - cardH / 2
-
-              return (
-                <g key={door.id} style={{ cursor: open ? 'default' : 'pointer' }}
-                  onClick={e => { e.stopPropagation(); if (!open && !activeClass && !activeDoor) setActiveClass(door) }}>
-                  
-                  {/* Subtle techy dotted connector line from card to door lock */}
-                  <line 
-                    x1={door.x} 
-                    y1={cardY + cardH / 2} 
-                    x2={door.x} 
-                    y2={door.y - 8} 
-                    stroke={open && !isJustCompleted ? '#475569' : '#f59e0b'} 
-                    strokeWidth={1} 
-                    strokeDasharray="2,3" 
-                    opacity={isJustCompleted ? 0.4 : open ? 0.08 : 0.4} 
-                    style={{ transition: 'opacity 0.3s, stroke 0.3s' }}
-                  />
-
-                  {/* Pulsing glow aura at the physical door gap position */}
-                  {!open || isJustCompleted ? (
-                    <motion.circle
-                      cx={door.x}
-                      cy={door.y}
-                      r={12}
-                      fill="rgba(245, 158, 11, 0.12)"
-                      animate={isJustCompleted 
-                        ? { scale: [1, 1.6, 1], fill: ['rgba(245, 158, 11, 0.25)', '#10B981', 'rgba(245, 158, 11, 0.15)'] } 
-                        : near 
-                          ? { scale: [1, 1.4, 1], fill: ['rgba(245, 158, 11, 0.22)', 'rgba(245, 158, 11, 0.66)', 'rgba(245, 158, 11, 0.22)'] } 
-                          : { scale: [0.95, 1.05, 0.95], fill: ['rgba(245, 158, 11, 0.1)', 'rgba(245, 158, 11, 0.22)', 'rgba(245, 158, 11, 0.10)'] }
-                      }
-                      transition={{ duration: isJustCompleted ? 1.2 : 1.5, repeat: isJustCompleted ? 0 : Infinity, ease: 'easeInOut' }}
+                {/* 5. VISUAL NODE DECORATORS FOR RED_LINE_POINTS (Visual Badges P1, P2, P3...) */}
+                {RED_LINE_POINTS.map((pt, idx) => (
+                  <g key={`red-node-${idx}`}>
+                    {/* Outer Glowing Ring */}
+                    <circle cx={pt.x} cy={pt.y} r={7} fill="rgba(239, 68, 68, 0.4)" stroke="#ef4444" strokeWidth={1.5} />
+                    {/* Inner White Node Dot */}
+                    <circle cx={pt.x} cy={pt.y} r={3} fill="#ffffff" />
+                    {/* Node Tag Badge */}
+                    <rect
+                      x={pt.x - 30}
+                      y={pt.y - 23}
+                      width={60}
+                      height={15}
+                      rx={4}
+                      fill="rgba(15, 23, 42, 0.92)"
+                      stroke="#ef4444"
+                      strokeWidth={1}
                     />
-                  ) : (
-                    // Faint static dot background for completed locks
-                    <circle
-                      cx={door.x}
-                      cy={door.y}
-                      r={10}
-                      fill="rgba(16, 185, 129, 0.02)"
-                      stroke="none"
-                    />
-                  )}
+                    <text
+                      x={pt.x}
+                      y={pt.y - 12}
+                      textAnchor="middle"
+                      fill="#f87171"
+                      fontSize={8.5}
+                      fontWeight="900"
+                      fontFamily="monospace"
+                    >
+                      P{idx + 1}: {pt.x},{pt.y}
+                    </text>
+                  </g>
+                ))}
 
-                  {/* Scatter Particles on Completion Reward */}
-                  {isJustCompleted && (
-                    <>
-                      {[
-                        { dx: -18, dy: -10 },
-                        { dx: 18, dy: -12 },
-                        { dx: -8, dy: -20 },
-                        { dx: 8, dy: -20 },
-                        { dx: 0, dy: -24 },
-                      ].map((offset, i) => (
+                {/* Zone Boundary Grid Lines */}
+                <line x1={450} y1={410} x2={450} y2={680} stroke="rgba(129, 140, 248, 0.25)" strokeWidth={1.5} strokeDasharray="6,6" />
+                <line x1={800} y1={410} x2={800} y2={680} stroke="rgba(0, 173, 181, 0.25)" strokeWidth={1.5} strokeDasharray="6,6" />
+
+                {/* Class & Furniture Data Hotspots (CLASS_DOORS) */}
+                {CLASS_DOORS.map(door => {
+                  const open = unlocked.has(door.id)
+                  const near = nearClass?.id === door.id && !open
+                  const isJustCompleted = justCompletedClassId === door.id
+
+                  return (
+                    <g
+                      key={door.id}
+                      style={{ cursor: open ? 'default' : 'pointer' }}
+                      onClick={e => { e.stopPropagation(); if (!open && !activeClass && !activeDoor) setActiveClass(door) }}
+                    >
+                      {/* Interactive Pulse Radar Glow */}
+                      {!open || isJustCompleted ? (
                         <motion.circle
-                          key={`reward-part-${door.id}-${i}`}
                           cx={door.x}
                           cy={door.y}
-                          r={2.2}
-                          fill="#10B981"
-                          initial={{ x: 0, y: 0, opacity: 1, scale: 1 }}
-                          animate={{
-                            x: offset.dx,
-                            y: offset.dy,
-                            opacity: 0,
-                            scale: 0.5,
-                          }}
-                          transition={{ duration: 1.2, ease: "easeOut" }}
+                          r={20}
+                          fill={`${door.color}22`}
+                          animate={isJustCompleted
+                            ? { scale: [1, 1.8, 1], fill: [`${door.color}33`, '#10B981', `${door.color}22`] }
+                            : near
+                              ? { scale: [1, 1.4, 1], fill: [`${door.color}33`, `${door.color}77`, `${door.color}33`] }
+                              : { scale: [0.95, 1.15, 0.95] }
+                          }
+                          transition={{ duration: isJustCompleted ? 1.2 : 1.5, repeat: isJustCompleted ? 0 : Infinity, ease: 'easeInOut' }}
                         />
-                      ))}
+                      ) : (
+                        <circle cx={door.x} cy={door.y} r={12} fill="rgba(16, 185, 129, 0.15)" stroke="#10b981" strokeWidth={1} />
+                      )}
+
+                      {/* Hotspot Icon Badge */}
+                      <circle
+                        cx={door.x}
+                        cy={door.y}
+                        r={12}
+                        fill={open ? '#10b981' : 'rgba(15, 23, 42, 0.88)'}
+                        stroke={near ? '#FFFFFF' : door.color}
+                        strokeWidth={near ? 2 : 1.5}
+                      />
+                      <text
+                        x={door.x}
+                        y={door.y + 1}
+                        textAnchor="middle"
+                        dominantBaseline="middle"
+                        fontSize={10}
+                        style={{ userSelect: 'none', pointerEvents: 'none' }}
+                      >
+                        {open ? '✓' : '📍'}
+                      </text>
+
+                      {/* Hotspot Title Card */}
+                      <rect
+                        x={door.x - 45}
+                        y={door.y - 36}
+                        width={90}
+                        height={20}
+                        rx={6}
+                        fill="rgba(15, 23, 42, 0.9)"
+                        stroke={near ? '#FFFFFF' : open ? '#10b981' : `${door.color}88`}
+                        strokeWidth={near ? 1.5 : 1}
+                      />
+                      <text
+                        x={door.x}
+                        y={door.y - 23}
+                        textAnchor="middle"
+                        fill="#FFFFFF"
+                        fontSize={9.5}
+                        fontWeight="bold"
+                        fontFamily="var(--font-ui)"
+                      >
+                        {door.label}
+                      </text>
+                    </g>
+                  )
+                })}
+
+                {/* Dynamic Perspective Depth Scaling Calculation */}
+                {(() => {
+                  const depthRatio = Math.max(0, Math.min(1, (charPos.y - 410) / (650 - 410)))
+                  const charSize = 145 + depthRatio * 65
+                  const btnY = charPos.y - charSize * 0.95
+                  const btnTextY = btnY + 14
+
+                  return (
+                    <>
+                      {/* Player Character */}
+                      <PlayerCharacter
+                        x={charPos.x}
+                        y={charPos.y}
+                        dir={moveDir}
+                        size={charSize}
+                        label="Kamu"
+                      />
+
+                      {/* Floating Interactive Prompt Buttons */}
+                      <AnimatePresence>
+                        {nearClass && !unlocked.has(nearClass.id) && !activeClass && !nearDoor && (() => {
+                          const buttonW = 150
+                          const buttonLeft = Math.max(camX + 10, Math.min(camX + VIEW_VW - buttonW - 10, charPos.x - buttonW / 2))
+                          const textX = buttonLeft + buttonW / 2
+                          return (
+                            <motion.g
+                              key={`btn-class-${nearClass.id}`}
+                              initial={{ opacity: 0, scale: 0.8, y: 5 }}
+                              animate={{ opacity: 1, scale: 1, y: 0 }}
+                              exit={{ opacity: 0, scale: 0.8, y: 5 }}
+                              onClick={() => setActiveClass(nearClass)}
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              style={{ cursor: 'pointer' }}
+                            >
+                              <rect
+                                x={buttonLeft}
+                                y={btnY}
+                                width={buttonW}
+                                height={26}
+                                rx={13}
+                                fill="rgba(15, 23, 42, 0.95)"
+                                stroke="#f59e0b"
+                                strokeWidth={2}
+                                style={{ filter: 'drop-shadow(0px 4px 8px rgba(0,0,0,0.6))' }}
+                              />
+                              <text
+                                x={textX}
+                                y={btnTextY}
+                                textAnchor="middle"
+                                dominantBaseline="middle"
+                                fill="#ffffff"
+                                fontSize={11}
+                                fontWeight="bold"
+                                style={{ userSelect: 'none', pointerEvents: 'none', fontFamily: 'var(--font-ui)' }}
+                              >
+                                📍 Periksa {nearClass.label}
+                              </text>
+                            </motion.g>
+                          )
+                        })()}
+                      </AnimatePresence>
                     </>
-                  )}
-
-                  {/* Physical door status lock dot */}
-                  <motion.g
-                    animate={isJustCompleted ? { scale: [1, 1.4, 1], y: [0, -4, 0] } : {}}
-                    transition={{ duration: 0.8, ease: "easeOut" }}
-                    style={{ transformOrigin: `${door.x}px ${door.y}px` }}
-                  >
-                    <circle
-                      cx={door.x}
-                      cy={door.y}
-                      r={7.5}
-                      fill={isJustCompleted ? '#10b981' : open ? 'rgba(100, 116, 139, 0.15)' : '#0f2338'}
-                      stroke={isJustCompleted ? '#FFFFFF' : near ? '#FFFFFF' : open ? 'rgba(16, 185, 129, 0.25)' : '#f59e0b'}
-                      strokeWidth={near ? 1.5 : 1}
-                      opacity={open && !isJustCompleted ? 0.65 : 1}
-                      style={{ transition: 'all 0.3s' }}
-                    />
-                    <text
-                      x={door.x}
-                      y={door.y + 0.5}
-                      textAnchor="middle"
-                      dominantBaseline="middle"
-                      fontSize={8.5}
-                      opacity={open && !isJustCompleted ? 0.6 : 1}
-                      style={{ userSelect: 'none', pointerEvents: 'none', transition: 'all 0.3s' }}
-                    >
-                      {open ? '🔓' : '🔒'}
-                    </text>
-                  </motion.g>
-
-                  {/* Classroom Card (positioned higher up, out of the avatar path) */}
-                  {near && (
-                    <rect 
-                      x={rx - 2.5} 
-                      y={ry - 2.5} 
-                      width={cardW + 5} 
-                      height={cardH + 5} 
-                      rx={8} 
-                      fill="none" 
-                      stroke="rgba(245, 158, 11, 0.4)" 
-                      strokeWidth={1.2} 
-                    />
-                  )}
-                  <motion.rect 
-                    x={rx} 
-                    y={ry} 
-                    width={cardW} 
-                    height={cardH} 
-                    rx={6}
-                    animate={isJustCompleted ? {
-                      fill: ['rgba(17, 24, 39, 0.85)', 'rgba(16, 185, 129, 0.95)', 'rgba(15, 35, 56, 0.65)'],
-                      stroke: ['#f59e0b', '#FFFFFF', 'rgba(16, 185, 129, 0.45)'],
-                      scale: [1, 1.08, 1],
-                    } : {}}
-                    transition={{ duration: 1.2, ease: "easeInOut" }}
-                    style={{ transformOrigin: `${door.x}px ${cardY}px` }}
-                    fill={open && !isJustCompleted ? 'rgba(15, 23, 42, 0.4)' : 'rgba(17, 24, 39, 0.85)'}
-                    stroke={near ? '#FFFFFF' : open && !isJustCompleted ? 'rgba(16, 185, 129, 0.2)' : 'rgba(245, 158, 11, 0.45)'}
-                    strokeWidth={near ? 1.5 : 1}
-                    opacity={open && !isJustCompleted ? 0.55 : 1}
-                  />
-                  <text 
-                    x={door.x} 
-                    y={cardY - 6} 
-                    textAnchor="middle" 
-                    fontSize={7.5} 
-                    fontWeight="bold" 
-                    fill={isJustCompleted ? '#FFFFFF' : open ? '#64748B' : '#F8FAFC'} 
-                    fontFamily="var(--font-ui)"
-                    opacity={open && !isJustCompleted ? 0.7 : 1}
-                    style={{ transition: 'all 0.3s' }}
-                  >
-                    {door.label}
-                  </text>
-                  <text 
-                    x={door.x} 
-                    y={cardY + 8} 
-                    textAnchor="middle" 
-                    dominantBaseline="middle" 
-                    fontSize={6.5} 
-                    fontWeight="bold" 
-                    fill={isJustCompleted ? '#FFFFFF' : open ? '#475569' : '#f59e0b'} 
-                    fontFamily="var(--font-data)" 
-                    letterSpacing="0.4px"
-                    opacity={open && !isJustCompleted ? 0.6 : 1}
-                    style={{ transition: 'all 0.3s' }}
-                  >
-                    {open ? '✓ SELESAI' : 'LOCK'}
-                  </text>
-                </g>
-              )
-            })}
-
-            {/* Player Character */}
-            <PlayerCharacter
-              x={charPos.x}
-              y={charPos.y}
-              dir={moveDir}
-              size={32}
-              label="Kamu"
-            />
-
-            {/* Quick Click floating helper buttons rendered directly inside the SVG */}
-            <AnimatePresence>
-              {nearDoor && !unlocked.has(nearDoor.id) && !activeDoor && (() => {
-                const buttonW = 110
-                const buttonLeft = Math.max(10, Math.min(VW - 10 - buttonW, charPos.x - buttonW / 2))
-                const textX = buttonLeft + buttonW / 2
-                return (
-                  <motion.g
-                    key={`btn-door-${nearDoor.id}`}
-                    initial={{ opacity: 0, scale: 0.8, y: 5 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.8, y: 5 }}
-                    onClick={() => setUnlocked(p => new Set([...p, nearDoor.id]))}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    style={{ cursor: 'pointer' }}
-                  >
-                    <rect
-                      x={buttonLeft}
-                      y={charPos.y - 38}
-                      width={buttonW}
-                      height={22}
-                      rx={11}
-                      fill="rgba(15, 23, 42, 0.95)"
-                      stroke="#f59e0b"
-                      strokeWidth={1.5}
-                      style={{ filter: 'drop-shadow(0px 4px 6px rgba(0,0,0,0.5))' }}
-                    />
-                    <text
-                      x={textX}
-                      y={charPos.y - 27}
-                      textAnchor="middle"
-                      dominantBaseline="middle"
-                      fill="#ffffff"
-                      fontSize={10}
-                      fontWeight="bold"
-                      style={{ userSelect: 'none', pointerEvents: 'none', fontFamily: 'var(--font-ui)' }}
-                    >
-                      🔓 Buka {nearDoor.id}
-                    </text>
-                  </motion.g>
-                )
-              })()}
-              {nearClass && !unlocked.has(nearClass.id) && !activeClass && !nearDoor && (() => {
-                const buttonW = 130
-                const buttonLeft = Math.max(10, Math.min(VW - 10 - buttonW, charPos.x - buttonW / 2))
-                const textX = buttonLeft + buttonW / 2
-                return (
-                  <motion.g
-                    key={`btn-class-${nearClass.id}`}
-                    initial={{ opacity: 0, scale: 0.8, y: 5 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.8, y: 5 }}
-                    onClick={() => setActiveClass(nearClass)}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    style={{ cursor: 'pointer' }}
-                  >
-                    <rect
-                      x={buttonLeft}
-                      y={charPos.y - 38}
-                      width={buttonW}
-                      height={22}
-                      rx={11}
-                      fill="rgba(15, 23, 42, 0.95)"
-                      stroke="#f59e0b"
-                      strokeWidth={1.5}
-                      style={{ filter: 'drop-shadow(0px 4px 6px rgba(0,0,0,0.5))' }}
-                    />
-                    <text
-                      x={textX}
-                      y={charPos.y - 27}
-                      textAnchor="middle"
-                      dominantBaseline="middle"
-                      fill="#ffffff"
-                      fontSize={10}
-                      fontWeight="bold"
-                      style={{ userSelect: 'none', pointerEvents: 'none', fontFamily: 'var(--font-ui)' }}
-                    >
-                      🔓 Buka {nearClass.label}
-                    </text>
-                  </motion.g>
-                )
-              })()}
-            </AnimatePresence>
-
-          </svg>
+                  )
+                })()}
+              </svg>
+            )
+          })()}
 
           {/* Vignette Overlay (Revisi 5) */}
           <div style={{

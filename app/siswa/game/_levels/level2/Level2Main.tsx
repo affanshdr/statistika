@@ -4,11 +4,12 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useRouter } from 'next/navigation'
 import { useGameStore } from '@/lib/store/gameStore'
-import BadgeUnlock from '../../_components/BadgeUnlock'
-import DiRA from '../../_components/DiRA'
-import { BADGES, STATS, cyberbullyingData, CORRECT_VERDICT, VERDICT_EXPLANATION } from '../../_data/level2'
-import TeamGateButton from '../../_components/TeamGateButton'
+import BadgeUnlock from '@/app/siswa/game/_components/BadgeUnlock'
+import DiRA from '@/app/siswa/game/_components/DiRA'
+import { BADGES, STATS, cyberbullyingData, CORRECT_VERDICT, VERDICT_EXPLANATION } from '@/app/siswa/game/_data/level2'
+import TeamGateButton from '@/app/siswa/game/_components/TeamGateButton'
 import { useGameRealtime } from '@/lib/hooks/useGameRealtime'
+import Level2SchoolExploration from './components/Level2SchoolExploration'
 
 // Types of phases in Level 2
 // - 'prolog': show infographics, write conclusion
@@ -290,22 +291,10 @@ export default function Level2Path({
     }
     if (!isFD) return
     if (phase === 'briefing') {
-      setDiraMsg('Ingat detektif, tugas kita adalah mendata siswa yang mengenakan Kalung Kuning. Mereka adalah korban perundungan siber.')
+      setDiraMsg('Selamat bertugas, Detektif! Gunakan portal di ujung jalan untuk berpindah area dan jelajahi lingkungan sekolah.')
       setShowDira(true)
     } else if (phase === 'map') {
-      if (visitedLocations.length === 0) {
-        setDiraMsg('Pilih salah satu lokasi sekolah di peta blueprint untuk memulai penyelidikan data. Hati-hati ada satpam atau bom yang menghalangi! 🗺️')
-      } else if (visitedLocations.length < 4) {
-        setDiraMsg(`Bagus! Kita sudah menyelesaikan ${visitedLocations.length} dari 4 lokasi. Pilih lokasi berikutnya untuk melengkapi 30 data!`)
-      } else {
-        setDiraMsg('Kerja luar biasa! Semua lokasi korban telah selesai dikumpulkan. Lihat, ada seseorang yang mengenakan Kalung Merah berdiri di tengah Lapangan! Siapa dia? 🔴')
-      }
-      setShowDira(true)
-    } else if (phase === 'obstacle') {
-      setDiraMsg('Oops! Pintu masuk terkunci oleh hambatan PISA. Gunakan kemampuan analisismu untuk menjawab pertanyaan siber di bawah ini!')
-      setShowDira(true)
-    } else if (phase === 'exploration') {
-      setDiraMsg('Klik pada siswa yang berkalung kuning 🟡 untuk menanyakan seberapa sering mereka mengalami cyberbullying semester ini, lalu catat datanya.')
+      setDiraMsg('Jelajahi area sekolah dengan bebas! Berjalanlah ke ujung jalan dan tekan E untuk berpindah ke Lorong Sekolah.')
       setShowDira(true)
     } else if (phase === 'interrogation') {
       setDiraMsg('Pelaku sedang berada di ruang investigasi. Dengarkan pengakuannya dengan sabar, lalu berikan bimbingan etika digital yang tepat agar dia jera!')
@@ -424,7 +413,7 @@ export default function Level2Path({
     if (teamId) {
       await castVote('gate_cutscene_next')
     } else {
-      setPhase('briefing')
+      setPhase('map')
     }
   }
 
@@ -439,68 +428,7 @@ export default function Level2Path({
 
   // Action: Select location map node
   const handleSelectLocation = (locId: string) => {
-    if (visitedLocations.includes(locId)) return
-    setPisaLoc(locId)
-    setSelectedPisaOpt(null)
-    setPisaSubmitted(false)
-    setPhase('obstacle')
-  }
-
-  // Action: Submit PISA Obstacle
-  const handlePisaSubmit = () => {
-    if (selectedPisaOpt === null || !pisaLoc) return
-    const qData = PISA_QUESTIONS[pisaLoc]
-    const isCorrect = selectedPisaOpt === qData.correct
-    setPisaCorrect(isCorrect)
-    setPisaSubmitted(true)
-
-    if (isCorrect) {
-      addXP(15, `Obstacle ${PISA_QUESTIONS[pisaLoc].q.substring(0, 15)}... Terpecahkan`, 1)
-      if (isFD) {
-        setDiraMsg(`Hebat sekali! Jawabanmu benar. ${qData.explanation} Pintu lokasi sekarang sudah terbuka! 🎉`)
-        setShowDira(true)
-      }
-    } else {
-      incrementMistake()
-      if (!isFD) {
-        loseLife() // FI path loses a life
-      } else {
-        // FD path triggers red flash and Dira help
-        setFlashWrong(true)
-        setTimeout(() => setFlashWrong(false), 500)
-        setDiraMsg(`Kurang tepat. Coba perhatikan petunjuk: ${qData.explanation}. Coba jawab sekali lagi ya!`)
-        setShowDira(true)
-      }
-    }
-  }
-
-  // Action: Enter location after clearing PISA
-  const handleEnterLocation = () => {
-    if (pisaLoc) {
-      setActiveLoc(pisaLoc)
-      setPhase('exploration')
-    }
-  }
-
-  // Action: Click victim student
-  const handleRecordVictim = (idx: number) => {
-    if (!activeLoc) return
-    const currentVisited = victimsVisited[activeLoc] ?? []
-    if (currentVisited.includes(idx)) return
-
-    const updatedVisited = [...currentVisited, idx]
-    setVictimsVisited(prev => ({ ...prev, [activeLoc]: updatedVisited }))
-    setCollectedCount(prev => prev + 1)
-  }
-
-  // Action: Return to map from location
-  const handleReturnToMap = () => {
-    if (activeLoc) {
-      setVisitedLocations(prev => [...prev, activeLoc])
-      setActiveLoc(null)
-      setPisaLoc(null)
-      setPhase('map')
-    }
+    // Seamless map navigation handled directly in Level2SchoolExploration
   }
 
   // Action: Dialogue Perpetrator progression
@@ -549,7 +477,7 @@ export default function Level2Path({
         setFlashWrong(true)
         setTimeout(() => setFlashWrong(false), 500)
         setDiraMsg(`Hmm, sepertinya masih ada perhitungan yang keliru. 
-          Mean: jumlah data (${cyberbullyingData.reduce((a: number, b: number)=>a+b, 0)}) dibagi banyak data (${cyberbullyingData.length}).
+          Mean: jumlah data (${cyberbullyingData.reduce((a: number, b: number) => a + b, 0)}) dibagi banyak data (${cyberbullyingData.length}).
           Median: rata-rata data ke-15 dan ke-16 setelah diurutkan.
           Modus: nilai yang paling sering muncul. Re-check kembali ya!`)
         setShowDira(true)
@@ -641,17 +569,17 @@ export default function Level2Path({
       {/* ── LEFT SIDE: Main Gameplay Content ── */}
       <div style={{
         flex: 1,
-        maxWidth: phase === 'prolog' ? '1100px' : '820px',
+        maxWidth: phase === 'map' ? '100%' : phase === 'prolog' ? '1100px' : '820px',
         width: '100%',
         margin: '0 auto',
-        padding: '24px 16px',
-        paddingBottom: '120px',
+        padding: phase === 'map' ? '8px 12px' : '24px 16px',
+        paddingBottom: phase === 'map' ? '16px' : '120px',
         position: 'relative',
         display: 'flex',
         flexDirection: 'column',
         transition: 'max-width 0.3s ease',
       }}>
-        
+
         {/* Red Flash Overlay for FD Mistakes */}
         <AnimatePresence>
           {flashWrong && (
@@ -875,7 +803,7 @@ export default function Level2Path({
                                   objectFit: 'contain',
                                 }}
                               />
-                              
+
                               {/* Click Affordance Indicator */}
                               {isActive && (
                                 <div style={{
@@ -1155,511 +1083,43 @@ export default function Level2Path({
             </motion.div>
           )}
 
-          {/* ────────────────── PHASE: INTERACTIVE MAP ────────────────── */}
+          {/* ────────────────── PHASE: INTERACTIVE MAP & EXPLORATION WITH CHARACTER ────────────────── */}
           {phase === 'map' && (
             <motion.div
               key="map"
               initial={{ opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.98 }}
-              style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}
+              style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', height: '100%', minHeight: 0 }}
             >
-              <div className="game-card" style={{ position: 'relative' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                  <div>
-                    <div style={{ fontSize: '10px', color: 'var(--accent)', fontWeight: 800, letterSpacing: '1px' }}>DENAH SEKOLAH</div>
-                    <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 800 }}>Blueprint Penyelidikan</h2>
-                  </div>
-                  
-                  {/* Progress Badge with Tip Bar */}
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px' }}>
-                    <div style={{ background: 'rgba(14, 131, 136, 0.15)', border: '1px solid var(--game-border)', padding: '6px 16px', borderRadius: '50px', fontSize: '12px', fontWeight: 800 }}>
-                      📂 Data Terkumpul: <strong style={{ color: 'var(--accent)' }}>{collectedCount} / 30</strong>
-                    </div>
-                    <div style={{ width: '130px', height: '6px', background: 'rgba(255,255,255,0.08)', borderRadius: '3px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)' }}>
-                      <div style={{ width: `${(collectedCount / 30) * 100}%`, height: '100%', background: 'linear-gradient(90deg, var(--accent), #38BDF8)', transition: 'width 0.4s ease' }} />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Interactive School Blueprint Canvas */}
-                <div style={{
-                  width: '100%',
-                  overflowX: isMobile ? 'auto' : 'visible',
-                  borderRadius: '20px',
-                  border: '1.5px solid rgba(14, 131, 136, 0.22)',
-                  background: '#07141E',
-                  boxShadow: '0 16px 40px rgba(0,0,0,0.45)',
-                  position: 'relative',
-                }}>
-                  <div style={{
-                    minWidth: isMobile ? '768px' : 'auto',
-                    aspectRatio: isMobile ? 'auto' : '16/9.5',
-                    height: isMobile ? '450px' : 'auto',
-                    position: 'relative',
-                    width: '100%',
-                    padding: '24px',
-                    boxSizing: 'border-box',
-                    overflow: 'hidden',
-                    // Blueprint Background Grid Pattern
-                    backgroundImage: 'radial-gradient(rgba(14, 131, 136, 0.15) 1.5px, transparent 1.5px), linear-gradient(rgba(14, 131, 136, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(14, 131, 136, 0.05) 1px, transparent 1px)',
-                    backgroundSize: '20px 20px, 40px 40px, 40px 40px',
-                  }}>
-                    {/* Coordinate Border Markings (Architectural Blueprint details) */}
-                    <div style={{ position: 'absolute', top: '8px', left: '16px', fontSize: '9px', fontWeight: 800, color: 'rgba(14, 131, 136, 0.3)', letterSpacing: '1px' }}>A1_LVL_2_DETECTION</div>
-                    <div style={{ position: 'absolute', bottom: '8px', right: '16px', fontSize: '9px', fontWeight: 800, color: 'rgba(14, 131, 136, 0.3)', letterSpacing: '1px' }}>COGNISTATS_SYS_REVEAL</div>
-
-                    {/* Decorative Compass Rose */}
-                    <div style={{
-                      position: 'absolute',
-                      bottom: '24px',
-                      left: '24px',
-                      width: '64px',
-                      height: '64px',
-                      opacity: 0.25,
-                      border: '1.5px solid rgba(14, 131, 136, 0.5)',
-                      borderRadius: '50%',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      pointerEvents: 'none',
-                    }}>
-                      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                        <polygon points="12,2 14,10 12,22 10,10" fill="rgba(14, 131, 136, 0.3)" />
-                        <polygon points="2,12 10,10 22,12 10,14" fill="rgba(14, 131, 136, 0.1)" />
-                        <circle cx="12" cy="12" r="2" fill="#07141E" stroke="currentColor" />
-                      </svg>
-                      <span style={{ position: 'absolute', top: '-14px', fontSize: '9px', fontWeight: 900, color: 'rgba(14, 131, 136, 0.7)' }}>N</span>
-                    </div>
-
-                    {/* Blueprint Outline Zones for Rooms */}
-                    {/* 1. Labkom (Top Left) */}
-                    <div style={{
-                      position: 'absolute',
-                      top: '10%', left: '8%', width: '220px', height: '140px',
-                      border: '1px dashed rgba(56, 189, 248, 0.2)',
-                      background: 'rgba(56, 189, 248, 0.02)',
-                      borderRadius: '12px',
-                      padding: '8px',
-                      color: 'rgba(56, 189, 248, 0.3)',
-                      fontSize: '10px',
-                      fontWeight: 800,
-                      letterSpacing: '1px',
-                      textTransform: 'uppercase',
-                      pointerEvents: 'none',
-                    }}>
-                      🏢 GEDUNG A: LABKOM
-                    </div>
-
-                    {/* 2. Lorong Sekolah (Center Corridor) */}
-                    <div style={{
-                      position: 'absolute',
-                      top: '46%', left: '16%', width: '420px', height: '40px',
-                      border: '1px dashed rgba(251, 113, 133, 0.2)',
-                      background: 'rgba(251, 113, 133, 0.02)',
-                      borderRadius: '6px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      paddingLeft: '12px',
-                      color: 'rgba(251, 113, 133, 0.3)',
-                      fontSize: '10px',
-                      fontWeight: 800,
-                      letterSpacing: '1px',
-                      textTransform: 'uppercase',
-                      pointerEvents: 'none',
-                    }}>
-                      🚪 KORIDOR PENGHUBUNG
-                    </div>
-
-                    {/* 3. Lapangan Sekolah (Top Right) */}
-                    <div style={{
-                      position: 'absolute',
-                      top: '10%', left: '62%', width: '280px', height: '160px',
-                      border: '1px dashed rgba(74, 222, 128, 0.2)',
-                      background: 'rgba(74, 222, 128, 0.02)',
-                      borderRadius: '60px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      color: 'rgba(74, 222, 128, 0.3)',
-                      fontSize: '10px',
-                      fontWeight: 800,
-                      letterSpacing: '1px',
-                      textTransform: 'uppercase',
-                      pointerEvents: 'none',
-                    }}>
-                      🏟️ LAPANGAN OLAHRAGA
-                    </div>
-
-                    {/* 4. Kantin Sekolah (Bottom Right) */}
-                    <div style={{
-                      position: 'absolute',
-                      top: '58%', left: '65%', width: '240px', height: '140px',
-                      border: '1px dashed rgba(251, 191, 36, 0.2)',
-                      background: 'rgba(251, 191, 36, 0.02)',
-                      borderRadius: '16px',
-                      padding: '8px',
-                      display: 'flex',
-                      alignItems: 'flex-end',
-                      justifyContent: 'flex-end',
-                      color: 'rgba(251, 191, 36, 0.3)',
-                      fontSize: '10px',
-                      fontWeight: 800,
-                      letterSpacing: '1px',
-                      textTransform: 'uppercase',
-                      pointerEvents: 'none',
-                    }}>
-                      🍴 KANTIN UTAMA
-                    </div>
-
-                    {/* Dynamic Vector Investigation Pathways */}
-                    <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 1 }}>
-                      {/* Path 1: Labkom -> Lorong */}
-                      <line
-                        x1="19%" y1="20%" x2="43%" y2="53%"
-                        stroke={visitedLocations.includes('labkom') ? 'var(--accent)' : 'rgba(14, 131, 136, 0.2)'}
-                        strokeWidth="2"
-                        strokeDasharray={visitedLocations.includes('labkom') ? '0' : '6,6'}
-                        style={{ transition: 'stroke 0.4s, stroke-dasharray 0.4s' }}
-                      />
-                      {/* Path 2: Lorong -> Lapangan */}
-                      <line
-                        x1="43%" y1="53%" x2="77%" y2="25%"
-                        stroke={visitedLocations.includes('lorong') ? 'var(--accent)' : 'rgba(14, 131, 136, 0.2)'}
-                        strokeWidth="2"
-                        strokeDasharray={visitedLocations.includes('lorong') ? '0' : '6,6'}
-                        style={{ transition: 'stroke 0.4s, stroke-dasharray 0.4s' }}
-                      />
-                      {/* Path 3: Lapangan -> Kantin */}
-                      <line
-                        x1="77%" y1="25%" x2="81%" y2="69%"
-                        stroke={visitedLocations.includes('lapangan') ? 'var(--accent)' : 'rgba(14, 131, 136, 0.2)'}
-                        strokeWidth="2"
-                        strokeDasharray={visitedLocations.includes('lapangan') ? '0' : '6,6'}
-                        style={{ transition: 'stroke 0.4s, stroke-dasharray 0.4s' }}
-                      />
-                    </svg>
-
-                    {/* Location Hotspots */}
-                    {LOCATIONS.map((loc) => {
-                      const coords = MAP_COORDS[loc.id]
-                      const isVisited = visitedLocations.includes(loc.id)
-                      const isEnabled = isUnlocked(loc.id)
-
-                      return (
-                        <motion.div
-                          key={loc.id}
-                          style={{
-                            position: 'absolute',
-                            top: coords.top,
-                            left: coords.left,
-                            width: coords.size,
-                            height: coords.size,
-                            zIndex: 2,
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            cursor: isEnabled && !isVisited ? 'pointer' : 'default',
-                          }}
-                          onClick={() => {
-                            if (isVisited) return
-                            if (isEnabled) {
-                              handleSelectLocation(loc.id)
-                            } else {
-                              const prevName = LOCATIONS.find(l => l.id === getPreviousLoc(loc.id))?.name ?? ''
-                              setMapTooltip(`Selesaikan penyelidikan di ${prevName} terlebih dahulu untuk mendeteksi hambatan berikutnya!`)
-                              setTimeout(() => setMapTooltip(null), 3500)
-                            }
-                          }}
-                          whileHover={isEnabled && !isVisited ? { scale: 1.08 } : undefined}
-                        >
-                          {/* Circular Node representation */}
-                          <div style={{
-                            width: '68px',
-                            height: '68px',
-                            borderRadius: '50%',
-                            background: isVisited
-                              ? 'rgba(15, 35, 56, 0.55)'
-                              : isEnabled
-                                ? 'rgba(15, 35, 56, 0.9)'
-                                : 'rgba(10, 15, 20, 0.85)',
-                            border: `2px solid ${isVisited ? '#10B981' : isEnabled ? loc.color : 'rgba(255, 255, 255, 0.1)'}`,
-                            boxShadow: isEnabled && !isVisited ? `0 0 20px ${loc.color}40, inset 0 0 10px ${loc.color}20` : 'none',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            position: 'relative',
-                            filter: isEnabled ? 'none' : 'grayscale(90%) blur(0.5px)',
-                            opacity: isVisited ? 0.75 : isEnabled ? 1 : 0.45,
-                            transition: 'all 0.3s ease',
-                          }}>
-                            {/* Inner state icon */}
-                            <span style={{ fontSize: '26px' }}>
-                              {isVisited ? '✅' : isEnabled ? loc.icon : '🔒'}
-                            </span>
-
-                            {/* Floating status tag */}
-                            <div style={{
-                              position: 'absolute',
-                              top: '-8px',
-                              background: isVisited
-                                ? '#10B981'
-                                : isEnabled
-                                  ? loc.color
-                                  : 'rgba(120, 113, 108, 0.95)',
-                              color: isVisited || !isEnabled ? '#fff' : '#0B1E2C',
-                              fontSize: '8.5px',
-                              fontWeight: 900,
-                              padding: '2px 8px',
-                              borderRadius: '10px',
-                              whiteSpace: 'nowrap',
-                              boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
-                              letterSpacing: '0.5px',
-                            }}>
-                              {isVisited ? 'SELESAI' : isEnabled ? 'ANALISIS' : 'TERKUNCI'}
-                            </div>
-                          </div>
-
-                          {/* Node label */}
-                          <div style={{
-                            marginTop: '8px',
-                            fontSize: '11px',
-                            fontWeight: 800,
-                            color: isEnabled ? '#fff' : '#64748B',
-                            textAlign: 'center',
-                            textShadow: '0 1px 3px rgba(0,0,0,0.8)',
-                            opacity: isVisited ? 0.75 : 1,
-                          }}>
-                            {loc.name}
-                          </div>
-                        </motion.div>
-                      )
-                    })}
-
-                    {/* Tooltip Warning Alert */}
-                    <AnimatePresence>
-                      {mapTooltip && (
-                        <motion.div
-                          initial={{ opacity: 0, y: 15, x: '-50%' }}
-                          animate={{ opacity: 1, y: 0, x: '-50%' }}
-                          exit={{ opacity: 0, y: 15, x: '-50%' }}
-                          style={{
-                            position: 'absolute',
-                            bottom: '20px',
-                            left: '50%',
-                            transform: 'translateX(-50%)',
-                            zIndex: 100,
-                            background: 'rgba(239, 68, 68, 0.95)',
-                            border: '1px solid rgba(239, 68, 68, 0.3)',
-                            borderRadius: '30px',
-                            padding: '8px 20px',
-                            color: '#fff',
-                            fontSize: '12px',
-                            fontWeight: 700,
-                            boxShadow: '0 6px 24px rgba(239, 68, 68, 0.3)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                            width: 'max-content',
-                            maxWidth: '90%',
-                          }}
-                        >
-                          <span>⚠️</span>
-                          <span>{mapTooltip}</span>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                </div>
-
-                {/* Perpetrator Red Necklace Node (Unlocks when all locations visited) */}
-                {visitedLocations.length === 4 && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    onClick={() => setPhase('interrogation')}
-                    style={{
-                      marginTop: '20px', padding: '20px', background: 'rgba(239,68,68,0.06)', border: '2px solid #EF4444',
-                      borderRadius: '16px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                      boxShadow: '0 0 20px rgba(239,68,68,0.2)'
-                    }}
-                    whileHover={{ scale: 1.01 }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                      <span style={{ fontSize: '36px', animation: 'float 2s infinite' }}>🔴</span>
-                      <div style={{ textAlign: 'left' }}>
-                        <div style={{ fontWeight: 900, fontSize: '15px', color: '#EF4444' }}>PERINGATAN DETEKTIF!</div>
-                        <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
-                          Siswa Berkalung Merah mencurigakan terdeteksi di Lapangan Sekolah. Selidiki sekarang!
-                        </span>
-                      </div>
-                    </div>
-                    <span style={{ fontSize: '20px' }}>🚨</span>
-                  </motion.div>
-                )}
-              </div>
-            </motion.div>
-          )}
-
-          {/* ────────────────── PHASE: PISA OBSTACLE ────────────────── */}
-          {phase === 'obstacle' && pisaLoc && (
-            <motion.div key="obstacle" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} className="game-card" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              <div>
-                <div style={{ fontSize: '11px', color: '#EF4444', fontWeight: 800, letterSpacing: '1.5px', marginBottom: '6px' }}>
-                  ⚠️ HAMBATAN KEAMANAN TERDETEKSI ({LOCATIONS.find(l=>l.id===pisaLoc)?.name})
-                </div>
-                <h2 style={{ margin: 0, fontSize: '18px', fontWeight: 800 }}>Pecahkan Kunci Sandi PISA untuk Lolos</h2>
-              </div>
-
-              <div style={{ background: 'rgba(0,0,0,0.15)', border: '1px solid var(--game-border)', padding: '20px', borderRadius: '12px', fontSize: '14.5px', lineHeight: 1.6, color: '#F1F5F9' }}>
-                {PISA_QUESTIONS[pisaLoc].q}
-              </div>
-
-              {/* Option Buttons */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                {PISA_QUESTIONS[pisaLoc].opts.map((opt, idx) => {
-                  const isSelected = selectedPisaOpt === idx
-                  let borderStyle = '1px solid var(--game-border)'
-                  let bgStyle = 'rgba(255,255,255,0.02)'
-                  if (isSelected) {
-                    borderStyle = '2px solid var(--accent)'
-                    bgStyle = 'var(--accent-dim)'
+              <Level2SchoolExploration
+                cognitiveStyle={cognitiveStyle}
+                visitedLocations={visitedLocations}
+                victimsVisited={victimsVisited}
+                collectedCount={collectedCount}
+                locations={[
+                  { id: 'labkom', name: 'Labkom / Kelas', icon: '💻', color: '#38BDF8', x: 200, y: 590, victims: VICTIMS['labkom'] },
+                  { id: 'lapangan', name: 'Lapangan Utama', icon: '🏟️', color: '#4ADE80', x: 570, y: 520, victims: VICTIMS['lapangan'] },
+                  { id: 'kantin', name: 'Kantin Sekolah', icon: '🍽️', color: '#FBBF24', x: 850, y: 590, victims: VICTIMS['kantin'] },
+                  { id: 'lorong', name: 'Lorong Sekolah', icon: '🏫', color: '#FB7185', x: 1150, y: 630, victims: VICTIMS['lorong'] },
+                ]}
+                onSelectLocation={handleSelectLocation}
+                onRecordVictim={(locId, idx) => {
+                  const currentVisited = victimsVisited[locId] ?? []
+                  if (!currentVisited.includes(idx)) {
+                    setVictimsVisited(prev => ({ ...prev, [locId]: [...currentVisited, idx] }))
+                    setCollectedCount(prev => prev + 1)
                   }
-                  if (pisaSubmitted) {
-                    if (idx === PISA_QUESTIONS[pisaLoc].correct) {
-                      borderStyle = '2px solid #10B981'
-                      bgStyle = 'rgba(16,185,129,0.08)'
-                    } else if (isSelected) {
-                      borderStyle = '2px solid #EF4444'
-                      bgStyle = 'rgba(239,68,68,0.08)'
-                    }
-                  }
-
-                  return (
-                    <button
-                      key={idx}
-                      disabled={pisaSubmitted}
-                      onClick={() => setSelectedPisaOpt(idx)}
-                      style={{
-                        padding: '14px 16px', borderRadius: '10px', border: borderStyle, background: bgStyle,
-                        color: '#fff', fontSize: '13.5px', fontWeight: 600, textAlign: 'left',
-                        cursor: pisaSubmitted ? 'default' : 'pointer', transition: 'all 0.2s',
-                        display: 'flex', gap: '10px', alignItems: 'center'
-                      }}
-                    >
-                      <div style={{
-                        width: '22px', height: '22px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 800
-                      }}>
-                        {String.fromCharCode(65 + idx)}
-                      </div>
-                      {opt}
-                    </button>
-                  )
-                })}
-              </div>
-
-              {/* Action Buttons */}
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
-                {!pisaSubmitted ? (
-                  <button
-                    className="game-btn game-btn-primary"
-                    disabled={selectedPisaOpt === null}
-                    onClick={handlePisaSubmit}
-                    style={{ opacity: selectedPisaOpt !== null ? 1 : 0.5 }}
-                  >
-                    Buka Kunci Sandi
-                  </button>
-                ) : (
-                  <button
-                    className="game-btn"
-                    style={{
-                      background: pisaCorrect ? 'var(--accent)' : 'rgba(255,255,255,0.1)',
-                      color: '#fff',
-                      boxShadow: pisaCorrect ? 'var(--accent-glow)' : 'none'
-                    }}
-                    onClick={pisaCorrect ? handleEnterLocation : () => { setPisaSubmitted(false); setSelectedPisaOpt(null); }}
-                  >
-                    {pisaCorrect ? 'Masuk ke Lokasi →' : 'Coba Lagi'}
-                  </button>
-                )}
-              </div>
+                }}
+                onStartInterrogation={() => {
+                  setShowRedNecklaceIntro(true)
+                  setPhase('interrogation')
+                }}
+              />
             </motion.div>
           )}
 
-          {/* ────────────────── PHASE: EXPLORATION (LOCATION DATA GATHERING) ────────────────── */}
-          {phase === 'exploration' && activeLoc && (
-            <motion.div key="exploration" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              <div className="game-card">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--game-border)', paddingBottom: '12px', marginBottom: '16px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <span style={{ fontSize: '32px' }}>{LOCATIONS.find(l=>l.id===activeLoc)?.icon}</span>
-                    <div>
-                      <div style={{ fontSize: '10px', color: 'var(--accent)', fontWeight: 800, letterSpacing: '1px' }}>PENCARIAN DATA</div>
-                      <h2 style={{ margin: 0, fontSize: '18px', fontWeight: 800 }}>Lokasi: {LOCATIONS.find(l=>l.id===activeLoc)?.name}</h2>
-                    </div>
-                  </div>
-                  <div style={{ background: 'var(--game-bg)', border: '1px solid var(--game-border)', padding: '6px 12px', borderRadius: '50px', fontSize: '12px', fontWeight: 700 }}>
-                    Terdata di Lokasi: <strong style={{ color: 'var(--accent)' }}>{victimsVisited[activeLoc]?.length ?? 0} / {VICTIMS[activeLoc].length}</strong>
-                  </div>
-                </div>
 
-                <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '20px', lineHeight: 1.5 }}>
-                  Berikut adalah daftar siswa di lokasi ini. Cari siswa yang mengenakan Kalung Kuning 🟡, klik untuk mendengarkan frekuensi cyberbullying yang mereka alami, dan catat angkanya.
-                </p>
-
-                {/* Victims list cards */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  {VICTIMS[activeLoc].map((vic, idx) => {
-                    const isRecorded = (victimsVisited[activeLoc] ?? []).includes(idx)
-                    return (
-                      <div
-                        key={idx}
-                        onClick={() => !isRecorded && handleRecordVictim(idx)}
-                        style={{
-                          background: isRecorded ? 'rgba(255,255,255,0.02)' : 'rgba(14, 131, 136, 0.03)',
-                          border: `1px solid ${isRecorded ? 'rgba(255,255,255,0.06)' : 'rgba(251,191,36,0.3)'}`,
-                          borderRadius: '12px', padding: '14px 16px', display: 'flex', justifyContent: 'space-between',
-                          alignItems: 'center', cursor: isRecorded ? 'default' : 'pointer',
-                          transition: 'all 0.2s', opacity: isRecorded ? 0.7 : 1
-                        }}
-                      >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                          <span style={{ fontSize: '24px' }}>{isRecorded ? '🕵️' : '🟡'}</span>
-                          <span style={{ fontSize: '13px', color: isRecorded ? 'var(--text-secondary)' : '#fff', fontStyle: isRecorded ? 'italic' : 'normal' }}>
-                            {isRecorded ? `"${vic.txt}"` : 'Siswa Berkalung Kuning Terdeteksi'}
-                          </span>
-                        </div>
-                        
-                        {isRecorded ? (
-                          <div style={{ background: 'rgba(0,173,181,0.08)', border: '1px solid rgba(0,173,181,0.2)', padding: '4px 10px', borderRadius: '6px', fontSize: '12px', fontWeight: 800, color: '#00ADB5', fontFamily: 'monospace' }}>
-                            {vic.val} Kali / Semester
-                          </div>
-                        ) : (
-                          <button className="game-btn" style={{ padding: '6px 12px', fontSize: '11px', borderRadius: '6px', background: 'linear-gradient(90deg, #D97706, #EA580C)', color: '#fff' }}>
-                            Tanya Korban
-                          </button>
-                        )}
-                      </div>
-                    )
-                  })}
-                </div>
-
-                {/* Return button */}
-                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '24px' }}>
-                  <button
-                    className="game-btn game-btn-primary"
-                    disabled={(victimsVisited[activeLoc]?.length ?? 0) < VICTIMS[activeLoc].length}
-                    onClick={handleReturnToMap}
-                    style={{ opacity: (victimsVisited[activeLoc]?.length ?? 0) === VICTIMS[activeLoc].length ? 1 : 0.5 }}
-                  >
-                    Kembali ke Peta Sekolah
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          )}
 
           {/* ────────────────── PHASE: PERPETRATOR INTERROGATION / DIALOG ────────────────── */}
           {phase === 'interrogation' && (
@@ -1669,10 +1129,10 @@ export default function Level2Path({
                   🚨 RUANG INVESTIGASI
                 </div>
                 <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 800 }}>Wawancara &amp; Bimbingan Pelaku</h2>
-                
+
                 {/* Dialogue Panel */}
                 <div style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid var(--game-border)', borderRadius: '14px', padding: '20px', minHeight: '160px', display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '16px', position: 'relative' }}>
-                  
+
                   {/* Sprite image mock */}
                   <div style={{ position: 'absolute', top: '16px', right: '16px', opacity: 0.15, fontSize: '72px' }}>🔴</div>
 
@@ -1754,7 +1214,7 @@ export default function Level2Path({
 
                 {/* Calculation Inputs Grid */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginTop: '24px' }} className="tahap-b-reference-grid">
-                  
+
                   {/* Mean */}
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                     <label style={{ fontSize: '11px', fontWeight: 800, color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Mean (Rata-rata)</label>
@@ -1848,7 +1308,7 @@ export default function Level2Path({
                     const isSelected = selectedVerdict === opt.id
                     let borderStyle = '1px solid var(--game-border)'
                     let bgStyle = 'rgba(255,255,255,0.02)'
-                    
+
                     if (isSelected) {
                       borderStyle = '2px solid var(--accent)'
                       bgStyle = 'var(--accent-dim)'
@@ -1975,7 +1435,7 @@ export default function Level2Path({
             {chatMessages.length === 0 ? (
               <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '8px', color: 'var(--text-muted)', textAlign: 'center', padding: '10px' }}>
                 <span style={{ fontSize: '20px' }}>💬</span>
-                <p style={{ fontSize: '11px', margin: 0 }}>Belum ada obrolan kelompok.<br/>Yuk sapa teman satu timmu!</p>
+                <p style={{ fontSize: '11px', margin: 0 }}>Belum ada obrolan kelompok.<br />Yuk sapa teman satu timmu!</p>
               </div>
             ) : (
               chatMessages.map((msg) => {

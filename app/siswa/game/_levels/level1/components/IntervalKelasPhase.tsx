@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { motion, AnimatePresence, PanInfo } from 'framer-motion'
 import { useGameStore } from '@/lib/store/gameStore'
-import DiRA from './DiRA'
+import DiRA from '@/app/siswa/game/_components/DiRA'
 
 // Define the 6 class intervals
 const CLASSES = [
@@ -16,8 +16,6 @@ const CLASSES = [
 ]
 
 // The 12 slots mapping
-// Even indices (0, 2, 4, 6, 8, 10) are Tepi Bawah (Tb) for classes 0 to 5
-// Odd indices (1, 3, 5, 7, 9, 11) are Tepi Atas (Ta) for classes 0 to 5
 const CORRECT_VALUES = [
   0.5, 3.5, // Class 1
   3.5, 6.5, // Class 2
@@ -108,7 +106,7 @@ export default function IntervalKelasPhase({
         'Karena datanya bilangan bulat (diskrit), kita perlu memberi jarak 0.5 di setiap batas kelas agar saat digambar nanti, batang histogram-nya saling menempel (kontinu) tanpa celah kosong! 😉'
       )
       setShowDiraExpl(true)
-    }, 900) // matches transition duration
+    }, 900)
   }
 
   // Toast triggers
@@ -241,9 +239,6 @@ export default function IntervalKelasPhase({
       <div className="game-card game-card-accent" style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, minWidth: 0, padding: '20px', gap: '20px', justifyContent: 'space-between', width: '100%' }}>
         
         {stage === 1 ? (
-          /* ============================================================
-             STAGE 1: BUKA CELAH
-             ============================================================ */
           <div style={{ display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'space-between', gap: '24px' }}>
             
             <div style={{ textAlign: 'center', maxWidth: '600px', margin: '0 auto' }}>
@@ -306,10 +301,8 @@ export default function IntervalKelasPhase({
 
               {/* Number line representation */}
               <div style={{ width: '100%', maxWidth: '760px', padding: '0 16px', position: 'relative', height: '36px' }}>
-                {/* Horizontal axis line */}
                 <div style={{ position: 'absolute', top: '10px', left: '32px', right: '32px', height: '2px', background: 'rgba(255,255,255,0.15)' }} />
                 
-                {/* Axis ticks */}
                 {[1, 3, 4, 6, 7, 9, 10, 12, 13, 15, 16, 18].map((num, i) => {
                   const leftPercentage = 32 + (i / 11) * (100 - 64)
                   return (
@@ -360,9 +353,6 @@ export default function IntervalKelasPhase({
 
           </div>
         ) : (
-          /* ============================================================
-             STAGE 2: PASANG LABEL (DRAG TO SLOT)
-             ============================================================ */
           <div style={{ display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'space-between', gap: '20px', minHeight: 0 }}>
             
             <div style={{ textAlign: 'center', maxWidth: '600px', margin: '0 auto', flexShrink: 0 }}>
@@ -644,7 +634,7 @@ export default function IntervalKelasPhase({
         )}
       </AnimatePresence>
 
-      {/* Dira Explanation overlay (Portal) */}
+      {/* Dira Explanation overlay */}
       {showDiraExpl && (
         <DiRA
           message={diraExplMessage}

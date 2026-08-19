@@ -2,17 +2,13 @@
 
 import { use, useEffect, useState, useRef, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { AnimatePresence, motion } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { useGameStore } from '@/lib/store/gameStore'
 import GameHeader from '../../_components/GameHeader'
-import Cutscene from '../../_components/Cutscene'
-import FIPath from './_fi/FIPath'
-import FDPath from './_fd/FDPath'
 import OrientationGuard from '../../_components/OrientationGuard'
-import PregameFormula from '../../_components/PregameFormula'
-import NPath from '../../_components/NPath'
-import TeamLobby from '../../_components/TeamLobby'
-import Level2Path from './Level2Path'
+import Level1Main from '../../_levels/level1/Level1Main'
+import Level2Main from '../../_levels/level2/Level2Main'
+import Level3Main from '../../_levels/level3/Level3Main'
 import '../../game.css'
 
 function LevelPageInner({
@@ -26,36 +22,14 @@ function LevelPageInner({
   const demoMode = searchParams.get('demoMode') === 'true'
   const demoStep = searchParams.get('demoStep')
 
-  const { cognitiveStyle, resetLevel, teamId, setTeamId } = useGameStore()
-  const [phase, setPhase] = useState<'cutscene' | 'formula' | 'lobby' | 'game'>(
-    demoMode ? (demoStep === 'interval' || demoStep === 'histogram' ? 'game' : 'formula') : 'cutscene'
-  )
-  const [pregameStep, setPregameStep] = useState<'exploration' | 'minmax' | 'panjangkelas'>(
-    demoMode ? (demoStep === 'minmax' ? 'minmax' : 'exploration') : 'exploration'
-  )
-  const [cutscenePhase, setCutscenePhase] = useState<'comments' | 'mentor'>('comments')
+  const { cognitiveStyle, resetLevel } = useGameStore()
   const [hydrated, setHydrated] = useState(false)
-  /** true while the async rejoin check is running */
   const [initializing, setInitializing] = useState(true)
-  const [teamMembers, setTeamMembers] = useState<{ id: string; name: string }[]>([])
   const [studentInfo, setStudentInfo] = useState<{ id: string; name: string } | null>(null)
   const didResetRef = useRef(false)
 
   const handleSkip = () => {
-    if (phase === 'cutscene') {
-      setPhase('formula')
-      setPregameStep('exploration')
-    } else if (phase === 'formula') {
-      if (pregameStep === 'exploration') {
-        setPregameStep('minmax')
-      } else if (pregameStep === 'minmax') {
-        setPregameStep('panjangkelas')
-      } else if (pregameStep === 'panjangkelas') {
-        setPhase('game')
-      }
-    } else if (phase === 'game') {
-      window.dispatchEvent(new CustomEvent('skip-game-step'))
-    }
+    window.dispatchEvent(new CustomEvent('skip-game-step'))
   }
 
   // Hydrate store + load student info from localStorage
@@ -101,7 +75,6 @@ function LevelPageInner({
     }
   }, [hydrated, resolvedStyle, router])
 
-  // ── Rejoin check (Bypassed for single-player & demo mode) ───────────────────────────────
   useEffect(() => {
     if (!hydrated) return
     if (demoMode) {
@@ -128,8 +101,8 @@ function LevelPageInner({
     )
   }
 
-  // Only Level 1 and Level 2 exist
-  if (id !== '1' && id !== '2') {
+  // Unsupported level fallback
+  if (id !== '1' && id !== '2' && id !== '3') {
     return (
       <div className="game-root" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', flexDirection: 'column', gap: '16px' }}>
         <div style={{ fontSize: '48px' }}>🚧</div>
@@ -143,106 +116,38 @@ function LevelPageInner({
 
   if (!resolvedStyle) return null
 
-  // Level 2 Path rendering
-  if (id === '2') {
-    return (
-      <OrientationGuard lockScreen={true}>
-        <div className="game-root game-level-root" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: '#0B1E2C', color: '#F8FAFC' }}>
-          <GameHeader isBlurred={false} />
-          <div className="game-level-content-wrapper" style={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative' }}>
-            <Level2Path
+  return (
+    <OrientationGuard lockScreen={true}>
+      <div className="game-root game-level-root" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: '#0B1E2C', color: '#F8FAFC' }}>
+        <GameHeader isBlurred={false} onSkip={handleSkip} />
+        <div className="game-level-content-wrapper" style={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative' }}>
+          {id === '1' && (
+            <Level1Main
+              cognitiveStyle={resolvedStyle}
+              studentId={studentInfo?.id}
+              studentName={studentInfo?.name}
+              demoMode={demoMode}
+              demoStep={demoStep}
+            />
+          )}
+
+          {id === '2' && (
+            <Level2Main
               cognitiveStyle={resolvedStyle}
               teamId={null}
               studentId={studentInfo?.id}
               studentName={studentInfo?.name}
               demoMode={demoMode}
             />
-          </div>
-        </div>
-      </OrientationGuard>
-    )
-  }
-
-  return (
-    <OrientationGuard lockScreen={true}>
-      <div className="game-root game-level-root">
-        <GameHeader
-          isBlurred={phase === 'cutscene' && cutscenePhase === 'mentor'}
-          onSkip={handleSkip}
-        />
-
-        <div className="game-level-content-wrapper" style={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative' }}>
-          {/* Phase 1: Cutscene */}
-          <AnimatePresence>
-            {phase === 'cutscene' && (
-              <Cutscene
-                onPhaseChange={setCutscenePhase}
-                teamId={null}
-                studentId={studentInfo?.id}
-                teamMembers={undefined}
-                onComplete={() => setPhase('formula')}
-              />
-            )}
-          </AnimatePresence>
-
-          {/* Phase 1.5: Pregame Formula */}
-          {phase === 'formula' && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              style={{
-                flex: 1, display: 'flex', flexDirection: 'column',
-                background: 'var(--game-bg)', color: 'var(--text-primary)',
-                padding: '16px 20px', height: '100%', overflow: pregameStep === 'exploration' ? 'hidden' : 'auto',
-              }}
-            >
-              {pregameStep === 'exploration' && (
-                <NPath
-                  isFD={resolvedStyle === 'FD'}
-                  onComplete={() => setPregameStep('minmax')}
-                  demoMode={demoMode}
-                />
-              )}
-
-              {pregameStep === 'minmax' && (
-                <PregameFormula
-                  teamId={null}
-                  studentId={studentInfo?.id}
-                  teamMembers={undefined}
-                  initialSub={demoMode && demoStep === 'rentang' ? 'rentang' : 'intro'}
-                  onComplete={() => setPregameStep('panjangkelas')}
-                />
-              )}
-
-              {pregameStep === 'panjangkelas' && (
-                <PregameFormula
-                  teamId={null}
-                  studentId={studentInfo?.id}
-                  teamMembers={undefined}
-                  initialSub="panjang-kelas"
-                  onComplete={async () => {
-                    setPhase('game')
-                  }}
-                />
-              )}
-            </motion.div>
           )}
 
-          {/* Phase 2: Game UI */}
-          {phase === 'game' && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5 }}
-              style={{ flex: 1, display: 'flex', flexDirection: 'column' }}
-            >
-              {resolvedStyle === 'FI' ? (
-                <FIPath demoMode={demoMode} demoStep={demoStep} />
-              ) : (
-                <FDPath teamId={null} studentId={studentInfo?.id} studentName={studentInfo?.name} />
-              )}
-            </motion.div>
+          {id === '3' && (
+            <Level3Main
+              cognitiveStyle={resolvedStyle}
+              studentId={studentInfo?.id}
+              studentName={studentInfo?.name}
+              demoMode={demoMode}
+            />
           )}
         </div>
       </div>

@@ -58,16 +58,12 @@ export default function PlayerCharacter({
       spriteUrl = '/Assets/Character/Stevunt-iso_walk_right.png'
     }
   } else {
-    // Stationary state: if facing up, show walk_up frame 0; otherwise use idle sprite sheet
-    if (facing === 'up') {
-      spriteUrl = '/Assets/Character/Stevunt-iso_walk_up-trimmed.png'
-    } else {
-      spriteUrl = '/Assets/Character/Stevunt-idle.png'
-    }
+    // When idle (stationary), transition cleanly to front-facing idle animation
+    spriteUrl = '/Assets/Character/Stevunt-idle.png'
   }
 
   // Grid coordinates for 5x5 sprite sheet (5 columns, 5 rows)
-  const currentFrame = (!isMoving && facing === 'up') ? 0 : frame
+  const currentFrame = frame
   const col = currentFrame % 5
   const row = Math.floor(currentFrame / 5)
   const bgX = col * 25
@@ -86,16 +82,16 @@ export default function PlayerCharacter({
       <ellipse
         cx={x}
         cy={y}
-        rx={size * 0.35}
-        ry={size * 0.15}
+        rx={size * 0.175}
+        ry={size * 0.075}
         fill="rgba(0, 0, 0, 0.45)"
         filter="blur(1px)"
       />
       <ellipse
         cx={x}
         cy={y}
-        rx={size * 0.3}
-        ry={size * 0.12}
+        rx={size * 0.15}
+        ry={size * 0.06}
         fill={glowColor}
         opacity={isMoving ? 0.45 : 0.25}
         style={{ transition: 'opacity 0.2s' }}
@@ -129,9 +125,9 @@ export default function PlayerCharacter({
       {label && (
         <text
           x={x}
-          y={posY - 3}
+          y={posY - 6}
           textAnchor="middle"
-          fontSize={Math.max(6, Math.min(9, size * 0.3))}
+          fontSize={Math.max(12, Math.min(16, size * 0.07))}
           fontWeight="bold"
           fill="#FFFFFF"
           fontFamily="var(--font-ui, sans-serif)"

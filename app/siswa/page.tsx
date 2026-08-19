@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useGameStore } from '@/lib/store/gameStore'
-import DetektivBooklet from './game/_components/DetektivBooklet'
+import DetektivBooklet from './game/_levels/level2/components/DetektivBooklet'
 import OrientationGuard from './game/_components/OrientationGuard'
 
 type Student = {

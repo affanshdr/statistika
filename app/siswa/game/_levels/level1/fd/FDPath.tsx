@@ -4,17 +4,17 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import dynamic from 'next/dynamic'
 import { useGameStore } from '@/lib/store/gameStore'
-import DiRA from '../../../_components/DiRA'
-import BadgeUnlock from '../../../_components/BadgeUnlock'
-import MythBustedStamp from '../../../_components/MythBustedStamp'
-import VerdictScreen from '../../../_components/VerdictScreen'
-import TeamGateButton from '../../../_components/TeamGateButton'
-import { BADGES, STATS } from '../../../_data/level1'
+import DiRA from '@/app/siswa/game/_components/DiRA'
+import BadgeUnlock from '@/app/siswa/game/_components/BadgeUnlock'
+import MythBustedStamp from '../components/MythBustedStamp'
+import VerdictScreen from '../components/VerdictScreen'
+import TeamGateButton from '@/app/siswa/game/_components/TeamGateButton'
+import { BADGES, STATS } from '@/app/siswa/game/_data/level1'
 import { useRouter } from 'next/navigation'
 import { useGameRealtime } from '@/lib/hooks/useGameRealtime'
-import IntervalKelasPhase from '../../../_components/IntervalKelasPhase'
+import IntervalKelasPhase from '../components/IntervalKelasPhase'
 
-const DraggableHistogram = dynamic(() => import('../../../_components/DraggableHistogram'), { ssr: false })
+const DraggableHistogram = dynamic(() => import('../components/DraggableHistogram'), { ssr: false })
 
 // Steps: 0=IntervalKelas, 1=Histogram(guided), 2=Hasil Analisis, 3=Verifikasi Berita, 4=MythBusted
 type GameStep = 0 | 1 | 2 | 3 | 4
@@ -55,36 +55,28 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
     return () => window.removeEventListener('skip-game-step', handleSkipGameStep)
   }, [])
   
-  // Multiplayer states
   const [placedIndices, setPlacedIndices] = useState<number[]>([])
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([])
   const [chatInput, setChatInput] = useState('')
   const [teamMembers, setTeamMembers] = useState<Member[]>([])
   const [syncLoading, setSyncLoading] = useState(true)
-  const [histogramCorrect, setHistogramCorrect] = useState(false) // true setelah histogram benar disubmit
-  const [teamReadyVotes, setTeamReadyVotes] = useState<Record<string, string[]>>({}) // votes dari polling
+  const [histogramCorrect, setHistogramCorrect] = useState(false)
+  const [teamReadyVotes, setTeamReadyVotes] = useState<Record<string, string[]>>({})
 
   const chatEndRef = useRef<HTMLDivElement | null>(null)
   const sessionActiveRef = useRef(false)
 
   useEffect(() => { sessionActiveRef.current = true }, [])
 
-  // Auto-scroll chat to bottom
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [chatMessages])
 
-  // DiRA state
   const [diraMsg, setDiraMsg] = useState<string | null>(null)
   const [showDira, setShowDira] = useState(false)
-
-  // Flash wrong overlay (FD only — no life lost)
   const [flashWrong, setFlashWrong] = useState(false)
-
-  // Tahap B state
   const [submitting, setSubmitting] = useState(false)
 
-  // Initial DiRA Message
   useEffect(() => {
     if (step === 0) {
       setDiraMsg('Yuk tentukan batas tepi kelas (Tepi Bawah & Tepi Atas) dulu sebelum kita susun histogramnya! 📏')
@@ -106,10 +98,8 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
       if (!res.ok) return
       const data = await res.json()
 
-      // 1. Sync current step
       if (data.currentStep !== undefined && data.currentStep !== step) {
         setStep(data.currentStep as GameStep)
-        // Show DiRA hint for new steps
         if (data.currentStep === 2) {
           setDiraMsg('Mantap banget! Tim lo sukses bikin histogramnya valid 100%. 📊\nSekarang, yuk kita spill bareng statistik dasarnya!')
           setShowDira(true)
@@ -118,7 +108,6 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
         }
       }
 
-      // 2. Sync histogram state
       if (data.histogramState) {
         const remoteIndices = data.histogramState as number[]
         if (JSON.stringify(remoteIndices) !== JSON.stringify(placedIndices)) {
@@ -126,22 +115,18 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
         }
       }
 
-      // 3. Sync members
       if (data.members) {
         setTeamMembers(data.members)
       }
 
-      // 4. Sync chat
       if (data.chatMessages) {
         setChatMessages(data.chatMessages)
       }
 
-      // 5. Sync ready votes (for TeamGateButton UI)
       if (data.readyVotes) {
         setTeamReadyVotes(data.readyVotes as Record<string, string[]>)
       }
 
-      // 6. Sync completion (verdict answered correctly)
       if (data.status === 'COMPLETED' || data.isCorrect) {
         if (data.verdictAnswer) {
           useGameStore.getState().setVerdict(data.verdictAnswer)
@@ -157,13 +142,12 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
     }
   }, [teamId, step, placedIndices])
 
-  // ── Supabase Realtime: presence across game steps ────────────────────────
   const { broadcastStep, broadcastSyncTrigger } = useGameRealtime(
     teamId,
     studentId,
     studentName,
     undefined,
-    fetchTeamState // triggers immediate sync on WebSocket message
+    fetchTeamState
   )
 
   useEffect(() => {
@@ -171,8 +155,8 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
       setSyncLoading(false)
       return
     }
-    fetchTeamState() // initial
-    const interval = setInterval(fetchTeamState, 1000) // Kurangi polling interval dari 2s ke 1s
+    fetchTeamState()
+    const interval = setInterval(fetchTeamState, 1000)
     return () => clearInterval(interval)
   }, [teamId, fetchTeamState])
 
@@ -183,7 +167,6 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
 
   const dismissBadge = () => setPendingBadges(prev => prev.slice(1))
 
-  // ── STEP 0: Histogram placed change (multiplayer) ──
   const handlePlacedChange = async (newIndices: number[]) => {
     setPlacedIndices(newIndices)
     if (teamId) {
@@ -199,10 +182,8 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
     }
   }
 
-  // ── STEP 0: Interval Kelas submitted ──
   const handleIntervalSubmit = async () => {
     if (teamId && studentId) {
-      // Team mode: cast gate vote — advance when 2/3 have submitted correctly
       try {
         const res = await fetch('/api/game/team/sync', {
           method: 'POST',
@@ -216,7 +197,7 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
           const data = await res.json()
           if (data.team) {
             setTeamReadyVotes(data.team.readyVotes ?? {})
-            broadcastSyncTrigger() // tell other group members to fetch immediately!
+            broadcastSyncTrigger()
             if (data.team.currentStep !== undefined && data.team.currentStep !== step) {
               setStep(data.team.currentStep as GameStep)
             }
@@ -224,20 +205,17 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
         }
       } catch (e) { console.error(e) }
     } else {
-      // Solo mode: advance immediately
       broadcastStep(1)
       setTimeout(() => setStep(1), 400)
     }
   }
 
-  // ── STEP 1: Histogram submitted ──
   const handleHistogramSubmit = async (isCorrect: boolean) => {
     if (isCorrect) {
       addXP(25, 'Menyusun histogram terbimbing dengan benar', 1)
       setHistogramCorrect(true)
 
       if (teamId && studentId) {
-        // Team mode: cast gate vote — advance when 2/3 have submitted correctly
         setDiraMsg('Histogram valid! 🎉 Lo udah vote buat lanjut. Tunggu konfirmasi tim lo ya — minimal 1 member lagi wajib setuju!')
         setShowDira(true)
         try {
@@ -254,23 +232,20 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
             const data = await res.json()
             if (data.team) {
               setTeamReadyVotes(data.team.readyVotes ?? {})
-              broadcastSyncTrigger() // tell other group members to fetch immediately!
+              broadcastSyncTrigger()
               if (data.team.currentStep !== undefined && data.team.currentStep !== step) {
                 setStep(data.team.currentStep as GameStep)
               }
             }
           }
         } catch (e) { console.error(e) }
-        // Step advance is handled by polling/instant response when server sets currentStep = 2
       } else {
-        // Solo/FI mode: advance immediately
         setDiraMsg('Gokil! Lo sukses bikin histogramnya bener semua. 📊\nSekarang, yuk kita spill bareng statistik dasarnya di Tahap B ini!')
         setShowDira(true)
         broadcastStep(2)
         setTimeout(() => setStep(2), 400)
       }
     } else {
-      // FD: hanya red flash, tanpa life lost — eksplorasi mandiri
       setFlashWrong(true)
       setTimeout(() => setFlashWrong(false), 600)
       setDiraMsg('Oops, ada data yang nyasar masuk ke kelas yang salah nih! Coba recheck lagi — inget intervalnya: 1-4, 5-8, 9-12, 13-16, 17-20 jam. Angka yang kegedean atau kekecilan musti ditaruh di kelas yang beda ya. Semangat lo pasti bisa! 💪')
@@ -278,8 +253,6 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
     }
   }
 
-  // ── STEP 2: Analisis selesai → ke Verifikasi Berita ──
-  // Hanya dipakai di solo/FI mode. Team mode pakai TeamGateButton gate_step1_done.
   const handleProceedToVerification = async () => {
     if (submitting) return
     setSubmitting(true)
@@ -291,7 +264,6 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
     }, 300)
   }
 
-  // ── STEP 3: Verifikasi benar → cast vote gate_verdict_done ──
   const handleVerificationCorrect = async () => {
     addXP(15, 'Verifikasi berita benar', 3)
     awardBadge(BADGES.DETECTIVE)
@@ -304,7 +276,6 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
     awardBadge(BADGES.MYTHBUST)
 
     if (teamId && studentId) {
-      // Team mode: cast gate vote — server advances all when 2/3 answer correctly
       try {
         const res = await fetch('/api/game/team/sync', {
           method: 'POST',
@@ -318,34 +289,29 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
           const data = await res.json()
           if (data.team) {
             setTeamReadyVotes(data.team.readyVotes ?? {})
-            broadcastSyncTrigger() // tell other group members to fetch immediately!
+            broadcastSyncTrigger()
             if (data.team.currentStep !== undefined && data.team.currentStep !== step) {
               setStep(data.team.currentStep as GameStep)
             }
           }
         }
       } catch (e) { console.error(e) }
-      // Step advance is handled by polling/instant response when server sets currentStep = 4
     } else {
-      // Solo/FI mode: advance immediately
       setTimeout(() => setStep(4), 400)
     }
   }
 
-  // ── STEP 1.5: Verifikasi salah → hint dari DiRA ──
   const handleVerificationWrong = () => {
     incrementMistake()
     setDiraMsg(`Hmm, coba perhatiin deh, mean = ${STATS.mean} jam. Masa itu lebih dari 8 jam? Gak riil kan? 🤔`)
     setShowDira(true)
   }
 
-  // ── STEP 4: MythBusted complete → finish level ──
   const handleMythBustedComplete = () => {
     addXP(15, 'Menyelesaikan Level 1', 4)
     completeLevel(1)
   }
 
-  // Chat sending handler
   const handleSendChatMessage = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!chatInput.trim() || !teamId || !studentId || !studentName) return
@@ -363,7 +329,7 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
           content,
         }),
       })
-      fetchTeamState() // Refresh local messages instantly
+      fetchTeamState()
     } catch (err) {
       console.error('Gagal mengirim chat:', err)
     }
@@ -394,15 +360,12 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
 
   return (
     <div style={{ display: 'flex', width: '100%', flex: 1, minHeight: 0, position: 'relative' }}>
-      
-      {/* ── LEFT SIDE: Main Gameplay Content ── */}
       <div
         className={step === 1 ? 'tahap-a-fullscreen tahap-a-container' : undefined}
         style={step === 1 
           ? { position: 'relative', flex: 1 }
           : { flex: 1, maxWidth: '820px', margin: '0 auto', padding: '24px 16px', paddingBottom: '120px', position: 'relative' }}
       >
-        {/* Step indicator */}
         <div className="step-indicator" style={{ marginBottom: step === 0 ? '8px' : '24px', flexShrink: 0 }}>
           {STEP_LABELS.map((label, i) => (
             <div
@@ -413,7 +376,6 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
           ))}
         </div>
 
-        {/* Red flash overlay — FD only, no life lost */}
         <AnimatePresence>
           {flashWrong && (
             <motion.div
@@ -428,7 +390,7 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
         <div style={{ width: '100%', flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
           <AnimatePresence mode="wait">
 
-            {/* ── STEP 0: Menyusun Interval Kelas ── */}
+            {/* STEP 0: Menyusun Interval Kelas */}
             {step === 0 && (
               <motion.div key="step0" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }} style={{ width: '100%', flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
                 <IntervalKelasPhase
@@ -444,7 +406,7 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
               </motion.div>
             )}
 
-            {/* ── STEP 1: Histogram Terbimbing ── */}
+            {/* STEP 1: Histogram Terbimbing */}
             {step === 1 && (
               <motion.div key="step1" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }} style={{ width: '100%', flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
                 <div className="game-card" style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, padding: '16px' }}>
@@ -463,7 +425,7 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
               </motion.div>
             )}
 
-            {/* ── STEP 2: Text Analysis (FD) ── */}
+            {/* STEP 2: Text Analysis (FD) */}
             {step === 2 && (
               <motion.div key="step2" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }}>
                 <div className="game-card" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -474,9 +436,7 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
                     <h2 style={{ margin: 0, fontSize: '20px' }}>Hasil Analisis &amp; Statistik Dasar</h2>
                   </div>
 
-                  {/* Histogram & Stats Grid */}
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: '16px', alignItems: 'stretch' }} className="tahap-b-reference-grid">
-                    {/* Left: Histogram */}
                     <div style={{ background: 'rgba(217,119,6,0.03)', border: '1px solid var(--game-border)', borderRadius: '14px', padding: '12px' }}>
                       <div style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 700, marginBottom: '8px', letterSpacing: '1px' }}>📊 HISTOGRAM HASIL TAHAP A</div>
                       <DraggableHistogram
@@ -486,7 +446,6 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
                       />
                     </div>
 
-                    {/* Right: Pre-computed stats */}
                     <div style={{ background: 'rgba(217,119,6,0.04)', border: '1px solid var(--game-border-accent)', borderRadius: '14px', padding: '14px 18px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                       <div style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 700, marginBottom: '10px', letterSpacing: '1px' }}>📈 STATISTIK DASAR DISTRIBUSI</div>
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px' }}>
@@ -507,7 +466,6 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
                     </div>
                   </div>
 
-                  {/* Tombol lanjut — TeamGateButton untuk FD team, biasa untuk FI solo */}
                   {teamId ? (
                     <TeamGateButton
                       gate="gate_step1_done"
@@ -519,7 +477,7 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
                       onVote={() => { addXP(20, 'Analisis distribusi FD tepat', 2); setShowDira(false) }}
                       onVoteSuccess={(votes, stepVal) => {
                         setTeamReadyVotes(votes)
-                        broadcastSyncTrigger() // tell others to sync immediately!
+                        broadcastSyncTrigger()
                         if (stepVal !== undefined && stepVal !== step) {
                           setStep(stepVal as GameStep)
                         }
@@ -540,7 +498,7 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
               </motion.div>
             )}
 
-            {/* ── STEP 3: Verifikasi Berita (FD — guided) ── */}
+            {/* STEP 3: Verifikasi Berita (FD — guided) */}
             {step === 3 && (
               <motion.div key="step3" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }}>
                 <div className="game-card" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -562,19 +520,16 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
           </AnimatePresence>
         </div>
 
-        {/* ── STEP 4: Myth Busted Stamp (overlay) ── */}
         <AnimatePresence>
           {step === 4 && (
             <MythBustedStamp onComplete={handleMythBustedComplete} />
           )}
         </AnimatePresence>
 
-        {/* DiRA guide for step 0 & 1 */}
         {(step === 1 || step === 2) && showDira && diraMsg && (
           <DiRA message={diraMsg} onDismiss={() => setShowDira(false)} />
         )}
 
-        {/* Badge queue */}
         {pendingBadges.length > 0 && (
           <BadgeUnlock
             icon={pendingBadges[0].icon}
@@ -585,7 +540,6 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
         )}
       </div>
 
-      {/* ── RIGHT SIDE: Multiplayer Chat & Teammate Sidebar ── */}
       {teamId && (
         <div
           style={{
@@ -600,7 +554,6 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
             zIndex: 10,
           }}
         >
-          {/* Teammates List */}
           <div style={{ padding: '16px', borderBottom: '1px solid rgba(180, 140, 80, 0.12)' }}>
             <h3 style={{ fontSize: '10px', color: 'var(--accent)', fontWeight: 800, letterSpacing: '1px', margin: '0 0 10px 0', textTransform: 'uppercase' }}>
               👥 KELOMPOK DETEKTIF
@@ -627,7 +580,6 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
             </div>
           </div>
 
-          {/* Chat Messages Log */}
           <div
             style={{
               flex: 1,
@@ -681,7 +633,6 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
             <div ref={chatEndRef} />
           </div>
 
-          {/* Chat Form */}
           <form
             onSubmit={handleSendChatMessage}
             style={{
@@ -729,7 +680,6 @@ export default function FDPath({ teamId = null, studentId, studentName }: FDPath
           </form>
         </div>
       )}
-
     </div>
   )
 }

@@ -7,7 +7,7 @@ import { useGameStore } from '@/lib/store/gameStore'
 import * as Level1Data from '../../_data/level1'
 import * as Level2Data from '../../_data/level2'
 import '../../game.css'
-import LkpdWorksheet from '../../_components/LkpdWorksheet'
+import LkpdWorksheet from '../../_levels/level2/components/LkpdWorksheet'
 
 import dynamic from 'next/dynamic'
 const ReactConfetti = dynamic(() => import('react-confetti'), { ssr: false })

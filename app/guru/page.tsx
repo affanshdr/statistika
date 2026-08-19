@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback, startTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import LkpdWorksheet from '../siswa/game/_components/LkpdWorksheet'
+import LkpdWorksheet from '../siswa/game/_levels/level2/components/LkpdWorksheet'
 
 // ─────────────────────────────────────────────
 // INTERFACES
