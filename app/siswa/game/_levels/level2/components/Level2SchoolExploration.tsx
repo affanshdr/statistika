@@ -288,7 +288,7 @@ export default function Level2SchoolExploration({
   const charSize = 100 + depthRatio * 60
 
   // Visual Debug Bounds Mode State
-  const [showDebug, setShowDebug] = useState(true)
+  const [showDebug, setShowDebug] = useState(false)
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0 }}>

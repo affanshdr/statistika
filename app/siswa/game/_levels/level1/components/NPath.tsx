@@ -31,7 +31,7 @@ const DOORS: readonly { id: string; x: number; y: number; label: string; color: 
 const CLASS_DOORS = [
   // Pintu 1 (Sayap Kiri) - Kelas VII-A
   {
-    id: 'A1', roomId: 'A' as DoorId, label: 'Kelas VII-A', x: 340, y: 495, color: '#818cf8',
+    id: 'A1', roomId: 'A' as DoorId, label: 'Kelas VII-A', x: 310, y: 564, color: '#818cf8',
     quizQ: 'Data screen time 5 siswa: 2, 4, 3, 8, 1 jam. Berapa rentang datanya?',
     quizA: 7, choices: [5, 6, 7, 8] as const,
     fdContext: '💡 Ingat: rentang = nilai terbesar − nilai terkecil',
@@ -40,7 +40,7 @@ const CLASS_DOORS = [
 
   // Pintu 2 (Lorong Kiri) - Kelas VII-B
   {
-    id: 'A2', roomId: 'A' as DoorId, label: 'Kelas VII-B', x: 440, y: 495, color: '#6366f1',
+    id: 'A2', roomId: 'A' as DoorId, label: 'Kelas VII-B', x: 431, y: 495, color: '#6366f1',
     quizQ: 'Tepi bawah kelas interval 4–6 adalah?',
     quizA: 3.5, choices: [3, 3.5, 4, 4.5] as const,
     fdContext: '💡 Ingat: tepi bawah = batas bawah − 0.5',
@@ -49,7 +49,7 @@ const CLASS_DOORS = [
 
   // Pintu 3 (Gedung Tengah / Pintu Ganda) - Kelas VIII-A
   {
-    id: 'B1', roomId: 'B' as DoorId, label: 'Kelas VIII-A', x: 720, y: 495, color: '#00ADB5',
+    id: 'B1', roomId: 'B' as DoorId, label: 'Kelas VIII-A', x: 632, y: 485, color: '#00ADB5',
     quizQ: 'Kamu menerima berita viral yang belum terverifikasi. Tindakan paling etis adalah?',
     quizA: 'Verifikasi dulu', choices: ['Langsung share', 'Verifikasi dulu', 'Screenshot & sebar', 'Abaikan saja'] as const,
     fdContext: '💡 Pikirkan dampaknya terhadap orang lain',
@@ -58,7 +58,7 @@ const CLASS_DOORS = [
 
   // Pintu 4 (Lorong Kanan) - Kelas VIII-B
   {
-    id: 'B2', roomId: 'B' as DoorId, label: 'Kelas VIII-B', x: 890, y: 495, color: '#0e8388',
+    id: 'B2', roomId: 'B' as DoorId, label: 'Kelas VIII-B', x: 830, y: 485, color: '#0e8388',
     quizQ: 'Seseorang memposting foto orang lain tanpa izin untuk konten viral. Ini termasuk pelanggaran?',
     quizA: 'Kedua-duanya', choices: ['Privasi', 'Hak cipta', 'Kedua-duanya', 'Bukan pelanggaran'] as const,
     fdContext: '💡 Pikirkan mengenai kepemilikan dan privasi hak orang lain',
@@ -67,7 +67,7 @@ const CLASS_DOORS = [
 
   // Pintu 5 (Sayap Kanan) - Kelas IX
   {
-    id: 'C1', roomId: 'C' as DoorId, label: 'Kelas IX', x: 1050, y: 525, color: '#f472b6',
+    id: 'C1', roomId: 'C' as DoorId, label: 'Kelas IX', x: 944, y: 561, color: '#f472b6',
     quizQ: 'Ciri utama berita hoax yang paling umum meupakan?',
     quizA: 'Sumber tidak jelas', choices: ['Sumber tidak jelas', 'Ada foto', 'Ada tanggal', 'Ditulis wartawan'] as const,
     fdContext: '💡 Perhatikan kredibilitas pembuat informasi',
@@ -182,8 +182,8 @@ export const RED_LINE_POINTS = [
   { x: 120, y: 580 },
   { x: 280, y: 580 }, // Tepi Bangku & Tanaman Kiri
   { x: 430, y: 485 }, // Ambang Pintu 2 (Kelas VII-B)
-  { x: 810, y: 485 }, // Tembok Tengah Gedung (Pintu 3 & 4)
-  { x: 1110, y: 520 }, // Ambang Pintu 5 (Kelas IX)
+  { x: 830, y: 485 }, // Tembok Tengah Gedung (Pintu 3 & 4)
+  { x: 944, y: 561 }, // Ambang Pintu 5 (Kelas IX)
   { x: 1110, y: 550 }, // Ambang Pintu 5 (Kelas IX)
 ]
 
@@ -1145,6 +1145,9 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
   const [roomMilestoneText, setRoomMilestoneText] = useState<string | null>(null)
   const [milestoneGlow, setMilestoneGlow] = useState<'50%' | '100%' | null>(null)
   const [moveDir, setMoveDir] = useState({ x: 0, y: 0 })
+  const [showDebug, setShowDebug] = useState(false)
+  const [isInventoryOpen, setIsInventoryOpen] = useState(false)
+  const [inventoryTab, setInventoryTab] = useState<'ALL' | 'A1' | 'A2' | 'B1' | 'B2' | 'C1'>('ALL')
 
   const charPosRef = useRef({ x: 650, y: 550 })
 
@@ -1446,59 +1449,6 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
             </div>
           </div>
 
-          {/* Center: Scrollable Raw Data Badges Bar (Only when data collected) */}
-          {collectedStudents.length > 0 && (
-            <div
-              ref={scrollRef}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '5px',
-                overflowX: 'auto',
-                padding: '4px 8px',
-                background: 'rgba(11, 30, 44, 0.8)',
-                backdropFilter: 'blur(8px)',
-                borderRadius: '10px',
-                border: '1px solid rgba(0, 173, 181, 0.25)',
-                pointerEvents: 'auto',
-                scrollbarWidth: 'none',
-                maxWidth: '45%'
-              }}
-              className="scrollbar-hidden"
-            >
-              <style>{`
-                .scrollbar-hidden::-webkit-scrollbar {
-                  display: none;
-                }
-              `}</style>
-              {collectedStudents.map((st, idx) => (
-                <motion.div
-                  key={`${st.classId}-${st.name}-${idx}`}
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  style={{
-                    width: 22,
-                    height: 22,
-                    borderRadius: '50%',
-                    background: 'rgba(0, 173, 181, 0.25)',
-                    border: '1.5px solid #00ADB5',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: '#FFFFFF',
-                    fontWeight: 900,
-                    fontSize: '9.5px',
-                    fontFamily: 'var(--font-data)',
-                    flexShrink: 0
-                  }}
-                  title={`${st.name}: ${st.time} jam`}
-                >
-                  {st.time}
-                </motion.div>
-              ))}
-            </div>
-          )}
-
           {/* Right: Room Breakdown & Step Indicator */}
           <div style={{
             background: 'rgba(11, 30, 44, 0.85)',
@@ -1521,8 +1471,90 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
             </div>
             <div style={{ width: 1, height: 14, background: 'rgba(255,255,255,0.15)' }} />
             <span style={{ fontSize: '10px', color: '#94A3B8', fontWeight: 700, textTransform: 'uppercase' }}>Langkah 1/3</span>
+            {/* Visual Debug HUD Toggle Button */}
+            <button
+              onClick={() => setShowDebug(p => !p)}
+              style={{
+                background: showDebug ? 'rgba(239, 68, 68, 0.9)' : 'rgba(15, 23, 42, 0.65)',
+                color: '#FFFFFF',
+                border: '1px solid rgba(255,255,255,0.2)',
+                borderRadius: 8,
+                padding: '2px 8px',
+                fontSize: '10px',
+                fontWeight: 800,
+                cursor: 'pointer',
+                pointerEvents: 'auto',
+                marginLeft: 4,
+                transition: 'all 0.2s',
+              }}
+            >
+              🛠️ Debug: {showDebug ? 'ON' : 'OFF'}
+            </button>
           </div>
         </div>
+
+        {/* Floating Vertical RPG Inventory Button (Right Side) */}
+        <motion.button
+          whileHover={{ scale: 1.08, boxShadow: '0 0 25px rgba(0, 173, 181, 0.55)' }}
+          whileTap={{ scale: 0.92 }}
+          onClick={() => setIsInventoryOpen(true)}
+          style={{
+            position: 'absolute',
+            right: 14,
+            top: '42%',
+            transform: 'translateY(-50%)',
+            zIndex: 45,
+            background: 'linear-gradient(180deg, rgba(15, 35, 56, 0.92) 0%, rgba(11, 30, 44, 0.95) 100%)',
+            backdropFilter: 'blur(12px)',
+            border: '1.5px solid #00ADB5',
+            borderRadius: 16,
+            padding: '10px 8px 8px 8px',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 4,
+            width: 60,
+            cursor: 'pointer',
+            boxShadow: '0 6px 20px rgba(0, 0, 0, 0.5), 0 0 15px rgba(0, 173, 181, 0.3)',
+            pointerEvents: 'auto',
+            transition: 'all 0.2s',
+          }}
+        >
+          {/* Icon Container with Floating Badge */}
+          <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <span style={{ fontSize: '24px', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.6))' }}>📓</span>
+            {/* Counter Mini Badge */}
+            <span style={{
+              position: 'absolute',
+              top: -6,
+              right: -12,
+              background: 'linear-gradient(135deg, #00ADB5 0%, #38BDF8 100%)',
+              color: '#04070a',
+              borderRadius: 10,
+              padding: '1px 5px',
+              fontSize: '9px',
+              fontWeight: 900,
+              fontFamily: 'var(--font-data)',
+              boxShadow: '0 2px 6px rgba(0,0,0,0.5)',
+              lineHeight: 1.2
+            }}>
+              {n}/{TOTAL_N}
+            </span>
+          </div>
+          {/* Vertical Label */}
+          <span style={{
+            fontSize: '9px',
+            fontWeight: 900,
+            color: '#F8FAFC',
+            letterSpacing: '0.3px',
+            textAlign: 'center',
+            lineHeight: 1.2,
+            marginTop: 2
+          }}>
+            Jurnal<br />Bukti
+          </span>
+        </motion.button>
 
         <div style={{ flex: 1, width: '100%', minHeight: 0, position: 'relative', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
           {(() => {
@@ -1543,7 +1575,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                   </filter>
                 </defs>
 
-                {/* Main Classroom Background Image with reduced opacity (0.45) for collision inspection */}
+                {/* Main Classroom Background Image */}
                 <image
                   href="/Assets/Building/Kelas.jpg"
                   x={0}
@@ -1551,80 +1583,81 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                   width={WORLD_VW}
                   height={WORLD_VH}
                   preserveAspectRatio="none"
-                  opacity={0.45}
+                  opacity={showDebug ? 0.45 : 0.95}
                 />
 
                 {/* Dark Vignette Tint Overlay for Game Mood */}
                 <rect x={0} y={0} width={WORLD_VW} height={WORLD_VH} fill="rgba(4, 7, 10, 0.15)" />
 
-                {/* ─── VISUAL COLLISION DEBUGGER OVERLAY (Inspect Collision Geometry) ─── */}
-                {/* 1. Walkable Area Polygon (Neon Green Mesh - Fill Otomatis dari RED_LINE_POINTS) */}
-                <polygon
-                  points={[
-                    ...RED_LINE_POINTS.map(p => `${p.x},${p.y}`),
-                    `${RED_LINE_POINTS[RED_LINE_POINTS.length - 1].x},640`,
-                    `${RED_LINE_POINTS[0].x},640`
-                  ].join(' ')}
-                  fill="rgba(16, 185, 129, 0.18)"
-                  stroke="#10b981"
-                  strokeWidth={2}
-                  strokeDasharray="6,6"
-                />
-
-                {/* 2. Red Line Wall Base Boundary (User's Exact Red Line Wall Base) */}
-                <polyline
-                  points={RED_LINE_POINTS.map(p => `${p.x},${p.y}`).join(' ')}
-                  fill="none"
-                  stroke="#ef4444"
-                  strokeWidth={3.5}
-                />
-
-                {/* 3. Obstacle Collision: Bangku & Pot Tanaman Kiri */}
-                <rect x={120} y={510} width={160} height={100} fill="rgba(239, 68, 68, 0.25)" stroke="#ef4444" strokeWidth={1.5} />
-                <text x={200} y={560} textAnchor="middle" fill="#ef4444" fontSize={10} fontWeight="bold">⛔ TEMBOK BANGBKU & POT</text>
-
-                {/* 4. Player Feet Ground Collision Base Line (Garis Pijakan Telapak Sepatu) */}
-                <ellipse cx={charPos.x} cy={charPos.y} rx={22} ry={6} fill="rgba(244, 63, 94, 0.4)" stroke="#f43f5e" strokeWidth={2} />
-                <line x1={charPos.x - 24} y1={charPos.y} x2={charPos.x + 24} y2={charPos.y} stroke="#f43f5e" strokeWidth={2.5} />
-                <text x={charPos.x} y={charPos.y + 18} textAnchor="middle" fill="#f43f5e" fontSize={9} fontWeight="bold">
-                  ({Math.round(charPos.x)}, {Math.round(charPos.y)})
-                </text>
-
-                {/* 5. VISUAL NODE DECORATORS FOR RED_LINE_POINTS (Visual Badges P1, P2, P3...) */}
-                {RED_LINE_POINTS.map((pt, idx) => (
-                  <g key={`red-node-${idx}`}>
-                    {/* Outer Glowing Ring */}
-                    <circle cx={pt.x} cy={pt.y} r={7} fill="rgba(239, 68, 68, 0.4)" stroke="#ef4444" strokeWidth={1.5} />
-                    {/* Inner White Node Dot */}
-                    <circle cx={pt.x} cy={pt.y} r={3} fill="#ffffff" />
-                    {/* Node Tag Badge */}
-                    <rect
-                      x={pt.x - 30}
-                      y={pt.y - 23}
-                      width={60}
-                      height={15}
-                      rx={4}
-                      fill="rgba(15, 23, 42, 0.92)"
-                      stroke="#ef4444"
-                      strokeWidth={1}
+                {/* ─── VISUAL COLLISION DEBUGGER OVERLAY (Only visible when showDebug === true) ─── */}
+                {showDebug && (
+                  <g style={{ pointerEvents: 'none' }}>
+                    {/* 1. Walkable Area Polygon */}
+                    <polygon
+                      points={[
+                        ...RED_LINE_POINTS.map(p => `${p.x},${p.y}`),
+                        `${RED_LINE_POINTS[RED_LINE_POINTS.length - 1].x},640`,
+                        `${RED_LINE_POINTS[0].x},640`
+                      ].join(' ')}
+                      fill="rgba(16, 185, 129, 0.18)"
+                      stroke="#10b981"
+                      strokeWidth={2}
+                      strokeDasharray="6,6"
                     />
-                    <text
-                      x={pt.x}
-                      y={pt.y - 12}
-                      textAnchor="middle"
-                      fill="#f87171"
-                      fontSize={8.5}
-                      fontWeight="900"
-                      fontFamily="monospace"
-                    >
-                      P{idx + 1}: {pt.x},{pt.y}
-                    </text>
-                  </g>
-                ))}
 
-                {/* Zone Boundary Grid Lines */}
-                <line x1={450} y1={410} x2={450} y2={680} stroke="rgba(129, 140, 248, 0.25)" strokeWidth={1.5} strokeDasharray="6,6" />
-                <line x1={800} y1={410} x2={800} y2={680} stroke="rgba(0, 173, 181, 0.25)" strokeWidth={1.5} strokeDasharray="6,6" />
+                    {/* 2. Red Line Wall Base Boundary */}
+                    <polyline
+                      points={RED_LINE_POINTS.map(p => `${p.x},${p.y}`).join(' ')}
+                      fill="none"
+                      stroke="#ef4444"
+                      strokeWidth={3.5}
+                    />
+
+                    {/* 3. Obstacle Collision: Bangku & Pot Tanaman Kiri */}
+                    <rect x={120} y={510} width={160} height={100} fill="rgba(239, 68, 68, 0.25)" stroke="#ef4444" strokeWidth={1.5} />
+                    <text x={200} y={560} textAnchor="middle" fill="#ef4444" fontSize={10} fontWeight="bold">⛔ TEMBOK BANGBKU & POT</text>
+
+                    {/* 4. Player Feet Ground Collision Base Line */}
+                    <ellipse cx={charPos.x} cy={charPos.y} rx={22} ry={6} fill="rgba(244, 63, 94, 0.4)" stroke="#f43f5e" strokeWidth={2} />
+                    <line x1={charPos.x - 24} y1={charPos.y} x2={charPos.x + 24} y2={charPos.y} stroke="#f43f5e" strokeWidth={2.5} />
+                    <text x={charPos.x} y={charPos.y + 18} textAnchor="middle" fill="#f43f5e" fontSize={9} fontWeight="bold">
+                      ({Math.round(charPos.x)}, {Math.round(charPos.y)})
+                    </text>
+
+                    {/* 5. VISUAL NODE DECORATORS FOR RED_LINE_POINTS */}
+                    {RED_LINE_POINTS.map((pt, idx) => (
+                      <g key={`red-node-${idx}`}>
+                        <circle cx={pt.x} cy={pt.y} r={7} fill="rgba(239, 68, 68, 0.4)" stroke="#ef4444" strokeWidth={1.5} />
+                        <circle cx={pt.x} cy={pt.y} r={3} fill="#ffffff" />
+                        <rect
+                          x={pt.x - 30}
+                          y={pt.y - 23}
+                          width={60}
+                          height={15}
+                          rx={4}
+                          fill="rgba(15, 23, 42, 0.92)"
+                          stroke="#ef4444"
+                          strokeWidth={1}
+                        />
+                        <text
+                          x={pt.x}
+                          y={pt.y - 12}
+                          textAnchor="middle"
+                          fill="#f87171"
+                          fontSize={8.5}
+                          fontWeight="900"
+                          fontFamily="monospace"
+                        >
+                          P{idx + 1}: {pt.x},{pt.y}
+                        </text>
+                      </g>
+                    ))}
+
+                    {/* Zone Boundary Grid Lines */}
+                    <line x1={450} y1={410} x2={450} y2={680} stroke="rgba(129, 140, 248, 0.25)" strokeWidth={1.5} strokeDasharray="6,6" />
+                    <line x1={800} y1={410} x2={800} y2={680} stroke="rgba(0, 173, 181, 0.25)" strokeWidth={1.5} strokeDasharray="6,6" />
+                  </g>
+                )}
 
                 {/* Class & Furniture Data Hotspots (CLASS_DOORS) */}
                 {CLASS_DOORS.map(door => {
@@ -1953,6 +1986,232 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
               <div style={{ fontSize: '12px', color: '#94A3B8', fontWeight: 600 }}>
                 Semua kelas di ruangan ini telah dibuka!
               </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Inventory Side Drawer Modal Overlay (Jurnal Bukti Detektif) */}
+      <AnimatePresence>
+        {isInventoryOpen && (
+          <div
+            style={{
+              position: 'fixed',
+              inset: 0,
+              zIndex: 600,
+              background: 'rgba(4, 7, 10, 0.75)',
+              backdropFilter: 'blur(8px)',
+              display: 'flex',
+              justifyContent: 'flex-end',
+            }}
+            onClick={() => setIsInventoryOpen(false)}
+          >
+            <motion.div
+              initial={{ x: '100%', opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: '100%', opacity: 0 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 220 }}
+              style={{
+                width: '100%',
+                maxWidth: 450,
+                height: '100%',
+                background: 'rgba(15, 35, 56, 0.98)',
+                borderLeft: '2px solid #00ADB5',
+                boxShadow: '-10px 0 35px rgba(0, 0, 0, 0.6), 0 0 20px rgba(0, 173, 181, 0.2)',
+                display: 'flex',
+                flexDirection: 'column',
+                padding: '24px 20px',
+                gap: 16,
+                overflowY: 'auto'
+              }}
+              onClick={e => e.stopPropagation()}
+            >
+              {/* Drawer Header */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(255, 255, 255, 0.1)', paddingBottom: 14 }}>
+                <div>
+                  <div style={{ fontSize: 10, fontWeight: 900, color: '#00ADB5', letterSpacing: '2px', textTransform: 'uppercase' }}>
+                    🔍 CATATAN EKSPLORASI DETEKTIF
+                  </div>
+                  <h3 style={{ margin: 0, fontSize: 18, fontWeight: 900, color: '#FFFFFF', display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
+                    <span>📓</span> Jurnal Bukti Screen Time
+                  </h3>
+                </div>
+                <button
+                  onClick={() => setIsInventoryOpen(false)}
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.08)',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    color: '#94A3B8',
+                    borderRadius: '50%',
+                    width: 32,
+                    height: 32,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    fontWeight: 'bold',
+                    fontSize: 16
+                  }}
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* Progress Counter Card */}
+              <div style={{
+                background: 'linear-gradient(135deg, rgba(0, 173, 181, 0.12) 0%, rgba(129, 140, 248, 0.08) 100%)',
+                border: '1.5px solid rgba(0, 173, 181, 0.3)',
+                borderRadius: 16,
+                padding: '14px 16px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between'
+              }}>
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: '#94A3B8' }}>Total Sampel Data Terkumpul</div>
+                  <div style={{ fontSize: 22, fontWeight: 900, color: '#FFFFFF', fontFamily: 'var(--font-data)', marginTop: 2 }}>
+                    {n} <span style={{ fontSize: 13, color: '#00ADB5', fontWeight: 700 }}>/ {TOTAL_N} Siswa</span>
+                  </div>
+                </div>
+                <div style={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: '50%',
+                  background: 'rgba(0, 173, 181, 0.2)',
+                  border: '2px solid #00ADB5',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: 13,
+                  fontWeight: 900,
+                  color: '#FFFFFF'
+                }}>
+                  {Math.round((n / TOTAL_N) * 100)}%
+                </div>
+              </div>
+
+              {/* Class Tabs Filter */}
+              <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 4 }} className="scrollbar-hidden">
+                {[
+                  { id: 'ALL', label: 'Semua' },
+                  { id: 'A1', label: 'VII-A', color: '#818cf8' },
+                  { id: 'A2', label: 'VII-B', color: '#6366f1' },
+                  { id: 'B1', label: 'VIII-A', color: '#00ADB5' },
+                  { id: 'B2', label: 'VIII-B', color: '#0e8388' },
+                  { id: 'C1', label: 'IX', color: '#f472b6' },
+                ].map(tab => {
+                  const active = inventoryTab === tab.id
+                  const isUnlocked = tab.id === 'ALL' || unlocked.has(tab.id)
+                  return (
+                    <button
+                      key={tab.id}
+                      onClick={() => setInventoryTab(tab.id as any)}
+                      style={{
+                        padding: '6px 12px',
+                        borderRadius: 10,
+                        fontSize: 11,
+                        fontWeight: 800,
+                        border: active ? `1.5px solid ${tab.color || '#00ADB5'}` : '1px solid rgba(255,255,255,0.1)',
+                        background: active ? (tab.color ? `${tab.color}33` : 'rgba(0, 173, 181, 0.25)') : 'rgba(255,255,255,0.04)',
+                        color: active ? (tab.color || '#00ADB5') : (isUnlocked ? '#94A3B8' : '#475569'),
+                        cursor: 'pointer',
+                        whiteSpace: 'nowrap',
+                        transition: 'all 0.2s',
+                      }}
+                    >
+                      {tab.label} {tab.id !== 'ALL' && (unlocked.has(tab.id) ? '✓' : '🔒')}
+                    </button>
+                  )
+                })}
+              </div>
+
+              {/* Student Cards Grid */}
+              <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 10, paddingRight: 2 }}>
+                {collectedStudents.filter(st => inventoryTab === 'ALL' || st.classId === inventoryTab).length === 0 ? (
+                  <div style={{ padding: '30px 20px', textAlign: 'center', background: 'rgba(11, 30, 44, 0.4)', borderRadius: 16, border: '1px dashed rgba(255,255,255,0.1)' }}>
+                    <div style={{ fontSize: 32, marginBottom: 8 }}>🔒</div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: '#94A3B8' }}>Belum ada data terkumpul di kategori ini</div>
+                    <div style={{ fontSize: 11, color: '#64748B', marginTop: 4 }}>Eksplorasi kelas dan selesaikan tantangan wali kelas untuk membuka data!</div>
+                  </div>
+                ) : (
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
+                    {collectedStudents
+                      .filter(st => inventoryTab === 'ALL' || st.classId === inventoryTab)
+                      .map((st, idx) => {
+                        const doorMeta = CLASS_DOORS.find(cd => cd.id === st.classId)
+                        const themeColor = doorMeta?.color || '#00ADB5'
+                        return (
+                          <motion.div
+                            key={`${st.classId}-${st.name}-${idx}`}
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            transition={{ delay: idx * 0.02 }}
+                            style={{
+                              background: 'rgba(11, 30, 44, 0.6)',
+                              border: `1.5px solid ${themeColor}44`,
+                              borderRadius: 14,
+                              padding: '10px 12px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 10,
+                              boxShadow: `0 4px 12px rgba(0, 0, 0, 0.2)`
+                            }}
+                          >
+                            <div style={{
+                              width: 32,
+                              height: 32,
+                              borderRadius: '50%',
+                              background: `${themeColor}22`,
+                              border: `1.5px solid ${themeColor}`,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              fontSize: 15,
+                              flexShrink: 0
+                            }}>
+                              👤
+                            </div>
+                            <div style={{ minWidth: 0, flex: 1 }}>
+                              <div style={{ fontSize: 12, fontWeight: 800, color: '#FFFFFF', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                {st.name}
+                              </div>
+                              <div style={{ fontSize: 10, color: themeColor, fontWeight: 700, marginTop: 2, display: 'flex', alignItems: 'center', gap: 4 }}>
+                                <span>⏱️ {st.time} Jam/hari</span>
+                              </div>
+                            </div>
+                          </motion.div>
+                        )
+                      })}
+                  </div>
+                )}
+              </div>
+
+              {/* Footer Summary Info */}
+              {collectedStudents.length > 0 && (
+                <div style={{
+                  background: 'rgba(11, 30, 44, 0.8)',
+                  borderTop: '1px solid rgba(255,255,255,0.1)',
+                  padding: '12px',
+                  borderRadius: 14,
+                  display: 'flex',
+                  justifyContent: 'space-around',
+                  textAlign: 'center'
+                }}>
+                  <div>
+                    <div style={{ fontSize: 10, color: '#94A3B8', fontWeight: 700 }}>MIN SCREEN TIME</div>
+                    <div style={{ fontSize: 16, fontWeight: 900, color: '#10B981', fontFamily: 'var(--font-data)' }}>
+                      {Math.min(...collectedStudents.map(s => s.time))} Jam
+                    </div>
+                  </div>
+                  <div style={{ width: 1, background: 'rgba(255,255,255,0.1)' }} />
+                  <div>
+                    <div style={{ fontSize: 10, color: '#94A3B8', fontWeight: 700 }}>MAX SCREEN TIME</div>
+                    <div style={{ fontSize: 16, fontWeight: 900, color: '#F43F5E', fontFamily: 'var(--font-data)' }}>
+                      {Math.max(...collectedStudents.map(s => s.time))} Jam
+                    </div>
+                  </div>
+                </div>
+              )}
             </motion.div>
           </div>
         )}
