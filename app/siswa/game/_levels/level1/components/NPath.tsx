@@ -1449,47 +1449,21 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
             </div>
           </div>
 
-          {/* Right: Room Breakdown & Step Indicator */}
+          {/* Right: Step Indicator */}
           <div style={{
             background: 'rgba(11, 30, 44, 0.85)',
             backdropFilter: 'blur(12px)',
             border: '1.5px solid rgba(255, 255, 255, 0.12)',
             borderRadius: 12,
-            padding: '6px 12px',
+            padding: '6px 14px',
             display: 'flex',
             alignItems: 'center',
-            gap: 10,
+            gap: 8,
             boxShadow: '0 4px 16px rgba(0, 0, 0, 0.45)',
             pointerEvents: 'auto'
           }}>
-            <div style={{ display: 'flex', gap: 6, fontSize: '9.5px', fontWeight: 800, fontFamily: 'monospace' }}>
-              <span style={{ color: unlocked.has('A1') ? '#10B981' : '#818cf8' }}>VII-A: {unlocked.has('A1') ? '✓' : '0/1'}</span>
-              <span style={{ color: unlocked.has('A2') ? '#10B981' : '#6366f1' }}>VII-B: {unlocked.has('A2') ? '✓' : '0/1'}</span>
-              <span style={{ color: unlocked.has('B1') ? '#10B981' : '#00ADB5' }}>VIII-A: {unlocked.has('B1') ? '✓' : '0/1'}</span>
-              <span style={{ color: unlocked.has('B2') ? '#10B981' : '#0e8388' }}>VIII-B: {unlocked.has('B2') ? '✓' : '0/1'}</span>
-              <span style={{ color: unlocked.has('C1') ? '#10B981' : '#f472b6' }}>IX: {unlocked.has('C1') ? '✓' : '0/1'}</span>
-            </div>
-            <div style={{ width: 1, height: 14, background: 'rgba(255,255,255,0.15)' }} />
-            <span style={{ fontSize: '10px', color: '#94A3B8', fontWeight: 700, textTransform: 'uppercase' }}>Langkah 1/3</span>
-            {/* Visual Debug HUD Toggle Button */}
-            <button
-              onClick={() => setShowDebug(p => !p)}
-              style={{
-                background: showDebug ? 'rgba(239, 68, 68, 0.9)' : 'rgba(15, 23, 42, 0.65)',
-                color: '#FFFFFF',
-                border: '1px solid rgba(255,255,255,0.2)',
-                borderRadius: 8,
-                padding: '2px 8px',
-                fontSize: '10px',
-                fontWeight: 800,
-                cursor: 'pointer',
-                pointerEvents: 'auto',
-                marginLeft: 4,
-                transition: 'all 0.2s',
-              }}
-            >
-              🛠️ Debug: {showDebug ? 'ON' : 'OFF'}
-            </button>
+            <span style={{ fontSize: '11px', color: '#00ADB5', fontWeight: 800 }}>📌</span>
+            <span style={{ fontSize: '11px', color: '#F8FAFC', fontWeight: 800, letterSpacing: '0.5px' }}>Langkah 1 dari 3</span>
           </div>
         </div>
 
