@@ -430,9 +430,9 @@ export default function SiswaPage() {
 
             {/* Vignette for spotlight effect over the board */}
             <radialGradient id="boardSpotlight" cx="50%" cy="35%" r="70%">
-              <stop offset="0%" stop-color="#000000" stop-opacity="0"/>
-              <stop offset="70%" stop-color="#000000" stop-opacity="0"/>
-              <stop offset="100%" stop-color="#000000" stop-opacity="0.35"/>
+              <stop offset="0%" stopColor="#000000" stopOpacity="0"/>
+              <stop offset="70%" stopColor="#000000" stopOpacity="0"/>
+              <stop offset="100%" stopColor="#000000" stopOpacity="0.35"/>
             </radialGradient>
 
             {/* Torn paper edge filter for cards */}

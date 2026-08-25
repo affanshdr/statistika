@@ -232,7 +232,7 @@ function Joystick({ onDir }: { onDir: (x: number, y: number) => void }) {
   const outer = useRef<HTMLDivElement>(null)
   const knob = useRef<HTMLDivElement>(null)
   const on = useRef(false)
-  const R = 34
+  const R = 38
 
   const compute = (cx: number, cy: number) => {
     const el = outer.current; if (!el) return
@@ -248,12 +248,23 @@ function Joystick({ onDir }: { onDir: (x: number, y: number) => void }) {
   const reset = () => { on.current = false; onDir(0, 0); if (knob.current) knob.current.style.transform = 'translate(-50%,-50%)' }
 
   return (
-    <div style={{ width: R * 2, height: R * 2, borderRadius: '50%', background: 'rgba(14, 131, 136, 0.12)', border: '2px solid rgba(255,255,255,0.15)', position: 'relative', touchAction: 'none', userSelect: 'none' }}
+    <div
+      style={{
+        width: R * 2,
+        height: R * 2,
+        borderRadius: '50%',
+        background: 'rgba(14, 131, 136, 0.22)',
+        border: '2.5px solid rgba(0, 173, 181, 0.45)',
+        boxShadow: '0 4px 15px rgba(0, 0, 0, 0.4), 0 0 10px rgba(0, 173, 181, 0.2)',
+        position: 'relative',
+        touchAction: 'none',
+        userSelect: 'none'
+      }}
       ref={outer}
       onPointerDown={e => { on.current = true; outer.current?.setPointerCapture(e.pointerId); compute(e.clientX, e.clientY) }}
       onPointerMove={e => { if (on.current) compute(e.clientX, e.clientY) }}
       onPointerUp={reset} onPointerCancel={reset}>
-      <div ref={knob} style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: 24, height: 24, borderRadius: '50%', background: 'linear-gradient(135deg,#00ADB5 0%,#818cf8 100%)', boxShadow: '0 0 8px #00ADB5', pointerEvents: 'none' }} />
+      <div ref={knob} style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: 26, height: 26, borderRadius: '50%', background: 'linear-gradient(135deg,#00ADB5 0%,#818cf8 100%)', boxShadow: '0 0 12px #00ADB5', pointerEvents: 'none' }} />
     </div>
   )
 }
@@ -1151,6 +1162,26 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
 
   const charPosRef = useRef({ x: 650, y: 550 })
 
+  // Dynamic Container ResizeObserver for 100% Edge-to-Edge Responsive Viewport
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [containerDim, setContainerDim] = useState({ w: 640, h: 360 })
+
+  useEffect(() => {
+    if (!containerRef.current) return
+    const updateDim = () => {
+      if (containerRef.current) {
+        const { clientWidth, clientHeight } = containerRef.current
+        if (clientWidth > 0 && clientHeight > 0) {
+          setContainerDim({ w: clientWidth, h: clientHeight })
+        }
+      }
+    }
+    updateDim()
+    const ro = new ResizeObserver(updateDim)
+    ro.observe(containerRef.current)
+    return () => ro.disconnect()
+  }, [])
+
   const dirRef = useRef({ x: 0, y: 0 })
   const animRef = useRef<number | null>(null)
   const unlockedR = useRef(unlocked); unlockedR.current = unlocked
@@ -1198,7 +1229,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
         closest = d
       }
     }
-    setNearDoor(closest)
+    setNearDoor(prev => (prev?.id === closest?.id ? prev : closest))
   }, [charPos])
 
   // Proximity to class doors (calculated smoothly from player position)
@@ -1215,7 +1246,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
         closest = d
       }
     }
-    setNearClass(closest)
+    setNearClass(prev => (prev?.id === closest?.id ? prev : closest))
   }, [charPos])
 
   // Finish trigger once all 35 data points are collected
@@ -1225,11 +1256,11 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
     }
   }, [collected.size, showCounter])
 
-  // Auto-clamp player Y position if ever above RED_LINE_POINTS (e.g. after user edits RED_LINE_POINTS)
+  // Auto-clamp player Y position if ever above RED_LINE_POINTS
   useEffect(() => {
     const redLineY = getRedLineY(charPos.x)
-    if (charPos.y < redLineY) {
-      setCharPos(prev => ({ ...prev, y: redLineY }))
+    if (charPos.y < redLineY - 1) {
+      setCharPos(prev => (prev.y < redLineY - 1 ? { ...prev, y: redLineY } : prev))
     }
   }, [charPos.x, charPos.y])
 
@@ -1411,7 +1442,10 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0 }}>
       {/* Main Game Viewport Container */}
-      <div style={{ flex: 1, width: '100%', minHeight: 0, position: 'relative', display: 'flex', justifyContent: 'center', alignItems: 'center', borderRadius: 16, overflow: 'hidden', background: '#04070a', border: '1px solid rgba(14, 131, 136, 0.25)' }}>
+      <div
+        ref={containerRef}
+        style={{ flex: 1, width: '100%', minHeight: 0, position: 'relative', display: 'flex', justifyContent: 'center', alignItems: 'center', borderRadius: 16, overflow: 'hidden', background: '#04070a', border: '1px solid rgba(14, 131, 136, 0.25)' }}
+      >
 
         {/* Floating Glassmorphism Game HUD Overlay inside Viewport */}
         <div style={{
@@ -1790,7 +1824,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
           }} />
 
           {/* Joystick */}
-          <div style={{ position: 'absolute', bottom: 12, left: 12, zIndex: 20 }}>
+          <div style={{ position: 'absolute', bottom: 20, left: 20, zIndex: 50, touchAction: 'none' }}>
             <Joystick onDir={(x, y) => { const nextDir = { x, y }; dirRef.current = nextDir; setMoveDir(nextDir); }} />
           </div>
         </div>
