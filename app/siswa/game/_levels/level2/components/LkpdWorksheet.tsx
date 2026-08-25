@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import '../game.css'
+import '../../../game.css'
 
 interface LkpdWorksheetProps {
   initialAnswers?: any
