@@ -22,7 +22,7 @@ function LevelPageInner({
   const demoMode = searchParams.get('demoMode') === 'true'
   const demoStep = searchParams.get('demoStep')
 
-  const { cognitiveStyle, resetLevel } = useGameStore()
+  const { resetLevel } = useGameStore()
   const [hydrated, setHydrated] = useState(false)
   const [initializing, setInitializing] = useState(true)
   const [studentInfo, setStudentInfo] = useState<{ id: string; name: string } | null>(null)
@@ -52,29 +52,6 @@ function LevelPageInner({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // Read cognitive style: prefer persisted Zustand, fall back to localStorage
-  const resolvedStyle: 'FI' | 'FD' | null = (() => {
-    if (demoMode) return 'FI' // Force FI for screenshot capture stability
-    if (cognitiveStyle) return cognitiveStyle
-    if (typeof window !== 'undefined') {
-      try {
-        const raw = localStorage.getItem('student')
-        if (raw) {
-          const s = JSON.parse(raw)
-          return s?.geftResult?.cognitiveStyle ?? null
-        }
-      } catch { /* ignore */ }
-    }
-    return null
-  })()
-
-  // Guard: only redirect after hydration confirmed and still no style
-  useEffect(() => {
-    if (hydrated && !resolvedStyle) {
-      router.replace('/siswa/game/lobby')
-    }
-  }, [hydrated, resolvedStyle, router])
-
   useEffect(() => {
     if (!hydrated) return
     if (demoMode) {
@@ -85,7 +62,7 @@ function LevelPageInner({
     setInitializing(false)
   }, [hydrated, studentInfo, demoMode])
 
-  // Show spinner while store is hydrating OR rejoin check is running
+  // Show spinner while store is hydrating
   if (!hydrated || initializing) {
     return (
       <div className="game-root" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', flexDirection: 'column', gap: '12px' }}>
@@ -95,7 +72,7 @@ function LevelPageInner({
           style={{ fontSize: '40px' }}
         >⚙️</motion.div>
         <p style={{ color: 'var(--text-secondary)', fontSize: '13px', fontWeight: 600 }}>
-          Memuat sesi tim...
+          Memuat permainan...
         </p>
       </div>
     )
@@ -114,8 +91,6 @@ function LevelPageInner({
     )
   }
 
-  if (!resolvedStyle) return null
-
   return (
     <OrientationGuard lockScreen={true}>
       <div className="game-root game-level-root" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: '#0B1E2C', color: '#F8FAFC' }}>
@@ -123,7 +98,6 @@ function LevelPageInner({
         <div className="game-level-content-wrapper" style={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative' }}>
           {id === '1' && (
             <Level1Main
-              cognitiveStyle={resolvedStyle}
               studentId={studentInfo?.id}
               studentName={studentInfo?.name}
               demoMode={demoMode}
@@ -133,8 +107,6 @@ function LevelPageInner({
 
           {id === '2' && (
             <Level2Main
-              cognitiveStyle={resolvedStyle}
-              teamId={null}
               studentId={studentInfo?.id}
               studentName={studentInfo?.name}
               demoMode={demoMode}
@@ -143,7 +115,6 @@ function LevelPageInner({
 
           {id === '3' && (
             <Level3Main
-              cognitiveStyle={resolvedStyle}
               studentId={studentInfo?.id}
               studentName={studentInfo?.name}
               demoMode={demoMode}

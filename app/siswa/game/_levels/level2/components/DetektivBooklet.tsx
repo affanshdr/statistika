@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 interface DetektivBookletProps {
-  mode: 'FI' | 'FD'
+  mode?: 'FI' | 'FD'
   onComplete: () => void
   unlockedLevelIds: number[]
 }

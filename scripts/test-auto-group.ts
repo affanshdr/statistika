@@ -12,12 +12,12 @@ async function main() {
 
   const { classroomId } = student
 
-  // Get ALL FD students
+  // Get ALL students
   const allFdStudents = await prisma.student.findMany({
-    where: { classroomId, geftResult: { cognitiveStyle: 'FD' } },
+    where: { classroomId },
     select: { id: true, name: true },
   })
-  console.log(`\n🔍 ${allFdStudents.length} siswa FD di kelas:`, allFdStudents.map(s => s.name))
+  console.log(`\n🔍 ${allFdStudents.length} siswa di kelas:`, allFdStudents.map(s => s.name))
 
   // Get already-grouped students
   const activeMemberships = await prisma.teamMember.findMany({

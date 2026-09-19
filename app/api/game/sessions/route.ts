@@ -5,7 +5,7 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
     const {
-      studentId, levelId, cognitiveStyle,
+      studentId, levelId,
       xpEarned, livesRemaining, timeTaken,
       verdictAnswer, isCorrect,
     } = body
@@ -16,8 +16,10 @@ export async function POST(req: NextRequest) {
 
     const session = await prisma.gameSession.create({
       data: {
-        studentId, levelId, cognitiveStyle,
-        xpEarned, livesRemaining, timeTaken,
+        studentId, levelId,
+        xpEarned: xpEarned ?? 0,
+        livesRemaining: livesRemaining ?? 0,
+        timeTaken: timeTaken ?? 0,
         verdictAnswer: verdictAnswer ?? '',
         isCorrect: isCorrect ?? false,
       },

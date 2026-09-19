@@ -4,14 +4,13 @@ import { motion } from 'framer-motion'
 import { useRouter } from 'next/navigation'
 
 interface Level3MainProps {
-  cognitiveStyle: 'FI' | 'FD'
+  cognitiveStyle?: 'FI' | 'FD'
   studentId?: string
   studentName?: string
   demoMode?: boolean
 }
 
 export default function Level3Main({
-  cognitiveStyle,
   studentId,
   studentName,
   demoMode = false,
@@ -55,7 +54,7 @@ export default function Level3Main({
           Level 3 — Ukuran Pemusatan &amp; Penyebaran
         </h2>
         <p style={{ margin: 0, fontSize: '14px', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-          Modul Level 3 ({cognitiveStyle} Path) sedang dalam tahap pengembangan akhir.
+          Modul Level 3 sedang dalam tahap pengembangan akhir.
           Silakan periksa kembali beberapa saat lagi!
         </p>
         <button

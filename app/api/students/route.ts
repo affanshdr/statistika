@@ -24,7 +24,6 @@ export async function GET(req: NextRequest) {
       where: whereClause,
       include: {
         classroom: true,
-        geftResult: true,
         leaderboard: true,
         gameSessions: {
           orderBy: { createdAt: 'desc' },
@@ -56,21 +55,21 @@ export async function POST(req: NextRequest) {
         name: { equals: cleanName, mode: 'insensitive' },
         classroomId,
       },
-      include: { classroom: true, geftResult: true },
+      include: { classroom: true },
     })
 
     // Jika tidak ditemukan, cari apakah siswa dengan nama yang sama ada di kelas lain
     if (!student) {
       const existingStudent = await prisma.student.findFirst({
         where: { name: { equals: cleanName, mode: 'insensitive' } },
-        include: { classroom: true, geftResult: true },
+        include: { classroom: true },
       })
 
       if (existingStudent) {
         student = await prisma.student.update({
           where: { id: existingStudent.id },
           data: { classroomId },
-          include: { classroom: true, geftResult: true },
+          include: { classroom: true },
         })
       }
     }
@@ -80,7 +79,7 @@ export async function POST(req: NextRequest) {
       const generatedNisn = await generateUniqueNisn()
       student = await prisma.student.create({
         data: { name: cleanName, nisn: generatedNisn, classroomId },
-        include: { classroom: true, geftResult: true },
+        include: { classroom: true },
       })
     }
 
@@ -106,7 +105,7 @@ export async function PUT(req: NextRequest) {
     const student = await prisma.student.update({
       where: { id },
       data: updateData,
-      include: { classroom: true, geftResult: true },
+      include: { classroom: true },
     })
 
     return NextResponse.json(student)
@@ -126,7 +125,6 @@ export async function DELETE(req: NextRequest) {
     }
 
     // Hapus relasi dulu (urutan: child before parent)
-    await prisma.geftResult.deleteMany({ where: { studentId: id } })
     await prisma.gameSession.deleteMany({ where: { studentId: id } })
     await prisma.leaderboard.deleteMany({ where: { studentId: id } })
     await prisma.student.delete({ where: { id } })

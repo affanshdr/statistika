@@ -25,27 +25,18 @@ export async function GET() {
     const classrooms = await prisma.classroom.findMany({
       orderBy: [{ major: 'asc' }, { name: 'asc' }],
       include: {
-        students: {
-          include: {
-            geftResult: true,
-          },
-        },
+        _count: { select: { students: true } },
       },
     })
 
     // Map dengan stats
     const result = classrooms.map((cls) => {
-      const totalStudents = cls.students.length
-      const fiCount = cls.students.filter((s) => s.geftResult?.cognitiveStyle === 'FI').length
-      const fdCount = cls.students.filter((s) => s.geftResult?.cognitiveStyle === 'FD').length
       return {
         id: cls.id,
         name: cls.name,
         grade: cls.grade,
         major: cls.major,
-        totalStudents,
-        fiCount,
-        fdCount,
+        totalStudents: cls._count.students,
       }
     })
 

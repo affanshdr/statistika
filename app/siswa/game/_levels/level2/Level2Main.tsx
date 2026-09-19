@@ -28,7 +28,7 @@ interface Member { id: string; name: string }
 interface ChatMessage { id: string; studentId: string; senderName: string; content: string; createdAt: string }
 
 interface Level2PathProps {
-  cognitiveStyle: 'FI' | 'FD'
+  cognitiveStyle?: 'FI' | 'FD'
   teamId?: string | null
   studentId?: string
   studentName?: string

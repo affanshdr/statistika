@@ -315,12 +315,7 @@ export default function HomePage() {
     const data = localStorage.getItem('student')
     if (data) {
       try {
-        const student = JSON.parse(data)
-        if (student.geftStatus !== 'completed') {
-          router.push('/siswa/geft')
-        } else {
-          router.push('/siswa')
-        }
+        router.push('/siswa')
       } catch (e) {
         console.error('Error parsing student data:', e)
       }
@@ -351,11 +346,7 @@ export default function HomePage() {
       const data = await res.json()
       if (!res.ok) return setError(data.error || 'Terjadi kesalahan.')
       localStorage.setItem('student', JSON.stringify(data))
-      if (data.geftStatus !== 'completed') {
-        router.push('/siswa/geft')
-      } else {
-        router.push('/siswa')
-      }
+      router.push('/siswa')
     } catch {
       setError('Gagal terhubung ke server.')
     } finally {
@@ -365,7 +356,7 @@ export default function HomePage() {
 
   const FEATURES = [
     { icon: '🔬', label: 'Tes Diagnostik Awal', desc: 'Ukur kemampuan statistika awal untuk jalur belajar yang dipersonalisasi.' },
-    { icon: '🧠', label: 'Gaya Kognitif FI / FD', desc: 'Profil Field Independent & Field Dependent via tes GEFT terintegrasi.' },
+    { icon: '🧠', label: 'Gaya Kognitif FI / FD', desc: 'Profil Field Independent & Field Dependent adaptif sesuai karakteristik belajar.' },
     { icon: '🕵️', label: 'Game Investigasi Data', desc: 'Selesaikan misi detektif: ungkap klaim viral menggunakan histogram & statistika.' },
     { icon: '📖', label: 'Buku Saku Detektif', desc: 'Pelajari distribusi, outlier, dan mean vs median lewat animasi interaktif.' },
   ]
@@ -453,7 +444,6 @@ export default function HomePage() {
               </div>
             </div>
           </div>
-
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
             <div className="nav-badge" style={{
               padding: '4px 10px', borderRadius: '50px', fontSize: '11px', fontWeight: 700,
@@ -463,22 +453,6 @@ export default function HomePage() {
               <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#00ADB5', display: 'inline-block', animation: 'blink 1.5s infinite' }} />
               ONLINE
             </div>
-            <button
-              onClick={() => router.push('/guru')}
-              style={{
-                padding: '7px 14px', borderRadius: '10px',
-                border: '1px solid rgba(14,131,136,0.2)',
-                background: 'rgba(14,131,136,0.06)',
-                color: '#E2E8F0', fontSize: '13px',
-                fontWeight: 600, cursor: 'none', transition: 'all 0.2s',
-                whiteSpace: 'nowrap',
-              }}
-              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(14,131,136,0.12)'; e.currentTarget.style.color = '#FFF' }}
-              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(14,131,136,0.06)'; e.currentTarget.style.color = '#E2E8F0' }}
-            >
-              <span className="nav-btn-full">🧑‍🏫 Portal Guru</span>
-              <span className="nav-btn-short">Portal Guru</span>
-            </button>
           </div>
         </div>
       </header>
@@ -819,7 +793,7 @@ export default function HomePage() {
                       ALUR MISI
                     </div>
                     <div style={{ display: 'flex', gap: '0', alignItems: 'center' }}>
-                      {['Login', 'Diagnostik', 'GEFT', 'Investigasi'].map((step, i, arr) => (
+                      {['Login', 'Diagnostik', 'Investigasi'].map((step, i, arr) => (
                         <div key={i} style={{ display: 'flex', alignItems: 'center', flex: i < arr.length - 1 ? 1 : 'none' }}>
                           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', flexShrink: 0 }}>
                             <div style={{

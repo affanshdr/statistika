@@ -10,10 +10,6 @@ datasource db {
 }
 
 
-enum GeftStatus {
-  not_taken
-  completed
-}
 
 model Classroom {
   id    String @id @default(uuid())
@@ -28,17 +24,15 @@ model Classroom {
 }
 
 model Student {
-  id          String     @id @default(uuid())
-  name        String
-  nisn        String     @unique
-  classroomId String     @map("classroom_id")
-  geftStatus      GeftStatus @default(not_taken) @map("geft_status")
-  diagnosticScore Int?       @map("diagnostic_score")
-  diagnosticLevel String?    @map("diagnostic_level") // "tinggi" | "sedang" | "rendah"
-  lastSeenAt      DateTime?  @map("last_seen_at")
-  createdAt       DateTime   @default(now()) @map("created_at")
+  id              String        @id @default(uuid())
+  name            String
+  nisn            String        @unique
+  classroomId     String        @map("classroom_id")
+  diagnosticScore Int?          @map("diagnostic_score")
+  diagnosticLevel String?       @map("diagnostic_level") // "tinggi" | "sedang" | "rendah"
+  lastSeenAt      DateTime?     @map("last_seen_at")
+  createdAt       DateTime      @default(now()) @map("created_at")
 
-  geftResult   GeftResult?
   gameSessions GameSession[]
   leaderboard  Leaderboard?
   teamMembers  TeamMember[]
@@ -49,28 +43,10 @@ model Student {
   @@map("students")
 }
 
-enum CognitiveStyle {
-  FI
-  FD
-}
-
-model GeftResult {
-  id             String         @id @default(uuid())
-  studentId      String         @unique @map("student_id")
-  score          Int
-  cognitiveStyle CognitiveStyle @map("cognitive_style")
-  completedAt    DateTime       @default(now()) @map("completed_at")
-
-  student Student @relation(fields: [studentId], references: [id])
-
-  @@map("geft_results")
-}
-
 model GameSession {
   id             String   @id @default(uuid())
   studentId      String   @map("student_id")
   levelId        Int      @map("level_id")
-  cognitiveStyle String   @map("cognitive_style")
   xpEarned       Int      @map("xp_earned")
   livesRemaining Int      @map("lives_remaining")
   timeTaken      Int      @map("time_taken")
@@ -78,8 +54,6 @@ model GameSession {
   isCorrect      Boolean  @map("is_correct")
   postTestScore  Int?     @map("post_test_score")
   postTestCompleted Boolean @default(false) @map("post_test_completed")
-  lkpdAnswers    Json?    @map("lkpd_answers")
-  lkpdCompleted  Boolean  @default(false) @map("lkpd_completed")
   createdAt      DateTime @default(now()) @map("created_at")
 
   student Student @relation(fields: [studentId], references: [id])
@@ -111,20 +85,6 @@ model ChatbotKnowledge {
   @@map("chatbot_knowledge")
 }
 
-model ModulAjar {
-  id        String   @id @default(uuid())
-  title     String
-  subject   String   @default("Matematika")
-  grade     String   @default("E / X")
-  topic     String
-  duration  String   @default("2 x 45 Menit")
-  session   String   @default("Pertama")
-  content   String   @db.Text
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  @@map("modul_ajar")
-}
 
 model Team {
   id            String   @id @default(uuid())

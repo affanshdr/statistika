@@ -7,7 +7,6 @@ async function main() {
     include: {
       students: {
         include: {
-          geftResult: true,
           teamMembers: {
             include: {
               team: {
@@ -39,16 +38,10 @@ async function main() {
 
   for (const cls of classrooms) {
     console.log(`\n📚 Kelas: ${cls.name} (${cls.id})`)
-    
-    const fdStudents = cls.students.filter(s => s.geftResult?.cognitiveStyle === 'FD')
-    const fiStudents = cls.students.filter(s => s.geftResult?.cognitiveStyle === 'FI')
-    const noGeft    = cls.students.filter(s => !s.geftResult)
-
     console.log(`  Total siswa: ${cls.students.length}`)
-    console.log(`  FD: ${fdStudents.length}, FI: ${fiStudents.length}, Belum GEFT: ${noGeft.length}`)
 
-    console.log(`\n  👥 Siswa FD:`)
-    for (const s of fdStudents) {
+    console.log(`\n  👥 Siswa:`)
+    for (const s of cls.students) {
       const teamInfo = s.teamMembers.map(tm => `Tim ${tm.team.id.slice(0,8)} [${tm.team.status}]`).join(', ')
       console.log(`    - ${s.name} → ${teamInfo || '(belum di tim mana pun)'}`)
     }

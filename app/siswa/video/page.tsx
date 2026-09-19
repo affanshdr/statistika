@@ -8,14 +8,9 @@ type Student = {
   id: string
   name: string
   nisn: string
-  geftStatus: 'not_taken' | 'completed'
   classroom: { name: string }
   diagnosticScore?: number | null
   diagnosticLevel?: string | null
-  geftResult?: {
-    score: number
-    cognitiveStyle: 'FI' | 'FD'
-  }
 }
 
 function VideoContent() {
@@ -24,7 +19,6 @@ function VideoContent() {
   const fromLevel = searchParams.get('fromLevel')
   
   const [student, setStudent] = useState<Student | null>(null)
-  const [isFI, setIsFI] = useState(false)
   const [loading, setLoading] = useState(true)
 
   const { resetLevel, startLevel } = useGameStore()
@@ -37,7 +31,6 @@ function VideoContent() {
     }
     const s = JSON.parse(data) as Student
     setStudent(s)
-    setIsFI(s.geftResult?.cognitiveStyle === 'FI')
     setLoading(false)
   }, [router])
 
@@ -46,11 +39,10 @@ function VideoContent() {
     
     if (fromLevel && student) {
       const levelId = parseInt(fromLevel, 10)
-      const activeStyle = student.geftResult?.cognitiveStyle || 'FD'
       
       // Initialize level and proceed directly to game
       resetLevel()
-      startLevel(levelId, activeStyle)
+      startLevel(levelId)
       router.push(`/siswa/game/level/${levelId}`)
     } else {
       // Go back to student dashboard
@@ -89,9 +81,7 @@ function VideoContent() {
         transform: 'translateX(-50%)',
         width: '600px',
         height: '600px',
-        background: isFI 
-          ? 'radial-gradient(circle, rgba(37, 99, 235, 0.12) 0%, rgba(0,0,0,0) 70%)' 
-          : 'radial-gradient(circle, rgba(14, 131, 136, 0.12) 0%, rgba(0,0,0,0) 70%)',
+        background: 'radial-gradient(circle, rgba(14, 131, 136, 0.12) 0%, rgba(0,0,0,0) 70%)',
         pointerEvents: 'none',
         zIndex: 0
       }} />
@@ -132,7 +122,7 @@ function VideoContent() {
         style={{
           background: 'rgba(15, 35, 56, 0.95)',
           backdropFilter: 'blur(20px)',
-          border: `1px solid ${isFI ? 'rgba(59, 130, 246, 0.3)' : 'rgba(14, 131, 136, 0.25)'}`,
+          border: '1px solid rgba(14, 131, 136, 0.25)',
           borderRadius: '24px',
           padding: '24px md:32px',
           width: '100%',
@@ -152,7 +142,7 @@ function VideoContent() {
               width: '44px',
               height: '44px',
               borderRadius: '12px',
-              background: isFI ? 'rgba(37, 99, 235, 0.15)' : 'rgba(14, 131, 136, 0.15)',
+              background: 'rgba(14, 131, 136, 0.15)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -161,11 +151,11 @@ function VideoContent() {
               🎥
             </div>
             <div>
-              <div style={{ fontSize: '10px', color: isFI ? '#60A5FA' : '#00ADB5', fontWeight: 800, letterSpacing: '1.5px', textTransform: 'uppercase' }}>
+              <div style={{ fontSize: '10px', color: '#00ADB5', fontWeight: 800, letterSpacing: '1.5px', textTransform: 'uppercase' }}>
                 VIDEO PEMBELAJARAN
               </div>
               <h1 style={{ margin: '4px 0 0 0', fontSize: '20px', fontWeight: 900, color: '#F8FAFC', letterSpacing: '-0.3px' }}>
-                Mean, Median, & Modus Data Kelompok
+                Mean, Median, &amp; Modus Data Kelompok
               </h1>
             </div>
           </div>
@@ -218,32 +208,29 @@ function VideoContent() {
             width: '100%',
             padding: '16px',
             borderRadius: '16px',
-            background: isFI 
-              ? 'linear-gradient(90deg, #2563eb, #1d4ed8)' 
-              : 'linear-gradient(90deg, #0e8388, #00adb5)',
+            background: 'linear-gradient(90deg, #0e8388, #00adb5)',
             border: 'none',
             color: '#fff',
             fontSize: '15px',
             fontWeight: 800,
             cursor: 'pointer',
             transition: 'all 0.2s ease-in-out',
-            boxShadow: isFI ? '0 4px 20px rgba(37,99,235,0.3)' : '0 4px 20px rgba(14, 131, 136, 0.3)',
+            boxShadow: '0 4px 20px rgba(14, 131, 136, 0.3)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             gap: '8px'
           }}
         >
-          <span>✅ Selesai Menonton & Simpan Progress</span>
+          <span>✅ Selesai Menonton &amp; Simpan Progress</span>
         </button>
       </div>
 
-      {/* Styled styles for hover/animations */}
       <style>{`
         .back-btn:hover {
           color: #FFF !important;
           background: rgba(15, 32, 48, 1) !important;
-          border-color: ${isFI ? 'rgba(59,130,246,0.5)' : 'rgba(14, 131, 136, 0.5)'} !important;
+          border-color: rgba(14, 131, 136, 0.5) !important;
           transform: translateY(-2px);
           box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
         }
@@ -253,9 +240,7 @@ function VideoContent() {
         .complete-btn:hover {
           filter: brightness(1.15);
           transform: translateY(-2px);
-          box-shadow: ${isFI 
-            ? '0 6px 24px rgba(37,99,235,0.45)' 
-            : '0 6px 24px rgba(14, 131, 136, 0.45)'} !important;
+          box-shadow: 0 6px 24px rgba(14, 131, 136, 0.45) !important;
         }
         .complete-btn:active {
           transform: translateY(0);

@@ -26,9 +26,9 @@ export default function ChatWidget() {
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [hasNewMessage, setHasNewMessage] = useState(false)
-  
+
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  
+
   // Connect with game store for metadata
   const gameStore = useGameStore()
 
@@ -107,7 +107,6 @@ export default function ChatWidget() {
         const parsed = JSON.parse(studentData)
         studentProfile = {
           name: parsed.name,
-          cognitiveStyle: gameStore.cognitiveStyle || parsed.geftResult?.cognitiveStyle || 'FD',
           currentLevel: gameStore.currentLevel || 1,
           lives: gameStore.lives,
           xp: gameStore.xp,
@@ -132,6 +131,9 @@ export default function ChatWidget() {
         })
       })
 
+
+
+
       // Parse body first (regardless of status) to get error details
       let data: any
       try {
@@ -151,7 +153,7 @@ export default function ChatWidget() {
         text: data.content,
         timestamp: new Date().toISOString()
       }
-      
+
       saveHistory([...updatedMsgs, diraMsg])
       if (!isOpen) {
         setHasNewMessage(true)
@@ -190,7 +192,7 @@ export default function ChatWidget() {
 
     // Simplistic line breaks rendering
     const paragraphs = text.split('\n')
-    
+
     return paragraphs.map((p, pIdx) => {
       if (!p.trim()) return <div key={pIdx} style={{ height: '8px' }} />
 
@@ -202,10 +204,10 @@ export default function ChatWidget() {
       if (p.startsWith('$$') && p.endsWith('$$')) {
         const formula = p.substring(2, p.length - 2)
         return (
-          <div 
-            key={pIdx} 
-            style={{ 
-              background: 'rgba(0, 255, 136, 0.05)', 
+          <div
+            key={pIdx}
+            style={{
+              background: 'rgba(0, 255, 136, 0.05)',
               border: '1px dashed rgba(0, 255, 136, 0.2)',
               borderRadius: '8px',
               padding: '10px',
@@ -226,10 +228,10 @@ export default function ChatWidget() {
       // Safe parse for bold (**) and inline formula ($)
       let currentString = tempText
       let idx = 0
-      
+
       // Tokenize formatting elements
       const tokens: { type: 'text' | 'bold' | 'math'; content: string }[] = []
-      
+
       const formatRegex = /(\*\*([^*]+)\*\*|\$([^$]+)\$)/g
       let match
       let lastMatchEnd = 0
@@ -239,16 +241,16 @@ export default function ChatWidget() {
         if (match.index > lastMatchEnd) {
           tokens.push({ type: 'text', content: currentString.substring(lastMatchEnd, match.index) })
         }
-        
+
         if (match[0].startsWith('**')) {
           tokens.push({ type: 'bold', content: match[2] })
         } else if (match[0].startsWith('$')) {
           tokens.push({ type: 'math', content: match[3] })
         }
-        
+
         lastMatchEnd = formatRegex.lastIndex
       }
-      
+
       if (lastMatchEnd < currentString.length) {
         tokens.push({ type: 'text', content: currentString.substring(lastMatchEnd) })
       }
@@ -259,11 +261,11 @@ export default function ChatWidget() {
         }
         if (token.type === 'math') {
           return (
-            <code 
-              key={tIdx} 
-              style={{ 
-                background: 'rgba(255, 255, 255, 0.06)', 
-                padding: '2px 6px', 
+            <code
+              key={tIdx}
+              style={{
+                background: 'rgba(255, 255, 255, 0.06)',
+                padding: '2px 6px',
                 borderRadius: '4px',
                 fontFamily: "'Geist Mono', monospace",
                 fontSize: '12px',
@@ -286,9 +288,8 @@ export default function ChatWidget() {
     })
   }
 
-  const isFI = gameStore.cognitiveStyle === 'FI'
-  const accentColor = isFI ? '#3b82f6' : '#00FF88'
-  const glowColor = isFI ? 'rgba(59,130,246,0.35)' : 'rgba(0,255,136,0.25)'
+  const accentColor = '#00ADB5'
+  const glowColor = 'rgba(0,173,181,0.35)'
 
   return (
     <div style={{ zIndex: 9999, position: 'fixed' }}>
@@ -361,11 +362,11 @@ export default function ChatWidget() {
                   </h3>
                   <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', display: 'flex', alignItems: 'center', gap: '4px' }}>
                     <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#00ff88', display: 'inline-block' }} />
-                    Siap membantu 
+                    Siap membantu
                   </span>
                 </div>
               </div>
-              
+
               <button
                 onClick={toggleChat}
                 style={{
@@ -422,8 +423,8 @@ export default function ChatWidget() {
                         maxWidth: '80%',
                         padding: '12px 16px',
                         borderRadius: isDira ? '0 16px 16px 16px' : '16px 0 16px 16px',
-                        background: isDira 
-                          ? 'rgba(255, 255, 255, 0.03)' 
+                        background: isDira
+                          ? 'rgba(255, 255, 255, 0.03)'
                           : `linear-gradient(135deg, ${accentColor}15, ${accentColor}06)`,
                         border: `1px solid ${isDira ? 'rgba(255, 255, 255, 0.05)' : `${accentColor}25`}`,
                         boxShadow: isDira ? 'none' : `0 4px 12px ${accentColor}05`,
@@ -574,7 +575,7 @@ export default function ChatWidget() {
                   borderRadius: '12px',
                   border: 'none',
                   background: input.trim() && !loading
-                    ? `linear-gradient(135deg, ${accentColor} 0%, ${isFI ? '#1d4ed8' : '#059669'} 100%)`
+                    ? `linear-gradient(135deg, ${accentColor} 0%, #059669 100%)`
                     : 'rgba(255,255,255,0.05)',
                   color: input.trim() && !loading ? '#fff' : 'rgba(255,255,255,0.2)',
                   fontSize: '16px',
@@ -592,7 +593,7 @@ export default function ChatWidget() {
           </motion.div>
         )}
       </AnimatePresence>
-      
+
       {/* Mobile support animation styles */}
       <style>{`
         @media (max-width: 480px) {

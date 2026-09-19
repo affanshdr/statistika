@@ -29,12 +29,6 @@ async function main() {
     })
     console.log(`- Menghapus ${deletedLeaderboards.count} entri leaderboard`)
 
-    // Delete GEFT Results
-    const deletedGeftResults = await prisma.geftResult.deleteMany({
-      where: { studentId: { in: studentIds } }
-    })
-    console.log(`- Menghapus ${deletedGeftResults.count} hasil GEFT`)
-
     // Delete Team Members
     const deletedTeamMembers = await prisma.teamMember.deleteMany({
       where: { studentId: { in: studentIds } }

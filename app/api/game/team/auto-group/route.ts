@@ -27,17 +27,16 @@ export async function POST(req: NextRequest) {
 
     const { classroomId } = student
 
-    // Get ALL FD students in this classroom
+    // Get ALL students in this classroom
     const allFdStudents = await prisma.student.findMany({
       where: {
         classroomId,
-        geftResult: { cognitiveStyle: 'FD' },
       },
       select: { id: true, name: true },
     })
 
     if (allFdStudents.length === 0) {
-      return NextResponse.json({ error: 'Tidak ada siswa FD di kelas ini' }, { status: 404 })
+      return NextResponse.json({ error: 'Tidak ada siswa di kelas ini' }, { status: 404 })
     }
 
     // Get IDs of students already in an active team (WAITING or PLAYING)

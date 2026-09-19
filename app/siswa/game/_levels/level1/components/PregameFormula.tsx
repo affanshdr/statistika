@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef, useEffect, memo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { screenTimeData, STATS } from '@/app/siswa/game/_data/level1'
+import { getLevel1Data } from '@/app/siswa/game/_data/level1'
 import { useGameStore } from '@/lib/store/gameStore'
 import DiraPopup, { DiraPopupStep } from '@/app/siswa/game/_components/DiraPopup'
 import NPath from './NPath'
@@ -10,10 +10,6 @@ import PlayerCharacter from '@/app/siswa/game/_components/PlayerCharacter'
 import { useGameRealtime, type PlayerPresence } from '@/lib/hooks/useGameRealtime'
 
 // ─── Constants ───────────────────────────────────────────────────────────────
-const CORRECT_MAX = Math.max(...screenTimeData)  // 18
-const CORRECT_MIN = Math.min(...screenTimeData)  // 1
-const CORRECT_R = CORRECT_MAX - CORRECT_MIN   // 17
-const CORRECT_N = STATS.n                     // 35
 const CORRECT_K = 6                           // 1 + 3.3 * log10(35) lock to 6
 const ACC = '#6366F1'
 const GREEN = '#00ADB5'
@@ -548,8 +544,13 @@ MazeBackground.displayName = 'MazeBackground'
 
 // ─── Main component ───────────────────────────────────────────────────────────
 export default function PregameFormula({ onComplete, teamId, studentId, teamMembers, initialSub = 'intro' }: Props) {
-  const cognitiveStyle = useGameStore(s => s.cognitiveStyle)
-  const isFD = cognitiveStyle === 'FD'
+  const level1Dataset = useGameStore(s => s.level1Dataset)
+  const { screenTimeData, STATS } = getLevel1Data(level1Dataset)
+  const CORRECT_MAX = STATS.max
+  const CORRECT_MIN = STATS.min
+  const CORRECT_R = STATS.range
+  const CORRECT_N = STATS.n
+  const isFD = false
 
   const [sub, setSub] = useState<SubScreen>(initialSub)
   const [introDone, setIntroDone] = useState(false)

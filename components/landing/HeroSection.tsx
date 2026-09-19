@@ -17,7 +17,6 @@ import { motion, useScroll, useTransform } from 'framer-motion'
 const STEPS = [
   { label: 'LOGIN', active: true },
   { label: 'DIAGNOSTIK', active: false },
-  { label: 'GEFT', active: false },
   { label: 'INVESTIGASI', active: false },
 ]
 
@@ -113,7 +112,7 @@ export default function HeroSection() {
               <div>
                 <div className="text-xs font-bold text-white">Gaya Kognitif FI / FD</div>
                 <div className="text-[11px] text-slate-300 mt-1 leading-normal">
-                  Profil Field Independent & Field Dependent via tes GEFT terintegrasi.
+                  Profil Field Independent & Field Dependent adaptif sesuai karakteristik belajar.
                 </div>
               </div>
             </div>

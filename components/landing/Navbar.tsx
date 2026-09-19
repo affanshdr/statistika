@@ -1,6 +1,6 @@
 'use client'
 
-import { Shield, User } from 'lucide-react'
+import { Shield } from 'lucide-react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 
@@ -33,12 +33,6 @@ export default function Navbar() {
           </span>
           <span className="font-mono text-xs text-[#22C55E]">ONLINE</span>
         </div>
-
-        {/* Portal Guru button */}
-        <Link href="/guru" className="flex items-center gap-2 px-3.5 py-2 rounded-lg border border-[rgba(255,255,255,0.15)] bg-transparent text-white text-sm cursor-pointer transition-colors hover:bg-[rgba(255,255,255,0.05)] no-underline">
-          <User size={16} />
-          Portal Guru
-        </Link>
       </div>
     </motion.nav>
   )

@@ -51,7 +51,6 @@ export async function POST(req: NextRequest) {
             name,
             nisn: randomNisn,
             classroomId: team.classroomId,
-            geftStatus: 'completed',
           },
         })
         otherStudents.push(newDummy)

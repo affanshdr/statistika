@@ -17,14 +17,9 @@ type StudentProfile = {
   id: string
   name: string
   nisn: string
-  geftStatus: 'not_taken' | 'completed'
   classroom: { name: string }
   diagnosticScore?: number | null
   diagnosticLevel?: string | null
-  geftResult?: {
-    score: number
-    cognitiveStyle: 'FI' | 'FD'
-  }
 }
 
 export default function FDChatbotPage() {
@@ -90,9 +85,7 @@ export default function FDChatbotPage() {
           id: 'dev-student-id',
           name: 'Affan',
           nisn: '12345678',
-          geftStatus: 'completed',
           classroom: { name: 'Kelas XI A' },
-          geftResult: { score: 12, cognitiveStyle: 'FD' }
         })
       }
     }

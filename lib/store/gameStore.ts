@@ -2,6 +2,7 @@
 
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { generateRandomLevel1Data } from '@/app/siswa/game/_data/level1'
 
 export interface XPBreakdown {
   step: number
@@ -10,9 +11,6 @@ export interface XPBreakdown {
 }
 
 export interface GameStore {
-  // GEFT result (fetched from API on lobby entry)
-  cognitiveStyle: 'FI' | 'FD' | null
-
   // Persistent game state
   currentLevel: number
   completedLevels: number[]   // levels fully completed by the student
@@ -21,10 +19,11 @@ export interface GameStore {
   lives: number
   badges: string[]
 
-  // FD Team matching (set when student clicks Mulai Penyelidikan)
+  // Team matching
   teamId: string | null
 
   // Level-specific state (reset between levels)
+  level1Dataset: number[] | null
   currentStep: number
   answers: Record<string, unknown>
   timeRemaining: number
@@ -35,7 +34,6 @@ export interface GameStore {
   verdictAnswer: string | null
 
   // Actions
-  setCognitiveStyle: (style: 'FI' | 'FD') => void
   setTeamId: (id: string | null) => void
   addXP: (amount: number, label?: string, step?: number) => void
   loseLife: () => void
@@ -48,14 +46,13 @@ export interface GameStore {
   setVerdict: (verdict: string) => void
   incrementMistake: () => void
   resetLevel: () => void
-  startLevel: (levelId: number, cognitiveStyle: 'FI' | 'FD') => void
+  startLevel: (levelId: number) => void
 }
 
 export const useGameStore = create<GameStore>()(
   persist(
     (set, get) => ({
       // Initial state
-      cognitiveStyle: null,
       teamId: null,
       currentLevel: 0,
       completedLevels: [],
@@ -63,6 +60,7 @@ export const useGameStore = create<GameStore>()(
       xp: 0,
       lives: 3,
       badges: [],
+      level1Dataset: null,
       currentStep: 0,
       answers: {},
       timeRemaining: 600,
@@ -73,8 +71,6 @@ export const useGameStore = create<GameStore>()(
       verdictAnswer: null,
 
       // Actions
-      setCognitiveStyle: (style) => set({ cognitiveStyle: style }),
-
       setTeamId: (id) => set({ teamId: id }),
 
       addXP: (amount, label = '', step = 0) =>
@@ -130,43 +126,43 @@ export const useGameStore = create<GameStore>()(
         set((state) => ({
           currentStep: 0,
           answers: {},
-          lives: state.cognitiveStyle === 'FD' ? 4 : 3,
-          timeRemaining: state.cognitiveStyle === 'FD' ? 900 : 600,
+          lives: 3,
+          timeRemaining: 600,
           isCompleted: false,
           sessionStartTime: null,
           xpBreakdown: [],
           mistakeCount: 0,
           verdictAnswer: null,
+          level1Dataset: state.currentLevel === 1 ? generateRandomLevel1Data() : state.level1Dataset,
         })),
 
-      startLevel: (levelId, cognitiveStyle) => {
-        const isFD = cognitiveStyle === 'FD'
+      startLevel: (levelId) => {
         set({
           currentLevel: levelId,
-          cognitiveStyle,
-          teamId: null, // cleared here; set again by matchmaking in siswa/page
+          teamId: null,
           currentStep: 0,
           answers: {},
-          lives: isFD ? 4 : 3,
-          timeRemaining: isFD ? 900 : 600, // 15min FD, 10min FI
+          lives: 3,
+          timeRemaining: 600,
           isCompleted: false,
           sessionStartTime: Date.now(),
           xpBreakdown: [],
           mistakeCount: 0,
           verdictAnswer: null,
+          level1Dataset: levelId === 1 ? generateRandomLevel1Data() : null,
         })
       },
     }),
     {
       name: 'ar-cognistats-game',
       partialize: (state) => ({
-        cognitiveStyle: state.cognitiveStyle,
         teamId: state.teamId,
         xp: state.xp,
         badges: state.badges,
         currentLevel: state.currentLevel,
         completedLevels: state.completedLevels,
         completedPostTests: state.completedPostTests,
+        level1Dataset: state.level1Dataset,
         // level state (backup on refresh)
         currentStep: state.currentStep,
         answers: state.answers,

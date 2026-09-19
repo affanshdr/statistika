@@ -11,54 +11,12 @@ type Student = {
   id: string
   name: string
   nisn: string
-  geftStatus: 'not_taken' | 'completed'
   classroom: { name: string }
   diagnosticScore?: number | null
   diagnosticLevel?: string | null
-  geftResult?: {
-    score: number
-    cognitiveStyle: 'FI' | 'FD'
-  }
 }
 
-type ActiveTeam = {
-  teamId: string
-  levelId: number
-  status: 'WAITING' | 'PLAYING'
-  classroomName: string
-  members: { id: string; name: string; isOnline?: boolean }[]
-}
 
-const COGNITIVE_INFO = {
-  FI: {
-    label: 'Field Independent (FI)',
-    icon: '🧠',
-    color: '#2563EB',
-    bg: 'rgba(59,130,246,0.1)',
-    border: 'rgba(59,130,246,0.3)',
-    traits: [
-      { icon: '🔍', title: 'Analitis & Mandiri', desc: 'Kamu cenderung menganalisis masalah secara mandiri tanpa bergantung pada konteks sekitar.' },
-      { icon: '📐', title: 'Terstruktur', desc: 'Kamu menyukai struktur yang jelas, definisi formal, dan penjelasan berbasis logika.' },
-      { icon: '⚡', title: 'Eksplorer', desc: 'Kamu lebih suka mengeksplorasi tanpa banyak petunjuk — tantangan adalah motivasimu!' },
-      { icon: '📖', title: 'Deep Learning', desc: 'Kamu cenderung menggali lebih dalam suatu konsep sebelum pindah ke materi berikutnya.' },
-    ],
-    gameStyle: 'Mode FI memberikan kebebasan penuh untuk bereksperimen. Kamu akan menghadapi soal yang lebih terbuka dan menantang kemampuan berpikir kritismu.',
-  },
-  FD: {
-    label: 'Field Dependent (FD)',
-    icon: '👥',
-    color: '#34d399',
-    bg: 'rgba(6,182,212,0.1)',
-    border: 'rgba(6,182,212,0.3)',
-    traits: [
-      { icon: '🤝', title: 'Kolaboratif', desc: 'Kamu belajar paling baik lewat interaksi dan konteks sosial yang kaya.' },
-      { icon: '🗺️', title: 'Kontekstual', desc: 'Kamu memahami konsep lebih baik saat diberikan gambaran besar dan contoh nyata.' },
-      { icon: '💡', title: 'Berbasis Panduan', desc: 'Kamu merespons baik pada scaffold dan petunjuk bertahap dari mentor.' },
-      { icon: '🌐', title: 'Holistik', desc: 'Kamu memproses informasi secara menyeluruh sebelum masuk ke detail.' },
-    ],
-    gameStyle: 'Mode FD memberikan dukungan DiRA (asisten AI) dan langkah-langkah terbimbing. Kamu tidak akan sendirian dalam memecahkan misteri data!',
-  },
-}
 
 const LEVELS = [
   {
@@ -119,13 +77,8 @@ export default function SiswaPage() {
   const [gatingLevelId, setGatingLevelId] = useState<number | null>(null)
   const [gatingStep, setGatingStep] = useState<1 | 2>(1)
 
-  // FD Team state
-  const [activeTeam, setActiveTeam] = useState<ActiveTeam | null>(null)
-  const [teamLoading, setTeamLoading] = useState(false)
-  const [teamRefreshing, setTeamRefreshing] = useState(false)
-
   // Game store variables
-  const { cognitiveStyle, setCognitiveStyle, startLevel, resetLevel, completedLevels, completedPostTests = [], setTeamId } = useGameStore()
+  const { startLevel, resetLevel, completedLevels, completedPostTests = [] } = useGameStore()
 
   useEffect(() => {
     const data = localStorage.getItem('student')
@@ -133,97 +86,12 @@ export default function SiswaPage() {
     const s = JSON.parse(data) as Student
     setStudent(s)
 
-    if (s.geftStatus === 'not_taken') {
-      router.push('/siswa/geft')
-    } else if (s.geftResult?.cognitiveStyle) {
-      setCognitiveStyle(s.geftResult.cognitiveStyle)
+    const alreadyShown = sessionStorage.getItem('greeting_shown')
+    if (!alreadyShown) {
+      setShowGreeting(true)
+      sessionStorage.setItem('greeting_shown', '1')
     }
-
-    // Show cognitive style modal first right after login, then queue the greeting modal.
-    if (s.geftResult?.cognitiveStyle) {
-      const alreadyShown = sessionStorage.getItem('greeting_shown')
-      const justFinishedGeft = sessionStorage.getItem('show_cognitive_style_first_time')
-      if (!alreadyShown) {
-        setShowCognitiveModal(true)
-        if (s.diagnosticLevel) {
-          sessionStorage.setItem('show_greeting_after_cognitive', '1')
-        }
-        sessionStorage.setItem('greeting_shown', '1')
-      } else if (justFinishedGeft) {
-        setShowCognitiveModal(true)
-        sessionStorage.removeItem('show_cognitive_style_first_time')
-      }
-    }
-  }, [router, setCognitiveStyle])
-
-  // Fetch active FD team on mount & whenever studentId changes
-  const fetchActiveTeam = async (studentId: string, quiet = false) => {
-    if (!quiet) setTeamLoading(true)
-    else setTeamRefreshing(true)
-    try {
-      const res = await fetch(`/api/game/team/my-team?studentId=${studentId}`)
-      if (res.ok) {
-        const data = await res.json()
-        setActiveTeam(data.team ?? null)
-      }
-    } catch { /* silently ignore */ } finally {
-      setTeamLoading(false)
-      setTeamRefreshing(false)
-    }
-  }
-
-  // Auto-group ALL FD students in the class into teams on page load,
-  // then send heartbeats every 30s so team members can see who's online.
-  useEffect(() => {
-    const resolvedStudent = student
-    const isFDStudent = resolvedStudent?.geftResult?.cognitiveStyle === 'FD'
-    if (!resolvedStudent || !isFDStudent) return
-
-    const initTeam = async () => {
-      setTeamLoading(true)
-      try {
-        // auto-group groups ALL FD students in the class (even offline ones)
-        const res = await fetch('/api/game/team/auto-group', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ studentId: resolvedStudent.id, levelId: 1 }),
-        })
-        if (res.ok) {
-          const data = await res.json()
-          if (data.team) {
-            setActiveTeam(data.team)
-            if (data.team.teamId) setTeamId(data.team.teamId)
-          }
-        }
-      } catch { /* ignore */ } finally {
-        setTeamLoading(false)
-      }
-    }
-
-    initTeam()
-
-    // Heartbeat: update lastSeenAt every 30s so teammates can see we're online
-    const sendHeartbeat = () => {
-      fetch('/api/students/heartbeat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ studentId: resolvedStudent.id }),
-      }).catch(() => { })
-    }
-    sendHeartbeat() // immediate on mount
-    const heartbeatInterval = setInterval(sendHeartbeat, 30_000)
-
-    // Poll every 10s to refresh team status and online indicators
-    const pollInterval = setInterval(() => {
-      fetchActiveTeam(resolvedStudent.id, true)
-    }, 10_000)
-
-    return () => {
-      clearInterval(heartbeatInterval)
-      clearInterval(pollInterval)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [student])
+  }, [router])
 
 
   // Detect mobile/portrait orientation
@@ -302,58 +170,14 @@ export default function SiswaPage() {
     </main>
   )
 
-  const proceedToGame = (levelId: number, activeStyle: 'FI' | 'FD', resolvedTeamId?: string) => {
+  const proceedToGame = (levelId: number) => {
     resetLevel()
-    startLevel(levelId, activeStyle)
-    if (resolvedTeamId) setTeamId(resolvedTeamId)
+    startLevel(levelId)
     router.push(`/siswa/game/level/${levelId}`)
   }
 
-  const matchFDTeam = async (studentId: string, levelId: number): Promise<string | null> => {
-    try {
-      const res = await fetch('/api/game/team/match', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ studentId, levelId }),
-      })
-      if (res.ok) {
-        const data = await res.json()
-        // Refresh the team widget on the dashboard
-        fetchActiveTeam(studentId, true)
-        return data.teamId as string
-      }
-    } catch { /* silently ignore */ }
-    return null
-  }
-
   const handlePlayLevel = async (levelId: number) => {
-    if (student?.diagnosticLevel) {
-      const activeStyle = student.geftResult?.cognitiveStyle || cognitiveStyle || 'FI'
-
-      // Check cognitive style specific preparation gating
-      if (activeStyle === 'FI') {
-        const hasRead = localStorage.getItem('has_read_booklet') === 'true'
-        if (!hasRead) {
-          setGatingLevelId(levelId)
-          setGatingStep(1)
-          setShowGatingModal(true)
-          return
-        }
-      } else {
-        const hasWatched = localStorage.getItem('has_watched_video') === 'true'
-        if (!hasWatched) {
-          setGatingLevelId(levelId)
-          setGatingStep(1)
-          setShowGatingModal(true)
-          return
-        }
-      }
-
-      // FD matching bypassed to run as single-player
-      proceedToGame(levelId, activeStyle)
-    } else {
-      router.push(`/siswa/diagnostik?level=${levelId}`)
-    }
+    proceedToGame(levelId)
   }
 
   const handleBookletComplete = async () => {
@@ -361,33 +185,18 @@ export default function SiswaPage() {
     setShowBookletModal(false)
     if (gatingLevelId) {
       setShowGatingModal(false)
-      const activeStyle = student?.geftResult?.cognitiveStyle || cognitiveStyle || 'FI'
-      // FD matching bypassed to run as single-player
-      proceedToGame(gatingLevelId, activeStyle)
+      proceedToGame(gatingLevelId)
       setGatingLevelId(null)
     }
   }
 
   const handleCloseGreeting = () => {
     setShowGreeting(false)
-    const justFinishedGeft = sessionStorage.getItem('show_cognitive_style_first_time')
-    if (justFinishedGeft) {
-      setShowCognitiveModal(true)
-      sessionStorage.removeItem('show_cognitive_style_first_time')
-    }
   }
 
   const handleCloseCognitive = () => {
     setShowCognitiveModal(false)
-    const showGreetingAfter = sessionStorage.getItem('show_greeting_after_cognitive')
-    if (showGreetingAfter) {
-      setShowGreeting(true)
-      sessionStorage.removeItem('show_greeting_after_cognitive')
-    }
   }
-
-  const resolvedStyle = student?.geftResult?.cognitiveStyle || cognitiveStyle || 'FI'
-  const isFI = resolvedStyle === 'FI'
 
   // Booklet unlock logic:
   // - Level 1 is always available
@@ -417,36 +226,36 @@ export default function SiswaPage() {
           <defs>
             {/* Cork texture pattern */}
             <pattern id="corkTexture" width="40" height="40" patternUnits="userSpaceOnUse">
-              <rect width="40" height="40" fill="#C9A876"/>
-              <circle cx="8" cy="6" r="1.2" fill="#A8895F" opacity="0.5"/>
-              <circle cx="22" cy="14" r="0.9" fill="#8A6E45" opacity="0.4"/>
-              <circle cx="34" cy="4" r="1.4" fill="#B5966B" opacity="0.5"/>
-              <circle cx="15" cy="24" r="1.1" fill="#8A6E45" opacity="0.4"/>
-              <circle cx="30" cy="28" r="0.8" fill="#A8895F" opacity="0.5"/>
-              <circle cx="4" cy="33" r="1.3" fill="#8A6E45" opacity="0.4"/>
-              <circle cx="38" cy="20" r="1.0" fill="#B5966B" opacity="0.5"/>
-              <circle cx="19" cy="37" r="0.9" fill="#A8895F" opacity="0.4"/>
+              <rect width="40" height="40" fill="#C9A876" />
+              <circle cx="8" cy="6" r="1.2" fill="#A8895F" opacity="0.5" />
+              <circle cx="22" cy="14" r="0.9" fill="#8A6E45" opacity="0.4" />
+              <circle cx="34" cy="4" r="1.4" fill="#B5966B" opacity="0.5" />
+              <circle cx="15" cy="24" r="1.1" fill="#8A6E45" opacity="0.4" />
+              <circle cx="30" cy="28" r="0.8" fill="#A8895F" opacity="0.5" />
+              <circle cx="4" cy="33" r="1.3" fill="#8A6E45" opacity="0.4" />
+              <circle cx="38" cy="20" r="1.0" fill="#B5966B" opacity="0.5" />
+              <circle cx="19" cy="37" r="0.9" fill="#A8895F" opacity="0.4" />
             </pattern>
 
             {/* Vignette for spotlight effect over the board */}
             <radialGradient id="boardSpotlight" cx="50%" cy="35%" r="70%">
-              <stop offset="0%" stopColor="#000000" stopOpacity="0"/>
-              <stop offset="70%" stopColor="#000000" stopOpacity="0"/>
-              <stop offset="100%" stopColor="#000000" stopOpacity="0.35"/>
+              <stop offset="0%" stopColor="#000000" stopOpacity="0" />
+              <stop offset="70%" stopColor="#000000" stopOpacity="0" />
+              <stop offset="100%" stopColor="#000000" stopOpacity="0.35" />
             </radialGradient>
 
             {/* Torn paper edge filter for cards */}
             <filter id="tornEdge" x="-5%" y="-5%" width="110%" height="110%">
-              <feTurbulence type="fractalNoise" baseFrequency="0.045" numOctaves="3" result="noise" seed="7"/>
-              <feDisplacementMap in="SourceGraphic" in2="noise" scale="6"/>
+              <feTurbulence type="fractalNoise" baseFrequency="0.045" numOctaves="3" result="noise" seed="7" />
+              <feDisplacementMap in="SourceGraphic" in2="noise" scale="6" />
             </filter>
 
             {/* Slight paper grain */}
             <filter id="paperGrain">
-              <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" result="grain"/>
+              <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" result="grain" />
               <feColorMatrix in="grain" type="matrix"
-                values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.03 0"/>
-              <feComposite operator="over" in2="SourceGraphic"/>
+                values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.03 0" />
+              <feComposite operator="over" in2="SourceGraphic" />
             </filter>
           </defs>
         </svg>
@@ -491,16 +300,14 @@ export default function SiswaPage() {
                 width: isMobile ? '28px' : '34px',
                 height: isMobile ? '28px' : '34px',
                 borderRadius: '50%',
-                background: isFI
-                  ? 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)'
-                  : 'linear-gradient(135deg, #0E8388 0%, #00ADB5 100%)',
+                background: 'linear-gradient(135deg, #0E8388 0%, #00ADB5 100%)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 fontSize: isMobile ? '11px' : '14px',
                 fontWeight: 800,
                 color: '#FFFFFF',
-                boxShadow: isFI ? '0 0 10px rgba(59,130,246,0.3)' : '0 0 10px rgba(14, 131, 136, 0.3)',
+                boxShadow: '0 0 10px rgba(14, 131, 136, 0.3)',
                 cursor: 'pointer',
               }}
                 onClick={() => setShowGreeting(true)}
@@ -518,28 +325,7 @@ export default function SiswaPage() {
                 </span>
               </div>
 
-              <div style={{ width: '1px', height: '20px', background: 'rgba(255,255,255,0.15)', margin: '0 2px' }} />
 
-              {/* Path button */}
-              {student.geftResult?.cognitiveStyle && (
-                <button
-                  onClick={() => setShowCognitiveModal(true)}
-                  title="Gaya Belajar"
-                  style={{
-                    padding: '4px 8px',
-                    borderRadius: '6px',
-                    background: isFI ? 'rgba(59,130,246,0.15)' : 'rgba(14, 131, 136, 0.15)',
-                    border: `1px solid ${isFI ? 'rgba(59,130,246,0.3)' : 'rgba(14, 131, 136, 0.3)'}`,
-                    fontSize: '9.5px',
-                    color: isFI ? '#60A5FA' : '#00ADB5',
-                    fontWeight: 800,
-                    cursor: 'pointer',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  {isFI ? '🧠 FI' : '👥 FD'}
-                </button>
-              )}
 
               {/* Hamburger button */}
               <button
@@ -615,7 +401,7 @@ export default function SiswaPage() {
           </div>
 
           {/* Papan Corkboard (Board Frame) wrapping only the cards and thread */}
-          <div 
+          <div
             ref={boardRef}
             style={{
               width: isMobile ? '98%' : '96%',
@@ -623,13 +409,13 @@ export default function SiswaPage() {
               height: isMobile ? '360px' : '520px',
               position: 'relative',
               borderRadius: '8px',
-              
+
               // Beveled wooden frame borders
               border: isMobile ? '8px solid #5a3825' : '14px solid #5a3825',
               outline: '2.5px solid #362014',
               outlineOffset: isMobile ? '-8px' : '-16px',
               boxShadow: 'inset 0 12px 36px rgba(0,0,0,0.65), inset 0 -12px 36px rgba(0,0,0,0.65), 0 16px 36px rgba(0,0,0,0.7)',
-              
+
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -711,604 +497,385 @@ export default function SiswaPage() {
               flex: 1,
               minHeight: 0,
             }}>
-            <div style={{
-              display: 'flex',
-              flexDirection: 'row',
-              gap: isMobile ? '24px' : '48px',
-              padding: isMobile ? '8px 12px' : '12px 32px',
-              alignItems: 'center',
-              justifyContent: 'center',
-              position: 'relative',
-            }}>
-              {LEVELS.map(level => {
-                const isCompleted = completedLevels.includes(level.id)
-                const isUnlocked = !level.locked
-                const isHovered = hoveredCard === level.id
-                const rotation = level.id === 1 ? -2.5 : level.id === 2 ? 2 : -1
+              <div style={{
+                display: 'flex',
+                flexDirection: 'row',
+                gap: isMobile ? '24px' : '48px',
+                padding: isMobile ? '8px 12px' : '12px 32px',
+                alignItems: 'center',
+                justifyContent: 'center',
+                position: 'relative',
+              }}>
+                {LEVELS.map(level => {
+                  const isCompleted = completedLevels.includes(level.id)
+                  const isUnlocked = !level.locked
+                  const isHovered = hoveredCard === level.id
+                  const rotation = level.id === 1 ? -2.5 : level.id === 2 ? 2 : -1
 
-                // Custom vertical scattering offset to simulate pinned notes on corkboard
-                const verticalOffset = level.id === 1 ? -28 : level.id === 2 ? 28 : -14;
-                const mobileVerticalOffset = level.id === 1 ? -10 : level.id === 2 ? 10 : -5;
-                const currentOffset = isMobile ? mobileVerticalOffset : verticalOffset;
+                  // Custom vertical scattering offset to simulate pinned notes on corkboard
+                  const verticalOffset = level.id === 1 ? -28 : level.id === 2 ? 28 : -14;
+                  const mobileVerticalOffset = level.id === 1 ? -10 : level.id === 2 ? 10 : -5;
+                  const currentOffset = isMobile ? mobileVerticalOffset : verticalOffset;
+                  // Base translation is static to anchor both frame and text labels consistently
+                  const cardTransform = `translateY(${currentOffset}px)`;
+                  const accentColor = '#0e8388';
+                  const lockedColor = '#64748B';
+                  const frameAccent = isUnlocked ? accentColor : lockedColor;
 
-                // Base translation is static to anchor both frame and text labels consistently
-                const cardTransform = `translateY(${currentOffset}px)`;
-
-                const accentColor = isFI ? '#3b82f6' : '#0e8388';
-                const lockedColor = '#64748B';
-                const frameAccent = isUnlocked ? accentColor : lockedColor;
-
-                return (
-                  <div
-                    key={level.id}
-                    ref={cardRefs[level.id - 1]}
-                    className={`board-level-card ${isUnlocked ? 'unlocked' : 'locked'}`}
-                    onClick={() => isUnlocked && handlePlayLevel(level.id)}
-                    onMouseEnter={() => isUnlocked && setHoveredCard(level.id)}
-                    onMouseLeave={() => setHoveredCard(null)}
-                    style={{
-                      width: isMobile ? '180px' : '240px',
-                      height: isMobile ? '275px' : '355px',
-                      margin: '0',
-                      position: 'relative',
-                      transform: isMobile
-                        ? cardTransform
-                        : `${cardTransform} rotate(${
-                            isHovered
-                              ? rotation + (level.id % 2 === 0 ? 0.5 : -0.5)
-                              : rotation * 0.5
+                  return (
+                    <div
+                      key={level.id}
+                      ref={cardRefs[level.id - 1]}
+                      className={`board-level-card ${isUnlocked ? 'unlocked' : 'locked'}`}
+                      onClick={() => isUnlocked && handlePlayLevel(level.id)}
+                      onMouseEnter={() => isUnlocked && setHoveredCard(level.id)}
+                      onMouseLeave={() => setHoveredCard(null)}
+                      style={{
+                        width: isMobile ? '180px' : '240px',
+                        height: isMobile ? '275px' : '355px',
+                        margin: '0',
+                        position: 'relative',
+                        transform: isMobile
+                          ? cardTransform
+                          : `${cardTransform} rotate(${isHovered
+                            ? rotation + (level.id % 2 === 0 ? 0.5 : -0.5)
+                            : rotation * 0.5
                           }deg) translateY(${isHovered ? -8 : 0}px)`,
-                      transition: 'transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)',
-                      flexShrink: 0,
-                      cursor: isUnlocked ? 'pointer' : 'default',
-                    }}
-                  >
-                    {/* 1. Paper Background with Ripped Edges (Filtered, containing corner brackets) */}
-                    <div style={{
-                      position: 'absolute',
-                      inset: 0,
-                      background: isUnlocked ? '#FFFFFF' : '#F1F5F9', // Solid white background
-                      border: '1px solid rgba(0, 0, 0, 0.08)',
-                      borderRadius: '4px',
-                      boxShadow: isHovered 
-                        ? '0 12px 28px rgba(0,0,0,0.18)' 
-                        : '0 4px 12px rgba(0,0,0,0.1)',
-                      transition: 'box-shadow 0.3s',
-                      filter: 'url(#tornEdge) url(#paperGrain)', // Apply torn edge & paper grain only to the background paper
-                      zIndex: 1,
-                    }}>
-                      {/* Viewfinder Corner Brackets (Warped/torn together with the paper) */}
-                      {/* Top-Left Corner */}
-                      <div style={{ position: 'absolute', top: '-2px', left: '-2px', width: '12px', height: '12px', borderTop: `2.5px solid ${isUnlocked ? '#5C4033' : '#8C7A6B'}`, borderLeft: `2.5px solid ${isUnlocked ? '#5C4033' : '#8C7A6B'}`, borderTopLeftRadius: '3px', pointerEvents: 'none', zIndex: 2 }} />
-                      {/* Top-Right Corner */}
-                      <div style={{ position: 'absolute', top: '-2px', right: '-2px', width: '12px', height: '12px', borderTop: `2.5px solid ${isUnlocked ? '#5C4033' : '#8C7A6B'}`, borderRight: `2.5px solid ${isUnlocked ? '#5C4033' : '#8C7A6B'}`, borderTopRightRadius: '3px', pointerEvents: 'none', zIndex: 2 }} />
-                      {/* Bottom-Left Corner */}
-                      <div style={{ position: 'absolute', bottom: '-2px', left: '-2px', width: '12px', height: '12px', borderBottom: `2.5px solid ${isUnlocked ? '#5C4033' : '#8C7A6B'}`, borderLeft: `2.5px solid ${isUnlocked ? '#5C4033' : '#8C7A6B'}`, borderBottomLeftRadius: '3px', pointerEvents: 'none', zIndex: 2 }} />
-                      {/* Bottom-Right Corner */}
-                      <div style={{ position: 'absolute', bottom: '-2px', right: '-2px', width: '12px', height: '12px', borderBottom: `2.5px solid ${isUnlocked ? '#5C4033' : '#8C7A6B'}`, borderRight: `2.5px solid ${isUnlocked ? '#5C4033' : '#8C7A6B'}`, borderBottomRightRadius: '3px', pointerEvents: 'none', zIndex: 2 }} />
-                    </div>
-
-                    {/* 2. Push-pin on top center */}
-                    <div style={{
-                      position: 'absolute',
-                      top: isMobile ? '-20px' : '-28px',
-                      left: '50%',
-                      transform: 'translateX(-50%) rotate(12deg)',
-                      zIndex: 10,
-                      filter: 'drop-shadow(0px 8px 6px rgba(0,0,0,0.3))',
-                      pointerEvents: 'none',
-                    }}>
-                      <svg width={isMobile ? "44" : "54"} height={isMobile ? "50" : "66"} viewBox="0 0 24 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <ellipse cx="10" cy="22" rx="4" ry="2" fill="rgba(0,0,0,0.2)" transform="rotate(-15 10 22)" />
-                        <path d="M12 14L10 24" stroke="#64748B" strokeWidth="2.5" strokeLinecap="round" />
-                        <path d="M6 6C6 4.89543 6.89543 4 8 4H16C17.1046 4 18 4.89543 18 6V11C18 11.85 17.3 12.5 16.5 12.8L12.5 14.5L8.5 12.8C7.7 12.5 7 11.8 7 11V6Z" fill={isUnlocked ? '#DC2626' : '#64748B'} />
-                        <path d="M9 5H15V6H9V5Z" fill={isUnlocked ? '#EF4444' : '#94A3B8'} />
-                        <path d="M12 4C13.1 4 14 3.1 14 2H10C10 3.1 10.9 4 12 4Z" fill={isUnlocked ? '#991B1B' : '#475569'} />
-                        <circle cx="10" cy="8" r="1.5" fill="rgba(255,255,255,0.4)" />
-                      </svg>
-                    </div>
-
-                    {/* 3. Card Content Layer (Renders on top, zIndex: 5) */}
-                    <div style={{
-                      position: 'absolute',
-                      inset: 0,
-                      padding: isMobile ? '10px' : '14px',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      justifyContent: 'space-between',
-                      zIndex: 5,
-                    }}>
-                      {/* Lock Status indicator */}
+                        transition: 'transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)',
+                        flexShrink: 0,
+                        cursor: isUnlocked ? 'pointer' : 'default',
+                      }}
+                    >
+                      {/* 1. Paper Background with Ripped Edges (Filtered, containing corner brackets) */}
                       <div style={{
                         position: 'absolute',
-                        top: isMobile ? '10px' : '14px',
-                        right: isMobile ? '10px' : '14px',
-                        zIndex: 12,
-                        height: '14px',
+                        inset: 0,
+                        background: isUnlocked ? '#FFFFFF' : '#F1F5F9', // Solid white background
+                        border: '1px solid rgba(0, 0, 0, 0.08)',
+                        borderRadius: '4px',
+                        boxShadow: isHovered
+                          ? '0 12px 28px rgba(0,0,0,0.18)'
+                          : '0 4px 12px rgba(0,0,0,0.1)',
+                        transition: 'box-shadow 0.3s',
+                        filter: 'url(#tornEdge) url(#paperGrain)', // Apply torn edge & paper grain only to the background paper
+                        zIndex: 1,
                       }}>
-                        {!isUnlocked && (
-                          <span style={{
-                            fontSize: isMobile ? '8.5px' : '10.5px',
-                            fontWeight: 800,
-                            color: '#EF4444',
-                            background: 'rgba(239, 68, 68, 0.1)',
-                            border: '1px solid rgba(239, 68, 68, 0.3)',
-                            padding: '2px 5px',
-                            borderRadius: '3px',
-                            textTransform: 'uppercase',
-                          }}>
-                            🔒 LOCK
-                          </span>
-                        )}
+                        {/* Viewfinder Corner Brackets (Warped/torn together with the paper) */}
+                        {/* Top-Left Corner */}
+                        <div style={{ position: 'absolute', top: '-2px', left: '-2px', width: '12px', height: '12px', borderTop: `2.5px solid ${isUnlocked ? '#5C4033' : '#8C7A6B'}`, borderLeft: `2.5px solid ${isUnlocked ? '#5C4033' : '#8C7A6B'}`, borderTopLeftRadius: '3px', pointerEvents: 'none', zIndex: 2 }} />
+                        {/* Top-Right Corner */}
+                        <div style={{ position: 'absolute', top: '-2px', right: '-2px', width: '12px', height: '12px', borderTop: `2.5px solid ${isUnlocked ? '#5C4033' : '#8C7A6B'}`, borderRight: `2.5px solid ${isUnlocked ? '#5C4033' : '#8C7A6B'}`, borderTopRightRadius: '3px', pointerEvents: 'none', zIndex: 2 }} />
+                        {/* Bottom-Left Corner */}
+                        <div style={{ position: 'absolute', bottom: '-2px', left: '-2px', width: '12px', height: '12px', borderBottom: `2.5px solid ${isUnlocked ? '#5C4033' : '#8C7A6B'}`, borderLeft: `2.5px solid ${isUnlocked ? '#5C4033' : '#8C7A6B'}`, borderBottomLeftRadius: '3px', pointerEvents: 'none', zIndex: 2 }} />
+                        {/* Bottom-Right Corner */}
+                        <div style={{ position: 'absolute', bottom: '-2px', right: '-2px', width: '12px', height: '12px', borderBottom: `2.5px solid ${isUnlocked ? '#5C4033' : '#8C7A6B'}`, borderRight: `2.5px solid ${isUnlocked ? '#5C4033' : '#8C7A6B'}`, borderBottomRightRadius: '3px', pointerEvents: 'none', zIndex: 2 }} />
                       </div>
 
-                      {/* Photo Viewport */}
+                      {/* 2. Push-pin on top center */}
                       <div style={{
-                        display: 'flex',
-                        justifyContent: 'center',
-                        position: 'relative',
-                        width: '100%',
-                        marginTop: '4px',
+                        position: 'absolute',
+                        top: isMobile ? '-20px' : '-28px',
+                        left: '50%',
+                        transform: 'translateX(-50%) rotate(12deg)',
+                        zIndex: 10,
+                        filter: 'drop-shadow(0px 8px 6px rgba(0,0,0,0.3))',
+                        pointerEvents: 'none',
                       }}>
-                        {level.thumbnail ? (
-                          <div style={{
-                            width: '100%',
-                            height: isMobile ? (isCompleted ? '60px' : '80px') : (isCompleted ? '95px' : '120px'),
-                            borderRadius: '4px',
-                            overflow: 'hidden',
-                            border: `1px solid rgba(0, 0, 0, 0.15)`,
-                            background: '#F1F5F9',
-                            zIndex: 2,
-                            position: 'relative',
-                            boxShadow: '0 2px 5px rgba(0,0,0,0.15)',
-                          }}>
-                            <img
-                              src={level.thumbnail}
-                              alt={level.title}
-                              style={{
-                                width: '100%',
-                                height: '100%',
-                                objectFit: 'cover',
-                                filter: isUnlocked ? 'none' : 'grayscale(100%) opacity(0.4)',
-                              }}
-                            />
-                          </div>
-                        ) : (
-                          <div style={{
-                            width: '100%',
-                            height: isMobile ? (isCompleted ? '60px' : '80px') : (isCompleted ? '95px' : '120px'),
-                            borderRadius: '4px',
-                            background: isUnlocked
-                              ? 'rgba(0, 0, 0, 0.04)'
-                              : 'rgba(148, 163, 184, 0.1)',
-                            border: `1.5px solid ${isUnlocked ? '#5C4033' : '#8C7A6B'}`,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            fontSize: isMobile ? '24px' : '36px',
-                            zIndex: 2,
-                          }}>
-                            {isUnlocked ? level.icon : '🔒'}
-                          </div>
-                        )}
+                        <svg width={isMobile ? "44" : "54"} height={isMobile ? "50" : "66"} viewBox="0 0 24 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <ellipse cx="10" cy="22" rx="4" ry="2" fill="rgba(0,0,0,0.2)" transform="rotate(-15 10 22)" />
+                          <path d="M12 14L10 24" stroke="#64748B" strokeWidth="2.5" strokeLinecap="round" />
+                          <path d="M6 6C6 4.89543 6.89543 4 8 4H16C17.1046 4 18 4.89543 18 6V11C18 11.85 17.3 12.5 16.5 12.8L12.5 14.5L8.5 12.8C7.7 12.5 7 11.8 7 11V6Z" fill={isUnlocked ? '#DC2626' : '#64748B'} />
+                          <path d="M9 5H15V6H9V5Z" fill={isUnlocked ? '#EF4444' : '#94A3B8'} />
+                          <path d="M12 4C13.1 4 14 3.1 14 2H10C10 3.1 10.9 4 12 4Z" fill={isUnlocked ? '#991B1B' : '#475569'} />
+                          <circle cx="10" cy="8" r="1.5" fill="rgba(255,255,255,0.4)" />
+                        </svg>
                       </div>
 
-                      {/* Polaroid Caption Area */}
+                      {/* 3. Card Content Layer (Renders on top, zIndex: 5) */}
                       <div style={{
+                        position: 'absolute',
+                        inset: 0,
+                        padding: isMobile ? '10px' : '14px',
                         display: 'flex',
                         flexDirection: 'column',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        width: '100%',
-                        margin: '2px 0',
+                        justifyContent: 'space-between',
+                        zIndex: 5,
                       }}>
-                        <span style={{
-                          fontSize: isMobile ? '9px' : '11px',
-                          fontWeight: 900,
-                          fontFamily: 'monospace',
-                          color: isUnlocked ? '#5C4033' : '#8C7A6B',
-                          letterSpacing: '1px',
-                          textAlign: 'center',
-                          textTransform: 'uppercase',
+                        {/* Lock Status indicator */}
+                        <div style={{
+                          position: 'absolute',
+                          top: isMobile ? '10px' : '14px',
+                          right: isMobile ? '10px' : '14px',
+                          zIndex: 12,
+                          height: '14px',
                         }}>
-                          GALLERY 0{level.id}
-                        </span>
-                        
-                        <h3 style={{
-                          fontFamily: 'var(--font-caveat), cursive',
-                          fontSize: isMobile ? '18px' : '23px',
-                          fontWeight: 700,
-                          color: isUnlocked ? '#1E293B' : '#64748B',
-                          margin: '2px 0',
-                          lineHeight: '1.15',
-                          textAlign: 'center',
-                        }}>
-                          {level.title}
-                        </h3>
+                          {!isUnlocked && (
+                            <span style={{
+                              fontSize: isMobile ? '8.5px' : '10.5px',
+                              fontWeight: 800,
+                              color: '#EF4444',
+                              background: 'rgba(239, 68, 68, 0.1)',
+                              border: '1px solid rgba(239, 68, 68, 0.3)',
+                              padding: '2px 5px',
+                              borderRadius: '3px',
+                              textTransform: 'uppercase',
+                            }}>
+                              🔒 LOCK
+                            </span>
+                          )}
+                        </div>
 
-                        {level.locationName && (
-                          <span style={{
-                            fontSize: isMobile ? '9px' : '11px',
-                            color: isUnlocked ? '#4B5563' : '#8290A6',
-                            fontWeight: 600,
-                            textAlign: 'center',
-                          }}>
-                            📍 {level.locationName}
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Case Badges */}
-                      {!isCompleted && isUnlocked && level.tags.length > 0 && (
+                        {/* Photo Viewport */}
                         <div style={{
                           display: 'flex',
-                          gap: '4px',
-                          flexWrap: 'wrap',
                           justifyContent: 'center',
-                          margin: '2px 0',
+                          position: 'relative',
+                          width: '100%',
+                          marginTop: '4px',
                         }}>
-                          {level.tags.slice(0, 2).map(tag => (
-                            <span
-                              key={tag}
-                              style={{
-                                fontSize: isMobile ? '9px' : '10.5px',
-                                background: 'rgba(14, 131, 136, 0.04)',
-                                border: '1px solid rgba(14, 131, 136, 0.25)',
-                                borderRadius: '3px',
-                                padding: '2.5px 5px',
-                                color: '#0A7E8C',
-                                fontWeight: 700,
-                                whiteSpace: 'nowrap',
-                              }}
-                            >
-                              {tag}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-
-                      {/* Action Button */}
-                      <div style={{ width: '100%', marginTop: '2px' }}>
-                        {isUnlocked ? (
-                          isCompleted ? (
-                            <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '6px' }} onClick={e => e.stopPropagation()}>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  router.push(`/siswa/game/results/${level.id}`)
-                                }}
+                          {level.thumbnail ? (
+                            <div style={{
+                              width: '100%',
+                              height: isMobile ? (isCompleted ? '60px' : '80px') : (isCompleted ? '95px' : '120px'),
+                              borderRadius: '4px',
+                              overflow: 'hidden',
+                              border: `1px solid rgba(0, 0, 0, 0.15)`,
+                              background: '#F1F5F9',
+                              zIndex: 2,
+                              position: 'relative',
+                              boxShadow: '0 2px 5px rgba(0,0,0,0.15)',
+                            }}>
+                              <img
+                                src={level.thumbnail}
+                                alt={level.title}
                                 style={{
                                   width: '100%',
-                                  padding: '7px',
-                                  borderRadius: '4px',
-                                  border: 'none',
-                                  background: '#0E8388',
-                                  color: '#FFFFFF',
-                                  fontSize: isMobile ? '9.5px' : '11px',
-                                  fontWeight: 800,
-                                  cursor: 'pointer',
-                                  boxShadow: '0 2px 6px rgba(14, 131, 136, 0.25)',
-                                  transition: 'all 0.2s',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  gap: '3px',
+                                  height: '100%',
+                                  objectFit: 'cover',
+                                  filter: isUnlocked ? 'none' : 'grayscale(100%) opacity(0.4)',
                                 }}
-                                onMouseEnter={e => e.currentTarget.style.filter = 'brightness(1.15)'}
-                                onMouseLeave={e => e.currentTarget.style.filter = 'none'}
-                              >
-                                <span>📝 E-LKPD &amp; Hasil</span>
-                              </button>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  router.push(`/siswa/game/posttest/${level.id}`)
-                                }}
-                                style={{
-                                  width: '100%',
-                                  padding: '7px',
-                                  borderRadius: '4px',
-                                  border: completedPostTests.includes(level.id) ? '1px solid rgba(14, 131, 136, 0.3)' : 'none',
-                                  background: completedPostTests.includes(level.id) ? 'rgba(14, 131, 136, 0.1)' : '#D97706',
-                                  color: completedPostTests.includes(level.id) ? '#0E8388' : '#FFFFFF',
-                                  fontSize: isMobile ? '9.5px' : '11px',
-                                  fontWeight: 800,
-                                  cursor: 'pointer',
-                                  boxShadow: completedPostTests.includes(level.id) ? 'none' : '0 2px 6px rgba(217, 119, 6, 0.25)',
-                                  transition: 'all 0.2s',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  gap: '3px',
-                                }}
-                                onMouseEnter={e => e.currentTarget.style.filter = 'brightness(1.15)'}
-                                onMouseLeave={e => e.currentTarget.style.filter = 'none'}
-                              >
-                                <span>{completedPostTests.includes(level.id) ? '✅ Post Test Selesai' : '🛡️ Mulai Post Test'}</span>
-                              </button>
+                              />
                             </div>
                           ) : (
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                handlePlayLevel(level.id)
-                              }}
-                              style={{
-                                width: '100%',
-                                padding: '8px',
-                                borderRadius: '4px',
-                                border: 'none',
-                                background: '#B84A39',
-                                color: '#FFFFFF',
-                                fontSize: isMobile ? '10px' : '12px',
-                                fontWeight: 800,
-                                cursor: 'pointer',
-                                boxShadow: '0 2px 8px rgba(184, 74, 57, 0.3)',
-                                transition: 'all 0.2s',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                gap: '3px',
-                              }}
-                              onMouseEnter={e => {
-                                e.currentTarget.style.filter = 'brightness(1.15)';
-                                e.currentTarget.style.background = '#A23E2F';
-                              }}
-                              onMouseLeave={e => {
-                                e.currentTarget.style.filter = 'none';
-                                e.currentTarget.style.background = '#B84A39';
-                              }}
-                            >
-                              <span>Investigasi</span>
-                              <span>→</span>
-                            </button>
-                          )
-                        ) : (
-                          <div style={{
-                            width: '100%',
-                            padding: '8px',
-                            borderRadius: '4px',
-                            background: 'rgba(148, 163, 184, 0.05)',
-                            border: '1px solid rgba(148, 163, 184, 0.15)',
-                            color: 'rgba(0, 0, 0, 0.3)',
-                            fontSize: isMobile ? '10px' : '12px',
-                            fontWeight: 700,
+                            <div style={{
+                              width: '100%',
+                              height: isMobile ? (isCompleted ? '60px' : '80px') : (isCompleted ? '95px' : '120px'),
+                              borderRadius: '4px',
+                              background: isUnlocked
+                                ? 'rgba(0, 0, 0, 0.04)'
+                                : 'rgba(148, 163, 184, 0.1)',
+                              border: `1.5px solid ${isUnlocked ? '#5C4033' : '#8C7A6B'}`,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              fontSize: isMobile ? '24px' : '36px',
+                              zIndex: 2,
+                            }}>
+                              {isUnlocked ? level.icon : '🔒'}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Polaroid Caption Area */}
+                        <div style={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          width: '100%',
+                          margin: '2px 0',
+                        }}>
+                          <span style={{
+                            fontSize: isMobile ? '9px' : '11px',
+                            fontWeight: 900,
+                            fontFamily: 'monospace',
+                            color: isUnlocked ? '#5C4033' : '#8C7A6B',
+                            letterSpacing: '1px',
                             textAlign: 'center',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: '3px',
+                            textTransform: 'uppercase',
                           }}>
-                            <span>🔒 Locked</span>
+                            GALLERY 0{level.id}
+                          </span>
+
+                          <h3 style={{
+                            fontFamily: 'var(--font-caveat), cursive',
+                            fontSize: isMobile ? '18px' : '23px',
+                            fontWeight: 700,
+                            color: isUnlocked ? '#1E293B' : '#64748B',
+                            margin: '2px 0',
+                            lineHeight: '1.15',
+                            textAlign: 'center',
+                          }}>
+                            {level.title}
+                          </h3>
+
+                          {level.locationName && (
+                            <span style={{
+                              fontSize: isMobile ? '9px' : '11px',
+                              color: isUnlocked ? '#4B5563' : '#8290A6',
+                              fontWeight: 600,
+                              textAlign: 'center',
+                            }}>
+                              📍 {level.locationName}
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Case Badges */}
+                        {!isCompleted && isUnlocked && level.tags.length > 0 && (
+                          <div style={{
+                            display: 'flex',
+                            gap: '4px',
+                            flexWrap: 'wrap',
+                            justifyContent: 'center',
+                            margin: '2px 0',
+                          }}>
+                            {level.tags.slice(0, 2).map(tag => (
+                              <span
+                                key={tag}
+                                style={{
+                                  fontSize: isMobile ? '9px' : '10.5px',
+                                  background: 'rgba(14, 131, 136, 0.04)',
+                                  border: '1px solid rgba(14, 131, 136, 0.25)',
+                                  borderRadius: '3px',
+                                  padding: '2.5px 5px',
+                                  color: '#0A7E8C',
+                                  fontWeight: 700,
+                                  whiteSpace: 'nowrap',
+                                }}
+                              >
+                                {tag}
+                              </span>
+                            ))}
                           </div>
                         )}
+
+                        {/* Action Button */}
+                        <div style={{ width: '100%', marginTop: '2px' }}>
+                          {isUnlocked ? (
+                            isCompleted ? (
+                              <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '6px' }} onClick={e => e.stopPropagation()}>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    router.push(`/siswa/game/results/${level.id}`)
+                                  }}
+                                  style={{
+                                    width: '100%',
+                                    padding: '7px',
+                                    borderRadius: '4px',
+                                    border: 'none',
+                                    background: '#0E8388',
+                                    color: '#FFFFFF',
+                                    fontSize: isMobile ? '9.5px' : '11px',
+                                    fontWeight: 800,
+                                    cursor: 'pointer',
+                                    boxShadow: '0 2px 6px rgba(14, 131, 136, 0.25)',
+                                    transition: 'all 0.2s',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    gap: '3px',
+                                  }}
+                                  onMouseEnter={e => e.currentTarget.style.filter = 'brightness(1.15)'}
+                                  onMouseLeave={e => e.currentTarget.style.filter = 'none'}
+                                >
+                                  <span>📊 Lihat Hasil</span>
+                                </button>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    router.push(`/siswa/game/posttest/${level.id}`)
+                                  }}
+                                  style={{
+                                    width: '100%',
+                                    padding: '7px',
+                                    borderRadius: '4px',
+                                    border: completedPostTests.includes(level.id) ? '1px solid rgba(14, 131, 136, 0.3)' : 'none',
+                                    background: completedPostTests.includes(level.id) ? 'rgba(14, 131, 136, 0.1)' : '#D97706',
+                                    color: completedPostTests.includes(level.id) ? '#0E8388' : '#FFFFFF',
+                                    fontSize: isMobile ? '9.5px' : '11px',
+                                    fontWeight: 800,
+                                    cursor: 'pointer',
+                                    boxShadow: completedPostTests.includes(level.id) ? 'none' : '0 2px 6px rgba(217, 119, 6, 0.25)',
+                                    transition: 'all 0.2s',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    gap: '3px',
+                                  }}
+                                  onMouseEnter={e => e.currentTarget.style.filter = 'brightness(1.15)'}
+                                  onMouseLeave={e => e.currentTarget.style.filter = 'none'}
+                                >
+                                  <span>{completedPostTests.includes(level.id) ? '✅ Post Test Selesai' : '🛡️ Mulai Post Test'}</span>
+                                </button>
+                              </div>
+                            ) : (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  handlePlayLevel(level.id)
+                                }}
+                                style={{
+                                  width: '100%',
+                                  padding: '8px',
+                                  borderRadius: '4px',
+                                  border: 'none',
+                                  background: '#B84A39',
+                                  color: '#FFFFFF',
+                                  fontSize: isMobile ? '10px' : '12px',
+                                  fontWeight: 800,
+                                  cursor: 'pointer',
+                                  boxShadow: '0 2px 8px rgba(184, 74, 57, 0.3)',
+                                  transition: 'all 0.2s',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  gap: '3px',
+                                }}
+                                onMouseEnter={e => {
+                                  e.currentTarget.style.filter = 'brightness(1.15)';
+                                  e.currentTarget.style.background = '#A23E2F';
+                                }}
+                                onMouseLeave={e => {
+                                  e.currentTarget.style.filter = 'none';
+                                  e.currentTarget.style.background = '#B84A39';
+                                }}
+                              >
+                                <span>Investigasi</span>
+                                <span>→</span>
+                              </button>
+                            )
+                          ) : (
+                            <div style={{
+                              width: '100%',
+                              padding: '8px',
+                              borderRadius: '4px',
+                              background: 'rgba(148, 163, 184, 0.05)',
+                              border: '1px solid rgba(148, 163, 184, 0.15)',
+                              color: 'rgba(0, 0, 0, 0.3)',
+                              fontSize: isMobile ? '10px' : '12px',
+                              fontWeight: 700,
+                              textAlign: 'center',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              gap: '3px',
+                            }}>
+                              <span>🔒 Locked</span>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                )
-            })}
-          </div>
-        </div>
-      </div>
-
-
-        </div>
-
-        {/* ── FD: Tim Investigasi Saya Widget (Hidden for single-player fallback) ──
-      {!isFI && student?.geftResult?.cognitiveStyle === 'FD' && (
-        <div id="team-widget" style={{
-          width: '100%',
-          maxWidth: '1440px',
-          margin: '0 auto',
-          padding: isMobile ? '0 16px 32px' : '0 32px 40px',
-        }}>
-          <div style={{
-            borderRadius: '20px',
-            border: '1.5px solid rgba(6,182,212,0.25)',
-            background: 'linear-gradient(135deg, rgba(6,182,212,0.04) 0%, rgba(255,255,255,0.8) 100%)',
-            backdropFilter: 'blur(10px)',
-            padding: '24px',
-            boxShadow: '0 4px 20px rgba(6,182,212,0.08)',
-          }}>
-            <div style={{ display: 'flex', justifyStyle: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <span style={{ fontSize: '22px' }}>👥</span>
-                <div>
-                  <div style={{ fontSize: '11px', color: '#0e7490', fontWeight: 800, letterSpacing: '1.5px', marginBottom: '2px' }}>TIM INVESTIGASI SAYA</div>
-                  <div style={{ fontSize: '13px', fontWeight: 700, color: '#1C1917' }}>
-                    {activeTeam ? `Level ${activeTeam.levelId} · ${activeTeam.classroomName}` : 'Kelompok Kelas Saya'}
-                  </div>
-                </div>
+                  )
+                })}
               </div>
-              <button
-                onClick={() => student && fetchActiveTeam(student.id, true)}
-                disabled={teamRefreshing || teamLoading}
-                title="Refresh status tim"
-                style={{
-                  width: '34px', height: '34px',
-                  borderRadius: '10px',
-                  border: '1px solid rgba(6,182,212,0.25)',
-                  background: 'rgba(6,182,212,0.06)',
-                  color: '#0e7490',
-                  fontSize: '14px',
-                  cursor: teamRefreshing ? 'not-allowed' : 'pointer',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  transition: 'all 0.2s',
-                  opacity: teamRefreshing ? 0.5 : 1,
-                }}
-                onMouseEnter={e => { if (!teamRefreshing) e.currentTarget.style.background = 'rgba(6,182,212,0.12)' }}
-                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(6,182,212,0.06)' }}
-              >
-                {teamRefreshing ? '⏳' : '🔄'}
-              </button>
             </div>
-
-            {teamLoading ? (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#78716C', fontSize: '13px', padding: '12px 0' }}>
-                <span style={{ animation: 'spin 1s linear infinite', display: 'inline-block' }}>⚙️</span>
-                Memuat data tim...
-              </div>
-            ) : activeTeam ? (
-              <>
-                <div style={{
-                  display: 'inline-flex', alignItems: 'center', gap: '6px',
-                  padding: '4px 12px', borderRadius: '50px',
-                  fontSize: '11px', fontWeight: 700, marginBottom: '16px',
-                  background: activeTeam.status === 'PLAYING' ? 'rgba(16,185,129,0.1)' : 'rgba(245,158,11,0.1)',
-                  border: `1px solid ${activeTeam.status === 'PLAYING' ? 'rgba(16,185,129,0.3)' : 'rgba(245,158,11,0.3)'}`,
-                  color: activeTeam.status === 'PLAYING' ? '#059669' : '#D97706',
-                }}>
-                  <span style={{
-                    width: '6px', height: '6px', borderRadius: '50%',
-                    background: activeTeam.status === 'PLAYING' ? '#10B981' : '#F59E0B',
-                    display: 'inline-block',
-                    animation: activeTeam.status === 'WAITING' ? 'teamPulse 1.5s infinite alternate' : 'none',
-                  }} />
-                  {activeTeam.status === 'PLAYING'
-                    ? '🎮 Permainan Berlangsung'
-                    : `👥 Tim Terbentuk · ${activeTeam.members.filter(m => m.isOnline).length}/${activeTeam.members.length} Online`
-                  }
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
-                  {[0, 1, 2].map((idx) => {
-                    const member = activeTeam.members[idx]
-                    const isMe = member?.id === student?.id
-                    return (
-                      <div
-                        key={idx}
-                        style={{
-                          display: 'flex', alignItems: 'center',
-                          justifyContent: 'space-between',
-                          padding: '10px 14px',
-                          borderRadius: '12px',
-                          background: member
-                            ? isMe ? 'rgba(6,182,212,0.08)' : 'rgba(255,255,255,0.6)'
-                            : 'transparent',
-                          border: member
-                            ? `1px solid ${isMe ? 'rgba(6,182,212,0.3)' : 'rgba(180,140,80,0.15)'}` 
-                            : '1px dashed rgba(180,140,80,0.2)',
-                          transition: 'all 0.2s',
-                        }}
-                      >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                          <div style={{ position: 'relative', flexShrink: 0 }}>
-                            <span style={{ fontSize: '18px' }}>{member ? '🕵️' : '❓'}</span>
-                            {member && (
-                              <span style={{
-                                position: 'absolute', bottom: -1, right: -1,
-                                width: '8px', height: '8px', borderRadius: '50%',
-                                background: member.isOnline ? '#10B981' : '#94A3B8',
-                                border: '1.5px solid #fff',
-                                display: 'block',
-                              }} />
-                            )}
-                          </div>
-                          <div>
-                            <div style={{ fontSize: '13px', fontWeight: 700, color: member ? '#1C1917' : '#A8A29E' }}>
-                              {member ? member.name : `Slot ${idx + 1} (kosong)`}
-                            </div>
-                            {member && (
-                              <div style={{ fontSize: '10px', color: isMe ? '#0e7490' : '#78716C', fontWeight: 600 }}>
-                                {isMe ? 'Anda' : 'Anggota Tim'}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                        {member && (
-                          <span style={{
-                            fontSize: '10px', fontWeight: 700,
-                            color: member.isOnline ? '#10B981' : '#94A3B8',
-                            background: member.isOnline ? 'rgba(16,185,129,0.1)' : 'rgba(148,163,184,0.1)',
-                            border: `1px solid ${member.isOnline ? 'rgba(16,185,129,0.3)' : 'rgba(148,163,184,0.2)'}`,
-                            padding: '2px 8px', borderRadius: '50px',
-                          }}>{member.isOnline ? '🟢 Online' : '⚫ Offline'}</span>
-                        )}
-                        {!member && (
-                          <span style={{
-                            fontSize: '10px', fontWeight: 600,
-                            color: '#A8A29E',
-                          }}>—</span>
-                        )}
-                      </div>
-                    )
-                  })}
-                </div>
-
-                <div style={{ marginBottom: '16px' }}>
-                  <div style={{ display: 'flex', justifyStyle: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                    <span style={{ fontSize: '11px', color: '#78716C', fontWeight: 600 }}>Anggota Bergabung</span>
-                    <span style={{ fontSize: '11px', fontWeight: 800, color: '#0e7490' }}>{activeTeam.members.length} / 3</span>
-                  </div>
-                  <div style={{ height: '6px', borderRadius: '3px', background: 'rgba(6,182,212,0.12)', overflow: 'hidden' }}>
-                    <div style={{
-                      height: '100%',
-                      borderRadius: '3px',
-                      background: 'linear-gradient(90deg, #0891b2, #06b6d4)',
-                      width: `${(activeTeam.members.length / 3) * 100}%`,
-                      transition: 'width 0.6s ease',
-                      boxShadow: '0 0 8px rgba(6,182,212,0.4)',
-                    }} />
-                  </div>
-                </div>
-
-                {activeTeam.status === 'PLAYING' || activeTeam.members.length === 3 ? (
-                  <button
-                    onClick={() => handlePlayLevel(activeTeam.levelId)}
-                    style={{
-                      width: '100%', padding: '12px',
-                      borderRadius: '12px', border: 'none',
-                      background: 'linear-gradient(90deg, #0891b2, #06b6d4)',
-                      color: '#fff', fontSize: '13px', fontWeight: 800,
-                      cursor: 'pointer',
-                      boxShadow: '0 4px 15px rgba(6,182,212,0.3)',
-                      transition: 'all 0.2s',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
-                    }}
-                    onMouseEnter={e => e.currentTarget.style.filter = 'brightness(1.1)'}
-                    onMouseLeave={e => e.currentTarget.style.filter = 'none'}
-                  >
-                    <span>{activeTeam.status === 'PLAYING' ? '🎮 Lanjutkan Permainan' : '👥 Masuk Lobi Permainan'}</span>
-                    <span>→</span>
-                  </button>
-                ) : (
-                  <div style={{
-                    textAlign: 'center', fontSize: '12px',
-                    color: '#78716C', padding: '8px',
-                    background: 'rgba(245,158,11,0.04)',
-                    borderRadius: '10px',
-                    border: '1px dashed rgba(245,158,11,0.2)',
-                  }}>
-                    ⏳ Menunggu {3 - activeTeam.members.length} anggota lagi untuk memulai permainan...
-                  </div>
-                )}
-              </>
-            ) : (
-              <div style={{
-                textAlign: 'center', padding: '20px',
-                color: '#78716C', fontSize: '13px', lineHeight: 1.6,
-              }}>
-                <div style={{ fontSize: '32px', marginBottom: '10px' }}>🔍</div>
-                <div style={{ fontWeight: 700, marginBottom: '4px', color: '#1C1917' }}>Belum Ada Tim Aktif</div>
-                <div style={{ fontSize: '12px' }}>
-                  Klik <strong>Mulai Penyelidikan</strong> pada Level 1 di atas untuk bergabung ke kelompok kelas kamu secara otomatis.
-                </div>
-              </div>
-            )}
           </div>
-          <style>{`
-            @keyframes teamPulse {
-              from { opacity: 0.5; }
-              to { opacity: 1; }
-            }
-            @keyframes spin {
-              to { transform: rotate(360deg); }
-            }
-          `}</style>
+
+
         </div>
-      )}
-      */
-        }
 
         {/* Exit Confirmation Modal */}
         {showExitConfirm && (
@@ -1405,108 +972,8 @@ export default function SiswaPage() {
           </div>
         )}
 
-        {/* Cognitive Style Modal */}
-        {showCognitiveModal && student?.geftResult?.cognitiveStyle && (() => {
-          const style = student.geftResult!.cognitiveStyle
-          const info = COGNITIVE_INFO[style]
-          return (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              onClick={handleCloseCognitive}
-              style={{
-                position: 'fixed', inset: 0, zIndex: 300,
-                background: 'rgba(11, 30, 44, 0.85)', backdropFilter: 'blur(12px)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                padding: '20px',
-              }}
-            >
-              <motion.div
-                initial={{ scale: 0.9, opacity: 0, y: 20 }}
-                animate={{ scale: 1, opacity: 1, y: 0 }}
-                onClick={e => e.stopPropagation()}
-                className="modal-scrollbar"
-                style={{
-                  background: 'rgba(15, 35, 56, 0.95)',
-                  border: `1px solid ${info.border}`,
-                  borderRadius: '24px', padding: '32px 28px',
-                  width: '100%', maxWidth: '440px',
-                  maxHeight: 'calc(100vh - 40px)',
-                  overflowY: 'auto',
-                  boxShadow: `0 8px 30px rgba(14, 131, 136, 0.1)`,
-                  color: '#F8FAFC',
-                }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
-                  <div>
-                    <div style={{ fontSize: '11px', color: info.color, fontWeight: 800, letterSpacing: '1.5px', marginBottom: '6px' }}>
-                      GAYA KOGNITIF KAMU
-                    </div>
-                    <h3 style={{ margin: 0, fontSize: '20px', fontWeight: 800 }}>
-                      {info.icon} {info.label}
-                    </h3>
-                  </div>
-                  <button
-                    onClick={handleCloseCognitive}
-                    style={{ background: 'none', border: 'none', color: '#A8A29E', fontSize: '20px', cursor: 'pointer', padding: '4px' }}
-                    onMouseEnter={e => e.currentTarget.style.color = '#DC2626'}
-                    onMouseLeave={e => e.currentTarget.style.color = '#A8A29E'}
-                  >✕</button>
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px' }}>
-                  {info.traits.map((t, i) => (
-                    <motion.div
-                      key={i}
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: i * 0.07 }}
-                      style={{
-                        display: 'flex', gap: '12px', alignItems: 'flex-start',
-                        padding: '12px 14px', borderRadius: '12px',
-                        background: 'rgba(14, 131, 136, 0.04)',
-                        border: '1px solid rgba(14, 131, 136, 0.1)',
-                      }}
-                    >
-                      <span style={{ fontSize: '20px', flexShrink: 0 }}>{t.icon}</span>
-                      <div>
-                        <div style={{ fontSize: '13px', fontWeight: 800, marginBottom: '3px' }}>{t.title}</div>
-                        <div style={{ fontSize: '12px', color: '#94A3B8', lineHeight: 1.5 }}>{t.desc}</div>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-
-                <div style={{
-                  padding: '14px 16px', borderRadius: '14px',
-                  background: info.bg, border: `1px solid ${info.border}`,
-                  fontSize: '13px', color: '#E2E8F0', lineHeight: 1.6,
-                }}>
-                  <strong style={{ color: info.color }}>🎮 Di Game: </strong>{info.gameStyle}
-                </div>
-
-                <button
-                  onClick={handleCloseCognitive}
-                  style={{
-                    marginTop: '20px', width: '100%', padding: '14px',
-                    borderRadius: '14px',
-                    background: `linear-gradient(90deg, ${info.color}22, ${info.color}44)`,
-                    border: `1px solid ${info.border}`,
-                    color: info.color, fontSize: '14px', fontWeight: 800,
-                    cursor: 'pointer', transition: 'all 0.2s',
-                  }}
-                  onMouseEnter={e => e.currentTarget.style.filter = 'brightness(1.2)'}
-                  onMouseLeave={e => e.currentTarget.style.filter = 'none'}
-                >
-                  Mengerti! Siap Investigasi 🔍
-                </button>
-              </motion.div>
-            </motion.div>
-          )
-        })()}
-
         {/* Greeting Center Modal */}
-        {showGreeting && student && student.diagnosticLevel && student.geftResult?.cognitiveStyle && (
+        {showGreeting && student && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -1561,22 +1028,17 @@ export default function SiswaPage() {
                 color: 'rgba(255, 255, 255, 0.85)',
                 marginBottom: '20px'
               }}>
-                {student.diagnosticLevel === 'tinggi'
-                  ? 'Kemampuan statistikamu sudah mantap! Langsung terjun ke investigasi kasus yang menantang.'
-                  : student.diagnosticLevel === 'sedang'
-                    ? 'Dasar statistikamu sudah oke. Siap perkuat dengan investigasi data nyata!'
-                    : 'Tenang, kita mulai dari dasar bareng-bareng. Setiap detektif besar dimulai dari sini!'
-                }
+                Selamat datang kembali! Mari kita pecahkan kasus investigasi data bersama.
               </div>
 
               <button
                 onClick={handleCloseGreeting}
                 style={{
                   width: '100%', padding: '12px', borderRadius: '12px', border: 'none',
-                  background: isFI ? '#2563eb' : '#0E8388',
+                  background: '#0E8388',
                   color: '#FFFFFF',
                   fontSize: '14px', fontWeight: 800, cursor: 'pointer',
-                  boxShadow: isFI ? '0 4px 15px rgba(37,99,235,0.3)' : '0 4px 15px rgba(0,173,181,0.3)',
+                  boxShadow: '0 4px 15px rgba(14, 131, 136, 0.3)',
                   transition: 'all 0.2s'
                 }}
                 onMouseEnter={e => e.currentTarget.style.filter = 'brightness(1.15)'}
@@ -1622,7 +1084,7 @@ export default function SiswaPage() {
                   maxHeight: '100dvh',
                   background: 'rgba(15, 35, 56, 0.95)',
                   backdropFilter: 'blur(20px)',
-                  borderLeft: `1px solid ${isFI ? 'rgba(59,130,246,0.3)' : 'rgba(14, 131, 136, 0.25)'}`,
+                  borderLeft: '1px solid rgba(14, 131, 136, 0.25)',
                   boxShadow: '-10px 0 30px rgba(0,0,0,0.5)',
                   padding: '24px',
                   display: 'flex',
@@ -1745,43 +1207,7 @@ export default function SiswaPage() {
                     </div>
                   </button>
 
-                  {/* Tim Saya — hanya untuk FD */}
-                  {false && !isFI && student?.geftResult?.cognitiveStyle === 'FD' && (
-                    <button
-                      onClick={() => {
-                        setIsSidebarOpen(false)
-                        setTimeout(() => {
-                          const el = document.getElementById('team-widget')
-                          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
-                        }, 200)
-                      }}
-                      className="sidebar-btn"
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '16px',
-                        padding: '16px',
-                        borderRadius: '16px',
-                        background: 'rgba(14,131,136,0.06)',
-                        border: '1px solid rgba(14,131,136,0.2)',
-                        color: '#F8FAFC',
-                        textAlign: 'left',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s',
-                        outline: 'none',
-                      }}
-                      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(14,131,136,0.12)' }}
-                      onMouseLeave={e => { e.currentTarget.style.background = 'rgba(14,131,136,0.06)' }}
-                    >
-                      <span style={{ fontSize: '24px' }}>👥</span>
-                      <div>
-                        <div style={{ fontWeight: 800, fontSize: '14px', color: '#00ADB5' }}>Tim Investigasi Saya</div>
-                        <div style={{ fontSize: '11px', color: '#94A3B8', marginTop: '2px' }}>
-                          {activeTeam ? `${activeTeam?.members?.length ?? 0}/3 anggota · ${activeTeam?.status === 'PLAYING' ? 'Sedang Bermain' : 'Menunggu'}` : 'Lihat status tim kamu'}
-                        </div>
-                      </div>
-                    </button>
-                  )}
+
 
 
 
@@ -1825,6 +1251,8 @@ export default function SiswaPage() {
           )}
         </AnimatePresence>
 
+
+
         {/* Modal Buku Saku */}
         {showBookletModal && (
           <div style={{
@@ -1845,7 +1273,7 @@ export default function SiswaPage() {
               className="modal-scrollbar"
               style={{
                 background: '#0F2338',
-                border: `1px solid ${isFI ? 'rgba(59,130,246,0.3)' : 'rgba(14, 131, 136, 0.25)'}`,
+                border: '1px solid rgba(14, 131, 136, 0.25)',
                 borderRadius: '24px',
                 padding: '28px',
                 width: '100%',
@@ -1856,6 +1284,7 @@ export default function SiswaPage() {
                 color: '#F8FAFC',
               }}
             >
+
               {!gatingLevelId && (
                 <button
                   onClick={() => setShowBookletModal(false)}
@@ -1875,8 +1304,9 @@ export default function SiswaPage() {
                 >
                   ✕
                 </button>
+
               )}
-              <DetektivBooklet mode={resolvedStyle} onComplete={handleBookletComplete} unlockedLevelIds={unlockedLevelIds} />
+              <DetektivBooklet onComplete={handleBookletComplete} unlockedLevelIds={unlockedLevelIds} />
             </motion.div>
           </div>
         )}
@@ -1901,7 +1331,7 @@ export default function SiswaPage() {
               animate={{ scale: 1, opacity: 1 }}
               style={{
                 background: '#0F2338',
-                border: `1.5px solid ${resolvedStyle === 'FI' ? '#3b82f6' : '#D97706'}`,
+                border: '1.5px solid rgba(14, 131, 136, 0.3)',
                 borderRadius: '24px',
                 padding: '32px',
                 width: '100%',
@@ -1920,18 +1350,18 @@ export default function SiswaPage() {
                   <img
                     src="/dira-avatar.png"
                     alt="DiRA"
-                    style={{ width: '40px', height: '40px', borderRadius: '50%', border: `1.5px solid ${resolvedStyle === 'FI' ? '#3b82f6' : '#D97706'}` }}
+                    style={{ width: '40px', height: '40px', borderRadius: '50%', border: '1.5px solid #00ADB5' }}
                   />
                 </div>
                 <div>
                   <span style={{
                     fontSize: '9px',
-                    color: resolvedStyle === 'FI' ? '#2563EB' : '#D97706',
+                    color: '#00ADB5',
                     fontWeight: 800,
                     letterSpacing: '1.5px',
                     textTransform: 'uppercase',
                   }}>
-                    ARAHAN TUTOR DiRA • LANGKAH {gatingStep} DARI 2
+                    ARAHAN TUTOR DiRA
                   </span>
                   <h3 style={{ margin: '2px 0 0 0', fontSize: '18px', fontWeight: 900, color: '#F8FAFC' }}>
                     🕵️‍♂️ Persiapan Misi
@@ -1939,33 +1369,31 @@ export default function SiswaPage() {
                 </div>
               </div>
 
-              {/* Step 1: Penjelasan Gaya Kognitif */}
-              {gatingStep === 1 && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                  <div style={{
-                    background: 'rgba(14, 131, 136, 0.04)',
-                    border: '1px solid rgba(14, 131, 136, 0.25)',
-                    borderRadius: '16px',
-                    padding: '20px',
-                    fontSize: '14px',
-                    lineHeight: 1.6,
-                    color: '#e5e7eb',
-                  }}>
-                    <p style={{ margin: '0 0 12px 0' }}>
-                      Halo, <strong>{student?.name.split(' ')[0]}</strong>! Sebelum terjun ke lokasi investigasi, kita perlu mempersiapkan bekal analisismu.
-                    </p>
-                    <p style={{ margin: 0 }}>
-                      Berdasarkan hasil tes GEFT kamu, gaya kognitifmu teridentifikasi sebagai <strong style={{ color: resolvedStyle === 'FI' ? '#2563EB' : '#34d399', fontSize: '15px' }}>{resolvedStyle === 'FI' ? '🧠 Field Independent (FI)' : '👥 Field Dependent (FD)'}</strong>.
-                    </p>
-                  </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <div style={{
+                  background: 'rgba(14, 131, 136, 0.04)',
+                  border: '1px solid rgba(14, 131, 136, 0.25)',
+                  borderRadius: '16px',
+                  padding: '20px',
+                  fontSize: '14px',
+                  lineHeight: 1.6,
+                  color: '#e5e7eb',
+                }}>
+                  <p style={{ margin: '0 0 12px 0' }}>
+                    Halo, <strong>{student?.name.split(' ')[0]}</strong>! Sebelum terjun ke lokasi investigasi, pelajari Buku Saku Detektif terlebih dahulu untuk memperkuat dasar analisismu!
+                  </p>
+                </div>
 
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   <button
-                    onClick={() => setGatingStep(2)}
-                    className={resolvedStyle === 'FI' ? 'pulsing-btn-blue' : 'pulsing-btn-green'}
+                    onClick={() => {
+                      setShowGatingModal(false)
+                      setShowBookletModal(true)
+                    }}
                     style={{
                       padding: '14px',
                       borderRadius: '12px',
-                      background: resolvedStyle === 'FI' ? 'linear-gradient(90deg, #2563eb, #1d4ed8)' : 'linear-gradient(90deg, #D97706, #B45309)',
+                      background: 'linear-gradient(90deg, #0E8388, #00ADB5)',
                       border: 'none',
                       color: '#fff',
                       fontSize: '14px',
@@ -1980,97 +1408,32 @@ export default function SiswaPage() {
                     onMouseEnter={e => e.currentTarget.style.filter = 'brightness(1.15)'}
                     onMouseLeave={e => e.currentTarget.style.filter = 'none'}
                   >
-                    Lanjut ke Arahan Misi →
+                    <span>📖 Buka Buku Saku Detektif</span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setShowGatingModal(false)
+                      if (gatingLevelId) {
+                        proceedToGame(gatingLevelId)
+                        setGatingLevelId(null)
+                      }
+                    }}
+                    style={{
+                      padding: '12px',
+                      borderRadius: '12px',
+                      background: 'rgba(255,255,255,0.05)',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      color: '#94A3B8',
+                      fontSize: '13px',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    🚀 Langsung Mulai Misi
                   </button>
                 </div>
-              )}
-
-              {/* Step 2: Insting & Perintah Belajar */}
-              {gatingStep === 2 && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                  <div style={{
-                    background: 'rgba(14, 131, 136, 0.04)',
-                    border: '1px solid rgba(14, 131, 136, 0.25)',
-                    borderRadius: '16px',
-                    padding: '20px',
-                    fontSize: '14px',
-                    lineHeight: 1.6,
-                    color: '#e5e7eb',
-                  }}>
-                    {resolvedStyle === 'FI' ? (
-                      <>
-                        Sebagai detektif bertipe <strong>Field Independent (FI)</strong>, kamu cenderung sangat hebat dalam menganalisis detail secara mandiri.
-                        <p style={{ margin: '12px 0 0 0', fontWeight: 600, color: '#2563EB' }}>
-                          👉 Kamu diinstruksikan untuk mempelajari BUKU SAKU DETEKTIF terlebih dahulu untuk memperkuat dasar teorimu!
-                        </p>
-                      </>
-                    ) : (
-                      <>
-                        Sebagai detektif bertipe <strong>Field Dependent (FD)</strong>, kamu belajar paling baik melalui interaksi visual dan penjelasan kontekstual.
-                        <p style={{ margin: '12px 0 0 0', fontWeight: 600, color: '#34d399' }}>
-                          👉 Kamu diinstruksikan untuk menonton VIDEO PEMBELAJARAN terlebih dahulu untuk memahami visualisasi konsep statistika!
-                        </p>
-                      </>
-                    )}
-                  </div>
-
-                  {resolvedStyle === 'FI' ? (
-                    <button
-                      onClick={() => {
-                        setShowGatingModal(false)
-                        setShowBookletModal(true)
-                      }}
-                      className="pulsing-btn-blue"
-                      style={{
-                        padding: '14px',
-                        borderRadius: '12px',
-                        background: 'linear-gradient(90deg, #2563eb, #1d4ed8)',
-                        border: 'none',
-                        color: '#fff',
-                        fontSize: '14px',
-                        fontWeight: 800,
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '8px',
-                        transition: 'all 0.2s',
-                      }}
-                      onMouseEnter={e => e.currentTarget.style.filter = 'brightness(1.15)'}
-                      onMouseLeave={e => e.currentTarget.style.filter = 'none'}
-                    >
-                      <span>📖 Buka Buku Saku Detektif</span>
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => {
-                        setShowGatingModal(false)
-                        router.push(`/siswa/video?fromLevel=${gatingLevelId}`)
-                      }}
-                      className="pulsing-btn-green"
-                      style={{
-                        padding: '14px',
-                        borderRadius: '12px',
-                        background: 'linear-gradient(90deg, #D97706, #B45309)',
-                        border: 'none',
-                        color: '#fff',
-                        fontSize: '14px',
-                        fontWeight: 800,
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '8px',
-                        transition: 'all 0.2s',
-                      }}
-                      onMouseEnter={e => e.currentTarget.style.filter = 'brightness(1.15)'}
-                      onMouseLeave={e => e.currentTarget.style.filter = 'none'}
-                    >
-                      <span>🎥 Tonton Video Pembelajaran</span>
-                    </button>
-                  )}
-                </div>
-              )}
+              </div>
             </motion.div>
           </div>
         )}
@@ -2168,9 +1531,9 @@ export default function SiswaPage() {
           transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .sidebar-btn:hover {
-          background: ${isFI ? 'rgba(59,130,246,0.06)' : 'rgba(217,119,6,0.05)'} !important;
-          border-color: ${isFI ? 'rgba(59,130,246,0.35)' : 'rgba(217,119,6,0.3)'} !important;
-          box-shadow: 0 0 15px ${isFI ? 'rgba(59,130,246,0.1)' : 'rgba(217,119,6,0.08)'};
+          background: rgba(14,131,136,0.12) !important;
+          border-color: rgba(14,131,136,0.35) !important;
+          box-shadow: 0 0 15px rgba(14,131,136,0.15);
           transform: translateY(-2px);
         }
       `}</style>

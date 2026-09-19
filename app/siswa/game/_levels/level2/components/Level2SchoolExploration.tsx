@@ -58,7 +58,7 @@ interface LocationMeta {
 }
 
 interface Level2SchoolExplorationProps {
-  cognitiveStyle: 'FI' | 'FD'
+  cognitiveStyle?: 'FI' | 'FD'
   visitedLocations: string[]
   victimsVisited: Record<string, number[]>
   collectedCount: number

@@ -10,9 +10,7 @@ type Student = {
   id: string
   name: string
   nisn: string
-  geftStatus: string
   classroom: { name: string }
-  geftResult?: { cognitiveStyle: 'FI' | 'FD'; score: number }
 }
 
 const LEVELS = [
@@ -43,7 +41,7 @@ const LEVELS = [
 
 export default function LobbyPage() {
   const router = useRouter()
-  const { cognitiveStyle, setCognitiveStyle, startLevel, resetLevel, completedLevels } = useGameStore()
+  const { completedLevels } = useGameStore()
   const [student, setStudent] = useState<Student | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -52,34 +50,12 @@ export default function LobbyPage() {
     if (!data) { router.push('/'); return }
     const s = JSON.parse(data) as Student
     setStudent(s)
-
-    if (s.geftStatus !== 'completed') {
-      router.push('/siswa/geft'); return
-    }
-
-    // Fetch cognitive style from API
-    const fetchStyle = async () => {
-      try {
-        if (cognitiveStyle) { setLoading(false); return }
-        const res = await fetch(`/api/game/cognitive-style?studentId=${s.id}`)
-        if (!res.ok) { router.push('/siswa/geft'); return }
-        const data = await res.json()
-        setCognitiveStyle(data.cognitiveStyle)
-      } catch {
-        // fallback to local geftResult
-        if (s.geftResult) setCognitiveStyle(s.geftResult.cognitiveStyle)
-      } finally {
-        setLoading(false)
-      }
-    }
-    fetchStyle()
-  }, [router, cognitiveStyle, setCognitiveStyle])
+    setLoading(false)
+  }, [router])
 
   const handlePlayLevel = (levelId: number) => {
-    router.push(`/siswa/diagnostik?level=${levelId}`)
+    router.push(`/siswa/game/level/${levelId}`)
   }
-
-  const isFI = (student?.geftResult?.cognitiveStyle || cognitiveStyle) === 'FI'
 
   if (loading) return (
     <div className="game-root" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
@@ -129,12 +105,10 @@ export default function LobbyPage() {
           {/* Avatar */}
           <div style={{
             width: '56px', height: '56px', borderRadius: '50%', flexShrink: 0,
-            background: isFI
-              ? 'linear-gradient(135deg, #3B82F6, #8B5CF6)'
-              : 'linear-gradient(135deg, #EA580C, #D97706)',
+            background: 'linear-gradient(135deg, #00ADB5, #3B82F6)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: '22px', fontWeight: 800, color: '#FFFFFF',
-            boxShadow: isFI ? '0 0 20px rgba(59,130,246,0.4)' : '0 0 20px rgba(217,119,6,0.4)'
+            boxShadow: '0 0 20px rgba(0, 173, 181, 0.4)'
           }}>
             {student?.name?.charAt(0).toUpperCase()}
           </div>
@@ -142,8 +116,8 @@ export default function LobbyPage() {
           <div style={{ flex: 1, minWidth: '160px' }}>
             <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: '4px' }}>SELAMAT DATANG KEMBALI</div>
             <h2 style={{ margin: '0 0 6px', fontSize: '20px', fontWeight: 800 }}>{student?.name}</h2>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: isFI ? 'rgba(59,130,246,0.12)' : 'rgba(217,119,6,0.1)', border: `1px solid ${isFI ? 'rgba(59,130,246,0.3)' : 'var(--game-border-accent)'}`, borderRadius: '50px', padding: '4px 12px', fontSize: '12px', fontWeight: 700, color: isFI ? '#60A5FA' : 'var(--accent)' }}>
-              {isFI ? '🧠 Field Independent (FI)' : '👥 Field Dependent (FD)'}
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'rgba(0, 173, 181, 0.1)', border: '1px solid rgba(0, 173, 181, 0.3)', borderRadius: '50px', padding: '4px 12px', fontSize: '12px', fontWeight: 700, color: '#00ADB5' }}>
+              🕵️ Detektif Literasi Statistik
             </div>
           </div>
         </motion.div>
@@ -231,7 +205,7 @@ export default function LobbyPage() {
                           handlePlayLevel(level.id)
                         }}
                       >
-                        {cognitiveStyle === 'FI' ? '🧠 Mulai (FI Path)' : '👥 Mulai (FD Path)'} →
+                        🔍 Mulai Penyelidikan →
                       </button>
                     </div>
                   )}

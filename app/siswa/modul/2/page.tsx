@@ -8,12 +8,7 @@ type Student = {
   id: string
   name: string
   nisn: string
-  geftStatus: 'not_taken' | 'completed'
   classroom: { name: string }
-  geftResult?: {
-    score: number
-    cognitiveStyle: 'FI' | 'FD'
-  }
 }
 
 type ClassInterval = {
@@ -144,7 +139,6 @@ export default function Modul2Page() {
     const data = localStorage.getItem('student')
     if (!data) { router.push('/'); return }
     const s = JSON.parse(data) as Student
-    if (s.geftStatus !== 'completed') { router.push('/siswa/geft'); return }
     setStudent(s)
     setLoading(false)
   }, [router])
@@ -157,7 +151,7 @@ export default function Modul2Page() {
     )
   }
 
-  const cognitiveStyle = student.geftResult?.cognitiveStyle || 'FI'
+  const cognitiveStyle = 'FI'
 
   // Calculations for stats
   const totalN = frequencies.reduce((a, b) => a + b, 0)

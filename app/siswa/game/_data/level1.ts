@@ -12,14 +12,20 @@ export const screenTimeData = [1, 2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5
 export const CLASS_LABELS = ['1 – 3', '4 – 6', '7 – 9', '10 – 12', '13 – 15', '16 – 18']
 
 export function getClassIndex(val: number): number {
-  if (val >= 1  && val <= 3)  return 0
-  if (val >= 4  && val <= 6)  return 1
-  if (val >= 7  && val <= 9)  return 2
+  if (val >= 1 && val <= 3) return 0
+  if (val >= 4 && val <= 6) return 1
+  if (val >= 7 && val <= 9) return 2
   if (val >= 10 && val <= 12) return 3
   if (val >= 13 && val <= 15) return 4
   if (val >= 16 && val <= 18) return 5
   return -1
 }
+
+
+
+
+
+
 
 // Computed statistics
 const total = screenTimeData.reduce((a, b) => a + b, 0)
@@ -41,12 +47,12 @@ export const STATS = {
 
 // Correct answer: frequency distribution table
 export const CORRECT_TABLE = [
-  { kelas: '1 – 3',   f: 9,  fRel: 25.7, fKum: 9  },
-  { kelas: '4 – 6',   f: 11, fRel: 31.4, fKum: 20 },
-  { kelas: '7 – 9',   f: 6,  fRel: 17.1, fKum: 26 },
-  { kelas: '10 – 12', f: 3,  fRel:  8.6, fKum: 29 },
-  { kelas: '13 – 15', f: 3,  fRel:  8.6, fKum: 32 },
-  { kelas: '16 – 18', f: 3,  fRel:  8.6, fKum: 35 },
+  { kelas: '1 – 3', f: 9, fRel: 25.7, fKum: 9 },
+  { kelas: '4 – 6', f: 11, fRel: 31.4, fKum: 20 },
+  { kelas: '7 – 9', f: 6, fRel: 17.1, fKum: 26 },
+  { kelas: '10 – 12', f: 3, fRel: 8.6, fKum: 29 },
+  { kelas: '13 – 15', f: 3, fRel: 8.6, fKum: 32 },
+  { kelas: '16 – 18', f: 3, fRel: 8.6, fKum: 35 },
 ]
 
 // Bar heights as percentage of max frequency (13)
@@ -93,9 +99,9 @@ Sebelum kita lanjut ke Kasus Level 2, kamu wajib membuka "Buku Saku Detektif" di
 
 // Badges
 export const BADGES = {
-  DETECTIVE: { id: 'detective-histogram', icon: '🔍', name: 'Detektif Histogram',     desc: 'Menyelesaikan Level 1' },
-  SPEED:     { id: 'speed-analyst',       icon: '⚡', name: 'Speed Analyst',           desc: 'Selesai < 50% waktu' },
-  PERFECT:   { id: 'perfect-investigator',icon: '🎯', name: 'Perfect Investigator',    desc: '0 kesalahan' },
-  CRITICAL:  { id: 'critical-thinker',    icon: '🧠', name: 'Critical Thinker',        desc: 'Analisis mendalam' },
-  MYTHBUST:  { id: 'myth-buster',         icon: '💥', name: 'Myth Buster',             desc: 'Berhasil membongkar hoaks' },
+  DETECTIVE: { id: 'detective-histogram', icon: '🔍', name: 'Detektif Histogram', desc: 'Menyelesaikan Level 1' },
+  SPEED: { id: 'speed-analyst', icon: '⚡', name: 'Speed Analyst', desc: 'Selesai < 50% waktu' },
+  PERFECT: { id: 'perfect-investigator', icon: '🎯', name: 'Perfect Investigator', desc: '0 kesalahan' },
+  CRITICAL: { id: 'critical-thinker', icon: '🧠', name: 'Critical Thinker', desc: 'Analisis mendalam' },
+  MYTHBUST: { id: 'myth-buster', icon: '💥', name: 'Myth Buster', desc: 'Berhasil membongkar hoaks' },
 }

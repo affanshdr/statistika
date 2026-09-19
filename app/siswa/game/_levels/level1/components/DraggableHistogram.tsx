@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect } from 'react'
 import { motion, AnimatePresence, PanInfo } from 'framer-motion'
-import { screenTimeData, CLASS_LABELS, getClassIndex, CORRECT_TABLE } from '@/app/siswa/game/_data/level1'
+import { CLASS_LABELS, getClassIndex, getLevel1Data } from '@/app/siswa/game/_data/level1'
 import { useGameStore } from '@/lib/store/gameStore'
 
 interface DataPoint {
@@ -16,7 +16,7 @@ interface DataPoint {
 type Mode = 'FI' | 'FD'
 
 interface DraggableHistogramProps {
-  mode: Mode
+  mode?: Mode
   onSubmit?: (isCorrect: boolean) => void
   readOnly?: boolean
   forceStack?: boolean
@@ -51,18 +51,13 @@ const PREPLACED_INDICES = new Set([
   32, 34,                 // class 5 (16-18)
 ])
 
-function initDataPoints(mode: Mode, readOnly: boolean): DataPoint[] {
-  return screenTimeData.map((val, idx) => {
-    const cIdx = getClassIndex(val)
-    const isPreplaced = readOnly || PREPLACED_INDICES.has(idx)
-    return { id: `dp-${idx}`, val, classIdx: cIdx, placed: isPreplaced, originalIdx: idx }
-  })
-}
-
 export default function DraggableHistogram({
-  mode, onSubmit, readOnly = false, forceStack = false,
+  mode = 'FI', onSubmit, readOnly = false, forceStack = false,
   placedIndices, onPlacedChange,
 }: DraggableHistogramProps) {
+  const level1Dataset = useGameStore(state => state.level1Dataset)
+  const { screenTimeData, CORRECT_TABLE } = getLevel1Data(level1Dataset)
+
   const answers = useGameStore(state => state.answers)
   const intervalKelas = answers?.intervalKelas as { kelasInterval: string, tepiBawah: number, tepiAtas: number }[] | undefined
 
@@ -90,18 +85,23 @@ export default function DraggableHistogram({
   const isCompact = isNarrow || isShortViewport || forceStack
   const isUltraCompact = !isNarrow && isShortViewport && !forceStack
 
-  const [dataPoints, setDataPoints] = useState<DataPoint[]>(() => initDataPoints(mode, readOnly))
+  const [dataPoints, setDataPoints] = useState<DataPoint[]>(() =>
+    screenTimeData.map((val, idx) => {
+      const cIdx = getClassIndex(val)
+      const isPreplaced = readOnly || PREPLACED_INDICES.has(idx)
+      return { id: `dp-${idx}`, val, classIdx: cIdx, placed: isPreplaced, originalIdx: idx }
+    })
+  )
 
   useEffect(() => {
-    if (placedIndices) {
-      setDataPoints(prev =>
-        prev.map(item => ({
-          ...item,
-          placed: placedIndices.includes(item.originalIdx) || PREPLACED_INDICES.has(item.originalIdx) || readOnly
-        }))
-      )
-    }
-  }, [placedIndices, readOnly])
+    setDataPoints(
+      screenTimeData.map((val, idx) => {
+        const cIdx = getClassIndex(val)
+        const isPreplaced = readOnly || PREPLACED_INDICES.has(idx) || (placedIndices && placedIndices.includes(idx))
+        return { id: `dp-${idx}`, val, classIdx: cIdx, placed: !!isPreplaced, originalIdx: idx }
+      })
+    )
+  }, [screenTimeData, readOnly, placedIndices])
 
   const [selectedPoint, setSelectedPoint] = useState<DataPoint | null>(null)
   const [flashError, setFlashError] = useState<number | null>(null)

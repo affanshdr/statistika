@@ -1,16 +1,11 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useMemo, useEffect } from 'react'
 import { motion, AnimatePresence, PanInfo } from 'framer-motion'
-import { screenTimeData, STATS } from '@/app/siswa/game/_data/level1'
+import { getLevel1Data } from '@/app/siswa/game/_data/level1'
+import { useGameStore } from '@/lib/store/gameStore'
 
 const CHIP_COLOR = '#6366F1'
-
-const CORRECT_MIN = Math.min(...screenTimeData) // 1
-const CORRECT_MAX = Math.max(...screenTimeData) // 18
-
-// Unique values only, shuffled once at module load
-const UNIQUE_VALS: number[] = (Array.from(new Set(screenTimeData)) as number[]).sort(() => Math.random() - 0.5)
 
 interface Chip {
   id: string
@@ -23,7 +18,7 @@ interface PregameMinMaxDropProps {
 }
 
 // ── Reading material ──────────────────────────────────────────────────────────
-function ReadingCard({ minVal, maxVal, onNext }: { minVal: number; maxVal: number; onNext: () => void }) {
+function ReadingCard({ minVal, maxVal, nSample, onNext }: { minVal: number; maxVal: number; nSample: number; onNext: () => void }) {
   const range = maxVal - minVal
   const kUsed = 5
   const width = Math.ceil(range / kUsed)
@@ -70,7 +65,7 @@ function ReadingCard({ minVal, maxVal, onNext }: { minVal: number; maxVal: numbe
         </div>
         {[
           { label: 'Rentang (R)', formula: '= Data terbesar − Data terkecil', calc: `= ${maxVal} − ${minVal} = ${range}` },
-          { label: 'Banyak Kelas (k)', formula: '= 1 + 3,3 × log n', calc: `= 1 + 3,3 × log ${STATS.n} = 1 + 3,3 × 1,54 ≈ 6 → dibulatkan ${kUsed} kelas` },
+          { label: 'Banyak Kelas (k)', formula: '= 1 + 3,3 × log n', calc: `= 1 + 3,3 × log ${nSample} = 1 + 3,3 × 1,54 ≈ 6 → dibulatkan ${kUsed} kelas` },
           { label: 'Panjang Kelas (p)', formula: '= Rentang ÷ Banyak Kelas', calc: `= ${range} ÷ ${kUsed} = ${(range / kUsed).toFixed(1)} → dibulatkan ${width}` },
           { label: 'Tepi Kelas', formula: 'Tepi bawah = Batas bawah − 0,5', calc: 'Tepi atas  = Batas atas + 0,5' },
         ].map((step, i, arr) => (
@@ -137,9 +132,23 @@ function ReadingCard({ minVal, maxVal, onNext }: { minVal: number; maxVal: numbe
 
 // ── Main component ────────────────────────────────────────────────────────────
 export default function PregameMinMaxDrop({ onComplete }: PregameMinMaxDropProps) {
+  const level1Dataset = useGameStore(s => s.level1Dataset)
+  const { screenTimeData, STATS } = getLevel1Data(level1Dataset)
+  const correctMin = STATS.min
+  const correctMax = STATS.max
+
+  const uniqueVals = useMemo(() => {
+    return Array.from(new Set(screenTimeData)).sort(() => Math.random() - 0.5)
+  }, [screenTimeData])
+
   const [chips, setChips] = useState<Chip[]>(() =>
-    UNIQUE_VALS.map((val, idx) => ({ id: `chip-${idx}`, val, placed: null }))
+    uniqueVals.map((val, idx) => ({ id: `chip-${idx}`, val, placed: null }))
   )
+
+  useEffect(() => {
+    setChips(uniqueVals.map((val, idx) => ({ id: `chip-${idx}`, val, placed: null })))
+  }, [uniqueVals])
+
   const [selectedChip, setSelectedChip] = useState<Chip | null>(null)
   const [draggingId, setDraggingId]     = useState<string | null>(null)
   const [flashError, setFlashError]     = useState<'min' | 'max' | null>(null)
@@ -164,8 +173,8 @@ export default function PregameMinMaxDrop({ onComplete }: PregameMinMaxDropProps
   // Returns true if placement was made (correct value), false otherwise
   const placeChipInSlot = useCallback((chip: Chip, slot: 'min' | 'max'): boolean => {
     const isCorrect =
-      (slot === 'min' && chip.val === CORRECT_MIN) ||
-      (slot === 'max' && chip.val === CORRECT_MAX)
+      (slot === 'min' && chip.val === correctMin) ||
+      (slot === 'max' && chip.val === correctMax)
 
     if (!isCorrect) {
       triggerError(slot, `💡 Angka ${chip.val} bukan nilai ${slot === 'min' ? 'terendah' : 'tertinggi'}. Coba lagi!`)
@@ -179,7 +188,7 @@ export default function PregameMinMaxDrop({ onComplete }: PregameMinMaxDropProps
     }))
     setSelectedChip(null)
     return true
-  }, [triggerError])
+  }, [correctMin, correctMax, triggerError])
 
   const handleDragStart = useCallback((chip: Chip) => () => {
     setSelectedChip(null)
@@ -241,7 +250,7 @@ export default function PregameMinMaxDrop({ onComplete }: PregameMinMaxDropProps
     const minChip = chips.find(c => c.placed === 'min')
     const maxChip = chips.find(c => c.placed === 'max')
     if (!minChip || !maxChip) return
-    const correct = minChip.val === CORRECT_MIN && maxChip.val === CORRECT_MAX
+    const correct = minChip.val === correctMin && maxChip.val === correctMax
     setSubmitted(true)
     if (correct) {
       setShowReading(true)
@@ -257,7 +266,7 @@ export default function PregameMinMaxDrop({ onComplete }: PregameMinMaxDropProps
   const isDraggingAny = !!draggingId
 
   if (showReading) {
-    return <ReadingCard minVal={CORRECT_MIN} maxVal={CORRECT_MAX} onNext={() => onComplete?.(true)} />
+    return <ReadingCard minVal={correctMin} maxVal={correctMax} nSample={STATS.n} onNext={() => onComplete?.(true)} />
   }
 
   return (

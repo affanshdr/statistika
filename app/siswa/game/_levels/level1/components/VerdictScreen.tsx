@@ -2,13 +2,14 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { STATS } from '@/app/siswa/game/_data/level1'
+import { getLevel1Data } from '@/app/siswa/game/_data/level1'
+import { useGameStore } from '@/lib/store/gameStore'
 import DiRA from '@/app/siswa/game/_components/DiRA'
 
 interface VerificationScreenProps {
   onCorrect: () => void    // jawaban benar → lanjut MythBusted
   onWrong: () => void      // jawaban salah → coba lagi
-  guidedMode?: boolean     // FD: tampilkan hint dari DiRA
+  guidedMode?: boolean     // tampilkan hint dari DiRA
 }
 
 const VIRAL_POST = {
@@ -22,6 +23,10 @@ const VIRAL_POST = {
 type Answer = 'benar' | 'hoaks' | null
 
 export default function VerificationScreen({ onCorrect, onWrong, guidedMode }: VerificationScreenProps) {
+  const level1Dataset = useGameStore(s => s.level1Dataset)
+  const { STATS, screenTimeData } = getLevel1Data(level1Dataset)
+  const lte8Count = screenTimeData.filter(v => v <= 8).length
+
   const [selected, setSelected] = useState<Answer>(null)
   const [submitted, setSubmitted] = useState(false)
   const [isWrong, setIsWrong] = useState(false)
@@ -284,7 +289,7 @@ export default function VerificationScreen({ onCorrect, onWrong, guidedMode }: V
             <span style={{ color: 'var(--text-secondary)', fontWeight: 700 }}>📊 Datamu:</span>
             <span style={{ color: 'var(--accent)', fontWeight: 800 }}>Mean = {STATS.mean} jam</span>
             <span style={{ color: 'var(--text-muted)' }}>·</span>
-            <span style={{ color: 'var(--text-primary)', fontWeight: 700 }}>25/35 siswa ≤ 8 jam</span>
+            <span style={{ color: 'var(--text-primary)', fontWeight: 700 }}>{lte8Count}/{STATS.n} siswa ≤ 8 jam</span>
             <span style={{ color: 'var(--text-muted)' }}>·</span>
             <span style={{ color: 'var(--text-secondary)', fontWeight: 600 }}>n = {STATS.n} siswa</span>
           </motion.div>
