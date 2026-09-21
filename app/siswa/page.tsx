@@ -82,9 +82,17 @@ export default function SiswaPage() {
 
   useEffect(() => {
     const data = localStorage.getItem('student')
-    if (!data) { router.push('/'); return }
-    const s = JSON.parse(data) as Student
-    setStudent(s)
+    if (!data) {
+      setStudent({
+        id: 'detektif-guest',
+        name: 'Detektif',
+        nisn: '-',
+        classroom: { name: 'Kelas XII' }
+      })
+    } else {
+      const s = JSON.parse(data) as Student
+      setStudent(s)
+    }
 
     const alreadyShown = sessionStorage.getItem('greeting_shown')
     if (!alreadyShown) {
@@ -754,7 +762,6 @@ export default function SiswaPage() {
                         <div style={{ width: '100%', marginTop: '2px' }}>
                           {isUnlocked ? (
                             isCompleted ? (
-                              <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '6px' }} onClick={e => e.stopPropagation()}>
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation()
@@ -762,7 +769,7 @@ export default function SiswaPage() {
                                   }}
                                   style={{
                                     width: '100%',
-                                    padding: '7px',
+                                    padding: '8px',
                                     borderRadius: '4px',
                                     border: 'none',
                                     background: '#0E8388',
@@ -780,36 +787,9 @@ export default function SiswaPage() {
                                   onMouseEnter={e => e.currentTarget.style.filter = 'brightness(1.15)'}
                                   onMouseLeave={e => e.currentTarget.style.filter = 'none'}
                                 >
-                                  <span>📊 Lihat Hasil</span>
+                                  <span>📊 Lihat Hasil Misi</span>
                                 </button>
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    router.push(`/siswa/game/posttest/${level.id}`)
-                                  }}
-                                  style={{
-                                    width: '100%',
-                                    padding: '7px',
-                                    borderRadius: '4px',
-                                    border: completedPostTests.includes(level.id) ? '1px solid rgba(14, 131, 136, 0.3)' : 'none',
-                                    background: completedPostTests.includes(level.id) ? 'rgba(14, 131, 136, 0.1)' : '#D97706',
-                                    color: completedPostTests.includes(level.id) ? '#0E8388' : '#FFFFFF',
-                                    fontSize: isMobile ? '9.5px' : '11px',
-                                    fontWeight: 800,
-                                    cursor: 'pointer',
-                                    boxShadow: completedPostTests.includes(level.id) ? 'none' : '0 2px 6px rgba(217, 119, 6, 0.25)',
-                                    transition: 'all 0.2s',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    gap: '3px',
-                                  }}
-                                  onMouseEnter={e => e.currentTarget.style.filter = 'brightness(1.15)'}
-                                  onMouseLeave={e => e.currentTarget.style.filter = 'none'}
-                                >
-                                  <span>{completedPostTests.includes(level.id) ? '✅ Post Test Selesai' : '🛡️ Mulai Post Test'}</span>
-                                </button>
-                              </div>
+
                             ) : (
                               <button
                                 onClick={(e) => {

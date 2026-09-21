@@ -134,7 +134,7 @@ export default function Level1Main({
   const displayStep = step
 
   return (
-    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative' }}>
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative', height: '100%' }}>
       {/* Phase 1: Cutscene */}
       <AnimatePresence>
         {phase === 'cutscene' && (
@@ -155,7 +155,7 @@ export default function Level1Main({
           style={{
             flex: 1, display: 'flex', flexDirection: 'column',
             background: 'var(--game-bg)', color: 'var(--text-primary)',
-            padding: '16px 20px', height: '100%', overflow: pregameStep === 'exploration' ? 'hidden' : 'auto',
+            padding: pregameStep === 'exploration' ? '0' : '16px 20px', height: '100%', overflow: pregameStep === 'exploration' ? 'hidden' : 'auto',
           }}
         >
           {pregameStep === 'exploration' && (

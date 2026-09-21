@@ -103,7 +103,7 @@ export default function PlayerCharacter({
         y={posY}
         width={width}
         height={height}
-        style={{ overflow: 'visible' }}
+        style={{ overflow: 'visible', pointerEvents: 'none', willChange: 'transform' }}
       >
         <div
           style={{
@@ -117,6 +117,7 @@ export default function PlayerCharacter({
             transformOrigin: 'center center',
             imageRendering: 'pixelated',
             filter: 'drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.6))',
+            willChange: 'transform, background-position',
           }}
         />
       </foreignObject>

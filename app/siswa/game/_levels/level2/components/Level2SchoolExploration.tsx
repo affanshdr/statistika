@@ -144,19 +144,30 @@ export default function Level2SchoolExploration({
     }
   }, [charPos.x, charPos.y, activeMap])
 
+  const lastTimeRef = useRef<number>(0)
+
   // ── 1. Main Game Movement Loop with Dynamic Wall Collision ──────
   useEffect(() => {
+    lastTimeRef.current = performance.now()
     const tick = () => {
+      const now = performance.now()
+      const dt = Math.min((now - lastTimeRef.current) / 1000, 0.05)
+      lastTimeRef.current = now
+
       const { x: dx, y: dy } = dirRef.current
       if (dx || dy) {
+        const moveSpeed = 165
+        const dist = moveSpeed * dt
+
         setCharPos(p => {
-          const nx = Math.max(10, Math.min(worldVW - 10, p.x + dx * SPEED))
+          const nx = Math.max(10, Math.min(worldVW - 10, p.x + dx * dist))
 
           // Calculate exact Y wall limit at target X position
           const minYAtTargetX = getRedLineY(nx, redLinePoints)
 
           // Character can NEVER walk above the red line boundary!
-          const ny = Math.max(minYAtTargetX, Math.min(BOTTOM_Y_LIMIT, p.y + dy * SPEED))
+          const ny = Math.max(minYAtTargetX, Math.min(BOTTOM_Y_LIMIT, p.y + dy * dist))
+          if (nx === p.x && ny === p.y) return p
           return { x: nx, y: ny }
         })
       }
@@ -220,19 +231,20 @@ export default function Level2SchoolExploration({
     const outer = joystickOuterRef.current
     if (!outer) return
     const rect = outer.getBoundingClientRect()
-    const dx = clientX - (rect.left + rect.width / 2)
-    const dy = clientY - (rect.top + rect.height / 2)
+    const R = rect.width / 2
+    const dx = clientX - (rect.left + R)
+    const dy = clientY - (rect.top + R)
     const dist = Math.sqrt(dx * dx + dy * dy)
-    const nx = Math.max(-1, Math.min(1, dist > 0 ? dx / Math.max(dist, JOYSTICK_R) : 0))
-    const ny = Math.max(-1, Math.min(1, dist > 0 ? dy / Math.max(dist, JOYSTICK_R) : 0))
+    const nx = Math.max(-1, Math.min(1, dist > 0 ? dx / Math.max(dist, R) : 0))
+    const ny = Math.max(-1, Math.min(1, dist > 0 ? dy / Math.max(dist, R) : 0))
 
     const nextDir = { x: nx, y: ny }
     dirRef.current = nextDir
     setMoveDir(nextDir)
 
     if (joystickKnobRef.current) {
-      const clampX = (dx / Math.max(dist, 1)) * Math.min(dist, JOYSTICK_R)
-      const clampY = (dy / Math.max(dist, 1)) * Math.min(dist, JOYSTICK_R)
+      const clampX = (dx / Math.max(dist, 1)) * Math.min(dist, R)
+      const clampY = (dy / Math.max(dist, 1)) * Math.min(dist, R)
       joystickKnobRef.current.style.transform = `translate(calc(-50% + ${clampX}px), calc(-50% + ${clampY}px))`
     }
   }
@@ -256,7 +268,7 @@ export default function Level2SchoolExploration({
       if (containerRef.current) {
         const { clientWidth, clientHeight } = containerRef.current
         if (clientWidth > 0 && clientHeight > 0) {
-          setContainerDim({ w: clientWidth, h: clientHeight })
+          setContainerDim(prev => (prev.w === clientWidth && prev.h === clientHeight ? prev : { w: clientWidth, h: clientHeight }))
         }
       }
     }
@@ -303,24 +315,24 @@ export default function Level2SchoolExploration({
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
-          borderRadius: 16,
+          borderRadius: 0,
           overflow: 'hidden',
           background: 'var(--game-bg, #0b1e2c)',
-          border: '1px solid rgba(14, 131, 136, 0.25)',
+          border: 'none',
         }}
       >
 
         {/* Floating Glassmorphism HUD Overlay */}
         <div style={{
           position: 'absolute',
-          top: 10,
-          left: 10,
-          right: 10,
+          top: 'clamp(6px, 1.5vh, 12px)',
+          left: 'clamp(95px, 12vw, 120px)',
+          right: 'clamp(8px, 1.5vw, 14px)',
           zIndex: 40,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          gap: 10,
+          gap: 'clamp(4px, 1vw, 10px)',
           pointerEvents: 'none'
         }}>
           <div style={{
@@ -328,16 +340,16 @@ export default function Level2SchoolExploration({
             backdropFilter: 'blur(12px)',
             border: `1.5px solid ${accentColor}35`,
             borderRadius: 12,
-            padding: '6px 14px',
+            padding: 'clamp(4px, 0.7vw, 6px) clamp(8px, 1vw, 14px)',
             display: 'flex',
             alignItems: 'center',
-            gap: 10,
+            gap: 'clamp(6px, 1vw, 10px)',
             boxShadow: '0 4px 16px rgba(0, 0, 0, 0.45)',
             pointerEvents: 'auto'
           }}>
-            <div style={{ fontSize: '15px' }}>🕵️‍♂️</div>
+            <div style={{ fontSize: 'clamp(13px, 1.5vw, 15px)' }}>🕵️‍♂️</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ fontSize: '12px', fontWeight: 900, color: '#F8FAFC', letterSpacing: '0.3px' }}>
+              <span style={{ fontSize: 'clamp(10.5px, 1.1vw, 12px)', fontWeight: 900, color: '#F8FAFC', letterSpacing: '0.3px', whiteSpace: 'nowrap' }}>
                 Peta: {activeMap === 'kelas' ? 'Sekolah / Kelas' : 'Lorong / Jalan (Panorama)'} Level 2
               </span>
             </div>
@@ -613,14 +625,17 @@ export default function Level2SchoolExploration({
           ref={joystickOuterRef}
           style={{
             position: 'absolute',
-            bottom: '14px',
-            left: '14px',
-            width: `${JOYSTICK_R * 2}px`,
-            height: `${JOYSTICK_R * 2}px`,
+            bottom: 'clamp(12px, 3vh, 24px)',
+            left: 'clamp(12px, 3vw, 24px)',
+            width: 'clamp(60px, 9vw, 84px)',
+            height: 'clamp(60px, 9vw, 84px)',
             borderRadius: '50%',
-            background: 'rgba(14, 131, 136, 0.15)',
-            border: '2px solid rgba(255,255,255,0.2)',
+            background: 'rgba(14, 131, 136, 0.22)',
+            border: '2.5px solid rgba(0, 173, 181, 0.45)',
+            boxShadow: '0 4px 15px rgba(0, 0, 0, 0.4), 0 0 10px rgba(0, 173, 181, 0.2)',
             touchAction: 'none',
+            userSelect: 'none',
+            backdropFilter: 'blur(4px)',
             zIndex: 30,
           }}
           onPointerDown={(e) => {
@@ -641,8 +656,8 @@ export default function Level2SchoolExploration({
               top: '50%',
               left: '50%',
               transform: 'translate(-50%, -50%)',
-              width: '24px',
-              height: '24px',
+              width: '36%',
+              height: '36%',
               borderRadius: '50%',
               background: `linear-gradient(135deg, ${accentColor} 0%, #38BDF8 100%)`,
               boxShadow: `0 0 10px ${accentColor}`,

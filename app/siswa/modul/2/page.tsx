@@ -137,9 +137,12 @@ export default function Modul2Page() {
 
   useEffect(() => {
     const data = localStorage.getItem('student')
-    if (!data) { router.push('/'); return }
-    const s = JSON.parse(data) as Student
-    setStudent(s)
+    if (!data) {
+      setStudent({ id: 'detektif-guest', name: 'Detektif', nisn: '-', classroom: { name: 'Kelas XII' } })
+    } else {
+      const s = JSON.parse(data) as Student
+      setStudent(s)
+    }
     setLoading(false)
   }, [router])
 

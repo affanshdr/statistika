@@ -20,13 +20,43 @@ export function getClassIndex(val: number): number {
   if (val >= 16 && val <= 18) return 5
   return -1
 }
+export function generateRandomLevel1Data(): number[] {
+  return [...screenTimeData]
+}
 
+export function getLevel1Data(customDataset?: number[] | null) {
+  const data = customDataset && customDataset.length > 0 ? customDataset : screenTimeData
+  const total = data.reduce((a, b) => a + b, 0)
+  const sorted = [...data].sort((a, b) => a - b)
+  const n = data.length
+  const min = sorted[0]
+  const max = sorted[n - 1]
+  const range = max - min
+  const mean = Number((total / n).toFixed(2))
+  const median = n % 2 === 0
+    ? (sorted[n / 2 - 1] + sorted[n / 2]) / 2
+    : sorted[Math.floor(n / 2)]
 
+  const stats = {
+    n,
+    min,
+    max,
+    range,
+    mean,
+    median,
+    numClasses: 6,
+    classWidth: 3,
+  }
 
-
-
-
-
+  return {
+    screenTimeData: data,
+    STATS: stats,
+    CORRECT_TABLE,
+    HISTOGRAM_BARS,
+    CORRECT_VERDICT,
+    VERDICT_EXPLANATION,
+  }
+}
 // Computed statistics
 const total = screenTimeData.reduce((a, b) => a + b, 0)
 const sorted = [...screenTimeData].sort((a, b) => a - b)

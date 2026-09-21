@@ -232,13 +232,13 @@ function Joystick({ onDir }: { onDir: (x: number, y: number) => void }) {
   const outer = useRef<HTMLDivElement>(null)
   const knob = useRef<HTMLDivElement>(null)
   const on = useRef(false)
-  const R = 38
 
   const compute = (cx: number, cy: number) => {
     const el = outer.current; if (!el) return
     const b = el.getBoundingClientRect()
-    const dx = cx - (b.left + b.width / 2)
-    const dy = cy - (b.top + b.height / 2)
+    const R = b.width / 2
+    const dx = cx - (b.left + R)
+    const dy = cy - (b.top + R)
     const d = Math.sqrt(dx * dx + dy * dy)
     onDir(Math.max(-1, Math.min(1, d > 0 ? dx / Math.max(d, R) : 0)), Math.max(-1, Math.min(1, d > 0 ? dy / Math.max(d, R) : 0)))
     if (knob.current) knob.current.style.transform =
@@ -250,21 +250,23 @@ function Joystick({ onDir }: { onDir: (x: number, y: number) => void }) {
   return (
     <div
       style={{
-        width: R * 2,
-        height: R * 2,
+        width: 'clamp(60px, 9vw, 84px)',
+        height: 'clamp(60px, 9vw, 84px)',
         borderRadius: '50%',
         background: 'rgba(14, 131, 136, 0.22)',
         border: '2.5px solid rgba(0, 173, 181, 0.45)',
         boxShadow: '0 4px 15px rgba(0, 0, 0, 0.4), 0 0 10px rgba(0, 173, 181, 0.2)',
         position: 'relative',
         touchAction: 'none',
-        userSelect: 'none'
+        userSelect: 'none',
+        backdropFilter: 'blur(4px)',
+        transition: 'opacity 0.3s, transform 0.2s',
       }}
       ref={outer}
       onPointerDown={e => { on.current = true; outer.current?.setPointerCapture(e.pointerId); compute(e.clientX, e.clientY) }}
       onPointerMove={e => { if (on.current) compute(e.clientX, e.clientY) }}
       onPointerUp={reset} onPointerCancel={reset}>
-      <div ref={knob} style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: 26, height: 26, borderRadius: '50%', background: 'linear-gradient(135deg,#00ADB5 0%,#818cf8 100%)', boxShadow: '0 0 12px #00ADB5', pointerEvents: 'none' }} />
+      <div ref={knob} style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: '36%', height: '36%', borderRadius: '50%', background: 'linear-gradient(135deg,#00ADB5 0%,#818cf8 100%)', boxShadow: '0 0 12px #00ADB5', pointerEvents: 'none' }} />
     </div>
   )
 }
@@ -1172,7 +1174,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
       if (containerRef.current) {
         const { clientWidth, clientHeight } = containerRef.current
         if (clientWidth > 0 && clientHeight > 0) {
-          setContainerDim({ w: clientWidth, h: clientHeight })
+          setContainerDim(prev => (prev.w === clientWidth && prev.h === clientHeight ? prev : { w: clientWidth, h: clientHeight }))
         }
       }
     }
@@ -1264,22 +1266,42 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
     }
   }, [charPos.x, charPos.y])
 
-  // Main game tick: movement animation loop
+  const lastTimeRef = useRef<number>(0)
+
+  // Main game tick: movement animation loop with delta-time smoothing
   useEffect(() => {
+    lastTimeRef.current = performance.now()
     const tick = () => {
+      const now = performance.now()
+      const dt = Math.min((now - lastTimeRef.current) / 1000, 0.05)
+      lastTimeRef.current = now
+
       if (!activeDoor && !activeClass && !diraMessageText && !showWaliKelasPopup) {
         const { x: dx, y: dy } = dirRef.current
         if (dx || dy) {
+          const moveSpeed = 165 // pixels per second for responsive & silky smooth movement
+          const dist = moveSpeed * dt
+
           setCharPos(p => {
             const currentRedLineY = getRedLineY(p.x)
             const safeY = Math.max(p.y, currentRedLineY)
 
-            const nx = Math.max(10, Math.min(WORLD_VW - 10, p.x + dx * SPEED))
-            const ny = Math.max(10, Math.min(WORLD_VH - 10, safeY + dy * SPEED))
+            const nx = Math.max(10, Math.min(WORLD_VW - 10, p.x + dx * dist))
+            const ny = Math.max(10, Math.min(WORLD_VH - 10, safeY + dy * dist))
 
-            if (isWalkable(nx, ny, unlockedR.current)) return { x: nx, y: ny }
-            if (isWalkable(nx, safeY, unlockedR.current)) return { x: nx, y: safeY }
-            if (isWalkable(p.x, ny, unlockedR.current)) return { x: p.x, y: ny }
+            if (isWalkable(nx, ny, unlockedR.current)) {
+              if (nx === p.x && ny === p.y) return p
+              return { x: nx, y: ny }
+            }
+            if (isWalkable(nx, safeY, unlockedR.current)) {
+              if (nx === p.x && safeY === p.y) return p
+              return { x: nx, y: safeY }
+            }
+            if (isWalkable(p.x, ny, unlockedR.current)) {
+              if (p.x === p.x && ny === p.y) return p
+              return { x: p.x, y: ny }
+            }
+            if (p.x === p.x && safeY === p.y) return p
             return { x: p.x, y: safeY }
           })
         }
@@ -1444,20 +1466,20 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
       {/* Main Game Viewport Container */}
       <div
         ref={containerRef}
-        style={{ flex: 1, width: '100%', minHeight: 0, position: 'relative', display: 'flex', justifyContent: 'center', alignItems: 'center', borderRadius: 16, overflow: 'hidden', background: '#04070a', border: '1px solid rgba(14, 131, 136, 0.25)' }}
+        style={{ flex: 1, width: '100%', minHeight: 0, position: 'relative', display: 'flex', justifyContent: 'center', alignItems: 'center', borderRadius: 0, overflow: 'hidden', background: '#04070a', border: 'none' }}
       >
 
         {/* Floating Glassmorphism Game HUD Overlay inside Viewport */}
         <div style={{
           position: 'absolute',
-          top: 10,
-          left: 10,
-          right: 10,
+          top: 'clamp(6px, 1.5vh, 12px)',
+          left: 'clamp(95px, 12vw, 120px)',
+          right: 'clamp(8px, 1.5vw, 14px)',
           zIndex: 40,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          gap: 10,
+          gap: 'clamp(4px, 1vw, 10px)',
           pointerEvents: 'none'
         }}>
           {/* Left: Quest Title & Data Counter Card */}
@@ -1466,18 +1488,18 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
             backdropFilter: 'blur(12px)',
             border: '1.5px solid rgba(0, 173, 181, 0.35)',
             borderRadius: 12,
-            padding: '6px 12px',
+            padding: 'clamp(4px, 0.7vw, 6px) clamp(8px, 1vw, 12px)',
             display: 'flex',
             alignItems: 'center',
-            gap: 10,
+            gap: 'clamp(6px, 1vw, 10px)',
             boxShadow: '0 4px 16px rgba(0, 0, 0, 0.45)',
             pointerEvents: 'auto'
           }}>
-            <div style={{ fontSize: '15px' }}>🕵️‍♂️</div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ fontSize: '12px', fontWeight: 900, color: '#F8FAFC', letterSpacing: '0.3px' }}>Eksplorasi Ruangan</span>
+            <div style={{ fontSize: 'clamp(13px, 1.5vw, 15px)' }}>🕵️‍♂️</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(4px, 0.8vw, 8px)' }}>
+              <span style={{ fontSize: 'clamp(10.5px, 1.1vw, 12.5px)', fontWeight: 900, color: '#F8FAFC', letterSpacing: '0.3px', whiteSpace: 'nowrap' }}>Eksplorasi Ruangan</span>
               <span style={{ color: 'rgba(255,255,255,0.2)' }}>|</span>
-              <span style={{ fontSize: '11px', fontWeight: 800, color: '#00ADB5', fontFamily: 'monospace' }}>
+              <span style={{ fontSize: 'clamp(9.5px, 1vw, 11.5px)', fontWeight: 800, color: '#00ADB5', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>
                 DATA: <span style={{ color: '#FFFFFF' }}>{n} / {TOTAL_N}</span>
               </span>
             </div>
@@ -1489,15 +1511,15 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
             backdropFilter: 'blur(12px)',
             border: '1.5px solid rgba(255, 255, 255, 0.12)',
             borderRadius: 12,
-            padding: '6px 14px',
+            padding: 'clamp(4px, 0.7vw, 6px) clamp(8px, 1.1vw, 14px)',
             display: 'flex',
             alignItems: 'center',
             gap: 8,
             boxShadow: '0 4px 16px rgba(0, 0, 0, 0.45)',
             pointerEvents: 'auto'
           }}>
-            <span style={{ fontSize: '11px', color: '#00ADB5', fontWeight: 800 }}>📌</span>
-            <span style={{ fontSize: '11px', color: '#F8FAFC', fontWeight: 800, letterSpacing: '0.5px' }}>Langkah 1 dari 3</span>
+            <span style={{ fontSize: 'clamp(10px, 1vw, 11.5px)', color: '#00ADB5', fontWeight: 800 }}>📌</span>
+            <span style={{ fontSize: 'clamp(9.5px, 1vw, 11.5px)', color: '#F8FAFC', fontWeight: 800, letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>Langkah 1 dari 3</span>
           </div>
         </div>
 
@@ -1508,7 +1530,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
           onClick={() => setIsInventoryOpen(true)}
           style={{
             position: 'absolute',
-            right: 14,
+            right: 'clamp(8px, 1.2vw, 14px)',
             top: '42%',
             transform: 'translateY(-50%)',
             zIndex: 45,
@@ -1516,13 +1538,13 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
             backdropFilter: 'blur(12px)',
             border: '1.5px solid #00ADB5',
             borderRadius: 16,
-            padding: '10px 8px 8px 8px',
+            padding: 'clamp(6px, 1vw, 10px) clamp(4px, 0.8vw, 8px)',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
             gap: 4,
-            width: 60,
+            width: 'clamp(48px, 5.2vw, 60px)',
             cursor: 'pointer',
             boxShadow: '0 6px 20px rgba(0, 0, 0, 0.5), 0 0 15px rgba(0, 173, 181, 0.3)',
             pointerEvents: 'auto',
@@ -1531,17 +1553,17 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
         >
           {/* Icon Container with Floating Badge */}
           <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <span style={{ fontSize: '24px', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.6))' }}>📓</span>
+            <span style={{ fontSize: 'clamp(18px, 2.2vw, 24px)', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.6))' }}>📓</span>
             {/* Counter Mini Badge */}
             <span style={{
               position: 'absolute',
               top: -6,
-              right: -12,
+              right: -10,
               background: 'linear-gradient(135deg, #00ADB5 0%, #38BDF8 100%)',
               color: '#04070a',
               borderRadius: 10,
-              padding: '1px 5px',
-              fontSize: '9px',
+              padding: '1px 4px',
+              fontSize: 'clamp(8px, 0.8vw, 9px)',
               fontWeight: 900,
               fontFamily: 'var(--font-data)',
               boxShadow: '0 2px 6px rgba(0,0,0,0.5)',
@@ -1552,12 +1574,9 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
           </div>
           {/* Vertical Label */}
           <span style={{
-            fontSize: '9px',
+            fontSize: 'clamp(7.5px, 0.85vw, 9px)',
             fontWeight: 900,
             color: '#F8FAFC',
-            letterSpacing: '0.3px',
-            textAlign: 'center',
-            lineHeight: 1.2,
             marginTop: 2
           }}>
             Jurnal<br />Bukti
@@ -1566,10 +1585,17 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
 
         <div style={{ flex: 1, width: '100%', minHeight: 0, position: 'relative', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
           {(() => {
-            const camX = Math.max(0, Math.min(WORLD_VW - VIEW_VW, charPos.x - VIEW_VW / 2))
-            const camY = Math.max(0, Math.min(WORLD_VH - VIEW_VH, charPos.y - VIEW_VH * 0.65))
+            const aspect = containerDim.w / Math.max(containerDim.h, 1)
+            let viewVH = 380
+            let viewVW = 380 * aspect
+            if (viewVW > WORLD_VW) {
+              viewVW = WORLD_VW
+              viewVH = WORLD_VW / aspect
+            }
+            const camX = Math.max(0, Math.min(WORLD_VW - viewVW, charPos.x - viewVW / 2))
+            const camY = Math.max(0, Math.min(WORLD_VH - viewVH, charPos.y - viewVH * 0.65))
             return (
-              <svg viewBox={`${camX} ${camY} ${VIEW_VW} ${VIEW_VH}`} preserveAspectRatio="xMidYMid meet" style={{ width: '100%', maxHeight: '100%', aspectRatio: `${VIEW_VW}/${VIEW_VH}`, display: 'block' }}>
+              <svg viewBox={`${camX} ${camY} ${viewVW} ${viewVH}`} preserveAspectRatio="none" style={{ width: '100%', height: '100%', display: 'block' }}>
                 <defs>
                   <filter id="avatar-super-glow" x="-100%" y="-100%" width="300%" height="300%">
                     <feGaussianBlur stdDeviation="5" result="blur" />
@@ -1819,7 +1845,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
             inset: 0,
             pointerEvents: 'none',
             boxShadow: 'inset 0 0 35px rgba(0, 0, 0, 0.82)',
-            borderRadius: '12px',
+            borderRadius: 0,
             zIndex: 30,
           }} />
 
@@ -1828,12 +1854,6 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
             <Joystick onDir={(x, y) => { const nextDir = { x, y }; dirRef.current = nextDir; setMoveDir(nextDir); }} />
           </div>
         </div>
-      </div>
-
-      {/* Control instruction banner */}
-      <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textAlign: 'center', flexShrink: 0, lineHeight: 1.5 }}>
-        Tekan WASD / Arrow Keys / Joystick untuk menggerakkan detektif.<br />
-        Buka gembok di pintu tiap kelas untuk mengumpulkan data screen time siswa.
       </div>
 
       <AnimatePresence>

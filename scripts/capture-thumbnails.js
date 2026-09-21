@@ -23,8 +23,8 @@ async function capture() {
     if (!checkRes.ok && checkRes.status !== 404 && checkRes.status !== 307) {
       throw new Error(`Status ${checkRes.status}`);
     }
-  } catch (e) {
-    console.error(`\n❌ [ERROR] Server Next.js tidak berjalan di http://localhost:${PORT}.\nSilakan jalankan "npm run dev" terlebih dahulu di terminal lain!\n`);
+  } catch (err) {
+    console.error(`\n❌ [ERROR] Server Next.js tidak berjalan di http://localhost:${PORT} (${err.message}).\nSilakan jalankan "npm run dev" terlebih dahulu di terminal lain!\n`);
     process.exit(1);
   }
 

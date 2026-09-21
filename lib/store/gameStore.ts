@@ -51,7 +51,7 @@ export interface GameStore {
 
 export const useGameStore = create<GameStore>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       // Initial state
       teamId: null,
       currentLevel: 0,

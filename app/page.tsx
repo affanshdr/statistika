@@ -165,7 +165,7 @@ function StatsRow() {
   const ref = useRef<HTMLDivElement>(null)
   const inView = useInView(ref, { once: true, margin: '-40px 0px' })
   const stats = [
-    { val: 15, suffix: ' soal', label: 'Tes Diagnostik' },
+    { val: 2, suffix: ' kasus', label: 'Misi Investigasi' },
     { val: 35, suffix: ' data', label: 'Dataset Nyata' },
     { val: 3, suffix: ' materi', label: 'Buku Saku' },
   ]
@@ -310,52 +310,20 @@ export default function HomePage() {
     }
   }, [])
 
-  // Check existing session
-  useEffect(() => {
-    const data = localStorage.getItem('student')
-    if (data) {
-      try {
-        router.push('/siswa')
-      } catch (e) {
-        console.error('Error parsing student data:', e)
-      }
-    }
-  }, [router])
-
-  useEffect(() => {
-    fetch('/api/classrooms')
-      .then(r => r.json())
-      .then(data => {
-        setClassrooms(data)
-        if (data?.length === 1) setClassroomId(data[0].id)
-      })
-      .finally(() => setLoadingClass(false))
-  }, [])
-
   async function handleMulaiBelajar() {
-    setError('')
-    if (!name.trim()) return setError('Nama lengkap wajib diisi.')
-    if (!classroomId) return setError('Pilih kelas terlebih dahulu.')
-    setLoading(true)
-    try {
-      const res = await fetch('/api/students', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: name.trim(), classroomId }),
-      })
-      const data = await res.json()
-      if (!res.ok) return setError(data.error || 'Terjadi kesalahan.')
-      localStorage.setItem('student', JSON.stringify(data))
-      router.push('/siswa')
-    } catch {
-      setError('Gagal terhubung ke server.')
-    } finally {
-      setLoading(false)
+    const studentName = name.trim() || 'Detektif'
+    const studentData = {
+      id: 'detektif-guest',
+      name: studentName,
+      nisn: '-',
+      classroom: { name: 'Kelas XII' }
     }
+    localStorage.setItem('student', JSON.stringify(studentData))
+    router.push('/siswa')
   }
 
   const FEATURES = [
-    { icon: '🔬', label: 'Tes Diagnostik Awal', desc: 'Ukur kemampuan statistika awal untuk jalur belajar yang dipersonalisasi.' },
+    { icon: '🔬', label: 'Simulasi 3D Interaktif', desc: 'Visualisasi 3D & histogram interaktif untuk pemahaman statistika yang intuitif.' },
     { icon: '🧠', label: 'Gaya Kognitif FI / FD', desc: 'Profil Field Independent & Field Dependent adaptif sesuai karakteristik belajar.' },
     { icon: '🕵️', label: 'Game Investigasi Data', desc: 'Selesaikan misi detektif: ungkap klaim viral menggunakan histogram & statistika.' },
     { icon: '📖', label: 'Buku Saku Detektif', desc: 'Pelajari distribusi, outlier, dan mean vs median lewat animasi interaktif.' },
@@ -599,14 +567,14 @@ export default function HomePage() {
                         display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px',
                         boxShadow: '0 0 16px rgba(14,131,136,0.12)',
                       }}>
-                        🔐
+                        🚀
                       </div>
                       <div>
                         <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 900, color: '#104f55' }}>
-                          Masuk ke Markas
+                          Mulai Investigasi
                         </h2>
                         <p style={{ margin: '3px 0 0', fontSize: '12px', color: '#557A82', fontWeight: 600 }}>
-                          Identifikasi dirimu, Detektif!
+                          Siap berpetualang dan menguji data, Detektif?
                         </p>
                       </div>
                     </div>
@@ -626,16 +594,16 @@ export default function HomePage() {
                   {/* Form */}
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
 
-                    {/* Nama */}
+                    {/* Nama (Opsional) */}
                     <div>
                       <label style={{ display: 'block', fontSize: '10px', fontWeight: 800, color: '#557A82', letterSpacing: '2px', marginBottom: '8px' }}>
-                        NAMA DETEKTIF
+                        NAMA DETEKTIF (OPSIONAL)
                       </label>
                       <div style={{ position: 'relative' }}>
                         <input
                           type="text"
                           id="student-name"
-                          placeholder="Masukkan nama lengkapmu..."
+                          placeholder="Masukkan nama panggilanmu (Opsional)..."
                           value={name}
                           onChange={e => setName(e.target.value)}
                           onKeyDown={e => e.key === 'Enter' && handleMulaiBelajar()}
@@ -655,137 +623,28 @@ export default function HomePage() {
                       </div>
                     </div>
 
-                    {/* Kelas */}
-                    {loadingClass ? (
-                      <div>
-                        <label style={{ display: 'block', fontSize: '10px', fontWeight: 800, color: '#557A82', letterSpacing: '2px', marginBottom: '8px' }}>
-                          UNIT / KELAS
-                        </label>
-                        <div style={{
-                          padding: '14px 16px', borderRadius: '12px',
-                          background: '#FAFCFC',
-                          border: '1px solid rgba(14,131,136,0.25)',
-                          display: 'flex', alignItems: 'center', gap: '10px',
-                          position: 'relative',
-                        }}>
-                          <motion.span
-                            animate={{ opacity: [0.4, 1, 0.4] }}
-                            transition={{ duration: 1.2, repeat: Infinity }}
-                            style={{ fontSize: '13px', color: '#557A82' }}
-                          >
-                            Memuat daftar kelas...
-                          </motion.span>
-                        </div>
-                      </div>
-                    ) : classrooms.length > 1 ? (
-                      <div>
-                        <label style={{ display: 'block', fontSize: '10px', fontWeight: 800, color: '#557A82', letterSpacing: '2px', marginBottom: '8px' }}>
-                          UNIT / KELAS
-                        </label>
-                        <div style={{ position: 'relative' }}>
-                          <select
-                            id="classroom-select"
-                            value={classroomId}
-                            onChange={e => setClassroomId(e.target.value)}
-                            style={{
-                              width: '100%', boxSizing: 'border-box',
-                              padding: '14px 16px', borderRadius: '12px',
-                              background: '#FAFCFC',
-                              border: '1px solid rgba(14,131,136,0.25)',
-                              color: classroomId ? '#1C1917' : '#78716C',
-                              fontSize: '14px', outline: 'none', cursor: 'pointer',
-                              appearance: 'none', transition: 'all 0.2s',
-                            }}
-                            onFocus={e => e.target.style.borderColor = 'rgba(14,131,136,0.5)'}
-                            onBlur={e => e.target.style.borderColor = 'rgba(14,131,136,0.25)'}
-                          >
-                            <option value="">— Pilih Unit —</option>
-                            {classrooms.map(c => (
-                              <option key={c.id} value={c.id} style={{ background: '#FAFCFC', color: '#1C1917' }}>
-                                {c.name}
-                              </option>
-                            ))}
-                          </select>
-                          <span style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', color: '#557A82', fontSize: '12px', pointerEvents: 'none' }}>
-                            ▼
-                          </span>
-                        </div>
-                      </div>
-                    ) : classrooms.length === 1 ? (
-                      <div style={{
-                        padding: '12px 16px', borderRadius: '12px',
-                        background: 'rgba(14,131,136,0.06)', border: '1px solid rgba(14,131,136,0.2)',
-                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                      }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                          <span style={{ fontSize: '18px' }}>🏛️</span>
-                          <div style={{ display: 'flex', flexDirection: 'column' }}>
-                            <span style={{ fontSize: '9px', fontWeight: 800, color: '#557A82', letterSpacing: '1px' }}>UNIT / KELAS</span>
-                            <span style={{ fontSize: '14px', fontWeight: 700, color: '#1C1917' }}>{classrooms[0].name}</span>
-                          </div>
-                        </div>
-                        <span style={{ fontSize: '11px', color: '#0F4C5C', fontWeight: 800 }}>AUTO-SELECT</span>
-                      </div>
-                    ) : (
-                      <div style={{
-                        padding: '12px 16px', borderRadius: '12px',
-                        background: 'rgba(239,68,68,0.05)', border: '1px solid rgba(239,68,68,0.2)',
-                        fontSize: '13px', color: '#f87171',
-                        display: 'flex', alignItems: 'center', gap: '8px',
-                      }}>
-                        ⚠️ Tidak ada kelas tersedia. Hubungi guru.
-                      </div>
-                    )}
-
-                    {/* Error */}
-                    <AnimatePresence>
-                      {error && (
-                        <motion.div
-                          initial={{ opacity: 0, y: -8 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -8 }}
-                          style={{
-                            padding: '10px 14px', borderRadius: '10px',
-                            background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)',
-                            color: '#f87171', fontSize: '13px', lineHeight: 1.5,
-                          }}
-                        >
-                          ⚠️ {error}
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-
                     {/* Submit — Magnetic Button */}
                     <MagneticButton
                       id="btn-mulai-investigasi"
                       onClick={handleMulaiBelajar}
-                      disabled={loading || loadingClass}
                       style={{
                         width: '100%', padding: '16px',
                         borderRadius: '14px', border: 'none',
-                        background: loading || loadingClass
-                          ? 'rgba(14, 131, 136, 0.3)'
-                          : 'linear-gradient(90deg, #0E8388 0%, #00ADB5 100%)',
+                        background: 'linear-gradient(90deg, #0E8388 0%, #00ADB5 100%)',
                         color: '#ffffff', fontSize: '15px', fontWeight: 900,
-                        cursor: loading || loadingClass ? 'not-allowed' : 'none',
+                        cursor: 'none',
                         letterSpacing: '0.5px',
-                        boxShadow: loading || loadingClass ? 'none' : '0 4px 20px rgba(14,131,136,0.3)',
+                        boxShadow: '0 4px 20px rgba(14,131,136,0.3)',
                         transition: 'background 0.2s',
                         marginTop: '4px',
                         display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
                         position: 'relative',
                       }}
                     >
-                      {loading ? (
-                        <>
-                          <motion.span animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}>⏳</motion.span>
-                          Verifikasi Identitas...
-                        </>
-                      ) : (
-                        <>🚀 Mulai Investigasi</>
-                      )}
+                      🚀 Mulai Investigasi
                     </MagneticButton>
                   </div>
+
 
                   {/* Flow steps hint */}
                   <div style={{ marginTop: '24px', paddingTop: '20px', borderTop: '1px solid rgba(14,131,136,0.12)' }}>
@@ -793,7 +652,7 @@ export default function HomePage() {
                       ALUR MISI
                     </div>
                     <div style={{ display: 'flex', gap: '0', alignItems: 'center' }}>
-                      {['Login', 'Diagnostik', 'Investigasi'].map((step, i, arr) => (
+                      {['Pilih Misi', 'Investigasi Data', 'Selesai Misi'].map((step, i, arr) => (
                         <div key={i} style={{ display: 'flex', alignItems: 'center', flex: i < arr.length - 1 ? 1 : 'none' }}>
                           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', flexShrink: 0 }}>
                             <div style={{

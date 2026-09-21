@@ -26,11 +26,11 @@ function VideoContent() {
   useEffect(() => {
     const data = localStorage.getItem('student')
     if (!data) {
-      router.push('/')
-      return
+      setStudent({ id: 'detektif-guest', name: 'Detektif', nisn: '-', classroom: { name: 'Kelas XII' } })
+    } else {
+      const s = JSON.parse(data) as Student
+      setStudent(s)
     }
-    const s = JSON.parse(data) as Student
-    setStudent(s)
     setLoading(false)
   }, [router])
 

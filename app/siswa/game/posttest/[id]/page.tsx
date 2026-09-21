@@ -145,10 +145,10 @@ export default function PostTestPage({
   useEffect(() => {
     const data = localStorage.getItem('student')
     if (!data) {
-      router.push('/')
-      return
+      setStudent({ id: 'detektif-guest', name: 'Detektif', nisn: '-', classroom: { name: 'Kelas XII' } })
+    } else {
+      setStudent(JSON.parse(data))
     }
-    setStudent(JSON.parse(data))
   }, [router])
 
   const QUESTIONS = isLevel2 ? QUESTIONS_LEVEL2 : QUESTIONS_LEVEL1
