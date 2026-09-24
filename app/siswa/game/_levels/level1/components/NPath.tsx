@@ -3,229 +3,34 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import PlayerCharacter from '@/app/siswa/game/_components/PlayerCharacter'
-
-// ─── Classroom World Map dimensions ───────────────────────────────────────────
-const WORLD_VW = 1200
-const WORLD_VH = 750
+import {
+  LEVEL1_MAPS,
+  WORLD_VW,
+  WORLD_VH,
+  RED_LINE_POINTS,
+  getRedLineY,
+  checkHallwayWalkable,
+  checkClassroomWalkable
+} from '@/app/siswa/game/_levels/level1/config/level1MapConfig'
+import Level1HUD from '@/app/siswa/game/_levels/level1/components/Level1HUD'
+import QuizModal from '@/app/siswa/game/_levels/level1/components/modals/QuizModal'
+import WaliKelasModal from '@/app/siswa/game/_levels/level1/components/modals/WaliKelasModal'
 const VIEW_VW = 640
 const VIEW_VH = 360
 const SPEED = 1.0
 const TOTAL_N = 35
 
-type DoorId = 'A' | 'B' | 'C'
+import {
+  CLASS_DOORS,
+  CLASS_STUDENTS,
+  DATA_CIRCLES,
+  AMBIENT_PARTICLES,
+  QuizDoor
+} from '@/app/siswa/game/_levels/level1/data/level1Data'
 
-interface QuizDoor {
-  id: string
-  label: string
-  color: string
-  quizQ: string
-  quizA: number | string
-  hint: string
-  count: number
-  choices?: readonly (number | string)[]
-  fdContext?: string
-}
+import { DoorId } from '@/app/siswa/game/_levels/level1/data/level1Data'
 
-const DOORS: readonly { id: string; x: number; y: number; label: string; color: string; quizQ: string; quizA: number | string; hint: string; count: number }[] = []
-
-const CLASS_DOORS = [
-  // Pintu 1 (Sayap Kiri) - Kelas VII-A
-  {
-    id: 'A1', roomId: 'A' as DoorId, label: 'Kelas VII-A', x: 310, y: 564, color: '#818cf8',
-    quizQ: 'Data screen time 5 siswa: 2, 4, 3, 8, 1 jam. Berapa rentang datanya?',
-    quizA: 7, choices: [5, 6, 7, 8] as const,
-    fdContext: '💡 Ingat: rentang = nilai terbesar − nilai terkecil',
-    hint: 'Kurangkan nilai terbesar (8) dengan nilai terkecil (1) untuk mendapatkan rentang.', count: 7
-  },
-
-  // Pintu 2 (Lorong Kiri) - Kelas VII-B
-  {
-    id: 'A2', roomId: 'A' as DoorId, label: 'Kelas VII-B', x: 431, y: 495, color: '#6366f1',
-    quizQ: 'Tepi bawah kelas interval 4–6 adalah?',
-    quizA: 3.5, choices: [3, 3.5, 4, 4.5] as const,
-    fdContext: '💡 Ingat: tepi bawah = batas bawah − 0.5',
-    hint: 'Kurangi batas bawah kelas (4) dengan 0.5.', count: 7
-  },
-
-  // Pintu 3 (Gedung Tengah / Pintu Ganda) - Kelas VIII-A
-  {
-    id: 'B1', roomId: 'B' as DoorId, label: 'Kelas VIII-A', x: 632, y: 485, color: '#00ADB5',
-    quizQ: 'Kamu menerima berita viral yang belum terverifikasi. Tindakan paling etis adalah?',
-    quizA: 'Verifikasi dulu', choices: ['Langsung share', 'Verifikasi dulu', 'Screenshot & sebar', 'Abaikan saja'] as const,
-    fdContext: '💡 Pikirkan dampaknya terhadap orang lain',
-    hint: 'Cari tindakan yang memastikan kebenaran informasi sebelum membagikannya.', count: 7
-  },
-
-  // Pintu 4 (Lorong Kanan) - Kelas VIII-B
-  {
-    id: 'B2', roomId: 'B' as DoorId, label: 'Kelas VIII-B', x: 830, y: 485, color: '#0e8388',
-    quizQ: 'Seseorang memposting foto orang lain tanpa izin untuk konten viral. Ini termasuk pelanggaran?',
-    quizA: 'Kedua-duanya', choices: ['Privasi', 'Hak cipta', 'Kedua-duanya', 'Bukan pelanggaran'] as const,
-    fdContext: '💡 Pikirkan mengenai kepemilikan dan privasi hak orang lain',
-    hint: 'Memposting foto orang lain melanggar ranah pribadi sekaligus kepemilikan ciptaan.', count: 7
-  },
-
-  // Pintu 5 (Sayap Kanan) - Kelas IX
-  {
-    id: 'C1', roomId: 'C' as DoorId, label: 'Kelas IX', x: 944, y: 561, color: '#f472b6',
-    quizQ: 'Ciri utama berita hoax yang paling umum meupakan?',
-    quizA: 'Sumber tidak jelas', choices: ['Sumber tidak jelas', 'Ada foto', 'Ada tanggal', 'Ditulis wartawan'] as const,
-    fdContext: '💡 Perhatikan kredibilitas pembuat informasi',
-    hint: 'Berita bohong biasanya tidak menyebutkan asal-usul kredibel atau pihak penanggung jawab.', count: 7
-  },
-] as const
-
-const DATA_CIRCLES = [
-  // Zone A - Ruang A (total 14)
-  { id: 'a1', d: 'A', classId: 'A1', x: 40, y: 70 },
-  { id: 'a2', d: 'A', classId: 'A1', x: 60, y: 70 },
-  { id: 'a3', d: 'A', classId: 'A1', x: 50, y: 95 },
-  { id: 'a4', d: 'A', classId: 'A1', x: 120, y: 70 },
-  { id: 'a5', d: 'A', classId: 'A1', x: 140, y: 70 },
-  { id: 'a6', d: 'A', classId: 'A1', x: 130, y: 95 },
-  { id: 'a7', d: 'A', classId: 'A1', x: 200, y: 70 },
-
-  { id: 'a8', d: 'A', classId: 'A2', x: 220, y: 70 },
-  { id: 'a9', d: 'A', classId: 'A2', x: 210, y: 95 },
-  { id: 'a10', d: 'A', classId: 'A2', x: 250, y: 70 },
-  { id: 'a11', d: 'A', classId: 'A2', x: 270, y: 70 },
-  { id: 'a12', d: 'A', classId: 'A2', x: 260, y: 95 },
-  { id: 'a13', d: 'A', classId: 'A2', x: 290, y: 70 },
-  { id: 'a14', d: 'A', classId: 'A2', x: 300, y: 95 },
-
-  // Zone B - Ruang B (total 14)
-  { id: 'b1', d: 'B', classId: 'B1', x: 330, y: 60 },
-  { id: 'b2', d: 'B', classId: 'B1', x: 350, y: 60 },
-  { id: 'b3', d: 'B', classId: 'B1', x: 340, y: 80 },
-  { id: 'b4', d: 'B', classId: 'B1', x: 330, y: 100 },
-  { id: 'b5', d: 'B', classId: 'B1', x: 350, y: 100 },
-  { id: 'b6', d: 'B', classId: 'B1', x: 380, y: 60 },
-  { id: 'b7', d: 'B', classId: 'B1', x: 400, y: 60 },
-
-  { id: 'b8', d: 'B', classId: 'B2', x: 420, y: 80 },
-  { id: 'b9', d: 'B', classId: 'B2', x: 410, y: 100 },
-  { id: 'b10', d: 'B', classId: 'B2', x: 430, y: 100 },
-  { id: 'b11', d: 'B', classId: 'B2', x: 460, y: 60 },
-  { id: 'b12', d: 'B', classId: 'B2', x: 480, y: 60 },
-  { id: 'b13', d: 'B', classId: 'B2', x: 470, y: 80 },
-  { id: 'b14', d: 'B', classId: 'B2', x: 460, y: 100 },
-
-  // Zone C - Ruang C (total 7)
-  { id: 'c1', d: 'C', classId: 'C1', x: 560, y: 70 },
-  { id: 'c2', d: 'C', classId: 'C1', x: 580, y: 70 },
-  { id: 'c3', d: 'C', classId: 'C1', x: 570, y: 95 },
-  { id: 'c4', d: 'C', classId: 'C1', x: 570, y: 115 },
-  { id: 'c5', d: 'C', classId: 'C1', x: 640, y: 70 },
-  { id: 'c6', d: 'C', classId: 'C1', x: 660, y: 70 },
-  { id: 'c7', d: 'C', classId: 'C1', x: 650, y: 95 },
-]
-
-const AMBIENT_PARTICLES = [
-  { cx: 50, cy: 60, r: 1.2, className: 'particle-drift-1', color: '#818cf8' },
-  { cx: 180, cy: 90, r: 0.8, className: 'particle-drift-2', color: '#818cf8' },
-  { cx: 340, cy: 290, r: 1.3, className: 'particle-drift-3', color: '#00ADB5' },
-  { cx: 460, cy: 320, r: 0.9, className: 'particle-drift-1', color: '#00ADB5' },
-  { cx: 580, cy: 280, r: 1.4, className: 'particle-drift-2', color: '#00ADB5' },
-  { cx: 700, cy: 300, r: 0.7, className: 'particle-drift-3', color: '#00ADB5' },
-] as const;
-
-const CLASS_STUDENTS: Record<string, { teacher: string; comment: string; students: { name: string; time: number }[] }> = {
-  A1: {
-    teacher: 'Bu Sari (Wali Kelas VII-A)',
-    comment: 'Selamat datang di Kelas VII-A! Ini adalah sampel 7 data screen time siswa kami.',
-    students: [
-      { name: 'Adit', time: 3 }, { name: 'Budi', time: 2 }, { name: 'Cici', time: 4 },
-      { name: 'Deni', time: 5 }, { name: 'Evi', time: 3 }, { name: 'Fani', time: 2 },
-      { name: 'Gita', time: 4 }
-    ]
-  },
-  A2: {
-    teacher: 'Pak Bambang (Wali Kelas VII-B)',
-    comment: 'Ini data 7 siswa Kelas VII-B. Mari kita gabungkan dengan data VII-A!',
-    students: [
-      { name: 'Hadi', time: 3 }, { name: 'Indra', time: 4 }, { name: 'Joko', time: 5 },
-      { name: 'Kiki', time: 4 }, { name: 'Lia', time: 6 }, { name: 'Mira', time: 3 },
-      { name: 'Niko', time: 5 }
-    ]
-  },
-  B1: {
-    teacher: 'Bu Rina (Wali Kelas VIII-A)',
-    comment: 'Siswa Kelas VIII-A sangat disiplin membatasi waktu layar HP mereka!',
-    students: [
-      { name: 'Oki', time: 4 }, { name: 'Putri', time: 5 }, { name: 'Rian', time: 3 },
-      { name: 'Santi', time: 4 }, { name: 'Tono', time: 6 }, { name: 'Umar', time: 5 },
-      { name: 'Vina', time: 4 }
-    ]
-  },
-  B2: {
-    teacher: 'Pak Setiawan (Wali Kelas VIII-B)',
-    comment: 'Data 7 siswa Kelas VIII-B siap dianalisis untuk tabel distribusi frekuensi!',
-    students: [
-      { name: 'Wawan', time: 3 }, { name: 'Xena', time: 5 }, { name: 'Yayan', time: 4 },
-      { name: 'Zaki', time: 6 }, { name: 'Alma', time: 5 }, { name: 'Bimo', time: 4 },
-      { name: 'Dian', time: 5 }
-    ]
-  },
-  C1: {
-    teacher: 'Pak Joko (Wali Kelas IX)',
-    comment: 'Lengkap! 7 sampel siswa Kelas IX melengkapi 35 data sampel eksplorasi kita!',
-    students: [
-      { name: 'Elga', time: 4 }, { name: 'Farhan', time: 6 }, { name: 'Gani', time: 5 },
-      { name: 'Hana', time: 4 }, { name: 'Irfan', time: 5 }, { name: 'Jihan', time: 4 },
-      { name: 'Koko', time: 3 }
-    ]
-  },
-}
-
-// 📌 TITIK CUSTOM GARIS MERAH COLLISION (Silakan edit nilai Y untuk tiap koordinat X di sini!)
-export const RED_LINE_POINTS = [
-  { x: 120, y: 580 },
-  { x: 280, y: 580 }, // Tepi Bangku & Tanaman Kiri
-  { x: 430, y: 485 }, // Ambang Pintu 2 (Kelas VII-B)
-  { x: 830, y: 485 }, // Tembok Tengah Gedung (Pintu 3 & 4)
-  { x: 944, y: 561 }, // Ambang Pintu 5 (Kelas IX)
-  { x: 1110, y: 550 }, // Ambang Pintu 5 (Kelas IX)
-]
-
-// Fungsi otomatis interpolasi Y garis merah berdasarkan titik-titik sudut terurut RED_LINE_POINTS
-function getRedLineY(x: number): number {
-  const sortedPoints = [...RED_LINE_POINTS].sort((a, b) => a.x - b.x)
-  if (x <= sortedPoints[0].x) return sortedPoints[0].y
-  const last = sortedPoints[sortedPoints.length - 1]
-  if (x >= last.x) return last.y
-
-  for (let i = 0; i < sortedPoints.length - 1; i++) {
-    const p1 = sortedPoints[i]
-    const p2 = sortedPoints[i + 1]
-    if (x >= p1.x && x <= p2.x) {
-      const dx = p2.x - p1.x
-      if (dx === 0) return p2.y
-      const t = (x - p1.x) / dx
-      return p1.y + t * (p2.y - p1.y)
-    }
-  }
-  return 520
-}
-
-// Walkability: check if character feet base (center, left shoe, right shoe) is strictly inside green area
-function isWalkable(x: number, y: number, unlocked: Set<string>): boolean {
-  const feetRadiusX = 16.0 // Width radius of player shoes/feet
-
-  // Outer Courtyard Pavement Bounds
-  if (y > 640) return false // bottom dirt curb boundary
-  if (x < 120 + feetRadiusX || x > 1110 - feetRadiusX) return false // outer side garden boundaries
-
-  // Check that Center, Left Shoe, and Right Shoe are ALL below the Red Line!
-  const redLineYCenter = getRedLineY(x)
-  const redLineYLeft = getRedLineY(x - feetRadiusX)
-  const redLineYRight = getRedLineY(x + feetRadiusX)
-
-  if (y < redLineYCenter || y < redLineYLeft || y < redLineYRight) {
-    return false // If ANY part of player shoes penetrates the red line, reject!
-  }
-
-  return true
-}
+const DOORS: readonly QuizDoor[] = []
 
 // ─── Joystick ─────────────────────────────────────────────────────────────────
 function Joystick({ onDir }: { onDir: (x: number, y: number) => void }) {
@@ -839,6 +644,36 @@ function QuizPopup({ door, isFD, onCorrect, onClose }:
             <div style={{ fontSize: 13, fontWeight: 900, letterSpacing: '2px', color: door.color, marginBottom: 8 }}>🔐 {door.label} — Jawab untuk membuka!</div>
             <p style={{ margin: 0, fontSize: 15, fontWeight: 600, color: '#E2E8F0', lineHeight: 1.6 }}>Di dalam pintu ini tersimpan data screen time. Jawab soal berikut untuk membuka pintu:</p>
           </div>
+
+          {(door.image || CLASS_STUDENTS[door.id]?.image) && (
+            <div style={{
+              width: '100%',
+              height: 130,
+              borderRadius: 16,
+              overflow: 'hidden',
+              position: 'relative',
+              border: `1.5px solid ${door.color}66`,
+              boxShadow: '0 4px 14px rgba(0,0,0,0.35)',
+            }}>
+              <img
+                src={door.image || CLASS_STUDENTS[door.id]?.image}
+                alt={door.label}
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+              <div style={{
+                position: 'absolute',
+                inset: 0,
+                background: 'linear-gradient(180deg, transparent 20%, rgba(15, 35, 56, 0.9) 100%)',
+                display: 'flex',
+                alignItems: 'flex-end',
+                padding: '8px 12px'
+              }}>
+                <span style={{ fontSize: 11, fontWeight: 800, color: '#FFFFFF', display: 'flex', alignItems: 'center', gap: 6 }}>
+                  🏫 Ruangan {door.label}
+                </span>
+              </div>
+            </div>
+          )}
           <div style={{ background: `${door.color}11`, border: `1.5px solid ${door.color}33`, borderRadius: 16, padding: '16px 12px', textAlign: 'center' }}>
             <div style={{ fontSize: door.quizQ.length > 20 ? (door.quizQ.length > 50 ? 14 : 16) : 22, fontWeight: 900, color: '#FFFFFF', fontFamily: 'var(--font-data)', lineHeight: 1.4 }}>{door.quizQ}</div>
 
@@ -1141,6 +976,9 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
   const [nearDoor, setNearDoor] = useState<typeof DOORS[number] | null>(null)
   const [activeClass, setActiveClass] = useState<typeof CLASS_DOORS[number] | null>(null)
   const [nearClass, setNearClass] = useState<typeof CLASS_DOORS[number] | null>(null)
+  const [insideRoom, setInsideRoom] = useState<typeof CLASS_DOORS[number] | null>(null)
+  const insideRoomR = useRef(insideRoom); insideRoomR.current = insideRoom
+  const lastHallwayPosRef = useRef<{ x: number; y: number }>({ x: 650, y: 550 })
   const [visitedRooms, setVisitedRooms] = useState<Set<DoorId>>(new Set())
   const [diraMessageText, setDiraMessageText] = useState<string | null>(null)
   const [showWaliKelasPopup, setShowWaliKelasPopup] = useState<typeof CLASS_DOORS[number] | null>(null)
@@ -1260,11 +1098,12 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
 
   // Auto-clamp player Y position if ever above RED_LINE_POINTS
   useEffect(() => {
+    if (insideRoom) return
     const redLineY = getRedLineY(charPos.x)
     if (charPos.y < redLineY - 1) {
       setCharPos(prev => (prev.y < redLineY - 1 ? { ...prev, y: redLineY } : prev))
     }
-  }, [charPos.x, charPos.y])
+  }, [charPos.x, charPos.y, insideRoom])
 
   const lastTimeRef = useRef<number>(0)
 
@@ -1279,25 +1118,28 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
       if (!activeDoor && !activeClass && !diraMessageText && !showWaliKelasPopup) {
         const { x: dx, y: dy } = dirRef.current
         if (dx || dy) {
-          const moveSpeed = 165 // pixels per second for responsive & silky smooth movement
+          const currentMapKey = insideRoomR.current?.id || 'hallway'
+          const activeMap = LEVEL1_MAPS[currentMapKey] || LEVEL1_MAPS['hallway']
+          const moveSpeed = activeMap.character.speed * 40 // Scaled responsive pixels per second per map
           const dist = moveSpeed * dt
 
           setCharPos(p => {
-            const currentRedLineY = getRedLineY(p.x)
+            const isInside = !!insideRoomR.current
+            const currentRedLineY = isInside ? 380 : getRedLineY(p.x)
             const safeY = Math.max(p.y, currentRedLineY)
 
             const nx = Math.max(10, Math.min(WORLD_VW - 10, p.x + dx * dist))
             const ny = Math.max(10, Math.min(WORLD_VH - 10, safeY + dy * dist))
 
-            if (isWalkable(nx, ny, unlockedR.current)) {
+            if (activeMap.isWalkable(nx, ny, unlockedR.current)) {
               if (nx === p.x && ny === p.y) return p
               return { x: nx, y: ny }
             }
-            if (isWalkable(nx, safeY, unlockedR.current)) {
+            if (activeMap.isWalkable(nx, safeY, unlockedR.current)) {
               if (nx === p.x && safeY === p.y) return p
               return { x: nx, y: safeY }
             }
-            if (isWalkable(p.x, ny, unlockedR.current)) {
+            if (activeMap.isWalkable(p.x, ny, unlockedR.current)) {
               if (p.x === p.x && ny === p.y) return p
               return { x: p.x, y: ny }
             }
@@ -1348,17 +1190,37 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
         }
         return
       }
+      if (insideRoomR.current && e.key === 'Escape') {
+        e.preventDefault()
+        setInsideRoom(null)
+        setCharPos(lastHallwayPosRef.current || { x: 650, y: 550 })
+        return
+      }
       if (KEY_MAP[e.key]) {
         e.preventDefault()
         pressedKeys.add(e.key)
         updateDir()
       }
-      if ((e.key === 'Enter' || e.key === ' ') && nearDoorVal && !unlockedR.current.has(nearDoorVal.id)) {
+      if ((e.key === 'Enter' || e.key === ' ' || e.key === 'e' || e.key === 'E') && nearDoorVal && !unlockedR.current.has(nearDoorVal.id)) {
         e.preventDefault()
         setUnlocked(p => new Set([...p, nearDoorVal.id]))
-      } else if ((e.key === 'Enter' || e.key === ' ') && nearClassVal && !unlockedR.current.has(nearClassVal.id)) {
+      } else if ((e.key === 'Enter' || e.key === ' ' || e.key === 'e' || e.key === 'E') && nearClassVal) {
         e.preventDefault()
-        setActiveClass(nearClassVal)
+        if (unlockedR.current.has(nearClassVal.id)) {
+          lastHallwayPosRef.current = { x: nearClassVal.x, y: nearClassVal.y + 20 }
+          setInsideRoom(nearClassVal)
+          setCharPos({ x: 1000, y: 620 })
+        } else {
+          setActiveClass(nearClassVal)
+        }
+      } else if ((e.key === 'Enter' || e.key === ' ' || e.key === 'e' || e.key === 'E') && insideRoomR.current) {
+        const teacherX = 710
+        const teacherY = 420
+        const distToTeacher = Math.hypot(charPosRef.current.x - teacherX, charPosRef.current.y - teacherY)
+        if (distToTeacher < 350) {
+          e.preventDefault()
+          setShowWaliKelasPopup(insideRoomR.current)
+        }
       }
     }
 
@@ -1385,9 +1247,18 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
 
   const handleClassCorrect = useCallback(() => {
     if (!activeClass) return
-    setShowWaliKelasPopup(activeClass)
+    const roomToEnter = activeClass
     setActiveClass(null)
+    lastHallwayPosRef.current = { x: roomToEnter.x, y: roomToEnter.y + 20 }
+    setInsideRoom(roomToEnter)
+    setCharPos({ x: 600, y: 580 })
   }, [activeClass])
+
+  const handleExitClassroom = useCallback(() => {
+    if (!insideRoom) return
+    setInsideRoom(null)
+    setCharPos(lastHallwayPosRef.current || { x: 650, y: 550 })
+  }, [insideRoom])
 
   const handleCloseWaliKelas = useCallback(() => {
     if (!showWaliKelasPopup) return
@@ -1586,16 +1457,27 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
         <div style={{ flex: 1, width: '100%', minHeight: 0, position: 'relative', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
           {(() => {
             const aspect = containerDim.w / Math.max(containerDim.h, 1)
-            let viewVH = 380
-            let viewVW = 380 * aspect
-            if (viewVW > WORLD_VW) {
+            let viewVH: number, viewVW: number, camX: number, camY: number
+
+            if (insideRoom) {
+              // Full-screen fixed camera for classroom view
               viewVW = WORLD_VW
-              viewVH = WORLD_VW / aspect
+              viewVH = WORLD_VH
+              camX = 0
+              camY = 0
+            } else {
+              // Scrolling follow-camera for hallway
+              viewVH = 380
+              viewVW = 380 * aspect
+              if (viewVW > WORLD_VW) {
+                viewVW = WORLD_VW
+                viewVH = WORLD_VW / aspect
+              }
+              camX = Math.max(0, Math.min(WORLD_VW - viewVW, charPos.x - viewVW / 2))
+              camY = Math.max(0, Math.min(WORLD_VH - viewVH, charPos.y - viewVH * 0.65))
             }
-            const camX = Math.max(0, Math.min(WORLD_VW - viewVW, charPos.x - viewVW / 2))
-            const camY = Math.max(0, Math.min(WORLD_VH - viewVH, charPos.y - viewVH * 0.65))
             return (
-              <svg viewBox={`${camX} ${camY} ${viewVW} ${viewVH}`} preserveAspectRatio="none" style={{ width: '100%', height: '100%', display: 'block' }}>
+              <svg viewBox={`${camX} ${camY} ${viewVW} ${viewVH}`} preserveAspectRatio={insideRoom ? "xMidYMid meet" : "none"} style={{ width: '100%', height: '100%', display: 'block' }}>
                 <defs>
                   <filter id="avatar-super-glow" x="-100%" y="-100%" width="300%" height="300%">
                     <feGaussianBlur stdDeviation="5" result="blur" />
@@ -1611,17 +1493,46 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
 
                 {/* Main Classroom Background Image */}
                 <image
-                  href="/Assets/Building/Kelas.jpg"
+                  href={insideRoom ? ((insideRoom as any).image || CLASS_STUDENTS[insideRoom.id]?.image || '/Assets/Building/Kelas.jpg') : '/Assets/Building/Kelas.jpg'}
                   x={0}
                   y={0}
                   width={WORLD_VW}
                   height={WORLD_VH}
                   preserveAspectRatio="none"
-                  opacity={showDebug ? 0.45 : 0.95}
+                  opacity={showDebug ? 0.45 : 1}
                 />
 
-                {/* Dark Vignette Tint Overlay for Game Mood */}
-                <rect x={0} y={0} width={WORLD_VW} height={WORLD_VH} fill="rgba(4, 7, 10, 0.15)" />
+                {/* Atmospheric Classroom Overlay */}
+                {insideRoom && (
+                  <g style={{ pointerEvents: 'none' }}>
+                    {/* Warm ambient tint */}
+                    <rect x={0} y={0} width={WORLD_VW} height={WORLD_VH} fill="rgba(255, 200, 100, 0.04)" />
+
+                    {/* Cinematic vignette effect */}
+                    <defs>
+                      <radialGradient id="classroom-vignette" cx="50%" cy="45%" r="65%">
+                        <stop offset="0%" stopColor="transparent" />
+                        <stop offset="85%" stopColor="rgba(10, 5, 2, 0.15)" />
+                        <stop offset="100%" stopColor="rgba(10, 5, 2, 0.35)" />
+                      </radialGradient>
+                      <linearGradient id="light-ray-1" x1="0.2" y1="0" x2="0.35" y2="1">
+                        <stop offset="0%" stopColor="rgba(255, 240, 200, 0.12)" />
+                        <stop offset="100%" stopColor="transparent" />
+                      </linearGradient>
+                    </defs>
+                    <rect x={0} y={0} width={WORLD_VW} height={WORLD_VH} fill="url(#classroom-vignette)" />
+
+                    {/* Subtle window light ray */}
+                    <polygon
+                      points="0,0 280,0 420,750 100,750"
+                      fill="url(#light-ray-1)"
+                      opacity={0.6}
+                    />
+                  </g>
+                )}
+
+                {/* Dark Vignette Tint Overlay for Hallway */}
+                {!insideRoom && <rect x={0} y={0} width={WORLD_VW} height={WORLD_VH} fill="rgba(4, 7, 10, 0.15)" />}
 
                 {/* ─── VISUAL COLLISION DEBUGGER OVERLAY (Only visible when showDebug === true) ─── */}
                 {showDebug && (
@@ -1693,17 +1604,118 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                   </g>
                 )}
 
-                {/* Class & Furniture Data Hotspots (CLASS_DOORS) */}
-                {CLASS_DOORS.map(door => {
+                {/* Map Hotspots: Render Teacher NPC inside room OR Class Doors in hallway */}
+                {insideRoom ? (() => {
+                  const info = CLASS_STUDENTS[insideRoom.id]
+                  const teacherName = info?.teacher || 'Wali Kelas'
+                  // Position aligned precisely over the teacher drawn in the background image
+                  const teacherX = 710
+                  const teacherY = 220
+                  const hotspotW = 140
+                  const hotspotH = 220
+                  const isCompleted = unlocked.has(insideRoom.id)
+                  const distToTeacher = Math.hypot(charPos.x - teacherX, charPos.y - (teacherY + 180))
+                  const nearTeacher = distToTeacher < 350
+
+                  return (
+                    <g
+                      key={`teacher-${insideRoom.id}`}
+                      style={{ cursor: 'pointer' }}
+                      onClick={e => { e.stopPropagation(); setShowWaliKelasPopup(insideRoom) }}
+                    >
+                      {/* Invisible clickable hotspot over the pixel art teacher */}
+                      <rect
+                        x={teacherX - hotspotW / 2}
+                        y={teacherY}
+                        width={hotspotW}
+                        height={hotspotH}
+                        fill="transparent"
+                        stroke={showDebug ? '#ff0' : 'none'}
+                        strokeWidth={showDebug ? 2 : 0}
+                      />
+
+                      {/* RPG-style speech bubble indicator floating over teacher */}
+                      <g>
+                        <motion.g
+                          initial={{ opacity: 0, y: 8 }}
+                          animate={{ opacity: 1, y: [0, -4, 0] }}
+                          transition={{ y: { duration: 2, repeat: Infinity, ease: 'easeInOut' }, opacity: { duration: 0.3 } }}
+                        >
+                          {/* Bubble body */}
+                          <rect
+                            x={teacherX - 90}
+                            y={teacherY - 48}
+                            width={180}
+                            height={38}
+                            rx={6}
+                            fill="rgba(15, 23, 42, 0.92)"
+                            stroke={isCompleted ? '#10B981' : insideRoom.color}
+                            strokeWidth={2}
+                            style={{ filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.6))' }}
+                          />
+                          {/* Bubble triangle pointer */}
+                          <polygon
+                            points={`${teacherX - 7},${teacherY - 10} ${teacherX + 7},${teacherY - 10} ${teacherX},${teacherY}`}
+                            fill="rgba(15, 23, 42, 0.92)"
+                            stroke={isCompleted ? '#10B981' : insideRoom.color}
+                            strokeWidth={2}
+                            strokeLinejoin="round"
+                          />
+                          <rect
+                            x={teacherX - 8}
+                            y={teacherY - 12}
+                            width={16}
+                            height={4}
+                            fill="rgba(15, 23, 42, 0.92)"
+                          />
+                          {/* Name text */}
+                          <text
+                            x={teacherX}
+                            y={teacherY - 34}
+                            textAnchor="middle"
+                            fill="#FFFFFF"
+                            fontSize={11}
+                            fontWeight="800"
+                            fontFamily="var(--font-ui)"
+                            style={{ letterSpacing: '0.3px' }}
+                          >
+                            👩‍🏫 {teacherName}
+                          </text>
+                          {/* Action prompt text */}
+                          <text
+                            x={teacherX}
+                            y={teacherY - 19}
+                            textAnchor="middle"
+                            fill={isCompleted ? '#6EE7B7' : '#FCD34D'}
+                            fontSize={9}
+                            fontWeight="700"
+                            fontFamily="var(--font-ui)"
+                          >
+                            {isCompleted ? '✓ Data Screen Time Saved' : '💬 Klik / Tekan E untuk Minta Data'}
+                          </text>
+                        </motion.g>
+                      </g>
+                    </g>
+                  )
+                })() : CLASS_DOORS.map(door => {
                   const open = unlocked.has(door.id)
-                  const near = nearClass?.id === door.id && !open
+                  const near = nearClass?.id === door.id
                   const isJustCompleted = justCompletedClassId === door.id
 
                   return (
                     <g
                       key={door.id}
-                      style={{ cursor: open ? 'default' : 'pointer' }}
-                      onClick={e => { e.stopPropagation(); if (!open && !activeClass && !activeDoor) setActiveClass(door) }}
+                      style={{ cursor: 'pointer' }}
+                      onClick={e => {
+                        e.stopPropagation()
+                        if (open) {
+                          lastHallwayPosRef.current = { x: door.x, y: door.y + 20 }
+                          setInsideRoom(door)
+                          setCharPos({ x: 600, y: 580 })
+                        } else if (!activeClass && !activeDoor) {
+                          setActiveClass(door)
+                        }
+                      }}
                     >
                       {/* Interactive Pulse Radar Glow */}
                       {!open || isJustCompleted ? (
@@ -1773,7 +1785,9 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                 {/* Dynamic Perspective Depth Scaling Calculation */}
                 {(() => {
                   const depthRatio = Math.max(0, Math.min(1, (charPos.y - 410) / (650 - 410)))
-                  const charSize = 145 + depthRatio * 65
+                  // Proper proportioned character size when inside classroom
+                  const baseCharSize = insideRoom ? 170 + depthRatio * 60 : 145 + depthRatio * 65
+                  const charSize = baseCharSize
                   const btnY = charPos.y - charSize * 0.95
                   const btnTextY = btnY + 14
 
@@ -1790,17 +1804,24 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
 
                       {/* Floating Interactive Prompt Buttons */}
                       <AnimatePresence>
-                        {nearClass && !unlocked.has(nearClass.id) && !activeClass && !nearDoor && (() => {
-                          const buttonW = 150
+                        {/* 1. Inside Room Teacher Interaction Prompt */}
+                        {insideRoom && (() => {
+                          const teacherX = 580
+                          const teacherY = 490
+                          const distToTeacher = Math.hypot(charPos.x - teacherX, charPos.y - teacherY)
+                          if (distToTeacher >= 150 || showWaliKelasPopup) return null
+
+                          const buttonW = 170
                           const buttonLeft = Math.max(camX + 10, Math.min(camX + VIEW_VW - buttonW - 10, charPos.x - buttonW / 2))
                           const textX = buttonLeft + buttonW / 2
+
                           return (
                             <motion.g
-                              key={`btn-class-${nearClass.id}`}
+                              key={`btn-talk-${insideRoom.id}`}
                               initial={{ opacity: 0, scale: 0.8, y: 5 }}
                               animate={{ opacity: 1, scale: 1, y: 0 }}
                               exit={{ opacity: 0, scale: 0.8, y: 5 }}
-                              onClick={() => setActiveClass(nearClass)}
+                              onClick={() => setShowWaliKelasPopup(insideRoom)}
                               whileHover={{ scale: 1.05 }}
                               whileTap={{ scale: 0.95 }}
                               style={{ cursor: 'pointer' }}
@@ -1812,7 +1833,59 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                                 height={26}
                                 rx={13}
                                 fill="rgba(15, 23, 42, 0.95)"
-                                stroke="#f59e0b"
+                                stroke={insideRoom.color}
+                                strokeWidth={2}
+                                style={{ filter: 'drop-shadow(0px 4px 8px rgba(0,0,0,0.6))' }}
+                              />
+                              <text
+                                x={textX}
+                                y={btnTextY}
+                                textAnchor="middle"
+                                dominantBaseline="middle"
+                                fill="#ffffff"
+                                fontSize={10.5}
+                                fontWeight="bold"
+                                style={{ userSelect: 'none', pointerEvents: 'none', fontFamily: 'var(--font-ui)' }}
+                              >
+                                🗣️ Bicara & Minta Data
+                              </text>
+                            </motion.g>
+                          )
+                        })()}
+
+                        {/* 2. Hallway Door Interaction Prompt (Locked door -> Kuis; Unlocked door -> Masuk Kelas) */}
+                        {!insideRoom && nearClass && !activeClass && !nearDoor && (() => {
+                          const isUnlocked = unlocked.has(nearClass.id)
+                          const buttonW = isUnlocked ? 150 : 150
+                          const buttonLeft = Math.max(camX + 10, Math.min(camX + VIEW_VW - buttonW - 10, charPos.x - buttonW / 2))
+                          const textX = buttonLeft + buttonW / 2
+                          return (
+                            <motion.g
+                              key={`btn-class-${nearClass.id}`}
+                              initial={{ opacity: 0, scale: 0.8, y: 5 }}
+                              animate={{ opacity: 1, scale: 1, y: 0 }}
+                              exit={{ opacity: 0, scale: 0.8, y: 5 }}
+                              onClick={() => {
+                                if (isUnlocked) {
+                                  lastHallwayPosRef.current = { x: nearClass.x, y: nearClass.y + 20 }
+                                  setInsideRoom(nearClass)
+                                  setCharPos({ x: 1000, y: 620 })
+                                } else {
+                                  setActiveClass(nearClass)
+                                }
+                              }}
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              style={{ cursor: 'pointer' }}
+                            >
+                              <rect
+                                x={buttonLeft}
+                                y={btnY}
+                                width={buttonW}
+                                height={26}
+                                rx={13}
+                                fill="rgba(15, 23, 42, 0.95)"
+                                stroke={isUnlocked ? '#10B981' : '#f59e0b'}
                                 strokeWidth={2}
                                 style={{ filter: 'drop-shadow(0px 4px 8px rgba(0,0,0,0.6))' }}
                               />
@@ -1826,7 +1899,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                                 fontWeight="bold"
                                 style={{ userSelect: 'none', pointerEvents: 'none', fontFamily: 'var(--font-ui)' }}
                               >
-                                📍 Periksa {nearClass.label}
+                                {isUnlocked ? `🚪 Masuk ${nearClass.label}` : `📍 Periksa ${nearClass.label}`}
                               </text>
                             </motion.g>
                           )
@@ -1849,6 +1922,44 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
             zIndex: 30,
           }} />
 
+          {/* Floating Exit Button at Bottom Right inside Room */}
+          <AnimatePresence>
+            {insideRoom && (
+              <motion.button
+                initial={{ opacity: 0, scale: 0.9, y: 10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 10 }}
+                whileHover={{ scale: 1.06, boxShadow: '0 0 25px rgba(239, 68, 68, 0.6)' }}
+                whileTap={{ scale: 0.94 }}
+                onClick={handleExitClassroom}
+                style={{
+                  position: 'absolute',
+                  bottom: 'clamp(14px, 3vh, 22px)',
+                  right: 'clamp(14px, 3vw, 22px)',
+                  zIndex: 55,
+                  background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.95) 0%, rgba(185, 28, 28, 0.98) 100%)',
+                  backdropFilter: 'blur(12px)',
+                  border: '1.5px solid #FCA5A5',
+                  borderRadius: 14,
+                  padding: 'clamp(8px, 1vw, 10px) clamp(14px, 1.5vw, 18px)',
+                  color: '#FFFFFF',
+                  fontWeight: 900,
+                  fontSize: 'clamp(11.5px, 1.1vw, 13px)',
+                  cursor: 'pointer',
+                  boxShadow: '0 6px 20px rgba(0, 0, 0, 0.5), 0 0 15px rgba(239, 68, 68, 0.35)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  pointerEvents: 'auto',
+                  transition: 'all 0.2s',
+                }}
+              >
+                <span style={{ fontSize: '16px' }}>🚪</span>
+                <span>Keluar Ruang {insideRoom.label}</span>
+              </motion.button>
+            )}
+          </AnimatePresence>
+
           {/* Joystick */}
           <div style={{ position: 'absolute', bottom: 20, left: 20, zIndex: 50, touchAction: 'none' }}>
             <Joystick onDir={(x, y) => { const nextDir = { x, y }; dirRef.current = nextDir; setMoveDir(nextDir); }} />
@@ -1857,84 +1968,35 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
       </div>
 
       <AnimatePresence>
-        {activeDoor && <QuizPopup door={activeDoor} isFD={isFD} onCorrect={handleCorrect} onClose={() => setActiveDoor(null)} />}
+        {activeDoor && (
+          <QuizModal
+            door={activeDoor}
+            isFD={isFD}
+            onCorrect={handleCorrect}
+            onClose={() => setActiveDoor(null)}
+          />
+        )}
       </AnimatePresence>
       <AnimatePresence>
-        {activeClass && <QuizPopup door={activeClass} isFD={isFD} onCorrect={handleClassCorrect} onClose={() => setActiveClass(null)} />}
+        {activeClass && (
+          <QuizModal
+            door={activeClass}
+            isFD={isFD}
+            onCorrect={handleClassCorrect}
+            onClose={() => setActiveClass(null)}
+          />
+        )}
       </AnimatePresence>
 
-      {/* Wali Kelas Data Table Popup */}
+      {/* Wali Kelas Data Dialogue Modal */}
       <AnimatePresence>
-        {showWaliKelasPopup && (() => {
-          const info = CLASS_STUDENTS[showWaliKelasPopup.id]
-          if (!info) return null
-          return (
-            <div style={{ position: 'fixed', inset: 0, zIndex: 600, background: 'rgba(11, 30, 44, 0.9)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
-              <motion.div initial={{ opacity: 0, scale: 0.9, y: 15 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 15 }}
-                style={{
-                  maxWidth: 440,
-                  width: '100%',
-                  maxHeight: 'calc(100vh - 40px)',
-                  overflowY: 'auto',
-                  background: 'rgba(15, 35, 56, 0.95)',
-                  border: `2px solid ${showWaliKelasPopup.color}`,
-                  borderRadius: 24,
-                  padding: '24px 20px',
-                  boxShadow: `0 10px 30px rgba(0, 0, 0, 0.5), 0 0 15px ${showWaliKelasPopup.color}22`,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 16
-                }}>
-                <div>
-                  <div style={{ fontSize: 13, fontWeight: 900, letterSpacing: '2px', color: showWaliKelasPopup.color, marginBottom: 8 }}>📋 DATA SCREEN TIME KELAS</div>
-                  <h3 style={{ margin: 0, fontSize: 18, fontWeight: 900, color: '#FFFFFF', display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{ fontSize: 24 }}>👩‍🏫</span> {info.teacher} — Wali {showWaliKelasPopup.label}
-                  </h3>
-                  {/* Console diagnostic */}
-                  {(() => {
-                    console.log("Rendering popup for:", showWaliKelasPopup.id, "info:", info);
-                    return null;
-                  })()}
-                </div>
-
-                <div style={{ background: 'rgba(11, 30, 44, 0.6)', border: `1px solid ${showWaliKelasPopup.color}33`, borderRadius: 16, overflow: 'hidden' }}>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, textAlign: 'left', fontFamily: 'monospace' }}>
-                    <thead>
-                      <tr style={{ background: `${showWaliKelasPopup.color}15`, borderBottom: `1px solid ${showWaliKelasPopup.color}22` }}>
-                        <th style={{ padding: '10px 12px', color: '#94A3B8', fontWeight: 800 }}>NAMA SISWA</th>
-                        <th style={{ padding: '10px 12px', color: '#94A3B8', fontWeight: 800 }}>SCREEN TIME</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {info.students.map((st, idx) => (
-                        <tr key={idx} style={{ borderBottom: idx < info.students.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none' }}>
-                          <td style={{ padding: '10px 12px', color: '#FFFFFF', fontWeight: 600 }}>{st.name}</td>
-                          <td style={{ padding: '10px 12px', color: showWaliKelasPopup.color, fontWeight: 800 }}>{st.time} jam/hari</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-
-                {/* Speech Bubble / Comment Box */}
-                <div style={{ padding: '12px 14px', borderRadius: 14, background: `${showWaliKelasPopup.color}08`, border: `1px dashed ${showWaliKelasPopup.color}55`, position: 'relative' }}>
-                  <div style={{ fontSize: 11, fontWeight: 900, color: showWaliKelasPopup.color, marginBottom: 4, letterSpacing: '0.5px' }}>💬 CATATAN GURU:</div>
-                  <div style={{ fontSize: 13, color: '#E2E8F0', fontStyle: 'italic', fontWeight: 600, lineHeight: 1.5 }}>
-                    "{info.comment}"
-                  </div>
-                </div>
-
-                <p style={{ margin: 0, fontSize: 11, color: '#64748B', lineHeight: 1.4, fontWeight: 500, textAlign: 'center' }}>
-                  Wali kelas telah membagikan data screen time di atas. Data ini akan digabungkan ke dalam total sampel eksplorasi.
-                </p>
-
-                <button className="game-btn game-btn-primary" style={{ width: '100%', fontSize: 14, fontWeight: 800, padding: '10px 14px', background: showWaliKelasPopup.color, boxShadow: `0 0 10px ${showWaliKelasPopup.color}33`, color: '#FFFFFF', border: 'none' }} onClick={handleCloseWaliKelas}>
-                  Lanjut & Simpan Data
-                </button>
-              </motion.div>
-            </div>
-          )
-        })()}
+        {showWaliKelasPopup && (
+          <WaliKelasModal
+            door={showWaliKelasPopup}
+            onCollectData={handleCloseWaliKelas}
+            onClose={() => setShowWaliKelasPopup(null)}
+          />
+        )}
       </AnimatePresence>
 
       {/* Dira Guide Overlay */}
@@ -2155,6 +2217,35 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
 
               {/* Student Cards Grid */}
               <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 10, paddingRight: 2 }}>
+                {inventoryTab !== 'ALL' && CLASS_STUDENTS[inventoryTab]?.image && (
+                  <div style={{
+                    width: '100%',
+                    height: 110,
+                    borderRadius: 14,
+                    overflow: 'hidden',
+                    position: 'relative',
+                    border: `1.5px solid ${CLASS_DOORS.find(cd => cd.id === inventoryTab)?.color || '#00ADB5'}44`,
+                    flexShrink: 0
+                  }}>
+                    <img
+                      src={CLASS_STUDENTS[inventoryTab].image}
+                      alt={inventoryTab}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                    <div style={{
+                      position: 'absolute',
+                      inset: 0,
+                      background: 'linear-gradient(180deg, transparent 10%, rgba(11, 30, 44, 0.85) 100%)',
+                      display: 'flex',
+                      alignItems: 'flex-end',
+                      padding: '8px 12px'
+                    }}>
+                      <span style={{ fontSize: 11, fontWeight: 800, color: '#FFFFFF' }}>
+                        📸 Foto Ruangan {CLASS_DOORS.find(cd => cd.id === inventoryTab)?.label || inventoryTab}
+                      </span>
+                    </div>
+                  </div>
+                )}
                 {collectedStudents.filter(st => inventoryTab === 'ALL' || st.classId === inventoryTab).length === 0 ? (
                   <div style={{ padding: '30px 20px', textAlign: 'center', background: 'rgba(11, 30, 44, 0.4)', borderRadius: 16, border: '1px dashed rgba(255,255,255,0.1)' }}>
                     <div style={{ fontSize: 32, marginBottom: 8 }}>🔒</div>
