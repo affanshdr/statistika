@@ -156,7 +156,8 @@ export default function Level2SchoolExploration({
 
       const { x: dx, y: dy } = dirRef.current
       if (dx || dy) {
-        const moveSpeed = 165
+        // 25% speed reduction on outdoor hallway/jalan (from 165 to 123.75)
+        const moveSpeed = activeMap === 'jalan' ? 123.75 : 165
         const dist = moveSpeed * dt
 
         setCharPos(p => {
@@ -295,9 +296,9 @@ export default function Level2SchoolExploration({
   const camX = Math.max(0, Math.min(worldVW - viewVW, charPos.x - viewVW / 2))
   const camY = Math.max(0, Math.min(WORLD_VH - viewVH, charPos.y - viewVH * 0.65))
 
-  // Depth-based character sizing
+  // Depth-based character sizing (2x height in classroom)
   const depthRatio = Math.max(0, Math.min(1, (charPos.y - 10) / (BOTTOM_Y_LIMIT - 10)))
-  const charSize = 100 + depthRatio * 60
+  const charSize = activeMap === 'kelas' ? (100 + depthRatio * 60) * 2 : 100 + depthRatio * 60
 
   // Visual Debug Bounds Mode State
   const [showDebug, setShowDebug] = useState(false)
@@ -594,21 +595,18 @@ export default function Level2SchoolExploration({
         {nearbyPortal && (
           <button
             onClick={handleToggleMap}
+            className="astu-menu-btn astu-menu-btn-gold"
             style={{
               position: 'absolute',
               bottom: '24px',
               left: '50%',
               transform: 'translateX(-50%)',
               zIndex: 45,
-              background: `linear-gradient(135deg, ${nearbyPortal.color} 0%, #0F172A 100%)`,
-              color: '#FFFFFF',
-              border: `2px solid ${nearbyPortal.color}`,
-              borderRadius: 14,
               padding: '10px 22px',
               fontSize: '13px',
-              fontWeight: 800,
+              fontWeight: 900,
               cursor: 'pointer',
-              boxShadow: `0 4px 20px ${nearbyPortal.color}80`,
+              boxShadow: '0 6px 24px rgba(0,0,0,0.8), var(--astu-gold-glow)',
               display: 'flex',
               alignItems: 'center',
               gap: 8,
@@ -616,7 +614,7 @@ export default function Level2SchoolExploration({
             }}
           >
             <span style={{ fontSize: '18px' }}>{nearbyPortal.icon}</span>
-            <span>Masuk ke {nearbyPortal.name} (Tekan E / Klik)</span>
+            <span>[ E ] Masuk ke {nearbyPortal.name} ►</span>
           </button>
         )}
 

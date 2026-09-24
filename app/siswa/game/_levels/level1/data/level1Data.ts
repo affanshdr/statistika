@@ -20,7 +20,7 @@ export const CLASS_DOORS: QuizDoor[] = [
   // Pintu 1 (Sayap Kiri) - Kelas VII-A
   {
     id: 'A1', roomId: 'A', label: 'Kelas VII-A', x: 310, y: 564, color: '#818cf8',
-    image: '/Assets/Building/Ruang VII-A/VII-A_custom.png',
+    image: '/Assets/Building/Ruang VII-A/VII-A.png',
     quizQ: 'Data screen time 5 siswa: 2, 4, 3, 8, 1 jam. Berapa rentang datanya?',
     quizA: 7, choices: [5, 6, 7, 8],
     fdContext: '💡 Ingat: rentang = nilai terbesar − nilai terkecil',
@@ -72,7 +72,7 @@ export const CLASS_STUDENTS: Record<string, { teacher: string; comment: string; 
   A1: {
     teacher: 'Bu Sari (Wali Kelas VII-A)',
     comment: 'Selamat datang di Kelas VII-A! Ini adalah sampel 7 data screen time siswa kami.',
-    image: '/Assets/Building/Ruang VII-A/VII-A_custom.png',
+    image: '/Assets/Building/Ruang VII-A/VII-A.png',
     students: [
       { name: 'Adit', time: 3 }, { name: 'Budi', time: 2 }, { name: 'Cici', time: 4 },
       { name: 'Deni', time: 5 }, { name: 'Evi', time: 3 }, { name: 'Fani', time: 2 },

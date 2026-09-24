@@ -35,47 +35,27 @@ export default function GameHeader({ isBlurred = false, onSkip }: GameHeaderProp
           transition: 'filter 0.5s ease',
         }}
       >
-        {/* Left: back button + logo + level */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <button
             onClick={() => setShowExitConfirm(true)}
+            className="astu-menu-btn"
             style={{
-              background: 'rgba(14, 131, 136, 0.08)',
-              border: '1px solid rgba(14, 131, 136, 0.25)',
+              padding: '5px 12px',
+              fontSize: '11.5px',
               borderRadius: '8px',
-              color: '#94A3B8',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: '6px 10px',
-              fontSize: '12px',
-              fontWeight: 700,
-              gap: '6px',
-              transition: 'all 0.2s',
-            }}
-            onMouseEnter={e => {
-              e.currentTarget.style.background = 'rgba(14, 131, 136, 0.18)'
-              e.currentTarget.style.borderColor = 'var(--game-border-accent)'
-              e.currentTarget.style.color = '#F8FAFC'
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.background = 'rgba(14, 131, 136, 0.08)'
-              e.currentTarget.style.borderColor = 'rgba(14, 131, 136, 0.25)'
-              e.currentTarget.style.color = '#94A3B8'
             }}
           >
             <span>←</span>
-            {!isMobile && <span>Kembali</span>}
+            {!isMobile && <span>Menu</span>}
           </button>
 
-          <span style={{ fontSize: isLandscape ? '14px' : '18px' }}>🕵️</span>
+          <span style={{ fontSize: isLandscape ? '14px' : '18px', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.6))' }}>🕵️</span>
           <div>
-            <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '1px' }}>
-              LVL {currentLevel}
+            <div className="astu-name-badge" style={{ fontSize: '9.5px', padding: '2px 8px', borderRadius: '4px' }}>
+              LEVEL {currentLevel}
             </div>
             {!isMobile && !isLandscape && (
-              <div style={{ fontSize: '12px', color: 'var(--text-secondary)', fontWeight: 600 }}>
+              <div style={{ fontSize: '11.5px', color: 'var(--astu-cyan-bright)', fontWeight: 800, marginTop: 2, letterSpacing: '0.4px' }}>
                 Video Viral Investigation
               </div>
             )}

@@ -1785,8 +1785,8 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                 {/* Dynamic Perspective Depth Scaling Calculation */}
                 {(() => {
                   const depthRatio = Math.max(0, Math.min(1, (charPos.y - 410) / (650 - 410)))
-                  // Proper proportioned character size when inside classroom
-                  const baseCharSize = insideRoom ? 170 + depthRatio * 60 : 145 + depthRatio * 65
+                  // Proper proportioned character size when inside classroom (2x size inside room)
+                  const baseCharSize = insideRoom ? (170 + depthRatio * 60) * 2 : 145 + depthRatio * 65
                   const charSize = baseCharSize
                   const btnY = charPos.y - charSize * 0.95
                   const btnTextY = btnY + 14
@@ -1881,25 +1881,25 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                               <rect
                                 x={buttonLeft}
                                 y={btnY}
-                                width={buttonW}
-                                height={26}
-                                rx={13}
-                                fill="rgba(15, 23, 42, 0.95)"
-                                stroke={isUnlocked ? '#10B981' : '#f59e0b'}
+                                width={buttonW + 20}
+                                height={28}
+                                rx={6}
+                                fill="#0B1726"
+                                stroke={isUnlocked ? '#10B981' : '#F59E0B'}
                                 strokeWidth={2}
-                                style={{ filter: 'drop-shadow(0px 4px 8px rgba(0,0,0,0.6))' }}
+                                style={{ filter: 'drop-shadow(0px 4px 12px rgba(0,0,0,0.85))' }}
                               />
                               <text
                                 x={textX}
-                                y={btnTextY}
+                                y={btnTextY + 2}
                                 textAnchor="middle"
                                 dominantBaseline="middle"
-                                fill="#ffffff"
-                                fontSize={11}
-                                fontWeight="bold"
-                                style={{ userSelect: 'none', pointerEvents: 'none', fontFamily: 'var(--font-ui)' }}
+                                fill="#FFFFFF"
+                                fontSize={10.5}
+                                fontWeight="900"
+                                style={{ userSelect: 'none', pointerEvents: 'none', fontFamily: 'var(--font-ui)', letterSpacing: '0.4px' }}
                               >
-                                {isUnlocked ? `🚪 Masuk ${nearClass.label}` : `📍 Periksa ${nearClass.label}`}
+                                {isUnlocked ? `[ E ] 🚪 Masuk ${nearClass.label} ►` : `[ E ] 📍 Periksa ${nearClass.label} ►`}
                               </text>
                             </motion.g>
                           )

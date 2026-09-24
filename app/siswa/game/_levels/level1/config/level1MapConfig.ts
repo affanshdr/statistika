@@ -71,7 +71,7 @@ export const LEVEL1_MAPS: Record<string, MapConfig> = {
     character: {
       baseSize: 145,
       depthFactor: 65,
-      speed: 5.2 // Faster exploration in long hallway
+      speed: 3.9 // Reduced by 25% from 5.2 for smoother exploration
     },
     spawn: { x: 650, y: 550 },
     isWalkable: (x, y) => checkHallwayWalkable(x, y)
@@ -81,7 +81,7 @@ export const LEVEL1_MAPS: Record<string, MapConfig> = {
     id: 'A1',
     name: 'Ruang VII-A',
     type: 'classroom',
-    bgImage: '/Assets/Building/Ruang VII-A/VII-A_custom.png',
+    bgImage: '/Assets/Building/Ruang VII-A/VII-A.png',
     camera: {
       mode: 'fixed',
       vw: WORLD_VW,
@@ -89,7 +89,7 @@ export const LEVEL1_MAPS: Record<string, MapConfig> = {
       preserveAspectRatio: 'xMidYMid meet'
     },
     character: {
-      baseSize: 170,
+      baseSize: 340,
       depthFactor: 60,
       speed: 3.8 // Precise movement inside classroom
     },
@@ -116,7 +116,7 @@ export const LEVEL1_MAPS: Record<string, MapConfig> = {
       preserveAspectRatio: 'xMidYMid meet'
     },
     character: {
-      baseSize: 170,
+      baseSize: 340,
       depthFactor: 60,
       speed: 3.8
     },
@@ -143,7 +143,7 @@ export const LEVEL1_MAPS: Record<string, MapConfig> = {
       preserveAspectRatio: 'xMidYMid meet'
     },
     character: {
-      baseSize: 170,
+      baseSize: 340,
       depthFactor: 60,
       speed: 3.8
     },
@@ -170,7 +170,7 @@ export const LEVEL1_MAPS: Record<string, MapConfig> = {
       preserveAspectRatio: 'xMidYMid meet'
     },
     character: {
-      baseSize: 170,
+      baseSize: 340,
       depthFactor: 60,
       speed: 3.8
     },
@@ -197,7 +197,7 @@ export const LEVEL1_MAPS: Record<string, MapConfig> = {
       preserveAspectRatio: 'xMidYMid meet'
     },
     character: {
-      baseSize: 170,
+      baseSize: 340,
       depthFactor: 60,
       speed: 3.8
     },
