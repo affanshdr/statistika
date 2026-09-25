@@ -91,11 +91,18 @@ export default function QuizModal({ door, isFD, onCorrect, onClose }: QuizModalP
           }}
         >
           {/* ASTU Retro Speaker Badge */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span className="astu-name-badge">
-              <span>📍</span> {door.label}
-            </span>
-            <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--astu-gold-bright)', fontFamily: 'var(--font-data)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+              <span className="astu-name-badge">
+                <span>📍</span> {door.label}
+              </span>
+              {CLASS_STUDENTS[door.id]?.teacher && (
+                <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--astu-cyan-bright)', background: 'rgba(0, 173, 181, 0.12)', border: '1px solid rgba(0, 173, 181, 0.35)', padding: '3px 8px', borderRadius: 8, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                  <span>👩‍🏫</span> {CLASS_STUDENTS[door.id]?.teacher}
+                </span>
+              )}
+            </div>
+            <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--astu-gold-bright)', fontFamily: 'var(--font-data)', whiteSpace: 'nowrap' }}>
               AKSES TERKUNCI
             </span>
           </div>
@@ -122,14 +129,21 @@ export default function QuizModal({ door, isFD, onCorrect, onClose }: QuizModalP
               <div style={{
                 position: 'absolute',
                 inset: 0,
-                background: 'linear-gradient(180deg, transparent 30%, rgba(8, 18, 30, 0.95) 100%)',
+                background: 'linear-gradient(180deg, transparent 20%, rgba(8, 18, 30, 0.95) 100%)',
                 display: 'flex',
                 alignItems: 'flex-end',
-                padding: '10px 14px'
+                justifyContent: 'space-between',
+                padding: '10px 14px',
+                gap: 8
               }}>
                 <span style={{ fontSize: 12, fontWeight: 900, color: '#FFFFFF', display: 'flex', alignItems: 'center', gap: 6 }}>
                   🏫 Ruangan {door.label}
                 </span>
+                {CLASS_STUDENTS[door.id]?.teacher && (
+                  <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--astu-gold-bright)', background: 'rgba(8, 18, 30, 0.85)', padding: '3px 8px', borderRadius: 6, border: '1px solid rgba(245, 158, 11, 0.4)', display: 'flex', alignItems: 'center', gap: 4 }}>
+                    👩‍🏫 {CLASS_STUDENTS[door.id]?.teacher}
+                  </span>
+                )}
               </div>
             </div>
           )}

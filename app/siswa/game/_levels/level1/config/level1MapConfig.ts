@@ -61,7 +61,7 @@ export const LEVEL1_MAPS: Record<string, MapConfig> = {
     id: 'hallway',
     name: 'Lorong Sekolah',
     type: 'hallway',
-    bgImage: '/Assets/Building/N-Path.png',
+    bgImage: '/Assets/Building/Kelas.jpg',
     camera: {
       mode: 'follow',
       vw: 380,
@@ -108,7 +108,7 @@ export const LEVEL1_MAPS: Record<string, MapConfig> = {
     id: 'A2',
     name: 'Ruang VII-B',
     type: 'classroom',
-    bgImage: '/Assets/Building/Kelas.jpg',
+    bgImage: '/Assets/Building/Ruang VII-B/VII-B.png',
     camera: {
       mode: 'fixed',
       vw: WORLD_VW,

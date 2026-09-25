@@ -30,7 +30,7 @@ export const CLASS_DOORS: QuizDoor[] = [
   // Pintu 2 (Lorong Kiri) - Kelas VII-B
   {
     id: 'A2', roomId: 'A', label: 'Kelas VII-B', x: 431, y: 495, color: '#6366f1',
-    image: '/Assets/Building/Kelas.jpg',
+    image: '/Assets/Building/Ruang VII-B/VII-B.png',
     quizQ: 'Tepi bawah kelas interval 4–6 adalah?',
     quizA: 3.5, choices: [3, 3.5, 4, 4.5],
     fdContext: '💡 Ingat: tepi bawah = batas bawah − 0.5',
@@ -82,7 +82,7 @@ export const CLASS_STUDENTS: Record<string, { teacher: string; comment: string; 
   A2: {
     teacher: 'Pak Bambang (Wali Kelas VII-B)',
     comment: 'Ini data 7 siswa Kelas VII-B. Mari kita gabungkan dengan data VII-A!',
-    image: '/Assets/Building/Kelas.jpg',
+    image: '/Assets/Building/Ruang VII-B/VII-B.png',
     students: [
       { name: 'Hadi', time: 3 }, { name: 'Indra', time: 4 }, { name: 'Joko', time: 5 },
       { name: 'Kiki', time: 4 }, { name: 'Lia', time: 6 }, { name: 'Mira', time: 3 },

@@ -1248,6 +1248,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
   const handleClassCorrect = useCallback(() => {
     if (!activeClass) return
     const roomToEnter = activeClass
+    setUnlocked(p => new Set([...p, roomToEnter.id]))
     setActiveClass(null)
     lastHallwayPosRef.current = { x: roomToEnter.x, y: roomToEnter.y + 20 }
     setInsideRoom(roomToEnter)
@@ -1422,6 +1423,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
             transition: 'all 0.2s',
           }}
         >
+
           {/* Icon Container with Floating Badge */}
           <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <span style={{ fontSize: 'clamp(18px, 2.2vw, 24px)', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.6))' }}>📓</span>
@@ -1491,9 +1493,13 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                   </filter>
                 </defs>
 
-                {/* Main Classroom Background Image */}
+                {/* Main Classroom / Map Background Image */}
                 <image
-                  href={insideRoom ? ((insideRoom as any).image || CLASS_STUDENTS[insideRoom.id]?.image || '/Assets/Building/Kelas.jpg') : '/Assets/Building/Kelas.jpg'}
+                  href={encodeURI(
+                    insideRoom 
+                      ? (LEVEL1_MAPS[insideRoom.id]?.bgImage || (insideRoom as any).image || CLASS_STUDENTS[insideRoom.id]?.image || '/Assets/Building/Kelas.jpg')
+                      : (LEVEL1_MAPS['hallway']?.bgImage || '/Assets/Building/Kelas.jpg')
+                  )}
                   x={0}
                   y={0}
                   width={WORLD_VW}
