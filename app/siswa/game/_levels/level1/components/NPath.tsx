@@ -966,10 +966,119 @@ function CounterResult({ onDone }: { onDone: () => void }) {
       </div>
     </div>
   )
+// ─── Pak Sutrisno Sanction Modal ───────────────────────────────────────────────
+function PakSanctionModal({ onAccept }: { onAccept: () => void }) {
+  return (
+    <div style={{ position: 'fixed', inset: 0, zIndex: 650, background: 'rgba(4, 7, 10, 0.85)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.9, y: 20 }}
+        style={{
+          maxWidth: 460,
+          width: '100%',
+          background: 'rgba(15, 35, 56, 0.96)',
+          border: '2px solid #38BDF8',
+          boxShadow: '0 0 35px rgba(56, 189, 248, 0.35)',
+          borderRadius: 24,
+          padding: '24px 20px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 16
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14, borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: 12 }}>
+          <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'rgba(56, 189, 248, 0.15)', border: '2px solid #38BDF8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, overflow: 'hidden' }}>
+            <img src="/Assets/Character/pak Sutrisno-iso_idle_right-trimmed.png" style={{ width: '130%', height: '130%', objectFit: 'cover', objectPosition: 'top', transform: 'scaleX(-1)' }} alt="Pak Sutrisno" />
+          </div>
+          <div>
+            <div style={{ fontSize: 10, fontWeight: 900, color: '#38BDF8', letterSpacing: '1.5px', textTransform: 'uppercase' }}>👨‍🏫 GURU KEDISIPLINAN SEKOLAH</div>
+            <h3 style={{ margin: 0, fontSize: 17, color: '#FFFFFF', fontWeight: 900 }}>Pak Sutrisno</h3>
+          </div>
+        </div>
+
+        <div style={{ background: 'rgba(56, 189, 248, 0.06)', border: '1.5px solid rgba(56, 189, 248, 0.25)', borderRadius: 16, padding: '16px 14px' }}>
+          <p style={{ margin: 0, fontSize: 13.5, color: '#E2E8F0', fontWeight: 600, lineHeight: 1.65 }}>
+            "Kamu terlambat lagi! Bel sekolah sudah lama berbunyi dan kamu baru saja melangkah di lapangan ini.<br /><br />
+            Sebagai sanksi kedisiplinan, kamu <strong style={{ color: '#F87171' }}>TIDAK BOLEH masuk kelas</strong> sebelum menyelesaikan tugas ini:<br />
+            <strong style={{ color: '#38BDF8' }}>Kelilingi lorong sekolah dan kumpulkan 35 sampel data screen time dari 5 kelas (VII-A, VII-B, VIII-A, VIII-B, IX)!</strong>"
+          </p>
+        </div>
+
+        <button
+          className="game-btn game-btn-primary"
+          style={{ padding: '12px 18px', fontSize: 14, fontWeight: 900, width: '100%', borderRadius: 14, background: 'linear-gradient(135deg, #00ADB5 0%, #38BDF8 100%)', boxShadow: '0 0 15px rgba(0, 173, 181, 0.4)', cursor: 'pointer' }}
+          onClick={onAccept}
+        >
+          SAYA SIAP TERIMA SANKSI & INVESTIGASI DATA →
+        </button>
+      </motion.div>
+    </div>
+  )
+}
+
+// ─── Pak Sutrisno Report Modal ───────────────────────────────────────────────
+function PakReportModal({ onProceed }: { onProceed: () => void }) {
+  return (
+    <div style={{ position: 'fixed', inset: 0, zIndex: 650, background: 'rgba(4, 7, 10, 0.85)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.9, y: 20 }}
+        style={{
+          maxWidth: 480,
+          width: '100%',
+          background: 'rgba(15, 35, 56, 0.96)',
+          border: '2px solid #10B981',
+          boxShadow: '0 0 35px rgba(16, 185, 129, 0.35)',
+          borderRadius: 24,
+          padding: '24px 20px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 16
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14, borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: 12 }}>
+          <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'rgba(16, 185, 129, 0.15)', border: '2px solid #10B981', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, overflow: 'hidden' }}>
+            <img src="/Assets/Character/pak Sutrisno-iso_idle_right-trimmed.png" style={{ width: '130%', height: '130%', objectFit: 'cover', objectPosition: 'top', transform: 'scaleX(-1)' }} alt="Pak Sutrisno" />
+          </div>
+          <div>
+            <div style={{ fontSize: 10, fontWeight: 900, color: '#10B981', letterSpacing: '1.5px', textTransform: 'uppercase' }}>👨‍🏫 LAPOR SANKSI TERPENUHI</div>
+            <h3 style={{ margin: 0, fontSize: 17, color: '#FFFFFF', fontWeight: 900 }}>Pak Sutrisno</h3>
+          </div>
+        </div>
+
+        <div style={{ background: 'rgba(16, 185, 129, 0.06)', border: '1.5px solid rgba(16, 185, 129, 0.25)', borderRadius: 16, padding: '16px 14px' }}>
+          <p style={{ margin: 0, fontSize: 13.5, color: '#E2E8F0', fontWeight: 600, lineHeight: 1.65 }}>
+            "Bagus sekali! Kamu sudah berhasil mengumpulkan <strong style={{ color: '#10B981' }}>35 sampel data screen time</strong> dari 5 ruang kelas.<br /><br />
+            Namun sanksimu belum selesai! Data mentah ini harus dianalisis secara statistik.<br />
+            <strong style={{ color: '#38BDF8' }}>Mari mulai dengan menghitung Rentang Data (R) untuk mengukur sebaran penggunaan gadget siswa!</strong>"
+          </p>
+        </div>
+
+        <button
+          className="game-btn game-btn-primary"
+          style={{ padding: '12px 18px', fontSize: 14, fontWeight: 900, width: '100%', borderRadius: 14, background: 'linear-gradient(135deg, #10B981 0%, #38BDF8 100%)', boxShadow: '0 0 15px rgba(16, 185, 129, 0.4)', cursor: 'pointer' }}
+          onClick={onProceed}
+        >
+          MULAI ANALISIS DATA & HITUNG RENTANG (R) →
+        </button>
+      </motion.div>
+    </div>
+  )
 }
 
 export default function NPath({ onComplete, isFD = true, demoMode = false }: { onComplete: () => void; isFD?: boolean; demoMode?: boolean }) {
-  const [charPos, setCharPos] = useState({ x: 650, y: 550 })
+  const [charPos, setCharPos] = useState({ x: 200, y: 530 })
+  const [cinematicStage, setCinematicStage] = useState<'panning_to_pak' | 'pak_shouting' | 'panning_to_player' | 'quest_meet_pak' | 'sanction_received'>(() => {
+    return demoMode ? 'sanction_received' : 'panning_to_pak'
+  })
+  const cinematicStageRef = useRef(cinematicStage)
+  cinematicStageRef.current = cinematicStage
+
+  const [showPakSanctionModal, setShowPakSanctionModal] = useState(false)
+  const [showPakReportModal, setShowPakReportModal] = useState(false)
+  const smoothCamPos = useRef({ x: 200, y: 530 })
   const [unlocked, setUnlocked] = useState<Set<string>>(() => {
     return demoMode ? new Set(['A', 'B', 'C', 'A1', 'A2', 'A3', 'B1']) : new Set(['A', 'B', 'C'])
   })
@@ -1093,10 +1202,10 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
 
   // Finish trigger once all 35 data points are collected
   useEffect(() => {
-    if (collected.size >= TOTAL_N && !showCounter) {
-      setTimeout(() => setShowCounter(true), 600)
+    if (collected.size >= TOTAL_N && !showCounter && !showPakReportModal) {
+      setDiraMessageText("🎉 35 Data Screen Time Terkumpul! Kembali ke lapangan & lapor ke Pak Sutrisno.")
     }
-  }, [collected.size, showCounter])
+  }, [collected.size, showCounter, showPakReportModal])
 
   // Auto-clamp player Y position if ever above RED_LINE_POINTS
   useEffect(() => {
@@ -1109,7 +1218,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
 
   const lastTimeRef = useRef<number>(0)
 
-  // Main game tick: movement animation loop with delta-time smoothing
+  // Main game tick: movement animation loop with delta-time smoothing & camera lerp
   useEffect(() => {
     lastTimeRef.current = performance.now()
     const tick = () => {
@@ -1117,16 +1226,43 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
       const dt = Math.min((now - lastTimeRef.current) / 1000, 0.05)
       lastTimeRef.current = now
 
-      if (!activeDoor && !activeClass && !diraMessageText && !showWaliKelasPopup) {
+      const isInside = !!insideRoomR.current
+      let targetFocusX = isInside ? 600 : charPosRef.current.x
+      let targetFocusY = isInside ? 580 : charPosRef.current.y
+
+      if (!isInside && (cinematicStageRef.current === 'panning_to_pak' || cinematicStageRef.current === 'pak_shouting')) {
+        targetFocusX = PAK_SUTRISNO_POS.x
+        targetFocusY = PAK_SUTRISNO_POS.y
+      }
+
+      // Smooth camera lerp
+      smoothCamPos.current.x += (targetFocusX - smoothCamPos.current.x) * 0.075
+      smoothCamPos.current.y += (targetFocusY - smoothCamPos.current.y) * 0.075
+
+      // Automatic transitions for camera pan
+      if (cinematicStageRef.current === 'panning_to_pak') {
+        const distToPak = Math.hypot(smoothCamPos.current.x - PAK_SUTRISNO_POS.x, smoothCamPos.current.y - PAK_SUTRISNO_POS.y)
+        if (distToPak < 35) {
+          setCinematicStage('pak_shouting')
+        }
+      } else if (cinematicStageRef.current === 'panning_to_player') {
+        const distToPlayer = Math.hypot(smoothCamPos.current.x - charPosRef.current.x, smoothCamPos.current.y - charPosRef.current.y)
+        if (distToPlayer < 35) {
+          setCinematicStage('quest_meet_pak')
+        }
+      }
+
+      const isCinematicActive = cinematicStageRef.current === 'panning_to_pak' || cinematicStageRef.current === 'pak_shouting' || cinematicStageRef.current === 'panning_to_player'
+
+      if (!activeDoor && !activeClass && !showWaliKelasPopup && !showPakSanctionModal && !isCinematicActive) {
         const { x: dx, y: dy } = dirRef.current
         if (dx || dy) {
           const currentMapKey = insideRoomR.current?.id || 'hallway'
           const activeMap = LEVEL1_MAPS[currentMapKey] || LEVEL1_MAPS['hallway']
-          const moveSpeed = activeMap.character.speed * 40 // Scaled responsive pixels per second per map
+          const moveSpeed = activeMap.character.speed * 40
           const dist = moveSpeed * dt
 
           setCharPos(p => {
-            const isInside = !!insideRoomR.current
             const currentRedLineY = isInside ? 380 : getRedLineY(p.x)
             const safeY = Math.max(p.y, currentRedLineY)
 
@@ -1154,7 +1290,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
     }
     animRef.current = requestAnimationFrame(tick)
     return () => { if (animRef.current) cancelAnimationFrame(animRef.current) }
-  }, [activeDoor, activeClass, diraMessageText, showWaliKelasPopup])
+  }, [activeDoor, activeClass, showWaliKelasPopup, showPakSanctionModal])
 
   // Keyboard navigation listeners
   useEffect(() => {
@@ -1227,9 +1363,13 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
         const pakX = PAK_SUTRISNO_POS.x
         const pakY = PAK_SUTRISNO_POS.y
         const distToPak = Math.hypot(charPosRef.current.x - pakX, charPosRef.current.y - pakY)
-        if (distToPak < 120) {
+        if (distToPak < 135) {
           e.preventDefault()
-          setDiraMessageText("Pak Sutrisno: 'Halo Detektif! Saya Pak Sutrisno, Guru Pembimbing. Selamat mengeksplorasi lorong sekolah & kumpulkan 35 data sampel screen time dari setiap ruang kelas!'")
+          if (collected.size >= TOTAL_N) {
+            setShowPakReportModal(true)
+          } else {
+            setShowPakSanctionModal(true)
+          }
         }
       }
     }
@@ -1512,8 +1652,8 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                 viewVW = WORLD_VW
                 viewVH = WORLD_VW / aspect
               }
-              camX = Math.max(0, Math.min(WORLD_VW - viewVW, charPos.x - viewVW / 2))
-              camY = Math.max(0, Math.min(WORLD_VH - viewVH, charPos.y - viewVH * 0.65))
+              camX = Math.max(0, Math.min(WORLD_VW - viewVW, smoothCamPos.current.x - viewVW / 2))
+              camY = Math.max(0, Math.min(WORLD_VH - viewVH, smoothCamPos.current.y - viewVH * 0.65))
             }
             return (
               <svg viewBox={`${camX} ${camY} ${viewVW} ${viewVH}`} preserveAspectRatio={insideRoom ? "xMidYMid meet" : "none"} style={{ width: '100%', height: '100%', display: 'block' }}>
@@ -1883,10 +2023,18 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                         const pakDepth = Math.max(0, Math.min(1, (pakY - 410) / (650 - 410)))
                         const pakSize = 145 + pakDepth * 65
                         const distToPak = Math.hypot(charPos.x - pakX, charPos.y - pakY)
-                        const isNearPak = distToPak < 120
+                        const isNearPak = distToPak < 135
+
+                        const isAllCollected = collected.size >= TOTAL_N
 
                         const handleTalkToPak = () => {
-                          setDiraMessageText("Pak Sutrisno: 'Halo Detektif! Saya Pak Sutrisno, Guru Pembimbing. Selamat mengeksplorasi lorong sekolah & kumpulkan 35 data sampel screen time dari setiap ruang kelas!'")
+                          if (cinematicStage === 'pak_shouting') {
+                            setCinematicStage('panning_to_player')
+                          } else if (isAllCollected) {
+                            setShowPakReportModal(true)
+                          } else {
+                            setShowPakSanctionModal(true)
+                          }
                         }
 
                         const renderPak = (
@@ -1900,16 +2048,44 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                             cols={5}
                             rows={4}
                             flipX={true}
-                            glowColor="#38BDF8"
+                            glowColor={isAllCollected ? "#10B981" : "#38BDF8"}
                             onClick={handleTalkToPak}
                           />
                         )
 
-                        const buttonW = 185
+                        const buttonW = 220
                         const buttonLeft = Math.max(camX + 10, Math.min(camX + VIEW_VW - buttonW - 10, charPos.x - buttonW / 2))
                         const textX = buttonLeft + buttonW / 2
 
-                        const renderPrompt = isNearPak && !diraMessageText && (
+                        {/* Speech bubble during pak_shouting */}
+                        const renderShoutBubble = cinematicStage === 'pak_shouting' && (
+                          <g key="pak-shout-bubble" style={{ cursor: 'pointer' }} onClick={() => setCinematicStage('panning_to_player')}>
+                            <rect x={pakX - 135} y={pakY - 145} width={270} height={50} rx={14} fill="rgba(15, 35, 56, 0.96)" stroke="#38BDF8" strokeWidth={2.5} style={{ filter: 'drop-shadow(0 6px 18px rgba(0,0,0,0.65))' }} />
+                            <polygon points={`${pakX - 10},${pakY - 95} ${pakX + 10},${pakY - 95} ${pakX},${pakY - 84}`} fill="rgba(15, 35, 56, 0.96)" stroke="#38BDF8" strokeWidth={1} />
+                            <text x={pakX} y={pakY - 127} textAnchor="middle" fill="#FFFFFF" fontSize={11} fontWeight="900" fontFamily="var(--font-ui)">
+                              "Hey kamu! Baru jam segini sampai sekolah?!"
+                            </text>
+                            <text x={pakX} y={pakY - 110} textAnchor="middle" fill="#38BDF8" fontSize={10.5} fontWeight="800" fontFamily="var(--font-ui)">
+                              "Sini kamu sebentar! [ Klik / Tap ▶ ]"
+                            </text>
+                          </g>
+                        )
+
+                        {/* Glowing Waypoint Arrow towards Pak Sutrisno when player needs to meet him */}
+                        const renderWaypointArrow = ((cinematicStage === 'quest_meet_pak' || isAllCollected) && !isNearPak) && (
+                          <g key="waypoint-arrow" style={{ pointerEvents: 'none' }}>
+                            <circle cx={pakX} cy={pakY - 120} r={16} fill={isAllCollected ? "rgba(16, 185, 129, 0.2)" : "rgba(56, 189, 248, 0.2)"} stroke={isAllCollected ? "#10B981" : "#38BDF8"} strokeWidth={2} />
+                            <text x={pakX} y={pakY - 115} textAnchor="middle" fill={isAllCollected ? "#10B981" : "#38BDF8"} fontSize={18} fontWeight="900">
+                              ↓
+                            </text>
+                            <rect x={pakX - 65} y={pakY - 150} width={130} height={20} rx={6} fill="rgba(15, 35, 56, 0.9)" stroke={isAllCollected ? "#10B981" : "#38BDF8"} strokeWidth={1} />
+                            <text x={pakX} y={pakY - 136} textAnchor="middle" fill="#FFFFFF" fontSize={9.5} fontWeight="800">
+                              {isAllCollected ? "🎯 LAPOR SANKSI" : "🎯 SANKSI SINI"}
+                            </text>
+                          </g>
+                        )
+
+                        const renderPrompt = (isNearPak || cinematicStage === 'quest_meet_pak' || isAllCollected) && cinematicStage !== 'pak_shouting' && (
                           <motion.g
                             key="btn-talk-pak-sutrisno"
                             initial={{ opacity: 0, scale: 0.8, y: 5 }}
@@ -1924,6 +2100,37 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                               x={buttonLeft}
                               y={btnY}
                               width={buttonW}
+                              height={26}
+                              rx={13}
+                              fill="rgba(15, 23, 42, 0.95)"
+                              stroke={isAllCollected ? "#10B981" : "#38BDF8"}
+                              strokeWidth={2}
+                              style={{ filter: 'drop-shadow(0px 4px 8px rgba(0,0,0,0.6))' }}
+                            />
+                            <text
+                              x={textX}
+                              y={btnTextY}
+                              textAnchor="middle"
+                              dominantBaseline="middle"
+                              fill="#ffffff"
+                              fontSize={10}
+                              fontWeight="bold"
+                              fontFamily="var(--font-ui)"
+                            >
+                              {isAllCollected ? "📋 Lapor 35 Data ke Pak Sutrisno" : "💬 Bicara dengan Pak Sutrisno"}
+                            </text>
+                          </motion.g>
+                        )
+
+                        return (
+                          <g key="pak-sutrisno-group">
+                            {renderPak}
+                            {renderShoutBubble}
+                            {renderWaypointArrow}
+                            {renderPrompt}
+                          </g>
+                        )
+                      })()}
                               height={26}
                               rx={13}
                               fill="rgba(15, 23, 42, 0.95)"
@@ -2144,6 +2351,26 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
             isFD={isFD}
             onCorrect={handleClassCorrect}
             onClose={() => setActiveClass(null)}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Pak Sutrisno Sanction & Report Modals */}
+      <AnimatePresence>
+        {showPakSanctionModal && (
+          <PakSanctionModal
+            onAccept={() => {
+              setShowPakSanctionModal(false)
+              setCinematicStage('sanction_received')
+            }}
+          />
+        )}
+        {showPakReportModal && (
+          <PakReportModal
+            onProceed={() => {
+              setShowPakReportModal(false)
+              setShowCounter(true)
+            }}
           />
         )}
       </AnimatePresence>

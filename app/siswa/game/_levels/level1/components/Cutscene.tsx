@@ -639,8 +639,8 @@ export default function Cutscene({ onComplete, onPhaseChange, teamId, studentId,
                 gap: '6px',
                 boxShadow: '0 -4px 10px rgba(0,0,0,0.15)',
               }}>
-                <span style={{ fontSize: '13px' }}>👤</span>
-                <span>ASISTEN DIRA</span>
+                <span style={{ fontSize: '13px' }}>🏃‍♂️</span>
+                <span>NARASI — TERLAMBAT KE SEKOLAH</span>
               </div>
 
               {/* Dialog Text Box */}
@@ -657,30 +657,6 @@ export default function Cutscene({ onComplete, onPhaseChange, teamId, studentId,
                 boxSizing: 'border-box',
                 position: 'relative',
               }}>
-                {/* Agent Sprite Character */}
-                <div style={{
-                  position: 'absolute',
-                  bottom: 'calc(100% - 2px)',
-                  right: isMobile ? '8px' : '24px',
-                  height: isMobile ? '120px' : '190px',
-                  zIndex: 5,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  pointerEvents: 'none',
-                }}>
-                  <motion.img
-                    initial={{ opacity: 0, y: 50 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ type: 'spring', stiffness: 100, damping: 15 }}
-                    src="/dira-avatar.png"
-                    alt="Agent"
-                    style={{
-                      height: '100%',
-                      objectFit: 'contain',
-                    }}
-                  />
-                </div>
                 <p style={{
                   margin: 0,
                   fontSize: isMobile ? '13px' : '15px',
@@ -690,7 +666,7 @@ export default function Cutscene({ onComplete, onPhaseChange, teamId, studentId,
                   fontFamily: 'var(--font-ui)',
                 }}>
                   <TypewriterText
-                    text="Wait a minute... Benar nggak sih klaim viral ini? Jangan langsung kemakan emosi netizen di komen deh. Kita ada data riil screen time dari 35 siswa acak. Yuk, kita uji biar valid no cap!"
+                    text="Gawat! Bel sekolah sudah berbunyi dan kamu datang terlambat! Dengan napas terengah-engah, kamu melangkah melewati gerbang menuju lapangan sekolah..."
                     onDone={() => setMentorTypingDone(true)}
                   />
                 </p>
@@ -749,7 +725,7 @@ export default function Cutscene({ onComplete, onPhaseChange, teamId, studentId,
                   >
                     {teamId && myVotedGates.has('gate_cutscene_start')
                       ? `Menunggu ${Math.max(0, 2 - (gateVotes['gate_cutscene_start']?.length ?? 1))} lagi...`
-                      : 'MULAI INVESTIGASI'
+                      : 'MASUK KE LAPANGAN SEKOLAH →'
                     }
                   </button>
                 </div>
