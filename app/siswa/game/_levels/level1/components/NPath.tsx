@@ -966,6 +966,8 @@ function CounterResult({ onDone }: { onDone: () => void }) {
       </div>
     </div>
   )
+}
+
 // ─── Pak Sutrisno Sanction Modal ───────────────────────────────────────────────
 function PakSanctionModal({ onAccept }: { onAccept: () => void }) {
   return (
@@ -1752,7 +1754,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                           fontWeight="900"
                           fontFamily="sans-serif"
                         >
-                          🟢 AREA BERJALAN KELAS ({insideRoom.name || insideRoom.id})
+                          🟢 AREA BERJALAN KELAS ({insideRoom.label || insideRoom.id})
                         </text>
                       </g>
                     ) : (
@@ -2127,35 +2129,6 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                             {renderPak}
                             {renderShoutBubble}
                             {renderWaypointArrow}
-                            {renderPrompt}
-                          </g>
-                        )
-                      })()}
-                              height={26}
-                              rx={13}
-                              fill="rgba(15, 23, 42, 0.95)"
-                              stroke="#38BDF8"
-                              strokeWidth={2}
-                              style={{ filter: 'drop-shadow(0px 4px 8px rgba(0,0,0,0.6))' }}
-                            />
-                            <text
-                              x={textX}
-                              y={btnTextY}
-                              textAnchor="middle"
-                              dominantBaseline="middle"
-                              fill="#ffffff"
-                              fontSize={10.5}
-                              fontWeight="bold"
-                              fontFamily="var(--font-ui)"
-                            >
-                              💬 Bicara dengan Pak Sutrisno
-                            </text>
-                          </motion.g>
-                        )
-
-                        return (
-                          <g key="pak-sutrisno-group">
-                            {renderPak}
                             {renderPrompt}
                           </g>
                         )
