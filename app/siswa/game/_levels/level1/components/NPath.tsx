@@ -2024,7 +2024,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                             x={pakX}
                             y={pakY}
                             size={pakSize}
-                            label="Pak Sutrisno"
+                            label={cinematicStage === 'pak_shouting' ? '' : 'Pak Sutrisno'}
                             spriteUrl="/Assets/Character/pak Sutrisno-iso_idle_right-trimmed.png"
                             cols={5}
                             rows={4}
@@ -2041,13 +2041,73 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                         {/* Speech bubble during pak_shouting */}
                         const renderShoutBubble = cinematicStage === 'pak_shouting' && (
                           <g key="pak-shout-bubble" style={{ cursor: 'pointer' }} onClick={() => setCinematicStage('panning_to_player')}>
-                            <rect x={pakX - 135} y={pakY - 145} width={270} height={50} rx={14} fill="rgba(15, 35, 56, 0.96)" stroke="#38BDF8" strokeWidth={2.5} style={{ filter: 'drop-shadow(0 6px 18px rgba(0,0,0,0.65))' }} />
-                            <polygon points={`${pakX - 10},${pakY - 95} ${pakX + 10},${pakY - 95} ${pakX},${pakY - 84}`} fill="rgba(15, 35, 56, 0.96)" stroke="#38BDF8" strokeWidth={1} />
-                            <text x={pakX} y={pakY - 127} textAnchor="middle" fill="#FFFFFF" fontSize={11} fontWeight="900" fontFamily="var(--font-ui)">
+                            {/* Dialogue Card Container */}
+                            <rect
+                              x={pakX - 130}
+                              y={pakY - 180}
+                              width={260}
+                              height={58}
+                              rx={14}
+                              fill="rgba(15, 35, 56, 0.96)"
+                              stroke="#38BDF8"
+                              strokeWidth={2}
+                              style={{ filter: 'drop-shadow(0 8px 24px rgba(0,0,0,0.7))' }}
+                            />
+                            {/* Pointer Triangle */}
+                            <polygon
+                              points={`${pakX - 8},${pakY - 122} ${pakX + 8},${pakY - 122} ${pakX},${pakY - 110}`}
+                              fill="rgba(15, 35, 56, 0.96)"
+                              stroke="#38BDF8"
+                              strokeWidth={1}
+                            />
+
+                            {/* Name Tag Badge in Top-Left Corner inside the Box */}
+                            <rect
+                              x={pakX - 122}
+                              y={pakY - 173}
+                              width={92}
+                              height={16}
+                              rx={5}
+                              fill="rgba(56, 189, 248, 0.18)"
+                              stroke="rgba(56, 189, 248, 0.5)"
+                              strokeWidth={1}
+                            />
+                            <text
+                              x={pakX - 76}
+                              y={pakY - 161}
+                              textAnchor="middle"
+                              fill="#38BDF8"
+                              fontSize={9.5}
+                              fontWeight="900"
+                              fontFamily="var(--font-ui)"
+                            >
+                              👨‍🏫 Pak Sutrisno
+                            </text>
+
+                            {/* Dialogue Shout Line */}
+                            <text
+                              x={pakX}
+                              y={pakY - 143}
+                              textAnchor="middle"
+                              fill="#FFFFFF"
+                              fontSize={10.5}
+                              fontWeight="800"
+                              fontFamily="var(--font-ui)"
+                            >
                               "Hey kamu! Baru jam segini sampai sekolah?!"
                             </text>
-                            <text x={pakX} y={pakY - 110} textAnchor="middle" fill="#38BDF8" fontSize={10.5} fontWeight="800" fontFamily="var(--font-ui)">
-                              "Sini kamu sebentar! [ Klik / Tap ▶ ]"
+
+                            {/* Action Prompt Line */}
+                            <text
+                              x={pakX + 118}
+                              y={pakY - 129}
+                              textAnchor="end"
+                              fill="#38BDF8"
+                              fontSize={9.5}
+                              fontWeight="800"
+                              fontFamily="var(--font-ui)"
+                            >
+                              Sini kamu! [ Klik / Tap ▶ ]
                             </text>
                           </g>
                         )

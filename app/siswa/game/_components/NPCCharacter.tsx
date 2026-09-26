@@ -106,7 +106,7 @@ export default function NPCCharacter({
       </foreignObject>
 
       {/* Name Tag Badge */}
-      {label && (
+      {(label && label.trim().length > 0) && (
         <g style={{ pointerEvents: 'none' }}>
           <rect
             x={x - 48}
