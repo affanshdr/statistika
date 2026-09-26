@@ -17,6 +17,7 @@ export default function MythBustedStamp({ onComplete }: MythBustedStampProps) {
     return () => { if (timerRef.current) clearTimeout(timerRef.current) }
   }, [])
 
+
   return (
     <motion.div
       initial={{ opacity: 0 }}

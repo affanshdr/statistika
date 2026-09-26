@@ -1798,7 +1798,6 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                         y={charPos.y}
                         dir={moveDir}
                         size={14}
-                        label="Kamu"
                       />
 
                       {/* Teammate characters — one per member, colored distinctly */}

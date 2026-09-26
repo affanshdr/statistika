@@ -3,11 +3,13 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import PlayerCharacter from '@/app/siswa/game/_components/PlayerCharacter'
+import NPCCharacter from '@/app/siswa/game/_components/NPCCharacter'
 import {
   LEVEL1_MAPS,
   WORLD_VW,
   WORLD_VH,
   RED_LINE_POINTS,
+  PAK_SUTRISNO_POS,
   getRedLineY,
   checkHallwayWalkable,
   checkClassroomWalkable
@@ -1221,6 +1223,14 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
           e.preventDefault()
           setShowWaliKelasPopup(insideRoomR.current)
         }
+      } else if ((e.key === 'Enter' || e.key === ' ' || e.key === 'e' || e.key === 'E') && !insideRoomR.current) {
+        const pakX = PAK_SUTRISNO_POS.x
+        const pakY = PAK_SUTRISNO_POS.y
+        const distToPak = Math.hypot(charPosRef.current.x - pakX, charPosRef.current.y - pakY)
+        if (distToPak < 120) {
+          e.preventDefault()
+          setDiraMessageText("Pak Sutrisno: 'Halo Detektif! Saya Pak Sutrisno, Guru Pembimbing. Selamat mengeksplorasi lorong sekolah & kumpulkan 35 data sampel screen time dari setiap ruang kelas!'")
+        }
       }
     }
 
@@ -1377,21 +1387,48 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
             </div>
           </div>
 
-          {/* Right: Step Indicator */}
-          <div style={{
-            background: 'rgba(11, 30, 44, 0.85)',
-            backdropFilter: 'blur(12px)',
-            border: '1.5px solid rgba(255, 255, 255, 0.12)',
-            borderRadius: 12,
-            padding: 'clamp(4px, 0.7vw, 6px) clamp(8px, 1.1vw, 14px)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 8,
-            boxShadow: '0 4px 16px rgba(0, 0, 0, 0.45)',
-            pointerEvents: 'auto'
-          }}>
-            <span style={{ fontSize: 'clamp(10px, 1vw, 11.5px)', color: '#00ADB5', fontWeight: 800 }}>📌</span>
-            <span style={{ fontSize: 'clamp(9.5px, 1vw, 11.5px)', color: '#F8FAFC', fontWeight: 800, letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>Langkah 1 dari 3</span>
+          {/* Right: Step Indicator & Debug Area Toggle Button */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <button
+              onClick={() => setShowDebug(prev => !prev)}
+              style={{
+                background: showDebug ? 'rgba(16, 185, 129, 0.25)' : 'rgba(11, 30, 44, 0.85)',
+                backdropFilter: 'blur(12px)',
+                border: showDebug ? '1.5px solid #10b981' : '1.5px solid rgba(255, 255, 255, 0.15)',
+                borderRadius: 12,
+                padding: 'clamp(4px, 0.7vw, 6px) clamp(8px, 1vw, 12px)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                boxShadow: showDebug ? '0 0 12px rgba(16, 185, 129, 0.4)' : '0 4px 16px rgba(0, 0, 0, 0.45)',
+                pointerEvents: 'auto',
+                cursor: 'pointer',
+                color: showDebug ? '#10b981' : '#F8FAFC',
+                fontWeight: 800,
+                fontSize: 'clamp(9.5px, 1vw, 11.5px)',
+                transition: 'all 0.2s'
+              }}
+              title="Klik untuk tampilkan/sembunyikan area berjalan hijau"
+            >
+              <span>🟩</span>
+              <span>{showDebug ? 'Area Hijau: ON' : 'Area Hijau: OFF'}</span>
+            </button>
+
+            <div style={{
+              background: 'rgba(11, 30, 44, 0.85)',
+              backdropFilter: 'blur(12px)',
+              border: '1.5px solid rgba(255, 255, 255, 0.12)',
+              borderRadius: 12,
+              padding: 'clamp(4px, 0.7vw, 6px) clamp(8px, 1.1vw, 14px)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              boxShadow: '0 4px 16px rgba(0, 0, 0, 0.45)',
+              pointerEvents: 'auto'
+            }}>
+              <span style={{ fontSize: 'clamp(10px, 1vw, 11.5px)', color: '#00ADB5', fontWeight: 800 }}>📌</span>
+              <span style={{ fontSize: 'clamp(9.5px, 1vw, 11.5px)', color: '#F8FAFC', fontWeight: 800, letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>Langkah 1 dari 3</span>
+            </div>
           </div>
         </div>
 
@@ -1543,70 +1580,110 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                 {/* ─── VISUAL COLLISION DEBUGGER OVERLAY (Only visible when showDebug === true) ─── */}
                 {showDebug && (
                   <g style={{ pointerEvents: 'none' }}>
-                    {/* 1. Walkable Area Polygon */}
-                    <polygon
-                      points={[
-                        ...RED_LINE_POINTS.map(p => `${p.x},${p.y}`),
-                        `${RED_LINE_POINTS[RED_LINE_POINTS.length - 1].x},640`,
-                        `${RED_LINE_POINTS[0].x},640`
-                      ].join(' ')}
-                      fill="rgba(16, 185, 129, 0.18)"
-                      stroke="#10b981"
-                      strokeWidth={2}
-                      strokeDasharray="6,6"
-                    />
+                    {insideRoom ? (
+                      /* ── Inside Classroom Walkable Area Highlight (Green) ── */
+                      <g>
+                        <rect
+                          x={50}
+                          y={380}
+                          width={WORLD_VW - 100}
+                          height={WORLD_VH - 420}
+                          fill="rgba(16, 185, 129, 0.35)"
+                          stroke="#10b981"
+                          strokeWidth={3}
+                          strokeDasharray="6,6"
+                        />
+                        <rect
+                          x={WORLD_VW / 2 - 180}
+                          y={390}
+                          width={360}
+                          height={28}
+                          rx={8}
+                          fill="rgba(15, 23, 42, 0.9)"
+                          stroke="#10b981"
+                          strokeWidth={1.5}
+                        />
+                        <text
+                          x={WORLD_VW / 2}
+                          y={409}
+                          textAnchor="middle"
+                          fill="#34d399"
+                          fontSize={12}
+                          fontWeight="900"
+                          fontFamily="sans-serif"
+                        >
+                          🟢 AREA BERJALAN KELAS ({insideRoom.name || insideRoom.id})
+                        </text>
+                      </g>
+                    ) : (
+                      /* ── Outdoor / Hallway Walkable Area Highlight (Green) ── */
+                      <g>
+                        {/* 1. Walkable Area Polygon */}
+                        <polygon
+                          points={[
+                            ...RED_LINE_POINTS.map(p => `${p.x},${p.y}`),
+                            `${RED_LINE_POINTS[RED_LINE_POINTS.length - 1].x},640`,
+                            `${RED_LINE_POINTS[0].x},640`
+                          ].join(' ')}
+                          fill="rgba(16, 185, 129, 0.32)"
+                          stroke="#10b981"
+                          strokeWidth={2.5}
+                          strokeDasharray="6,6"
+                        />
 
-                    {/* 2. Red Line Wall Base Boundary */}
-                    <polyline
-                      points={RED_LINE_POINTS.map(p => `${p.x},${p.y}`).join(' ')}
-                      fill="none"
-                      stroke="#ef4444"
-                      strokeWidth={3.5}
-                    />
+                        {/* 2. Red Line Wall Base Boundary */}
+                        <polyline
+                          points={RED_LINE_POINTS.map(p => `${p.x},${p.y}`).join(' ')}
+                          fill="none"
+                          stroke="#ef4444"
+                          strokeWidth={3.5}
+                        />
 
-                    {/* 3. Obstacle Collision: Bangku & Pot Tanaman Kiri */}
-                    <rect x={120} y={510} width={160} height={100} fill="rgba(239, 68, 68, 0.25)" stroke="#ef4444" strokeWidth={1.5} />
-                    <text x={200} y={560} textAnchor="middle" fill="#ef4444" fontSize={10} fontWeight="bold">⛔ TEMBOK BANGBKU & POT</text>
+                        {/* 3. Obstacle Collision: Bangku & Pot Tanaman Kiri */}
+                        <rect x={120} y={510} width={160} height={100} fill="rgba(239, 68, 68, 0.25)" stroke="#ef4444" strokeWidth={1.5} />
+                        <text x={200} y={560} textAnchor="middle" fill="#ef4444" fontSize={10} fontWeight="bold">⛔ TEMBOK BANGKU & POT</text>
 
-                    {/* 4. Player Feet Ground Collision Base Line */}
+                        {/* 5. VISUAL NODE DECORATORS FOR RED_LINE_POINTS */}
+                        {RED_LINE_POINTS.map((pt, idx) => (
+                          <g key={`red-node-${idx}`}>
+                            <circle cx={pt.x} cy={pt.y} r={7} fill="rgba(239, 68, 68, 0.4)" stroke="#ef4444" strokeWidth={1.5} />
+                            <circle cx={pt.x} cy={pt.y} r={3} fill="#ffffff" />
+                            <rect
+                              x={pt.x - 30}
+                              y={pt.y - 23}
+                              width={60}
+                              height={15}
+                              rx={4}
+                              fill="rgba(15, 23, 42, 0.92)"
+                              stroke="#ef4444"
+                              strokeWidth={1}
+                            />
+                            <text
+                              x={pt.x}
+                              y={pt.y - 12}
+                              textAnchor="middle"
+                              fill="#f87171"
+                              fontSize={8.5}
+                              fontWeight="900"
+                              fontFamily="monospace"
+                            >
+                              P{idx + 1}: {pt.x},{pt.y}
+                            </text>
+                          </g>
+                        ))}
+
+                        {/* Zone Boundary Grid Lines */}
+                        <line x1={450} y1={410} x2={450} y2={680} stroke="rgba(129, 140, 248, 0.25)" strokeWidth={1.5} strokeDasharray="6,6" />
+                        <line x1={800} y1={410} x2={800} y2={680} stroke="rgba(0, 173, 181, 0.25)" strokeWidth={1.5} strokeDasharray="6,6" />
+                      </g>
+                    )}
+
+                    {/* Player Feet Ground Collision Base Line */}
                     <ellipse cx={charPos.x} cy={charPos.y} rx={22} ry={6} fill="rgba(244, 63, 94, 0.4)" stroke="#f43f5e" strokeWidth={2} />
                     <line x1={charPos.x - 24} y1={charPos.y} x2={charPos.x + 24} y2={charPos.y} stroke="#f43f5e" strokeWidth={2.5} />
                     <text x={charPos.x} y={charPos.y + 18} textAnchor="middle" fill="#f43f5e" fontSize={9} fontWeight="bold">
                       ({Math.round(charPos.x)}, {Math.round(charPos.y)})
                     </text>
-
-                    {/* 5. VISUAL NODE DECORATORS FOR RED_LINE_POINTS */}
-                    {RED_LINE_POINTS.map((pt, idx) => (
-                      <g key={`red-node-${idx}`}>
-                        <circle cx={pt.x} cy={pt.y} r={7} fill="rgba(239, 68, 68, 0.4)" stroke="#ef4444" strokeWidth={1.5} />
-                        <circle cx={pt.x} cy={pt.y} r={3} fill="#ffffff" />
-                        <rect
-                          x={pt.x - 30}
-                          y={pt.y - 23}
-                          width={60}
-                          height={15}
-                          rx={4}
-                          fill="rgba(15, 23, 42, 0.92)"
-                          stroke="#ef4444"
-                          strokeWidth={1}
-                        />
-                        <text
-                          x={pt.x}
-                          y={pt.y - 12}
-                          textAnchor="middle"
-                          fill="#f87171"
-                          fontSize={8.5}
-                          fontWeight="900"
-                          fontFamily="monospace"
-                        >
-                          P{idx + 1}: {pt.x},{pt.y}
-                        </text>
-                      </g>
-                    ))}
-
-                    {/* Zone Boundary Grid Lines */}
-                    <line x1={450} y1={410} x2={450} y2={680} stroke="rgba(129, 140, 248, 0.25)" strokeWidth={1.5} strokeDasharray="6,6" />
-                    <line x1={800} y1={410} x2={800} y2={680} stroke="rgba(0, 173, 181, 0.25)" strokeWidth={1.5} strokeDasharray="6,6" />
                   </g>
                 )}
 
@@ -1799,13 +1876,90 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
 
                   return (
                     <>
+                      {/* Pak Sutrisno NPC (Only in Hallway / Lapangan) */}
+                      {!insideRoom && (() => {
+                        const pakX = PAK_SUTRISNO_POS.x
+                        const pakY = PAK_SUTRISNO_POS.y
+                        const pakDepth = Math.max(0, Math.min(1, (pakY - 410) / (650 - 410)))
+                        const pakSize = 145 + pakDepth * 65
+                        const distToPak = Math.hypot(charPos.x - pakX, charPos.y - pakY)
+                        const isNearPak = distToPak < 120
+
+                        const handleTalkToPak = () => {
+                          setDiraMessageText("Pak Sutrisno: 'Halo Detektif! Saya Pak Sutrisno, Guru Pembimbing. Selamat mengeksplorasi lorong sekolah & kumpulkan 35 data sampel screen time dari setiap ruang kelas!'")
+                        }
+
+                        const renderPak = (
+                          <NPCCharacter
+                            key="pak-sutrisno-npc"
+                            x={pakX}
+                            y={pakY}
+                            size={pakSize}
+                            label="Pak Sutrisno"
+                            spriteUrl="/Assets/Character/pak Sutrisno-iso_idle_right-trimmed.png"
+                            cols={5}
+                            rows={4}
+                            flipX={true}
+                            glowColor="#38BDF8"
+                            onClick={handleTalkToPak}
+                          />
+                        )
+
+                        const buttonW = 185
+                        const buttonLeft = Math.max(camX + 10, Math.min(camX + VIEW_VW - buttonW - 10, charPos.x - buttonW / 2))
+                        const textX = buttonLeft + buttonW / 2
+
+                        const renderPrompt = isNearPak && !diraMessageText && (
+                          <motion.g
+                            key="btn-talk-pak-sutrisno"
+                            initial={{ opacity: 0, scale: 0.8, y: 5 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.8, y: 5 }}
+                            onClick={handleTalkToPak}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            style={{ cursor: 'pointer' }}
+                          >
+                            <rect
+                              x={buttonLeft}
+                              y={btnY}
+                              width={buttonW}
+                              height={26}
+                              rx={13}
+                              fill="rgba(15, 23, 42, 0.95)"
+                              stroke="#38BDF8"
+                              strokeWidth={2}
+                              style={{ filter: 'drop-shadow(0px 4px 8px rgba(0,0,0,0.6))' }}
+                            />
+                            <text
+                              x={textX}
+                              y={btnTextY}
+                              textAnchor="middle"
+                              dominantBaseline="middle"
+                              fill="#ffffff"
+                              fontSize={10.5}
+                              fontWeight="bold"
+                              fontFamily="var(--font-ui)"
+                            >
+                              💬 Bicara dengan Pak Sutrisno
+                            </text>
+                          </motion.g>
+                        )
+
+                        return (
+                          <g key="pak-sutrisno-group">
+                            {renderPak}
+                            {renderPrompt}
+                          </g>
+                        )
+                      })()}
+
                       {/* Player Character */}
                       <PlayerCharacter
                         x={charPos.x}
                         y={charPos.y}
                         dir={moveDir}
                         size={charSize}
-                        label="Kamu"
                       />
 
                       {/* Floating Interactive Prompt Buttons */}

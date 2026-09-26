@@ -587,7 +587,6 @@ export default function Level2SchoolExploration({
             y={charPos.y}
             dir={moveDir}
             size={charSize}
-            label="Kamu"
           />
         </svg>
 

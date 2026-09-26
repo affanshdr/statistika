@@ -18,7 +18,7 @@ export default function PlayerCharacter({
   y,
   dir = { x: 0, y: 0 },
   size = 28,
-  label = 'Kamu',
+  label = '',
   glowColor = '#00ADB5',
 }: PlayerCharacterProps) {
   const [frame, setFrame] = useState(0)

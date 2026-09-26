@@ -19,7 +19,7 @@ export interface QuizDoor {
 export const CLASS_DOORS: QuizDoor[] = [
   // Pintu 1 (Sayap Kiri) - Kelas VII-A
   {
-    id: 'A1', roomId: 'A', label: 'Kelas VII-A', x: 310, y: 564, color: '#818cf8',
+    id: 'A1', roomId: 'A', label: 'Kelas VII-A', x: 290, y: 500, color: '#818cf8',
     image: '/Assets/Building/Ruang VII-A/VII-A.png',
     quizQ: 'Data screen time 5 siswa: 2, 4, 3, 8, 1 jam. Berapa rentang datanya?',
     quizA: 7, choices: [5, 6, 7, 8],
@@ -29,7 +29,7 @@ export const CLASS_DOORS: QuizDoor[] = [
 
   // Pintu 2 (Lorong Kiri) - Kelas VII-B
   {
-    id: 'A2', roomId: 'A', label: 'Kelas VII-B', x: 431, y: 495, color: '#6366f1',
+    id: 'A2', roomId: 'A', label: 'Kelas VII-B', x: 451, y: 410, color: '#6366f1',
     image: '/Assets/Building/Ruang VII-B/VII-B.png',
     quizQ: 'Tepi bawah kelas interval 4–6 adalah?',
     quizA: 3.5, choices: [3, 3.5, 4, 4.5],
@@ -39,7 +39,7 @@ export const CLASS_DOORS: QuizDoor[] = [
 
   // Pintu 3 (Gedung Tengah / Pintu Ganda) - Kelas VIII-A
   {
-    id: 'B1', roomId: 'B', label: 'Kelas VIII-A', x: 632, y: 485, color: '#00ADB5',
+    id: 'B1', roomId: 'B', label: 'Kelas VIII-A', x: 632, y: 410, color: '#00ADB5',
     image: '/Assets/Building/Kelas.jpg',
     quizQ: 'Kamu menerima berita viral yang belum terverifikasi. Tindakan paling etis adalah?',
     quizA: 'Verifikasi dulu', choices: ['Langsung share', 'Verifikasi dulu', 'Screenshot & sebar', 'Abaikan saja'],
@@ -49,7 +49,7 @@ export const CLASS_DOORS: QuizDoor[] = [
 
   // Pintu 4 (Lorong Kanan) - Kelas VIII-B
   {
-    id: 'B2', roomId: 'B', label: 'Kelas VIII-B', x: 830, y: 485, color: '#0e8388',
+    id: 'B2', roomId: 'B', label: 'Kelas VIII-B', x: 840, y: 410, color: '#0e8388',
     image: '/Assets/Building/Kelas.jpg',
     quizQ: 'Seseorang memposting foto orang lain tanpa izin untuk konten viral. Ini termasuk pelanggaran?',
     quizA: 'Kedua-duanya', choices: ['Privasi', 'Hak cipta', 'Kedua-duanya', 'Bukan pelanggaran'],
@@ -59,7 +59,7 @@ export const CLASS_DOORS: QuizDoor[] = [
 
   // Pintu 5 (Sayap Kanan) - Kelas IX
   {
-    id: 'C1', roomId: 'C', label: 'Kelas IX', x: 944, y: 561, color: '#f472b6',
+    id: 'C1', roomId: 'C', label: 'Kelas IX', x: 900, y: 480, color: '#f472b6',
     image: '/Assets/Building/Kelas.jpg',
     quizQ: 'Ciri utama berita hoax yang paling umum meupakan?',
     quizA: 'Sumber tidak jelas', choices: ['Sumber tidak jelas', 'Ada foto', 'Ada tanggal', 'Ditulis wartawan'],

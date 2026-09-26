@@ -5,14 +5,16 @@ export const WORLD_VH = 650
 
 // Ground boundary line nodes for the outdoor hallway
 export const RED_LINE_POINTS = [
-  { x: 120, y: 550 },
-  { x: 310, y: 564 },
-  { x: 431, y: 495 },
-  { x: 632, y: 485 },
-  { x: 830, y: 485 },
-  { x: 944, y: 561 },
-  { x: 1110, y: 550 }
+  { x: 100, y: 510 },
+  { x: 290, y: 500 },
+  { x: 451, y: 410 },
+  { x: 632, y: 410 },
+  { x: 840, y: 410 },
+  { x: 1000, y: 500 },
 ] as const
+
+// Position coordinates for Pak Sutrisno NPC in the hallway / lapangan
+export const PAK_SUTRISNO_POS = { x: 800, y: 500 }
 
 export function getRedLineY(x: number): number {
   const sortedPoints = [...RED_LINE_POINTS].sort((a, b) => a.x - b.x)
@@ -34,15 +36,14 @@ export function getRedLineY(x: number): number {
 
 // Hallway Walkable Bounds logic
 export function checkHallwayWalkable(x: number, y: number): boolean {
-  const feetRadiusX = 16.0
+  const minX = RED_LINE_POINTS[0].x
+  const maxX = RED_LINE_POINTS[RED_LINE_POINTS.length - 1].x
+
   if (y > 640) return false
-  if (x < 120 + feetRadiusX || x > 1110 - feetRadiusX) return false
+  if (x < minX || x > maxX) return false
 
-  const redLineYCenter = getRedLineY(x)
-  const redLineYLeft = getRedLineY(x - feetRadiusX)
-  const redLineYRight = getRedLineY(x + feetRadiusX)
-
-  if (y < redLineYCenter || y < redLineYLeft || y < redLineYRight) {
+  const redLineY = getRedLineY(x)
+  if (y < redLineY) {
     return false
   }
   return true
@@ -71,7 +72,7 @@ export const LEVEL1_MAPS: Record<string, MapConfig> = {
     character: {
       baseSize: 145,
       depthFactor: 65,
-      speed: 3.9 // Reduced by 25% from 5.2 for smoother exploration
+      speed: 3.5 // Reduced by 10% from 3.9 (originally 5.2) for smoother, controlled exploration
     },
     spawn: { x: 650, y: 550 },
     isWalkable: (x, y) => checkHallwayWalkable(x, y)
