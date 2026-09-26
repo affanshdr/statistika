@@ -1093,7 +1093,6 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
   const insideRoomR = useRef(insideRoom); insideRoomR.current = insideRoom
   const lastHallwayPosRef = useRef<{ x: number; y: number }>({ x: 650, y: 550 })
   const [visitedRooms, setVisitedRooms] = useState<Set<DoorId>>(new Set())
-  const [diraMessageText, setDiraMessageText] = useState<string | null>(null)
   const [showWaliKelasPopup, setShowWaliKelasPopup] = useState<typeof CLASS_DOORS[number] | null>(null)
   const [collected, setCollected] = useState<Set<string>>(() => {
     if (demoMode) {
@@ -1149,26 +1148,6 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
     charPosRef.current = charPos
   }, [charPos])
 
-  // Compute current room based on position reactively
-  let currentRoomId: DoorId | null = null
-  if (charPos.x < 500) currentRoomId = 'A'
-  else if (charPos.x <= 800) currentRoomId = 'B'
-  else currentRoomId = 'C'
-
-  // Trigger Dira dialog popup when entering a room for the first time
-  useEffect(() => {
-    if (currentRoomId && !visitedRooms.has(currentRoomId)) {
-      setVisitedRooms(prev => new Set([...prev, currentRoomId!]))
-      if (currentRoomId === 'A') {
-        setDiraMessageText("Halo Detektif! Di Zona VII ini terdapat beberapa kelompok meja yang menyimpan data screen time. Datangi & periksa tiap titik data untuk mengumpulkan datanya! 🕵️‍♂️")
-      } else if (currentRoomId === 'B') {
-        setDiraMessageText("Keren! Di Zona VIII, datamu tersimpan di papan tulis & meja belajar. Jawab tantangannya untuk membuka seluruh data!")
-      } else if (currentRoomId === 'C') {
-        setDiraMessageText("Hampir lengkap! Di Zona IX, periksa meja & mading kelas untuk melengkapi seluruh data screen time siswa!")
-      }
-    }
-  }, [currentRoomId, visitedRooms])
-
   // Proximity to doors (calculated smoothly from player position)
   useEffect(() => {
     const { x: cx, y: cy } = charPos
@@ -1205,7 +1184,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
   // Finish trigger once all 35 data points are collected
   useEffect(() => {
     if (collected.size >= TOTAL_N && !showCounter && !showPakReportModal) {
-      setDiraMessageText("🎉 35 Data Screen Time Terkumpul! Kembali ke lapangan & lapor ke Pak Sutrisno.")
+      // Waypoint arrow points to Pak Sutrisno to report back
     }
   }, [collected.size, showCounter, showPakReportModal])
 
@@ -1322,7 +1301,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
       const nearDoorVal = nearDoorR.current
       const nearClassVal = nearClassR.current
 
-      if (activeDoorVal || activeClassVal || diraMessageText || showWaliKelasPopupR.current) {
+      if (activeDoorVal || activeClassVal || showWaliKelasPopupR.current) {
         if (e.key === 'Escape') {
           e.preventDefault()
           setActiveDoor(null)
@@ -1389,7 +1368,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
       dirRef.current = { x: 0, y: 0 }
       setMoveDir({ x: 0, y: 0 })
     }
-  }, [diraMessageText])
+  }, [])
 
   const handleCorrect = useCallback(() => {
     if (!activeDoor) return
@@ -1922,7 +1901,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                       </g>
                     </g>
                   )
-                })() : CLASS_DOORS.map(door => {
+                })() : ((cinematicStage === 'sanction_received' || demoMode) ? CLASS_DOORS.map(door => {
                   const open = unlocked.has(door.id)
                   const near = nearClass?.id === door.id
                   const isJustCompleted = justCompletedClassId === door.id
@@ -2005,7 +1984,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                       </text>
                     </g>
                   )
-                })}
+                }) : null)}
 
                 {/* Dynamic Perspective Depth Scaling Calculation */}
                 {(() => {
@@ -2194,7 +2173,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                         })()}
 
                         {/* 2. Hallway Door Interaction Prompt (Locked door -> Kuis; Unlocked door -> Masuk Kelas) */}
-                        {!insideRoom && nearClass && !activeClass && !nearDoor && (() => {
+                        {!insideRoom && nearClass && !activeClass && !nearDoor && (cinematicStage === 'sanction_received' || demoMode) && (() => {
                           const isUnlocked = unlocked.has(nearClass.id)
                           const buttonW = isUnlocked ? 150 : 150
                           const buttonLeft = Math.max(camX + 10, Math.min(camX + VIEW_VW - buttonW - 10, charPos.x - buttonW / 2))
@@ -2356,54 +2335,6 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
             onCollectData={handleCloseWaliKelas}
             onClose={() => setShowWaliKelasPopup(null)}
           />
-        )}
-      </AnimatePresence>
-
-      {/* Dira Guide Overlay */}
-      <AnimatePresence>
-        {diraMessageText && (
-          <div style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(11, 30, 44, 0.75)',
-            backdropFilter: 'blur(6px)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 650,
-            padding: 20
-          }}>
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              style={{
-                maxWidth: 420,
-                width: '100%',
-                background: 'rgba(15, 35, 56, 0.95)',
-                border: '2px solid rgba(14, 131, 136, 0.5)',
-                borderRadius: 24,
-                padding: '24px',
-                boxShadow: '0 10px 30px rgba(0, 0, 0, 0.5)',
-                display: 'flex',
-                gap: 16,
-                alignItems: 'flex-start'
-              }}
-            >
-              <img src="/dira-avatar.png" alt="Dira" style={{ width: 64, height: 64, objectFit: 'contain', flexShrink: 0 }} />
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 12 }}>
-                <div style={{ fontSize: 13, fontWeight: 900, color: '#00ADB5', letterSpacing: '1px' }}>🗣️ ASISTEN DIRA</div>
-                <p style={{ margin: 0, fontSize: 14, color: '#F8FAFC', lineHeight: 1.6, fontWeight: 600 }}>{diraMessageText}</p>
-                <button
-                  className="game-btn game-btn-primary"
-                  style={{ alignSelf: 'flex-end', fontSize: 12, padding: '8px 16px', fontWeight: 800, borderRadius: 8 }}
-                  onClick={() => setDiraMessageText('')}
-                >
-                  Siap, Dira!
-                </button>
-              </div>
-            </motion.div>
-          </div>
         )}
       </AnimatePresence>
 
