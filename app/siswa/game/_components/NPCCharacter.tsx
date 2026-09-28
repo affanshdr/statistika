@@ -16,6 +16,7 @@ interface NPCCharacterProps {
   totalFrames?: number
   pingPong?: boolean
   speedMs?: number
+  loop?: boolean
   onClick?: () => void
 }
 
@@ -33,6 +34,7 @@ export default function NPCCharacter({
   totalFrames,
   pingPong = true,
   speedMs = 100,
+  loop = true,
   onClick
 }: NPCCharacterProps) {
   const [seqIndex, setSeqIndex] = useState(0)
@@ -40,12 +42,24 @@ export default function NPCCharacter({
   const seqLength = pingPong ? Math.max(1, 2 * maxFrames - 2) : maxFrames
 
   useEffect(() => {
+    setSeqIndex(0)
+  }, [spriteUrl, seqLength])
+
+  useEffect(() => {
+    if (!loop && seqIndex >= seqLength - 1) return
+
     const interval = setInterval(() => {
-      setSeqIndex(prev => (prev + 1) % seqLength)
+      setSeqIndex(prev => {
+        if (!loop && prev >= seqLength - 1) {
+          clearInterval(interval)
+          return prev
+        }
+        return (prev + 1) % seqLength
+      })
     }, speedMs)
 
     return () => clearInterval(interval)
-  }, [seqLength, speedMs])
+  }, [seqLength, speedMs, loop, seqIndex])
 
   const frame = pingPong
     ? (seqIndex < maxFrames ? seqIndex : Math.max(0, 2 * maxFrames - 2 - seqIndex))

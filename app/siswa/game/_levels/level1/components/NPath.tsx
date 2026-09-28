@@ -1121,6 +1121,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
   const [unlocked, setUnlocked] = useState<Set<string>>(() => {
     return demoMode ? new Set(['A', 'B', 'C', 'A1', 'A2', 'A3', 'B1']) : new Set(['A', 'B', 'C'])
   })
+  const [savedClasses, setSavedClasses] = useState<Set<string>>(() => new Set())
   const [justCompletedClassId, setJustCompletedClassId] = useState<string | null>(null)
   const [activeDoor, setActiveDoor] = useState<typeof DOORS[number] | null>(null)
   const [nearDoor, setNearDoor] = useState<typeof DOORS[number] | null>(null)
@@ -1179,6 +1180,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
   const dirRef = useRef({ x: 0, y: 0 })
   const animRef = useRef<number | null>(null)
   const unlockedR = useRef(unlocked); unlockedR.current = unlocked
+  const savedClassesR = useRef(savedClasses); savedClassesR.current = savedClasses
   const activeDoorR = useRef(activeDoor); activeDoorR.current = activeDoor
   const nearDoorR = useRef(nearDoor); nearDoorR.current = nearDoor
   const activeClassR = useRef(activeClass); activeClassR.current = activeClass
@@ -1379,6 +1381,9 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
         setUnlocked(p => new Set([...p, nearDoorVal.id]))
       } else if ((e.key === 'Enter' || e.key === ' ' || e.key === 'e' || e.key === 'E') && nearClassVal) {
         e.preventDefault()
+        if (savedClassesR.current.has(nearClassVal.id)) {
+          return
+        }
         if (unlockedR.current.has(nearClassVal.id)) {
           enterClassroom(nearClassVal)
         } else {
@@ -1439,7 +1444,15 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
     setActiveDoor(null)
   }, [activeDoor])
 
+  const handleExitClassroom = useCallback(() => {
+    if (teacherTimerRef.current) clearTimeout(teacherTimerRef.current)
+    setTeacherCutsceneStage(null)
+    setInsideRoom(null)
+    setCharPos(lastHallwayPosRef.current || { x: 650, y: 550 })
+  }, [])
+
   const enterClassroom = useCallback((room: typeof CLASS_DOORS[number]) => {
+    if (savedClassesR.current.has(room.id)) return
     lastHallwayPosRef.current = { x: room.x, y: room.y + 20 }
     setInsideRoom(room)
     setCharPos(LEVEL1_MAPS[room.id]?.spawn || { x: 1050, y: 510 })
@@ -1496,18 +1509,12 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
     }
   }, [])
 
-  const handleExitClassroom = useCallback(() => {
-    if (!insideRoom) return
-    if (teacherTimerRef.current) clearTimeout(teacherTimerRef.current)
-    setTeacherCutsceneStage(null)
-    setInsideRoom(null)
-    setCharPos(lastHallwayPosRef.current || { x: 650, y: 550 })
-  }, [insideRoom])
-
   const handleCloseWaliKelas = useCallback(() => {
     if (!showWaliKelasPopup) return
     const cid = showWaliKelasPopup.id
     const roomId = showWaliKelasPopup.roomId
+
+    setSavedClasses(prev => new Set([...prev, cid]))
 
     // 1. Add class ID to unlocked & check room completion
     setUnlocked(prev => {
@@ -1552,7 +1559,8 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
     }, 1500)
 
     setShowWaliKelasPopup(null)
-  }, [showWaliKelasPopup])
+    handleExitClassroom()
+  }, [showWaliKelasPopup, handleExitClassroom])
 
   const n = collected.size
   const isRoomACompleted = CLASS_DOORS.filter(cd => cd.roomId === 'A').every(cd => unlocked.has(cd.id))
@@ -1961,6 +1969,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                           speedMs={teacherConfig.speedMs || 90}
                           glowColor={isCompleted ? "#10B981" : "#F59E0B"}
                           showGlow={teacherConfig.showGlow ?? true}
+                          loop={false}
                           onClick={() => handleInteractTeacher(insideRoom)}
                         />
                       ) : (
@@ -2180,6 +2189,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                     </g>
                   )
                 })() : ((cinematicStage === 'sanction_received' || demoMode) ? CLASS_DOORS.map(door => {
+                  const isSaved = savedClasses.has(door.id)
                   const open = unlocked.has(door.id)
                   const near = nearClass?.id === door.id
                   const isJustCompleted = justCompletedClassId === door.id
@@ -2187,9 +2197,10 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                   return (
                     <g
                       key={door.id}
-                      style={{ cursor: 'pointer' }}
+                      style={{ cursor: isSaved ? 'default' : 'pointer' }}
                       onClick={e => {
                         e.stopPropagation()
+                        if (isSaved) return
                         if (open) {
                           enterClassroom(door)
                         } else if (!activeClass && !activeDoor) {
@@ -2198,7 +2209,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                       }}
                     >
                       {/* Interactive Pulse Radar Glow */}
-                      {!open || isJustCompleted ? (
+                      {!isSaved && (!open || isJustCompleted) ? (
                         <motion.circle
                           cx={door.x}
                           cy={door.y}
@@ -2221,8 +2232,8 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                         cx={door.x}
                         cy={door.y}
                         r={12}
-                        fill={open ? '#10b981' : 'rgba(15, 23, 42, 0.88)'}
-                        stroke={near ? '#FFFFFF' : door.color}
+                        fill={isSaved ? '#10b981' : open ? '#00ADB5' : 'rgba(15, 23, 42, 0.88)'}
+                        stroke={near ? '#FFFFFF' : isSaved ? '#10b981' : door.color}
                         strokeWidth={near ? 2 : 1.5}
                       />
                       <text
@@ -2233,7 +2244,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                         fontSize={10}
                         style={{ userSelect: 'none', pointerEvents: 'none' }}
                       >
-                        {open ? '✓' : '📍'}
+                        {isSaved ? '✓' : open ? '🔓' : '📍'}
                       </text>
 
                       {/* Hotspot Title Card */}
@@ -2244,19 +2255,19 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                         height={20}
                         rx={6}
                         fill="rgba(15, 23, 42, 0.9)"
-                        stroke={near ? '#FFFFFF' : open ? '#10b981' : `${door.color}88`}
+                        stroke={near ? '#FFFFFF' : isSaved ? '#10b981' : open ? '#00ADB5' : `${door.color}88`}
                         strokeWidth={near ? 1.5 : 1}
                       />
                       <text
                         x={door.x}
                         y={door.y - 23}
                         textAnchor="middle"
-                        fill="#FFFFFF"
+                        fill={isSaved ? '#10b981' : '#FFFFFF'}
                         fontSize={9.5}
                         fontWeight="bold"
                         fontFamily="var(--font-ui)"
                       >
-                        {door.label}
+                        {isSaved ? `${door.label} (Selesai)` : door.label}
                       </text>
                     </g>
                   )
@@ -2692,10 +2703,11 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                           )
                         })()}
 
-                        {/* 2. Hallway Door Interaction Prompt (Locked door -> Kuis; Unlocked door -> Masuk Kelas) */}
+                        {/* 2. Hallway Door Interaction Prompt (Locked door -> Kuis; Unlocked door -> Masuk Kelas; Saved -> Completed) */}
                         {!insideRoom && nearClass && !activeClass && !nearDoor && (cinematicStage === 'sanction_received' || demoMode) && (() => {
+                          const isSaved = savedClasses.has(nearClass.id)
                           const isUnlocked = unlocked.has(nearClass.id)
-                          const buttonW = isUnlocked ? 150 : 150
+                          const buttonW = isSaved ? 180 : 160
                           const buttonLeft = Math.max(camX + 10, Math.min(camX + VIEW_VW - buttonW - 10, charPos.x - buttonW / 2))
                           const textX = buttonLeft + buttonW / 2
                           return (
@@ -2705,24 +2717,25 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                               animate={{ opacity: 1, scale: 1, y: 0 }}
                               exit={{ opacity: 0, scale: 0.8, y: 5 }}
                               onClick={() => {
+                                if (isSaved) return
                                 if (isUnlocked) {
                                   enterClassroom(nearClass)
                                 } else {
                                   setActiveClass(nearClass)
                                 }
                               }}
-                              whileHover={{ scale: 1.05 }}
-                              whileTap={{ scale: 0.95 }}
-                              style={{ cursor: 'pointer' }}
+                              whileHover={{ scale: isSaved ? 1 : 1.05 }}
+                              whileTap={{ scale: isSaved ? 1 : 0.95 }}
+                              style={{ cursor: isSaved ? 'default' : 'pointer' }}
                             >
                               <rect
-                                x={buttonLeft}
+                                x={buttonLeft - 10}
                                 y={btnY}
                                 width={buttonW + 20}
                                 height={28}
                                 rx={6}
                                 fill="#0B1726"
-                                stroke={isUnlocked ? '#10B981' : '#F59E0B'}
+                                stroke={isSaved ? '#10B981' : isUnlocked ? '#38BDF8' : '#F59E0B'}
                                 strokeWidth={2}
                                 style={{ filter: 'drop-shadow(0px 4px 12px rgba(0,0,0,0.85))' }}
                               />
@@ -2731,12 +2744,12 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                                 y={btnTextY + 2}
                                 textAnchor="middle"
                                 dominantBaseline="middle"
-                                fill="#FFFFFF"
+                                fill={isSaved ? '#10B981' : '#FFFFFF'}
                                 fontSize={10.5}
                                 fontWeight="900"
                                 style={{ userSelect: 'none', pointerEvents: 'none', fontFamily: 'var(--font-ui)', letterSpacing: '0.4px' }}
                               >
-                                {isUnlocked ? `[ E ] 🚪 Masuk ${nearClass.label} ►` : `[ E ] 📍 Periksa ${nearClass.label} ►`}
+                                {isSaved ? `✓ Data ${nearClass.label} Saved` : isUnlocked ? `[ E ] 🚪 Masuk ${nearClass.label} ►` : `[ E ] 📍 Periksa ${nearClass.label} ►`}
                               </text>
                             </motion.g>
                           )

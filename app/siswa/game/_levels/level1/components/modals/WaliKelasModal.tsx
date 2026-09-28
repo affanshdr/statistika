@@ -40,7 +40,6 @@ function TeacherTypewriter({ text, onDone }: { text: string; onDone?: () => void
 }
 
 export default function WaliKelasModal({ door, onCollectData, onClose }: WaliKelasModalProps) {
-  const [isTypingDone, setIsTypingDone] = useState(false)
   const info = CLASS_STUDENTS[door.id]
   if (!info) return null
 
@@ -68,62 +67,15 @@ export default function WaliKelasModal({ door, onCollectData, onClose }: WaliKel
             animate={{ scale: [1, 1.03, 1] }}
             transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
           >
-            <motion.span
-              animate={{ rotate: isTypingDone ? 0 : [-5, 5, -5] }}
-              transition={{ duration: 0.4, repeat: isTypingDone ? 0 : Infinity }}
-            >
-              👩‍🏫
-            </motion.span>{' '}
-            {info.teacher}
+            <span>👩‍🏫</span> {info.teacher}
           </motion.span>
           <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--astu-cyan-bright)', fontFamily: 'var(--font-data)' }}>
             {door.label}
           </span>
         </div>
 
-        {/* Comment Dialogue Box with Speech Pointer Tail */}
-        <div style={{ position: 'relative' }}>
-          {/* Top pointer tail */}
-          <div style={{
-            position: 'absolute',
-            top: -7,
-            left: 24,
-            width: 12,
-            height: 12,
-            background: 'rgba(12, 26, 42, 0.98)',
-            borderTop: '1.5px solid rgba(0, 173, 181, 0.35)',
-            borderLeft: '1.5px solid rgba(0, 173, 181, 0.35)',
-            transform: 'rotate(45deg)',
-            zIndex: 2,
-          }} />
-
-          <div style={{
-            background: 'rgba(0, 173, 181, 0.08)',
-            border: '1.5px solid rgba(0, 173, 181, 0.35)',
-            borderRadius: 12,
-            padding: '16px 14px',
-            color: '#F8FAFC',
-            fontSize: 14,
-            lineHeight: 1.6,
-            boxShadow: 'inset 0 0 15px rgba(0, 173, 181, 0.05)',
-            position: 'relative',
-            zIndex: 1,
-            minHeight: 60,
-          }}>
-            💬 &quot;
-            <TeacherTypewriter
-              text={info.comment}
-              onDone={() => setIsTypingDone(true)}
-            />
-            &quot;
-          </div>
-        </div>
-
         {/* Data Sample Preview Grid */}
         <div>
-          <div style={{ fontSize: 11.5, fontWeight: 900, color: 'var(--astu-gold-bright)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span>📊</span> Sampel Data Screen Time (7 Siswa):
-          </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }}>
             {info.students.map((st, idx) => (
               <motion.div
