@@ -9,9 +9,11 @@ interface NPCCharacterProps {
   label?: string
   spriteUrl: string
   glowColor?: string
+  showGlow?: boolean
   flipX?: boolean
   cols?: number
   rows?: number
+  totalFrames?: number
   pingPong?: boolean
   speedMs?: number
   onClick?: () => void
@@ -24,16 +26,18 @@ export default function NPCCharacter({
   label = 'Pak Sutrisno',
   spriteUrl = '/Assets/Character/pak Sutrisno-iso_idle_right-trimmed.png',
   glowColor = '#38BDF8',
+  showGlow = true,
   flipX = false,
   cols = 5,
   rows = 4,
+  totalFrames,
   pingPong = true,
   speedMs = 100,
   onClick
 }: NPCCharacterProps) {
   const [seqIndex, setSeqIndex] = useState(0)
-  const totalFrames = cols * rows
-  const seqLength = pingPong ? Math.max(1, 2 * totalFrames - 2) : totalFrames
+  const maxFrames = totalFrames ?? (cols * rows)
+  const seqLength = pingPong ? Math.max(1, 2 * maxFrames - 2) : maxFrames
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -44,7 +48,7 @@ export default function NPCCharacter({
   }, [seqLength, speedMs])
 
   const frame = pingPong
-    ? (seqIndex < totalFrames ? seqIndex : Math.max(0, 2 * totalFrames - 2 - seqIndex))
+    ? (seqIndex < maxFrames ? seqIndex : Math.max(0, 2 * maxFrames - 2 - seqIndex))
     : seqIndex
 
   const col = frame % cols
@@ -64,22 +68,26 @@ export default function NPCCharacter({
   return (
     <g style={{ cursor: onClick ? 'pointer' : 'default' }} onClick={onClick}>
       {/* Ground drop-shadow & aura glow */}
-      <ellipse
-        cx={x}
-        cy={y}
-        rx={size * 0.175}
-        ry={size * 0.075}
-        fill="rgba(0, 0, 0, 0.45)"
-        filter="blur(1px)"
-      />
-      <ellipse
-        cx={x}
-        cy={y}
-        rx={size * 0.16}
-        ry={size * 0.065}
-        fill={glowColor}
-        opacity={0.35}
-      />
+      {showGlow && (
+        <>
+          <ellipse
+            cx={x}
+            cy={y}
+            rx={size * 0.175}
+            ry={size * 0.075}
+            fill="rgba(0, 0, 0, 0.45)"
+            filter="blur(1px)"
+          />
+          <ellipse
+            cx={x}
+            cy={y}
+            rx={size * 0.16}
+            ry={size * 0.065}
+            fill={glowColor}
+            opacity={0.35}
+          />
+        </>
+      )}
 
       {/* Sprite HTML element embedded inside SVG */}
       <foreignObject

@@ -48,12 +48,10 @@ export default function Level1Main({
 
   const { STATS } = getLevel1Data(level1Dataset)
 
-  const [phase, setPhase] = useState<'cutscene' | 'formula' | 'game'>(
-    demoMode ? (demoStep === 'interval' || demoStep === 'histogram' ? 'game' : 'formula') : 'cutscene'
+  const [phase, setPhase] = useState<'exploration' | 'cutscene' | 'formula' | 'game'>(
+    demoMode ? (demoStep === 'interval' || demoStep === 'histogram' ? 'game' : 'formula') : 'exploration'
   )
-  const [pregameStep, setPregameStep] = useState<'exploration' | 'minmax' | 'panjangkelas'>(
-    demoMode ? (demoStep === 'minmax' ? 'minmax' : 'exploration') : 'exploration'
-  )
+  const [pregameStep, setPregameStep] = useState<'minmax' | 'panjangkelas'>('minmax')
 
   const [step, setStep] = useState<GameStep>(
     demoMode ? (demoStep === 'histogram' ? 1 : 0) : 0
@@ -135,18 +133,30 @@ export default function Level1Main({
 
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative', height: '100%' }}>
-      {/* Phase 1: Cutscene */}
+      {/* Phase 1: Exploration (NPath) - Collect 35 Student Data */}
+      {phase === 'exploration' && (
+        <NPath
+          isFD={false}
+          onComplete={() => setPhase('cutscene')}
+          demoMode={demoMode}
+        />
+      )}
+
+      {/* Phase 2: Cutscene (Social Media Viral Post & Comments) */}
       <AnimatePresence>
         {phase === 'cutscene' && (
           <Cutscene
             teamId={null}
             studentId={studentId}
-            onComplete={() => setPhase('formula')}
+            onComplete={() => {
+              setPhase('formula')
+              setPregameStep('minmax')
+            }}
           />
         )}
       </AnimatePresence>
 
-      {/* Phase 1.5: Pregame Formula */}
+      {/* Phase 3: Pregame Formula (Rentang R & Panjang Kelas p) */}
       {phase === 'formula' && (
         <motion.div
           initial={{ opacity: 0 }}
@@ -155,17 +165,9 @@ export default function Level1Main({
           style={{
             flex: 1, display: 'flex', flexDirection: 'column',
             background: 'var(--game-bg)', color: 'var(--text-primary)',
-            padding: pregameStep === 'exploration' ? '0' : '16px 20px', height: '100%', overflow: pregameStep === 'exploration' ? 'hidden' : 'auto',
+            padding: '16px 20px', height: '100%', overflow: 'auto',
           }}
         >
-          {pregameStep === 'exploration' && (
-            <NPath
-              isFD={false}
-              onComplete={() => setPregameStep('minmax')}
-              demoMode={demoMode}
-            />
-          )}
-
           {pregameStep === 'minmax' && (
             <PregameFormula
               teamId={null}

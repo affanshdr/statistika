@@ -94,11 +94,19 @@ export const LEVEL1_MAPS: Record<string, MapConfig> = {
       depthFactor: 60,
       speed: 3.8 // Precise movement inside classroom
     },
-    spawn: { x: 600, y: 580 },
+    spawn: { x: 1050, y: 510 },
     teacher: {
       name: 'Bu Sari (Wali Kelas VII-A)',
-      x: 710,
-      y: 220,
+      x: 617,
+      y: 415,
+      size: 250,
+      spriteUrl: '/Assets/Building/Ruang VII-A/Bu Sari.png',
+      cols: 5,
+      rows: 5,
+      totalFrames: 24,
+      pingPong: false,
+      speedMs: 90,
+      showGlow: false,
       hotspotW: 140,
       hotspotH: 220
     },
@@ -121,7 +129,7 @@ export const LEVEL1_MAPS: Record<string, MapConfig> = {
       depthFactor: 60,
       speed: 3.8
     },
-    spawn: { x: 600, y: 580 },
+    spawn: { x: 1050, y: 510 },
     teacher: {
       name: 'Pak Bambang (Wali Kelas VII-B)',
       x: 600,
@@ -148,7 +156,7 @@ export const LEVEL1_MAPS: Record<string, MapConfig> = {
       depthFactor: 60,
       speed: 3.8
     },
-    spawn: { x: 600, y: 580 },
+    spawn: { x: 1050, y: 510 },
     teacher: {
       name: 'Bu Rina (Wali Kelas VIII-A)',
       x: 600,
@@ -175,7 +183,7 @@ export const LEVEL1_MAPS: Record<string, MapConfig> = {
       depthFactor: 60,
       speed: 3.8
     },
-    spawn: { x: 600, y: 580 },
+    spawn: { x: 1050, y: 510 },
     teacher: {
       name: 'Pak Setiawan (Wali Kelas VIII-B)',
       x: 600,
@@ -202,7 +210,7 @@ export const LEVEL1_MAPS: Record<string, MapConfig> = {
       depthFactor: 60,
       speed: 3.8
     },
-    spawn: { x: 600, y: 580 },
+    spawn: { x: 1050, y: 510 },
     teacher: {
       name: 'Pak Joko (Wali Kelas IX)',
       x: 600,

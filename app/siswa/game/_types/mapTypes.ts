@@ -23,8 +23,16 @@ export interface MapConfig {
     name: string
     x: number
     y: number
-    hotspotW: number
-    hotspotH: number
+    hotspotW?: number
+    hotspotH?: number
+    spriteUrl?: string
+    cols?: number
+    rows?: number
+    totalFrames?: number
+    size?: number
+    pingPong?: boolean
+    speedMs?: number
+    showGlow?: boolean
   }
   isWalkable: (x: number, y: number, unlocked: Set<string>) => boolean
 }

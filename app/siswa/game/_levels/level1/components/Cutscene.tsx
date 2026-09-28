@@ -497,43 +497,84 @@ export default function Cutscene({ onComplete, onPhaseChange, teamId, studentId,
               maxHeight: isMobile ? '240px' : '300px',
               paddingRight: '6px',
             }}>
-              {CUTSCENE_COMMENTS.slice(0, visibleComments).map((c, i) => (
+              <AnimatePresence mode="popLayout">
+                {CUTSCENE_COMMENTS.slice(0, visibleComments).map((c, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, y: 22, scale: 0.9, rotate: i % 2 === 0 ? -1 : 1 }}
+                    animate={{ opacity: 1, y: 0, scale: 1, rotate: 0 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    transition={{ type: 'spring', damping: 22, stiffness: 350 }}
+                    style={{
+                      background: 'rgba(14, 131, 136, 0.05)',
+                      border: '1px solid rgba(0, 173, 181, 0.25)',
+                      borderRadius: '14px',
+                      padding: '12px 16px',
+                      boxShadow: i === visibleComments - 1 ? '0 0 15px rgba(0, 173, 181, 0.15)' : 'none',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '4px',
+                      transition: 'border-color 0.3s, background 0.3s',
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+                        style={{
+                          width: '18px',
+                          height: '18px',
+                          borderRadius: '50%',
+                          background: `hsl(${(i * 75) % 360}, 75%, 60%)`,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '8px',
+                          fontWeight: 'bold',
+                          color: '#1C1917',
+                        }}
+                      >
+                        {c.user[1]?.toUpperCase() || 'U'}
+                      </motion.div>
+                      <span style={{ color: '#3897f0', fontWeight: 700, fontSize: '12px' }}>{c.user}</span>
+                      {i === visibleComments - 1 && (
+                        <span style={{ fontSize: '9px', color: 'var(--astu-cyan-bright)', fontWeight: 800, marginLeft: 'auto' }}>BARU</span>
+                      )}
+                    </div>
+                    <span style={{ color: '#E2E8F0', fontSize: '13px', lineHeight: 1.4 }}>{c.text}</span>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+
+              {/* Typing indicator when waiting for next comment */}
+              {visibleComments < CUTSCENE_COMMENTS.length && (
                 <motion.div
-                  key={i}
-                  initial={{ opacity: 0, y: 15, scale: 0.98 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  transition={{ duration: 0.4, ease: 'easeOut' }}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
                   style={{
-                    background: 'rgba(14, 131, 136, 0.04)',
-                    border: '1px solid rgba(14, 131, 136, 0.12)',
-                    borderRadius: '14px',
-                    padding: '12px 16px',
-                    boxShadow: 'none',
+                    background: 'rgba(255, 255, 255, 0.03)',
+                    border: '1px dashed rgba(0, 173, 181, 0.2)',
+                    borderRadius: '12px',
+                    padding: '8px 12px',
                     display: 'flex',
-                    flexDirection: 'column',
-                    gap: '4px',
+                    alignItems: 'center',
+                    gap: '8px',
+                    fontSize: '11px',
+                    color: '#94A3B8',
+                    fontStyle: 'italic',
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <div style={{
-                      width: '18px',
-                      height: '18px',
-                      borderRadius: '50%',
-                      background: `hsl(${(i * 75) % 360}, 70%, 60%)`,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '8px',
-                      fontWeight: 'bold',
-                      color: '#1C1917',
-                    }}>
-                      {c.user[1]?.toUpperCase() || 'U'}
-                    </div>
-                    <span style={{ color: '#3897f0', fontWeight: 700, fontSize: '12px' }}>{c.user}</span>
-                  </div>
-                  <span style={{ color: '#E2E8F0', fontSize: '13px', lineHeight: 1.4 }}>{c.text}</span>
+                  <span style={{ color: '#3897f0', fontWeight: 700 }}>@netizen</span>
+                  <span>sedang mengetik</span>
+                  <span style={{ display: 'inline-flex', gap: '3px' }}>
+                    <motion.span animate={{ opacity: [0.2, 1, 0.2] }} transition={{ duration: 1, repeat: Infinity, delay: 0 }}>.</motion.span>
+                    <motion.span animate={{ opacity: [0.2, 1, 0.2] }} transition={{ duration: 1, repeat: Infinity, delay: 0.2 }}>.</motion.span>
+                    <motion.span animate={{ opacity: [0.2, 1, 0.2] }} transition={{ duration: 1, repeat: Infinity, delay: 0.4 }}>.</motion.span>
+                  </span>
                 </motion.div>
-              ))}
+              )}
               <div ref={commentsEndRef} />
             </div>
           </div>
@@ -640,7 +681,7 @@ export default function Cutscene({ onComplete, onPhaseChange, teamId, studentId,
                 boxShadow: '0 -4px 10px rgba(0,0,0,0.15)',
               }}>
                 <span style={{ fontSize: '13px' }}>🏃‍♂️</span>
-                <span>NARASI — TERLAMBAT KE SEKOLAH</span>
+                <span>📊 SAMPEL DATA TERKUMPUL — VERIFIKASI BERITA</span>
               </div>
 
               {/* Dialog Text Box */}
@@ -666,7 +707,7 @@ export default function Cutscene({ onComplete, onPhaseChange, teamId, studentId,
                   fontFamily: 'var(--font-ui)',
                 }}>
                   <TypewriterText
-                    text="Gawat! Bel sekolah sudah berbunyi dan kamu datang terlambat! Dengan napas terengah-engah, kamu melangkah melewati gerbang menuju lapangan sekolah..."
+                    text="Postingan viral ini memicu perdebatan panas netizen! Beruntung, kamu baru saja mengumpulkan 35 sampel data screen time siswa dari 5 ruang kelas. Sekarang saatnya kamu menganalisis data tersebut untuk membuktikan kebenarannya!"
                     onDone={() => setMentorTypingDone(true)}
                   />
                 </p>
@@ -725,7 +766,7 @@ export default function Cutscene({ onComplete, onPhaseChange, teamId, studentId,
                   >
                     {teamId && myVotedGates.has('gate_cutscene_start')
                       ? `Menunggu ${Math.max(0, 2 - (gateVotes['gate_cutscene_start']?.length ?? 1))} lagi...`
-                      : 'MASUK KE LAPANGAN SEKOLAH →'
+                      : 'MULAI HITUNG RENTANG DATA (R) →'
                     }
                   </button>
                 </div>

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { QuizDoor, CLASS_STUDENTS } from '@/app/siswa/game/_levels/level1/data/level1Data'
+import { QuizDoor } from '@/app/siswa/game/_levels/level1/data/level1Data'
 
 function generateAnswerPool(correctVal: number): number[] {
   const pool = new Set<number>([correctVal])
@@ -96,11 +96,6 @@ export default function QuizModal({ door, isFD, onCorrect, onClose }: QuizModalP
               <span className="astu-name-badge">
                 <span>📍</span> {door.label}
               </span>
-              {CLASS_STUDENTS[door.id]?.teacher && (
-                <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--astu-cyan-bright)', background: 'rgba(0, 173, 181, 0.12)', border: '1px solid rgba(0, 173, 181, 0.35)', padding: '3px 8px', borderRadius: 8, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-                  <span>👩‍🏫</span> {CLASS_STUDENTS[door.id]?.teacher}
-                </span>
-              )}
             </div>
             <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--astu-gold-bright)', fontFamily: 'var(--font-data)', whiteSpace: 'nowrap' }}>
               AKSES TERKUNCI
@@ -110,43 +105,6 @@ export default function QuizModal({ door, isFD, onCorrect, onClose }: QuizModalP
           <p style={{ margin: 0, fontSize: 14, fontWeight: 600, color: 'var(--text-secondary)', lineHeight: 1.55 }}>
             Di dalam pintu ini tersimpan sampel data investigasi. Jawab tantangan berikut untuk membuka kunci:
           </p>
-
-          {(door.image || CLASS_STUDENTS[door.id]?.image) && (
-            <div style={{
-              width: '100%',
-              height: 140,
-              borderRadius: 12,
-              overflow: 'hidden',
-              position: 'relative',
-              border: `2px solid var(--astu-gold)`,
-              boxShadow: '0 6px 18px rgba(0,0,0,0.5)',
-            }}>
-              <img
-                src={door.image || CLASS_STUDENTS[door.id]?.image}
-                alt={door.label}
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-              />
-              <div style={{
-                position: 'absolute',
-                inset: 0,
-                background: 'linear-gradient(180deg, transparent 20%, rgba(8, 18, 30, 0.95) 100%)',
-                display: 'flex',
-                alignItems: 'flex-end',
-                justifyContent: 'space-between',
-                padding: '10px 14px',
-                gap: 8
-              }}>
-                <span style={{ fontSize: 12, fontWeight: 900, color: '#FFFFFF', display: 'flex', alignItems: 'center', gap: 6 }}>
-                  🏫 Ruangan {door.label}
-                </span>
-                {CLASS_STUDENTS[door.id]?.teacher && (
-                  <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--astu-gold-bright)', background: 'rgba(8, 18, 30, 0.85)', padding: '3px 8px', borderRadius: 6, border: '1px solid rgba(245, 158, 11, 0.4)', display: 'flex', alignItems: 'center', gap: 4 }}>
-                    👩‍🏫 {CLASS_STUDENTS[door.id]?.teacher}
-                  </span>
-                )}
-              </div>
-            </div>
-          )}
 
           {/* Question Box */}
           <div style={{

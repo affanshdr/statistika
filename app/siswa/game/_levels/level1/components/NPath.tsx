@@ -990,8 +990,17 @@ function PakSanctionModal({ onAccept }: { onAccept: () => void }) {
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 14, borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: 12 }}>
-          <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'rgba(56, 189, 248, 0.15)', border: '2px solid #38BDF8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, overflow: 'hidden' }}>
-            <img src="/Assets/Character/pak Sutrisno-iso_idle_right-trimmed.png" style={{ width: '130%', height: '130%', objectFit: 'cover', objectPosition: 'top', transform: 'scaleX(-1)' }} alt="Pak Sutrisno" />
+          <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'rgba(56, 189, 248, 0.15)', border: '2px solid #38BDF8', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 }}>
+            <div style={{
+              width: '100%',
+              height: '100%',
+              backgroundImage: `url("/Assets/Character/pak Sutrisno-iso_idle_right-trimmed.png")`,
+              backgroundSize: '450% 380%',
+              backgroundPosition: '10% 5%',
+              backgroundRepeat: 'no-repeat',
+              transform: 'scaleX(-1) scale(1.35)',
+              imageRendering: 'pixelated'
+            }} />
           </div>
           <div>
             <div style={{ fontSize: 10, fontWeight: 900, color: '#38BDF8', letterSpacing: '1.5px', textTransform: 'uppercase' }}>👨‍🏫 GURU KEDISIPLINAN SEKOLAH</div>
@@ -1024,9 +1033,10 @@ function PakReportModal({ onProceed }: { onProceed: () => void }) {
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 650, background: 'rgba(4, 7, 10, 0.85)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
       <motion.div
-        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+        initial={{ opacity: 0, scale: 0.88, y: 24 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.9, y: 20 }}
+        exit={{ opacity: 0, scale: 0.88, y: 24 }}
+        transition={{ type: 'spring', damping: 24, stiffness: 350 }}
         style={{
           maxWidth: 480,
           width: '100%',
@@ -1041,21 +1051,48 @@ function PakReportModal({ onProceed }: { onProceed: () => void }) {
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 14, borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: 12 }}>
-          <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'rgba(16, 185, 129, 0.15)', border: '2px solid #10B981', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, overflow: 'hidden' }}>
-            <img src="/Assets/Character/pak Sutrisno-iso_idle_right-trimmed.png" style={{ width: '130%', height: '130%', objectFit: 'cover', objectPosition: 'top', transform: 'scaleX(-1)' }} alt="Pak Sutrisno" />
-          </div>
+          <motion.div
+            animate={{ scale: [1, 1.05, 1] }}
+            transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+            style={{ width: 56, height: 56, borderRadius: '50%', background: 'rgba(16, 185, 129, 0.15)', border: '2px solid #10B981', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 }}
+          >
+            <div style={{
+              width: '100%',
+              height: '100%',
+              backgroundImage: `url("/Assets/Character/pak Sutrisno-iso_idle_right-trimmed.png")`,
+              backgroundSize: '450% 380%',
+              backgroundPosition: '10% 5%',
+              backgroundRepeat: 'no-repeat',
+              transform: 'scaleX(-1) scale(1.35)',
+              imageRendering: 'pixelated'
+            }} />
+          </motion.div>
           <div>
             <div style={{ fontSize: 10, fontWeight: 900, color: '#10B981', letterSpacing: '1.5px', textTransform: 'uppercase' }}>👨‍🏫 LAPOR SANKSI TERPENUHI</div>
             <h3 style={{ margin: 0, fontSize: 17, color: '#FFFFFF', fontWeight: 900 }}>Pak Sutrisno</h3>
           </div>
         </div>
 
-        <div style={{ background: 'rgba(16, 185, 129, 0.06)', border: '1.5px solid rgba(16, 185, 129, 0.25)', borderRadius: 16, padding: '16px 14px' }}>
-          <p style={{ margin: 0, fontSize: 13.5, color: '#E2E8F0', fontWeight: 600, lineHeight: 1.65 }}>
-            "Bagus sekali! Kamu sudah berhasil mengumpulkan <strong style={{ color: '#10B981' }}>35 sampel data screen time</strong> dari 5 ruang kelas.<br /><br />
-            Namun sanksimu belum selesai! Data mentah ini harus dianalisis secara statistik.<br />
-            <strong style={{ color: '#38BDF8' }}>Mari mulai dengan menghitung Rentang Data (R) untuk mengukur sebaran penggunaan gadget siswa!</strong>"
-          </p>
+        <div style={{ position: 'relative' }}>
+          <div style={{
+            position: 'absolute',
+            top: -7,
+            left: 24,
+            width: 12,
+            height: 12,
+            background: 'rgba(15, 35, 56, 0.96)',
+            borderTop: '1.5px solid rgba(16, 185, 129, 0.35)',
+            borderLeft: '1.5px solid rgba(16, 185, 129, 0.35)',
+            transform: 'rotate(45deg)',
+            zIndex: 2,
+          }} />
+          <div style={{ background: 'rgba(16, 185, 129, 0.06)', border: '1.5px solid rgba(16, 185, 129, 0.25)', borderRadius: 16, padding: '16px 14px', position: 'relative', zIndex: 1 }}>
+            <p style={{ margin: 0, fontSize: 13.5, color: '#E2E8F0', fontWeight: 600, lineHeight: 1.65 }}>
+              "Bagus sekali! Kamu sudah berhasil mengumpulkan <strong style={{ color: '#10B981' }}>35 sampel data screen time</strong> dari 5 ruang kelas.<br /><br />
+              Namun sanksimu belum selesai! Data mentah ini harus dianalisis secara statistik.<br />
+              <strong style={{ color: '#38BDF8' }}>Mari mulai dengan menghitung Rentang Data (R) untuk mengukur sebaran penggunaan gadget siswa!</strong>"
+            </p>
+          </div>
         </div>
 
         <button
@@ -1071,16 +1108,16 @@ function PakReportModal({ onProceed }: { onProceed: () => void }) {
 }
 
 export default function NPath({ onComplete, isFD = true, demoMode = false }: { onComplete: () => void; isFD?: boolean; demoMode?: boolean }) {
-  const [charPos, setCharPos] = useState({ x: 200, y: 530 })
-  const [cinematicStage, setCinematicStage] = useState<'panning_to_pak' | 'pak_shouting' | 'panning_to_player' | 'quest_meet_pak' | 'sanction_received'>(() => {
-    return demoMode ? 'sanction_received' : 'panning_to_pak'
+  const [charPos, setCharPos] = useState({ x: 180, y: 585 })
+  const [cinematicStage, setCinematicStage] = useState<'player_intro' | 'panning_to_pak' | 'pak_shouting' | 'pak_shouting_2' | 'panning_to_player' | 'quest_meet_pak' | 'pak_sanction_1' | 'pak_sanction_2' | 'pak_sanction_3' | 'player_reply_pak' | 'sanction_received'>(() => {
+    return demoMode ? 'sanction_received' : 'player_intro'
   })
   const cinematicStageRef = useRef(cinematicStage)
   cinematicStageRef.current = cinematicStage
 
   const [showPakSanctionModal, setShowPakSanctionModal] = useState(false)
   const [showPakReportModal, setShowPakReportModal] = useState(false)
-  const smoothCamPos = useRef({ x: 200, y: 530 })
+  const smoothCamPos = useRef({ x: 180, y: 585 })
   const [unlocked, setUnlocked] = useState<Set<string>>(() => {
     return demoMode ? new Set(['A', 'B', 'C', 'A1', 'A2', 'A3', 'B1']) : new Set(['A', 'B', 'C'])
   })
@@ -1094,6 +1131,10 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
   const lastHallwayPosRef = useRef<{ x: number; y: number }>({ x: 650, y: 550 })
   const [visitedRooms, setVisitedRooms] = useState<Set<DoorId>>(new Set())
   const [showWaliKelasPopup, setShowWaliKelasPopup] = useState<typeof CLASS_DOORS[number] | null>(null)
+  const [teacherCutsceneStage, setTeacherCutsceneStage] = useState<'anim_wait' | 'teacher_ask' | 'player_explain' | 'teacher_reply' | null>(null)
+  const teacherCutsceneStageRef = useRef(teacherCutsceneStage)
+  teacherCutsceneStageRef.current = teacherCutsceneStage
+  const teacherTimerRef = useRef<NodeJS.Timeout | null>(null)
   const [collected, setCollected] = useState<Set<string>>(() => {
     if (demoMode) {
       const initialSet = new Set<string>()
@@ -1110,6 +1151,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
   const [moveDir, setMoveDir] = useState({ x: 0, y: 0 })
   const [showDebug, setShowDebug] = useState(false)
   const [isInventoryOpen, setIsInventoryOpen] = useState(false)
+  const [showStudentDetails, setShowStudentDetails] = useState(false)
   const [inventoryTab, setInventoryTab] = useState<'ALL' | 'A1' | 'A2' | 'B1' | 'B2' | 'C1'>('ALL')
 
   const charPosRef = useRef({ x: 650, y: 550 })
@@ -1171,7 +1213,6 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
     let minDist = Infinity
     for (const d of CLASS_DOORS) {
       if (!unlockedR.current.has(d.roomId)) continue
-      if (unlockedR.current.has(d.id)) continue
       const dist = Math.hypot(d.x - cx, d.y - cy)
       if (dist < 50 && dist < minDist) {
         minDist = dist
@@ -1211,7 +1252,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
       let targetFocusX = isInside ? 600 : charPosRef.current.x
       let targetFocusY = isInside ? 580 : charPosRef.current.y
 
-      if (!isInside && (cinematicStageRef.current === 'panning_to_pak' || cinematicStageRef.current === 'pak_shouting')) {
+      if (!isInside && (cinematicStageRef.current === 'panning_to_pak' || cinematicStageRef.current === 'pak_shouting' || cinematicStageRef.current === 'pak_shouting_2')) {
         targetFocusX = PAK_SUTRISNO_POS.x
         targetFocusY = PAK_SUTRISNO_POS.y
       }
@@ -1231,11 +1272,24 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
         if (distToPlayer < 35) {
           setCinematicStage('quest_meet_pak')
         }
+      } else if (cinematicStageRef.current === 'quest_meet_pak') {
+        const distToPak = Math.hypot(charPosRef.current.x - PAK_SUTRISNO_POS.x, charPosRef.current.y - PAK_SUTRISNO_POS.y)
+        if (distToPak < 110) {
+          setCinematicStage('pak_sanction_1')
+        }
       }
 
-      const isCinematicActive = cinematicStageRef.current === 'panning_to_pak' || cinematicStageRef.current === 'pak_shouting' || cinematicStageRef.current === 'panning_to_player'
+      const isCinematicActive = cinematicStageRef.current === 'player_intro' ||
+                                cinematicStageRef.current === 'panning_to_pak' || 
+                                cinematicStageRef.current === 'pak_shouting' || 
+                                cinematicStageRef.current === 'pak_shouting_2' || 
+                                cinematicStageRef.current === 'panning_to_player' ||
+                                cinematicStageRef.current === 'pak_sanction_1' ||
+                                cinematicStageRef.current === 'pak_sanction_2' ||
+                                cinematicStageRef.current === 'pak_sanction_3' ||
+                                cinematicStageRef.current === 'player_reply_pak'
 
-      if (!activeDoor && !activeClass && !showWaliKelasPopup && !showPakSanctionModal && !isCinematicActive) {
+      if (!activeDoor && !activeClass && !showWaliKelasPopup && !isCinematicActive) {
         const { x: dx, y: dy } = dirRef.current
         if (dx || dy) {
           const currentMapKey = insideRoomR.current?.id || 'hallway'
@@ -1271,7 +1325,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
     }
     animRef.current = requestAnimationFrame(tick)
     return () => { if (animRef.current) cancelAnimationFrame(animRef.current) }
-  }, [activeDoor, activeClass, showWaliKelasPopup, showPakSanctionModal])
+  }, [activeDoor, activeClass, showWaliKelasPopup])
 
   // Keyboard navigation listeners
   useEffect(() => {
@@ -1326,19 +1380,18 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
       } else if ((e.key === 'Enter' || e.key === ' ' || e.key === 'e' || e.key === 'E') && nearClassVal) {
         e.preventDefault()
         if (unlockedR.current.has(nearClassVal.id)) {
-          lastHallwayPosRef.current = { x: nearClassVal.x, y: nearClassVal.y + 20 }
-          setInsideRoom(nearClassVal)
-          setCharPos({ x: 1000, y: 620 })
+          enterClassroom(nearClassVal)
         } else {
           setActiveClass(nearClassVal)
         }
       } else if ((e.key === 'Enter' || e.key === ' ' || e.key === 'e' || e.key === 'E') && insideRoomR.current) {
-        const teacherX = 710
-        const teacherY = 420
+        const currentMap = LEVEL1_MAPS[insideRoomR.current.id]
+        const teacherX = currentMap?.teacher?.x ?? 617
+        const teacherY = currentMap?.teacher?.y ?? 415
         const distToTeacher = Math.hypot(charPosRef.current.x - teacherX, charPosRef.current.y - teacherY)
-        if (distToTeacher < 350) {
+        if (distToTeacher < 350 || teacherCutsceneStageRef.current) {
           e.preventDefault()
-          setShowWaliKelasPopup(insideRoomR.current)
+          handleInteractTeacher(insideRoomR.current)
         }
       } else if ((e.key === 'Enter' || e.key === ' ' || e.key === 'e' || e.key === 'E') && !insideRoomR.current) {
         const pakX = PAK_SUTRISNO_POS.x
@@ -1348,8 +1401,18 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
           e.preventDefault()
           if (collected.size >= TOTAL_N) {
             setShowPakReportModal(true)
-          } else {
-            setShowPakSanctionModal(true)
+          } else if (cinematicStageRef.current === 'player_intro') {
+            setCinematicStage('panning_to_pak')
+          } else if (cinematicStageRef.current === 'quest_meet_pak') {
+            setCinematicStage('pak_sanction_1')
+          } else if (cinematicStageRef.current === 'pak_sanction_1') {
+            setCinematicStage('pak_sanction_2')
+          } else if (cinematicStageRef.current === 'pak_sanction_2') {
+            setCinematicStage('pak_sanction_3')
+          } else if (cinematicStageRef.current === 'pak_sanction_3') {
+            setCinematicStage('player_reply_pak')
+          } else if (cinematicStageRef.current === 'player_reply_pak') {
+            setCinematicStage('sanction_received')
           }
         }
       }
@@ -1376,18 +1439,67 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
     setActiveDoor(null)
   }, [activeDoor])
 
+  const enterClassroom = useCallback((room: typeof CLASS_DOORS[number]) => {
+    lastHallwayPosRef.current = { x: room.x, y: room.y + 20 }
+    setInsideRoom(room)
+    setCharPos(LEVEL1_MAPS[room.id]?.spawn || { x: 1050, y: 510 })
+
+    const mapConfig = LEVEL1_MAPS[room.id]
+    if (mapConfig?.teacher?.spriteUrl) {
+      if (teacherTimerRef.current) clearTimeout(teacherTimerRef.current)
+      setTeacherCutsceneStage('anim_wait')
+      const animDuration = (mapConfig.teacher.totalFrames || 24) * (mapConfig.teacher.speedMs || 90)
+      teacherTimerRef.current = setTimeout(() => {
+        setTeacherCutsceneStage('teacher_ask')
+      }, animDuration)
+    } else {
+      if (teacherTimerRef.current) clearTimeout(teacherTimerRef.current)
+      setTeacherCutsceneStage(null)
+    }
+  }, [])
+
   const handleClassCorrect = useCallback(() => {
     if (!activeClass) return
     const roomToEnter = activeClass
     setUnlocked(p => new Set([...p, roomToEnter.id]))
     setActiveClass(null)
-    lastHallwayPosRef.current = { x: roomToEnter.x, y: roomToEnter.y + 20 }
-    setInsideRoom(roomToEnter)
-    setCharPos({ x: 600, y: 580 })
-  }, [activeClass])
+    enterClassroom(roomToEnter)
+  }, [activeClass, enterClassroom])
+
+  const handleInteractTeacher = useCallback((room: typeof CLASS_DOORS[number]) => {
+    const mapConfig = LEVEL1_MAPS[room.id]
+    const hasTeacherSprite = !!mapConfig?.teacher?.spriteUrl
+
+    if (!hasTeacherSprite) {
+      setShowWaliKelasPopup(room)
+      return
+    }
+
+    const currentStage = teacherCutsceneStageRef.current
+    if (!currentStage) {
+      if (teacherTimerRef.current) clearTimeout(teacherTimerRef.current)
+      setTeacherCutsceneStage('anim_wait')
+      const animDuration = (mapConfig.teacher?.totalFrames || 24) * (mapConfig.teacher?.speedMs || 90)
+      teacherTimerRef.current = setTimeout(() => {
+        setTeacherCutsceneStage('teacher_ask')
+      }, animDuration)
+    } else if (currentStage === 'anim_wait') {
+      if (teacherTimerRef.current) clearTimeout(teacherTimerRef.current)
+      setTeacherCutsceneStage('teacher_ask')
+    } else if (currentStage === 'teacher_ask') {
+      setTeacherCutsceneStage('player_explain')
+    } else if (currentStage === 'player_explain') {
+      setTeacherCutsceneStage('teacher_reply')
+    } else if (currentStage === 'teacher_reply') {
+      setTeacherCutsceneStage(null)
+      setShowWaliKelasPopup(room)
+    }
+  }, [])
 
   const handleExitClassroom = useCallback(() => {
     if (!insideRoom) return
+    if (teacherTimerRef.current) clearTimeout(teacherTimerRef.current)
+    setTeacherCutsceneStage(null)
     setInsideRoom(null)
     setCharPos(lastHallwayPosRef.current || { x: 650, y: 550 })
   }, [insideRoom])
@@ -1489,7 +1601,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
           <div style={{
             background: 'rgba(11, 30, 44, 0.85)',
             backdropFilter: 'blur(12px)',
-            border: '1.5px solid rgba(0, 173, 181, 0.35)',
+            border: n >= TOTAL_N ? '1.5px solid #10B981' : '1.5px solid rgba(0, 173, 181, 0.35)',
             borderRadius: 12,
             padding: 'clamp(4px, 0.7vw, 6px) clamp(8px, 1vw, 12px)',
             display: 'flex',
@@ -1498,11 +1610,13 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
             boxShadow: '0 4px 16px rgba(0, 0, 0, 0.45)',
             pointerEvents: 'auto'
           }}>
-            <div style={{ fontSize: 'clamp(13px, 1.5vw, 15px)' }}>🕵️‍♂️</div>
+            <div style={{ fontSize: 'clamp(13px, 1.5vw, 15px)' }}>📜</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(4px, 0.8vw, 8px)' }}>
-              <span style={{ fontSize: 'clamp(10.5px, 1.1vw, 12.5px)', fontWeight: 900, color: '#F8FAFC', letterSpacing: '0.3px', whiteSpace: 'nowrap' }}>Eksplorasi Ruangan</span>
+              <span style={{ fontSize: 'clamp(10.5px, 1.1vw, 12.5px)', fontWeight: 900, color: '#F8FAFC', letterSpacing: '0.3px', whiteSpace: 'nowrap' }}>
+                {n >= TOTAL_N ? 'Misi: Laporkan Pak Sutrisno!' : (cinematicStage === 'sanction_received' || demoMode) ? 'Misi: Kumpulkan Data' : 'Misi: Jumpai Pak Sutrisno'}
+              </span>
               <span style={{ color: 'rgba(255,255,255,0.2)' }}>|</span>
-              <span style={{ fontSize: 'clamp(9.5px, 1vw, 11.5px)', fontWeight: 800, color: '#00ADB5', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>
+              <span style={{ fontSize: 'clamp(9.5px, 1vw, 11.5px)', fontWeight: 800, color: n >= TOTAL_N ? '#10B981' : '#00ADB5', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>
                 DATA: <span style={{ color: '#FFFFFF' }}>{n} / {TOTAL_N}</span>
               </span>
             </div>
@@ -1553,9 +1667,9 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
           </div>
         </div>
 
-        {/* Floating Vertical RPG Inventory Button (Right Side) */}
+        {/* Floating Vertical RPG Quest Button (Right Side) */}
         <motion.button
-          whileHover={{ scale: 1.08, boxShadow: '0 0 25px rgba(0, 173, 181, 0.55)' }}
+          whileHover={{ scale: 1.08, boxShadow: n >= TOTAL_N ? '0 0 25px rgba(16, 185, 129, 0.65)' : '0 0 25px rgba(0, 173, 181, 0.55)' }}
           whileTap={{ scale: 0.92 }}
           onClick={() => setIsInventoryOpen(true)}
           style={{
@@ -1564,9 +1678,11 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
             top: '42%',
             transform: 'translateY(-50%)',
             zIndex: 45,
-            background: 'linear-gradient(180deg, rgba(15, 35, 56, 0.92) 0%, rgba(11, 30, 44, 0.95) 100%)',
+            background: n >= TOTAL_N 
+              ? 'linear-gradient(180deg, rgba(6, 78, 59, 0.95) 0%, rgba(11, 30, 44, 0.95) 100%)' 
+              : 'linear-gradient(180deg, rgba(15, 35, 56, 0.92) 0%, rgba(11, 30, 44, 0.95) 100%)',
             backdropFilter: 'blur(12px)',
-            border: '1.5px solid #00ADB5',
+            border: n >= TOTAL_N ? '2px solid #10B981' : '1.5px solid #00ADB5',
             borderRadius: 16,
             padding: 'clamp(6px, 1vw, 10px) clamp(4px, 0.8vw, 8px)',
             display: 'flex',
@@ -1576,41 +1692,41 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
             gap: 4,
             width: 'clamp(48px, 5.2vw, 60px)',
             cursor: 'pointer',
-            boxShadow: '0 6px 20px rgba(0, 0, 0, 0.5), 0 0 15px rgba(0, 173, 181, 0.3)',
+            boxShadow: n >= TOTAL_N ? '0 6px 20px rgba(0, 0, 0, 0.5), 0 0 20px rgba(16, 185, 129, 0.4)' : '0 6px 20px rgba(0, 0, 0, 0.5), 0 0 15px rgba(0, 173, 181, 0.3)',
             pointerEvents: 'auto',
             transition: 'all 0.2s',
           }}
         >
-
           {/* Icon Container with Floating Badge */}
           <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <span style={{ fontSize: 'clamp(18px, 2.2vw, 24px)', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.6))' }}>📓</span>
+            <span style={{ fontSize: 'clamp(18px, 2.2vw, 24px)', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.6))' }}>📜</span>
             {/* Counter Mini Badge */}
             <span style={{
               position: 'absolute',
               top: -6,
-              right: -10,
-              background: 'linear-gradient(135deg, #00ADB5 0%, #38BDF8 100%)',
+              right: -12,
+              background: n >= TOTAL_N ? 'linear-gradient(135deg, #10B981 0%, #34D399 100%)' : 'linear-gradient(135deg, #00ADB5 0%, #38BDF8 100%)',
               color: '#04070a',
               borderRadius: 10,
-              padding: '1px 4px',
+              padding: '1px 5px',
               fontSize: 'clamp(8px, 0.8vw, 9px)',
               fontWeight: 900,
               fontFamily: 'var(--font-data)',
               boxShadow: '0 2px 6px rgba(0,0,0,0.5)',
-              lineHeight: 1.2
+              lineHeight: 1.2,
+              whiteSpace: 'nowrap'
             }}>
-              {n}/{TOTAL_N}
+              {n >= TOTAL_N ? '⚡ 35/35' : (cinematicStage === 'sanction_received' || demoMode) ? `${n}/${TOTAL_N}` : 'Temui Pak'}
             </span>
           </div>
           {/* Vertical Label */}
           <span style={{
-            fontSize: 'clamp(7.5px, 0.85vw, 9px)',
+            fontSize: 'clamp(8px, 0.85vw, 9.5px)',
             fontWeight: 900,
-            color: '#F8FAFC',
+            color: n >= TOTAL_N ? '#34D399' : '#F8FAFC',
             marginTop: 2
           }}>
-            Jurnal<br />Bukti
+            Misi
           </span>
         </motion.button>
 
@@ -1812,93 +1928,255 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                 {insideRoom ? (() => {
                   const info = CLASS_STUDENTS[insideRoom.id]
                   const teacherName = info?.teacher || 'Wali Kelas'
-                  // Position aligned precisely over the teacher drawn in the background image
-                  const teacherX = 710
-                  const teacherY = 220
-                  const hotspotW = 140
-                  const hotspotH = 220
+                  const currentMap = LEVEL1_MAPS[insideRoom.id]
+                  const teacherConfig = currentMap?.teacher
+                  const teacherX = teacherConfig?.x ?? 617
+                  const teacherY = teacherConfig?.y ?? 415
+                  const hotspotW = teacherConfig?.hotspotW || 140
+                  const hotspotH = teacherConfig?.hotspotH || 220
                   const isCompleted = unlocked.has(insideRoom.id)
-                  const distToTeacher = Math.hypot(charPos.x - teacherX, charPos.y - (teacherY + 180))
-                  const nearTeacher = distToTeacher < 350
+                  const bubbleY = teacherY - (teacherConfig?.spriteUrl ? 220 : 50)
 
                   return (
                     <g
                       key={`teacher-${insideRoom.id}`}
                       style={{ cursor: 'pointer' }}
-                      onClick={e => { e.stopPropagation(); setShowWaliKelasPopup(insideRoom) }}
+                      onClick={e => {
+                        e.stopPropagation()
+                        handleInteractTeacher(insideRoom)
+                      }}
                     >
-                      {/* Invisible clickable hotspot over the pixel art teacher */}
-                      <rect
-                        x={teacherX - hotspotW / 2}
-                        y={teacherY}
-                        width={hotspotW}
-                        height={hotspotH}
-                        fill="transparent"
-                        stroke={showDebug ? '#ff0' : 'none'}
-                        strokeWidth={showDebug ? 2 : 0}
-                      />
+                      {teacherConfig?.spriteUrl ? (
+                        <NPCCharacter
+                          key={`teacher-sprite-${insideRoom.id}`}
+                          x={teacherX}
+                          y={teacherY}
+                          size={teacherConfig.size || 250}
+                          label=""
+                          spriteUrl={teacherConfig.spriteUrl}
+                          cols={teacherConfig.cols || 5}
+                          rows={teacherConfig.rows || 5}
+                          totalFrames={teacherConfig.totalFrames || 24}
+                          pingPong={teacherConfig.pingPong ?? false}
+                          speedMs={teacherConfig.speedMs || 90}
+                          glowColor={isCompleted ? "#10B981" : "#F59E0B"}
+                          showGlow={teacherConfig.showGlow ?? true}
+                          onClick={() => handleInteractTeacher(insideRoom)}
+                        />
+                      ) : (
+                        <rect
+                          x={teacherX - hotspotW / 2}
+                          y={teacherY - hotspotH / 2}
+                          width={hotspotW}
+                          height={hotspotH}
+                          fill="transparent"
+                          stroke={showDebug ? '#ff0' : 'none'}
+                          strokeWidth={showDebug ? 2 : 0}
+                        />
+                      )}
 
-                      {/* RPG-style speech bubble indicator floating over teacher */}
-                      <g>
-                        <motion.g
-                          initial={{ opacity: 0, y: 8 }}
-                          animate={{ opacity: 1, y: [0, -4, 0] }}
-                          transition={{ y: { duration: 2, repeat: Infinity, ease: 'easeInOut' }, opacity: { duration: 0.3 } }}
-                        >
-                          {/* Bubble body */}
+                      {/* 1. Default Hover/Interaction Prompt (when no cutscene is active) */}
+                      {!teacherCutsceneStage && (
+                        <g>
+                          <motion.g
+                            initial={{ opacity: 0, y: 8 }}
+                            animate={{ opacity: 1, y: [0, -4, 0] }}
+                            transition={{ y: { duration: 2, repeat: Infinity, ease: 'easeInOut' }, opacity: { duration: 0.3 } }}
+                          >
+                            <rect
+                              x={teacherX - 90}
+                              y={bubbleY - 48}
+                              width={180}
+                              height={38}
+                              rx={6}
+                              fill="rgba(15, 23, 42, 0.92)"
+                              stroke={isCompleted ? '#10B981' : insideRoom.color}
+                              strokeWidth={2}
+                              style={{ filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.6))' }}
+                            />
+                            <polygon
+                              points={`${teacherX - 7},${bubbleY - 10} ${teacherX + 7},${bubbleY - 10} ${teacherX},${bubbleY}`}
+                              fill="rgba(15, 23, 42, 0.92)"
+                              stroke={isCompleted ? '#10B981' : insideRoom.color}
+                              strokeWidth={2}
+                              strokeLinejoin="round"
+                            />
+                            <rect
+                              x={teacherX - 8}
+                              y={bubbleY - 12}
+                              width={16}
+                              height={4}
+                              fill="rgba(15, 23, 42, 0.92)"
+                            />
+                            <text
+                              x={teacherX}
+                              y={bubbleY - 34}
+                              textAnchor="middle"
+                              fill="#FFFFFF"
+                              fontSize={11}
+                              fontWeight="800"
+                              fontFamily="var(--font-ui)"
+                              style={{ letterSpacing: '0.3px' }}
+                            >
+                              👩‍🏫 {teacherName}
+                            </text>
+                            <text
+                              x={teacherX}
+                              y={bubbleY - 19}
+                              textAnchor="middle"
+                              fill={isCompleted ? '#6EE7B7' : '#FCD34D'}
+                              fontSize={9}
+                              fontWeight="700"
+                              fontFamily="var(--font-ui)"
+                            >
+                              {isCompleted ? '✓ Data Screen Time Saved' : '💬 Klik / Tekan E untuk Bicara'}
+                            </text>
+                          </motion.g>
+                        </g>
+                      )}
+
+                      {/* 2. Teacher Animation Waiting Stage ('anim_wait') */}
+                      {teacherCutsceneStage === 'anim_wait' && (
+                        <g>
+                          <motion.g
+                            initial={{ opacity: 0, scale: 0.9, y: 5 }}
+                            animate={{ opacity: 1, scale: [1, 1.04, 1], y: 0 }}
+                            transition={{ scale: { duration: 1, repeat: Infinity, ease: 'easeInOut' } }}
+                          >
+                            <rect
+                              x={teacherX - 110}
+                              y={bubbleY - 48}
+                              width={220}
+                              height={40}
+                              rx={10}
+                              fill="rgba(15, 35, 56, 0.96)"
+                              stroke="#F59E0B"
+                              strokeWidth={2}
+                              style={{ filter: 'drop-shadow(0 6px 20px rgba(0,0,0,0.7))' }}
+                            />
+                            <polygon
+                              points={`${teacherX - 8},${bubbleY - 8} ${teacherX + 8},${bubbleY - 8} ${teacherX},${bubbleY + 2}`}
+                              fill="rgba(15, 35, 56, 0.96)"
+                              stroke="#F59E0B"
+                              strokeWidth={1}
+                            />
+                            <text x={teacherX} y={bubbleY - 24} textAnchor="middle" fill="#FCD34D" fontSize={11} fontWeight="900" fontFamily="var(--font-ui)">
+                              👩‍🏫 Bu Sari sedang menyapa...
+                            </text>
+                          </motion.g>
+                        </g>
+                      )}
+
+                      {/* 3. Teacher Question Speech Bubble ('teacher_ask') */}
+                      {teacherCutsceneStage === 'teacher_ask' && (
+                        <g style={{ cursor: 'pointer' }} onClick={e => { e.stopPropagation(); handleInteractTeacher(insideRoom); }}>
                           <rect
-                            x={teacherX - 90}
-                            y={teacherY - 48}
-                            width={180}
-                            height={38}
-                            rx={6}
-                            fill="rgba(15, 23, 42, 0.92)"
-                            stroke={isCompleted ? '#10B981' : insideRoom.color}
+                            x={teacherX - 150}
+                            y={bubbleY - 78}
+                            width={300}
+                            height={68}
+                            rx={14}
+                            fill="rgba(15, 35, 56, 0.96)"
+                            stroke="#38BDF8"
                             strokeWidth={2}
-                            style={{ filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.6))' }}
+                            style={{ filter: 'drop-shadow(0 8px 24px rgba(0,0,0,0.75))' }}
                           />
-                          {/* Bubble triangle pointer */}
                           <polygon
-                            points={`${teacherX - 7},${teacherY - 10} ${teacherX + 7},${teacherY - 10} ${teacherX},${teacherY}`}
-                            fill="rgba(15, 23, 42, 0.92)"
-                            stroke={isCompleted ? '#10B981' : insideRoom.color}
-                            strokeWidth={2}
-                            strokeLinejoin="round"
+                            points={`${teacherX - 8},${bubbleY - 10} ${teacherX + 8},${bubbleY - 10} ${teacherX},${bubbleY + 2}`}
+                            fill="rgba(15, 35, 56, 0.96)"
+                            stroke="#38BDF8"
+                            strokeWidth={1}
                           />
+                          <text x={teacherX - 138} y={bubbleY - 60} textAnchor="start" fill="#38BDF8" fontSize={10.5} fontWeight="900" fontFamily="var(--font-ui)">
+                            {teacherName}
+                          </text>
+                          <text x={teacherX} y={bubbleY - 38} textAnchor="middle" fill="#FFFFFF" fontSize={11} fontWeight="800" fontFamily="var(--font-ui)">
+                            "Halo! Ada perlu apa kamu datang ke Ruang {insideRoom.label.replace('Kelas ', '')}?"
+                          </text>
+                          <text x={teacherX + 138} y={bubbleY - 20} textAnchor="end" fill="#38BDF8" fontSize={9.5} fontWeight="900" fontFamily="var(--font-ui)">
+                            [ Klik / Tap ▶ ]
+                          </text>
+                        </g>
+                      )}
+
+                      {/* 4. Player Explanation Speech Bubble ('player_explain') */}
+                      {teacherCutsceneStage === 'player_explain' && (() => {
+                        const pW = 340
+                        const pLeft = Math.max(20, Math.min(WORLD_VW - pW - 170, charPos.x - pW * 0.75))
+                        const pTextX = pLeft + pW / 2
+                        const headTopY = charPos.y - 250 * 0.85
+                        const pY = headTopY - 100
+                        const pointerX = Math.max(pLeft + 30, Math.min(pLeft + pW - 30, charPos.x))
+
+                        return (
+                          <g style={{ cursor: 'pointer' }} onClick={e => { e.stopPropagation(); handleInteractTeacher(insideRoom); }}>
+                            <rect
+                              x={pLeft}
+                              y={pY}
+                              width={pW}
+                              height={68}
+                              rx={14}
+                              fill="rgba(15, 35, 56, 0.96)"
+                              stroke="#38BDF8"
+                              strokeWidth={2}
+                              style={{ filter: 'drop-shadow(0 8px 24px rgba(0,0,0,0.75))' }}
+                            />
+                            <polygon
+                              points={`${pointerX - 10},${pY + 68} ${pointerX + 10},${pY + 68} ${Math.min(charPos.x, pointerX + 15)},${headTopY + 25}`}
+                              fill="rgba(15, 35, 56, 0.96)"
+                              stroke="#38BDF8"
+                              strokeWidth={1}
+                            />
+                            <text x={pLeft + 14} y={pY + 18} textAnchor="start" fill="#38BDF8" fontSize={10.5} fontWeight="900" fontFamily="var(--font-ui)">
+                              Kamu
+                            </text>
+                            <text x={pTextX} y={pY + 38} textAnchor="middle" fill="#FFFFFF" fontSize={10.5} fontWeight="800" fontFamily="var(--font-ui)">
+                              "Saya sedang menjalankan sanksi Pak Sutrisno untuk"
+                            </text>
+                            <text x={pTextX} y={pY + 52} textAnchor="middle" fill="#FFFFFF" fontSize={10.5} fontWeight="800" fontFamily="var(--font-ui)">
+                              mengumpulkan sampel data screen time 7 siswa di kelas ini, Bu!"
+                            </text>
+                            <text x={pLeft + pW - 14} y={pY + 58} textAnchor="end" fill="#38BDF8" fontSize={9.5} fontWeight="900" fontFamily="var(--font-ui)">
+                              [ Klik / Tap ▶ ]
+                            </text>
+                          </g>
+                        )
+                      })()}
+
+                      {/* 5. Teacher Reply Speech Bubble ('teacher_reply') */}
+                      {teacherCutsceneStage === 'teacher_reply' && (
+                        <g style={{ cursor: 'pointer' }} onClick={e => { e.stopPropagation(); handleInteractTeacher(insideRoom); }}>
                           <rect
-                            x={teacherX - 8}
-                            y={teacherY - 12}
-                            width={16}
-                            height={4}
-                            fill="rgba(15, 23, 42, 0.92)"
+                            x={teacherX - 160}
+                            y={bubbleY - 78}
+                            width={320}
+                            height={68}
+                            rx={14}
+                            fill="rgba(15, 35, 56, 0.96)"
+                            stroke="#10B981"
+                            strokeWidth={2}
+                            style={{ filter: 'drop-shadow(0 8px 24px rgba(0,0,0,0.75))' }}
                           />
-                          {/* Name text */}
-                          <text
-                            x={teacherX}
-                            y={teacherY - 34}
-                            textAnchor="middle"
-                            fill="#FFFFFF"
-                            fontSize={11}
-                            fontWeight="800"
-                            fontFamily="var(--font-ui)"
-                            style={{ letterSpacing: '0.3px' }}
-                          >
-                            👩‍🏫 {teacherName}
+                          <polygon
+                            points={`${teacherX - 8},${bubbleY - 10} ${teacherX + 8},${bubbleY - 10} ${teacherX},${bubbleY + 2}`}
+                            fill="rgba(15, 35, 56, 0.96)"
+                            stroke="#10B981"
+                            strokeWidth={1}
+                          />
+                          <text x={teacherX - 148} y={bubbleY - 60} textAnchor="start" fill="#10B981" fontSize={10.5} fontWeight="900" fontFamily="var(--font-ui)">
+                            {teacherName}
                           </text>
-                          {/* Action prompt text */}
-                          <text
-                            x={teacherX}
-                            y={teacherY - 19}
-                            textAnchor="middle"
-                            fill={isCompleted ? '#6EE7B7' : '#FCD34D'}
-                            fontSize={9}
-                            fontWeight="700"
-                            fontFamily="var(--font-ui)"
-                          >
-                            {isCompleted ? '✓ Data Screen Time Saved' : '💬 Klik / Tekan E untuk Minta Data'}
+                          <text x={teacherX} y={bubbleY - 40} textAnchor="middle" fill="#FFFFFF" fontSize={10.5} fontWeight="800" fontFamily="var(--font-ui)">
+                            "Oh begitu! Baiklah, ini sampel data"
                           </text>
-                        </motion.g>
-                      </g>
+                          <text x={teacherX} y={bubbleY - 26} textAnchor="middle" fill="#FFFFFF" fontSize={10.5} fontWeight="800" fontFamily="var(--font-ui)">
+                            screen time 7 siswa dari Ruang {insideRoom.label.replace('Kelas ', '')}."
+                          </text>
+                          <text x={teacherX + 148} y={bubbleY - 20} textAnchor="end" fill="#10B981" fontSize={9.5} fontWeight="900" fontFamily="var(--font-ui)">
+                            [ Ambil Data ▶ ]
+                          </text>
+                        </g>
+                      )}
                     </g>
                   )
                 })() : ((cinematicStage === 'sanction_received' || demoMode) ? CLASS_DOORS.map(door => {
@@ -1913,9 +2191,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                       onClick={e => {
                         e.stopPropagation()
                         if (open) {
-                          lastHallwayPosRef.current = { x: door.x, y: door.y + 20 }
-                          setInsideRoom(door)
-                          setCharPos({ x: 600, y: 580 })
+                          enterClassroom(door)
                         } else if (!activeClass && !activeDoor) {
                           setActiveClass(door)
                         }
@@ -2008,13 +2284,24 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
 
                         const isAllCollected = collected.size >= TOTAL_N
 
-                        const handleTalkToPak = () => {
-                          if (cinematicStage === 'pak_shouting') {
+                        const handleTalkToPak = (e?: React.MouseEvent) => {
+                          if (e) e.stopPropagation()
+                          if (cinematicStage === 'player_intro') {
+                            setCinematicStage('panning_to_pak')
+                          } else if (cinematicStage === 'pak_shouting') {
+                            setCinematicStage('pak_shouting_2')
+                          } else if (cinematicStage === 'pak_shouting_2') {
                             setCinematicStage('panning_to_player')
+                          } else if (cinematicStage === 'quest_meet_pak' || cinematicStage === 'pak_sanction_1') {
+                            setCinematicStage('pak_sanction_2')
+                          } else if (cinematicStage === 'pak_sanction_2') {
+                            setCinematicStage('pak_sanction_3')
+                          } else if (cinematicStage === 'pak_sanction_3') {
+                            setCinematicStage('player_reply_pak')
+                          } else if (cinematicStage === 'player_reply_pak') {
+                            setCinematicStage('sanction_received')
                           } else if (isAllCollected) {
                             setShowPakReportModal(true)
-                          } else {
-                            setShowPakSanctionModal(true)
                           }
                         }
 
@@ -2024,7 +2311,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                             x={pakX}
                             y={pakY}
                             size={pakSize}
-                            label={cinematicStage === 'pak_shouting' ? '' : 'Pak Sutrisno'}
+                            label=""
                             spriteUrl="/Assets/Character/pak Sutrisno-iso_idle_right-trimmed.png"
                             cols={5}
                             rows={4}
@@ -2034,19 +2321,22 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                           />
                         )
 
-                        const buttonW = 220
-                        const buttonLeft = Math.max(camX + 10, Math.min(camX + VIEW_VW - buttonW - 10, charPos.x - buttonW / 2))
-                        const textX = buttonLeft + buttonW / 2
+                        const isSpeechActive = ['pak_shouting', 'pak_shouting_2', 'pak_sanction_1', 'pak_sanction_2', 'pak_sanction_3', 'player_reply_pak'].includes(cinematicStage)
+                        const isSanctionStage = ['pak_sanction_1', 'pak_sanction_2', 'pak_sanction_3'].includes(cinematicStage)
 
-                        {/* Speech bubble during pak_shouting */}
-                        const renderShoutBubble = cinematicStage === 'pak_shouting' && (
-                          <g key="pak-shout-bubble" style={{ cursor: 'pointer' }} onClick={() => setCinematicStage('panning_to_player')}>
+                        {/* Speech bubble for Pak Sutrisno */}
+                        const renderShoutBubble = isSpeechActive && cinematicStage !== 'player_reply_pak' && (
+                          <g
+                            key="pak-shout-bubble"
+                            style={{ cursor: 'pointer' }}
+                            onClick={handleTalkToPak}
+                          >
                             {/* Dialogue Card Container */}
                             <rect
-                              x={pakX - 130}
-                              y={pakY - 180}
-                              width={260}
-                              height={58}
+                              x={pakX - (isSanctionStage ? 165 : 130)}
+                              y={pakY - (isSanctionStage ? 198 : 180)}
+                              width={isSanctionStage ? 330 : 260}
+                              height={isSanctionStage ? 76 : 58}
                               rx={14}
                               fill="rgba(15, 35, 56, 0.96)"
                               stroke="#38BDF8"
@@ -2061,56 +2351,224 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                               strokeWidth={1}
                             />
 
-                            {/* Name Tag Badge in Top-Left Corner inside the Box */}
-                            <rect
-                              x={pakX - 122}
-                              y={pakY - 173}
-                              width={92}
-                              height={16}
-                              rx={5}
-                              fill="rgba(56, 189, 248, 0.18)"
-                              stroke="rgba(56, 189, 248, 0.5)"
-                              strokeWidth={1}
-                            />
+                            {/* Speaker Name in Top-Left Corner */}
                             <text
-                              x={pakX - 76}
-                              y={pakY - 161}
-                              textAnchor="middle"
+                              x={pakX - (isSanctionStage ? 152 : 118)}
+                              y={pakY - (isSanctionStage ? 182 : 164)}
+                              textAnchor="start"
+                              fill="#38BDF8"
+                              fontSize={10.5}
+                              fontWeight="900"
+                              fontFamily="var(--font-ui)"
+                              style={{ letterSpacing: '0.3px' }}
+                            >
+                              Pak Sutrisno
+                            </text>
+
+                            {/* Dialogue Lines */}
+                            {cinematicStage === 'pak_shouting' && (
+                              <text x={pakX} y={pakY - 143} textAnchor="middle" fill="#FFFFFF" fontSize={10.5} fontWeight="800" fontFamily="var(--font-ui)">
+                                "Hey kamu! Baru jam segini sampai sekolah?!"
+                              </text>
+                            )}
+                            {cinematicStage === 'pak_shouting_2' && (
+                              <text x={pakX} y={pakY - 143} textAnchor="middle" fill="#FFFFFF" fontSize={10.5} fontWeight="800" fontFamily="var(--font-ui)">
+                                "Kamu kesini!"
+                              </text>
+                            )}
+                            {cinematicStage === 'pak_sanction_1' && (
+                              <g>
+                                <text x={pakX} y={pakY - 162} textAnchor="middle" fill="#FFFFFF" fontSize={10.5} fontWeight="800" fontFamily="var(--font-ui)">
+                                  "Kamu terlambat lagi! Bel sekolah sudah lama berbunyi
+                                </text>
+                                <text x={pakX} y={pakY - 146} textAnchor="middle" fill="#FFFFFF" fontSize={10.5} fontWeight="800" fontFamily="var(--font-ui)">
+                                  dan kamu baru saja melangkah di lapangan ini."
+                                </text>
+                              </g>
+                            )}
+                            {cinematicStage === 'pak_sanction_2' && (
+                              <g>
+                                <text x={pakX} y={pakY - 162} textAnchor="middle" fill="#FFFFFF" fontSize={10.5} fontWeight="800" fontFamily="var(--font-ui)">
+                                  "Sebagai sanksi kedisiplinan, kamu <tspan fill="#EF4444" fontWeight="900">TIDAK BOLEH</tspan>"
+                                </text>
+                                <text x={pakX} y={pakY - 146} textAnchor="middle" fill="#FFFFFF" fontSize={10.5} fontWeight="800" fontFamily="var(--font-ui)">
+                                  masuk kelas sebelum menyelesaikan tugas ini!"
+                                </text>
+                              </g>
+                            )}
+                            {cinematicStage === 'pak_sanction_3' && (
+                              <g>
+                                <text x={pakX} y={pakY - 162} textAnchor="middle" fill="#FFFFFF" fontSize={10.5} fontWeight="800" fontFamily="var(--font-ui)">
+                                  "Kelilingi lorong sekolah dan kumpulkan <tspan fill="#38BDF8" fontWeight="900">35 sampel data</tspan>"
+                                </text>
+                                <text x={pakX} y={pakY - 146} textAnchor="middle" fill="#FFFFFF" fontSize={10.5} fontWeight="800" fontFamily="var(--font-ui)">
+                                  screen time dari 5 kelas (VII-A, VII-B, VIII-A, VIII-B, IX)!"
+                                </text>
+                              </g>
+                            )}
+
+                            {/* Action Prompt Line */}
+                            <text
+                              x={pakX + (isSanctionStage ? 152 : 118)}
+                              y={pakY - 128}
+                              textAnchor="end"
                               fill="#38BDF8"
                               fontSize={9.5}
                               fontWeight="900"
                               fontFamily="var(--font-ui)"
                             >
-                              👨‍🏫 Pak Sutrisno
-                            </text>
-
-                            {/* Dialogue Shout Line */}
-                            <text
-                              x={pakX}
-                              y={pakY - 143}
-                              textAnchor="middle"
-                              fill="#FFFFFF"
-                              fontSize={10.5}
-                              fontWeight="800"
-                              fontFamily="var(--font-ui)"
-                            >
-                              "Hey kamu! Baru jam segini sampai sekolah?!"
-                            </text>
-
-                            {/* Action Prompt Line */}
-                            <text
-                              x={pakX + 118}
-                              y={pakY - 129}
-                              textAnchor="end"
-                              fill="#38BDF8"
-                              fontSize={9.5}
-                              fontWeight="800"
-                              fontFamily="var(--font-ui)"
-                            >
-                              Sini kamu! [ Klik / Tap ▶ ]
+                              [ Klik / Tap ▶ ]
                             </text>
                           </g>
                         )
+
+                        {/* Player Opening Monologue Speech Bubble */}
+                        const renderPlayerIntroBubble = cinematicStage === 'player_intro' && (() => {
+                          const pW = 240
+                          const pLeft = Math.max(camX + 10, Math.min(camX + VIEW_VW - pW - 10, charPos.x - pW / 2))
+                          const pTextX = pLeft + pW / 2
+                          return (
+                            <g
+                              key="player-intro-bubble"
+                              style={{ cursor: 'pointer' }}
+                              onClick={handleTalkToPak}
+                            >
+                              {/* Dialogue Card Container above Player */}
+                              <rect
+                                x={pLeft}
+                                y={btnY - 32}
+                                width={pW}
+                                height={54}
+                                rx={14}
+                                fill="rgba(15, 35, 56, 0.96)"
+                                stroke="#38BDF8"
+                                strokeWidth={2}
+                                style={{ filter: 'drop-shadow(0 8px 24px rgba(0,0,0,0.7))' }}
+                              />
+                              {/* Pointer Triangle */}
+                              <polygon
+                                points={`${charPos.x - 8},${btnY + 22} ${charPos.x + 8},${btnY + 22} ${charPos.x},${btnY + 32}`}
+                                fill="rgba(15, 35, 56, 0.96)"
+                                stroke="#38BDF8"
+                                strokeWidth={1}
+                              />
+
+                              {/* Speaker Name: Kamu */}
+                              <text
+                                x={pLeft + 14}
+                                y={btnY - 16}
+                                textAnchor="start"
+                                fill="#38BDF8"
+                                fontSize={10.5}
+                                fontWeight="900"
+                                fontFamily="var(--font-ui)"
+                                style={{ letterSpacing: '0.3px' }}
+                              >
+                                Kamu
+                              </text>
+
+                              {/* Dialogue Line */}
+                              <text
+                                x={pTextX}
+                                y={btnY + 1}
+                                textAnchor="middle"
+                                fill="#FFFFFF"
+                                fontSize={11}
+                                fontWeight="800"
+                                fontFamily="var(--font-ui)"
+                              >
+                                "Duh... aku terlambat lagi ke sekolah!"
+                              </text>
+
+                              {/* Action Prompt Line */}
+                              <text
+                                x={pLeft + pW - 12}
+                                y={btnY + 15}
+                                textAnchor="end"
+                                fill="#38BDF8"
+                                fontSize={9}
+                                fontWeight="900"
+                                fontFamily="var(--font-ui)"
+                              >
+                                [ Klik / Tap ▶ ]
+                              </text>
+                            </g>
+                          )
+                        })()
+
+                        {/* Player Reply Speech Bubble */}
+                        const renderPlayerReplyBubble = cinematicStage === 'player_reply_pak' && (() => {
+                          const pW = 210
+                          const pLeft = Math.max(camX + 10, Math.min(camX + VIEW_VW - pW - 10, charPos.x - pW / 2))
+                          const pTextX = pLeft + pW / 2
+                          return (
+                            <g
+                              key="player-reply-bubble"
+                              style={{ cursor: 'pointer' }}
+                              onClick={handleTalkToPak}
+                            >
+                              {/* Dialogue Card Container above Player */}
+                              <rect
+                                x={pLeft}
+                                y={btnY - 32}
+                                width={pW}
+                                height={54}
+                                rx={14}
+                                fill="rgba(15, 35, 56, 0.96)"
+                                stroke="#10B981"
+                                strokeWidth={2}
+                                style={{ filter: 'drop-shadow(0 8px 24px rgba(0,0,0,0.7))' }}
+                              />
+                              {/* Pointer Triangle */}
+                              <polygon
+                                points={`${charPos.x - 8},${btnY + 22} ${charPos.x + 8},${btnY + 22} ${charPos.x},${btnY + 32}`}
+                                fill="rgba(15, 35, 56, 0.96)"
+                                stroke="#10B981"
+                                strokeWidth={1}
+                              />
+
+                              {/* Speaker Name: Kamu */}
+                              <text
+                                x={pLeft + 14}
+                                y={btnY - 16}
+                                textAnchor="start"
+                                fill="#10B981"
+                                fontSize={10.5}
+                                fontWeight="900"
+                                fontFamily="var(--font-ui)"
+                                style={{ letterSpacing: '0.3px' }}
+                              >
+                                Kamu
+                              </text>
+
+                              {/* Dialogue Line */}
+                              <text
+                                x={pTextX}
+                                y={btnY + 1}
+                                textAnchor="middle"
+                                fill="#FFFFFF"
+                                fontSize={11}
+                                fontWeight="800"
+                                fontFamily="var(--font-ui)"
+                              >
+                                "Baik Pak!"
+                              </text>
+
+                              {/* Action Prompt Line */}
+                              <text
+                                x={pLeft + pW - 12}
+                                y={btnY + 15}
+                                textAnchor="end"
+                                fill="#10B981"
+                                fontSize={9}
+                                fontWeight="900"
+                                fontFamily="var(--font-ui)"
+                              >
+                                [ 📝 Mulai Investigasi ▶ ]
+                              </text>
+                            </g>
+                          )
+                        })()
 
                         {/* Glowing Waypoint Arrow towards Pak Sutrisno when player needs to meet him */}
                         const renderWaypointArrow = ((cinematicStage === 'quest_meet_pak' || isAllCollected) && !isNearPak) && (
@@ -2119,14 +2577,14 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                             <text x={pakX} y={pakY - 115} textAnchor="middle" fill={isAllCollected ? "#10B981" : "#38BDF8"} fontSize={18} fontWeight="900">
                               ↓
                             </text>
-                            <rect x={pakX - 65} y={pakY - 150} width={130} height={20} rx={6} fill="rgba(15, 35, 56, 0.9)" stroke={isAllCollected ? "#10B981" : "#38BDF8"} strokeWidth={1} />
-                            <text x={pakX} y={pakY - 136} textAnchor="middle" fill="#FFFFFF" fontSize={9.5} fontWeight="800">
-                              {isAllCollected ? "🎯 LAPOR SANKSI" : "🎯 SANKSI SINI"}
-                            </text>
                           </g>
                         )
 
-                        const renderPrompt = (isNearPak || cinematicStage === 'quest_meet_pak' || isAllCollected) && cinematicStage !== 'pak_shouting' && (
+                        const buttonW = 220
+                        const buttonLeft = Math.max(camX + 10, Math.min(camX + VIEW_VW - buttonW - 10, charPos.x - buttonW / 2))
+                        const textX = buttonLeft + buttonW / 2
+
+                        const renderPrompt = isNearPak && !isSpeechActive && (
                           <motion.g
                             key="btn-talk-pak-sutrisno"
                             initial={{ opacity: 0, scale: 0.8, y: 5 }}
@@ -2167,6 +2625,8 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                           <g key="pak-sutrisno-group">
                             {renderPak}
                             {renderShoutBubble}
+                            {renderPlayerIntroBubble}
+                            {renderPlayerReplyBubble}
                             {renderWaypointArrow}
                             {renderPrompt}
                           </g>
@@ -2246,9 +2706,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                               exit={{ opacity: 0, scale: 0.8, y: 5 }}
                               onClick={() => {
                                 if (isUnlocked) {
-                                  lastHallwayPosRef.current = { x: nearClass.x, y: nearClass.y + 20 }
-                                  setInsideRoom(nearClass)
-                                  setCharPos({ x: 1000, y: 620 })
+                                  enterClassroom(nearClass)
                                 } else {
                                   setActiveClass(nearClass)
                                 }
@@ -2367,16 +2825,8 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
         )}
       </AnimatePresence>
 
-      {/* Pak Sutrisno Sanction & Report Modals */}
+      {/* Pak Sutrisno Report Modal */}
       <AnimatePresence>
-        {showPakSanctionModal && (
-          <PakSanctionModal
-            onAccept={() => {
-              setShowPakSanctionModal(false)
-              setCinematicStage('sanction_received')
-            }}
-          />
-        )}
         {showPakReportModal && (
           <PakReportModal
             onProceed={() => {
@@ -2432,7 +2882,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
         )}
       </AnimatePresence>
 
-      {/* Inventory Side Drawer Modal Overlay (Jurnal Bukti Detektif) */}
+      {/* Inventory Side Drawer Modal Overlay (Misi & Target Tugas) */}
       <AnimatePresence>
         {isInventoryOpen && (
           <div
@@ -2471,10 +2921,10 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(255, 255, 255, 0.1)', paddingBottom: 14 }}>
                 <div>
                   <div style={{ fontSize: 10, fontWeight: 900, color: '#00ADB5', letterSpacing: '2px', textTransform: 'uppercase' }}>
-                    🔍 CATATAN EKSPLORASI DETEKTIF
+                    📜 QUEST LOG • LEVEL 1
                   </div>
                   <h3 style={{ margin: 0, fontSize: 18, fontWeight: 900, color: '#FFFFFF', display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
-                    <span>📓</span> Jurnal Bukti Screen Time
+                    <span>📜</span> Misi Investigasi
                   </h3>
                 </div>
                 <button
@@ -2498,188 +2948,217 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                 </button>
               </div>
 
-              {/* Progress Counter Card */}
-              <div style={{
-                background: 'linear-gradient(135deg, rgba(0, 173, 181, 0.12) 0%, rgba(129, 140, 248, 0.08) 100%)',
-                border: '1.5px solid rgba(0, 173, 181, 0.3)',
-                borderRadius: 16,
-                padding: '14px 16px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between'
-              }}>
-                <div>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: '#94A3B8' }}>Total Sampel Data Terkumpul</div>
-                  <div style={{ fontSize: 22, fontWeight: 900, color: '#FFFFFF', fontFamily: 'var(--font-data)', marginTop: 2 }}>
-                    {n} <span style={{ fontSize: 13, color: '#00ADB5', fontWeight: 700 }}>/ {TOTAL_N} Siswa</span>
-                  </div>
-                </div>
-                <div style={{
-                  width: 44,
-                  height: 44,
-                  borderRadius: '50%',
-                  background: 'rgba(0, 173, 181, 0.2)',
-                  border: '2px solid #00ADB5',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: 13,
-                  fontWeight: 900,
-                  color: '#FFFFFF'
-                }}>
-                  {Math.round((n / TOTAL_N) * 100)}%
-                </div>
-              </div>
+              {/* Dynamic Quest Status Card */}
+              {(() => {
+                const isTaskGiven = cinematicStage === 'sanction_received' || demoMode
+                const isAllCollected = n >= TOTAL_N
 
-              {/* Class Tabs Filter */}
-              <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 4 }} className="scrollbar-hidden">
-                {[
-                  { id: 'ALL', label: 'Semua' },
-                  { id: 'A1', label: 'VII-A', color: '#818cf8' },
-                  { id: 'A2', label: 'VII-B', color: '#6366f1' },
-                  { id: 'B1', label: 'VIII-A', color: '#00ADB5' },
-                  { id: 'B2', label: 'VIII-B', color: '#0e8388' },
-                  { id: 'C1', label: 'IX', color: '#f472b6' },
-                ].map(tab => {
-                  const active = inventoryTab === tab.id
-                  const isUnlocked = tab.id === 'ALL' || unlocked.has(tab.id)
-                  return (
-                    <button
-                      key={tab.id}
-                      onClick={() => setInventoryTab(tab.id as any)}
-                      style={{
-                        padding: '6px 12px',
-                        borderRadius: 10,
-                        fontSize: 11,
-                        fontWeight: 800,
-                        border: active ? `1.5px solid ${tab.color || '#00ADB5'}` : '1px solid rgba(255,255,255,0.1)',
-                        background: active ? (tab.color ? `${tab.color}33` : 'rgba(0, 173, 181, 0.25)') : 'rgba(255,255,255,0.04)',
-                        color: active ? (tab.color || '#00ADB5') : (isUnlocked ? '#94A3B8' : '#475569'),
-                        cursor: 'pointer',
-                        whiteSpace: 'nowrap',
-                        transition: 'all 0.2s',
-                      }}
-                    >
-                      {tab.label} {tab.id !== 'ALL' && (unlocked.has(tab.id) ? '✓' : '🔒')}
-                    </button>
-                  )
-                })}
-              </div>
+                let badgeColor = '#38BDF8'
+                let badgeText = '📍 MISI UTAMA'
+                let questTitle = 'Jumpai Pak Sutrisno'
+                let questDesc = 'Kamu datang terlambat ke sekolah! Cari dan bicara dengan Pak Sutrisno di depan Ruang Guru Lorong Utama untuk melapor.'
 
-              {/* Student Cards Grid */}
-              <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 10, paddingRight: 2 }}>
-                {inventoryTab !== 'ALL' && CLASS_STUDENTS[inventoryTab]?.image && (
+                if (isAllCollected) {
+                  badgeColor = '#10B981'
+                  badgeText = '⚡ SELESAI — SIAP DILAPORKAN'
+                  questTitle = 'Laporkan 35 Data ke Pak Sutrisno'
+                  questDesc = 'Semua 35 sampel data screen time siswa telah berhasil terkumpul dari 5 kelas! Kembalilah ke Pak Sutrisno di Lorong Utama untuk menyerahkan data.'
+                } else if (isTaskGiven) {
+                  badgeColor = '#00ADB5'
+                  badgeText = '🟢 SEDANG BERLANGSUNG'
+                  questTitle = 'Kumpulkan 35 Data Screen Time Siswa'
+                  questDesc = 'Kunjungi Wali-Wali Kelas di Ruang VII, VIII, dan IX. Bicara dengan guru di setiap kelas untuk mengumpulkan sampel data screen time.'
+                }
+
+                return (
                   <div style={{
-                    width: '100%',
-                    height: 110,
-                    borderRadius: 14,
-                    overflow: 'hidden',
-                    position: 'relative',
-                    border: `1.5px solid ${CLASS_DOORS.find(cd => cd.id === inventoryTab)?.color || '#00ADB5'}44`,
-                    flexShrink: 0
+                    background: `linear-gradient(135deg, ${badgeColor}18 0%, rgba(15, 23, 42, 0.6) 100%)`,
+                    border: `1.5px solid ${badgeColor}55`,
+                    borderRadius: 16,
+                    padding: '16px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 12,
+                    boxShadow: `0 4px 20px rgba(0,0,0,0.3)`
                   }}>
-                    <img
-                      src={CLASS_STUDENTS[inventoryTab].image}
-                      alt={inventoryTab}
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                    />
-                    <div style={{
-                      position: 'absolute',
-                      inset: 0,
-                      background: 'linear-gradient(180deg, transparent 10%, rgba(11, 30, 44, 0.85) 100%)',
-                      display: 'flex',
-                      alignItems: 'flex-end',
-                      padding: '8px 12px'
-                    }}>
-                      <span style={{ fontSize: 11, fontWeight: 800, color: '#FFFFFF' }}>
-                        📸 Foto Ruangan {CLASS_DOORS.find(cd => cd.id === inventoryTab)?.label || inventoryTab}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <span style={{
+                        fontSize: 10,
+                        fontWeight: 900,
+                        color: badgeColor,
+                        background: `${badgeColor}22`,
+                        border: `1px solid ${badgeColor}44`,
+                        borderRadius: 20,
+                        padding: '3px 10px',
+                        letterSpacing: '0.8px'
+                      }}>
+                        {badgeText}
+                      </span>
+                      <span style={{ fontSize: 11, fontWeight: 800, color: '#94A3B8' }}>
+                        Target: 35 Sampel Data
                       </span>
                     </div>
-                  </div>
-                )}
-                {collectedStudents.filter(st => inventoryTab === 'ALL' || st.classId === inventoryTab).length === 0 ? (
-                  <div style={{ padding: '30px 20px', textAlign: 'center', background: 'rgba(11, 30, 44, 0.4)', borderRadius: 16, border: '1px dashed rgba(255,255,255,0.1)' }}>
-                    <div style={{ fontSize: 32, marginBottom: 8 }}>🔒</div>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: '#94A3B8' }}>Belum ada data terkumpul di kategori ini</div>
-                    <div style={{ fontSize: 11, color: '#64748B', marginTop: 4 }}>Eksplorasi kelas dan selesaikan tantangan wali kelas untuk membuka data!</div>
-                  </div>
-                ) : (
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
-                    {collectedStudents
-                      .filter(st => inventoryTab === 'ALL' || st.classId === inventoryTab)
-                      .map((st, idx) => {
-                        const doorMeta = CLASS_DOORS.find(cd => cd.id === st.classId)
-                        const themeColor = doorMeta?.color || '#00ADB5'
-                        return (
-                          <motion.div
-                            key={`${st.classId}-${st.name}-${idx}`}
-                            initial={{ scale: 0.9, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            transition={{ delay: idx * 0.02 }}
-                            style={{
-                              background: 'rgba(11, 30, 44, 0.6)',
-                              border: `1.5px solid ${themeColor}44`,
-                              borderRadius: 14,
-                              padding: '10px 12px',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: 10,
-                              boxShadow: `0 4px 12px rgba(0, 0, 0, 0.2)`
-                            }}
-                          >
-                            <div style={{
-                              width: 32,
-                              height: 32,
-                              borderRadius: '50%',
-                              background: `${themeColor}22`,
-                              border: `1.5px solid ${themeColor}`,
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              fontSize: 15,
-                              flexShrink: 0
-                            }}>
-                              👤
-                            </div>
-                            <div style={{ minWidth: 0, flex: 1 }}>
-                              <div style={{ fontSize: 12, fontWeight: 800, color: '#FFFFFF', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                {st.name}
-                              </div>
-                              <div style={{ fontSize: 10, color: themeColor, fontWeight: 700, marginTop: 2, display: 'flex', alignItems: 'center', gap: 4 }}>
-                                <span>⏱️ {st.time} Jam/hari</span>
-                              </div>
-                            </div>
-                          </motion.div>
-                        )
-                      })}
-                  </div>
-                )}
-              </div>
 
-              {/* Footer Summary Info */}
+                    <div>
+                      <h4 style={{ margin: 0, fontSize: 16, fontWeight: 900, color: '#FFFFFF' }}>
+                        {questTitle}
+                      </h4>
+                      <p style={{ margin: '6px 0 0 0', fontSize: 12, color: '#94A3B8', lineHeight: 1.5 }}>
+                        {questDesc}
+                      </p>
+                    </div>
+
+                    {/* Progress Bar Component */}
+                    <div style={{ marginTop: 4 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                        <span style={{ fontSize: 11, fontWeight: 800, color: '#CBD5E1' }}>Progress Pengumpulkan Data</span>
+                        <span style={{ fontSize: 13, fontWeight: 900, color: badgeColor, fontFamily: 'var(--font-data)' }}>
+                          {n} / {TOTAL_N} Siswa ({Math.round((n / TOTAL_N) * 100)}%)
+                        </span>
+                      </div>
+                      <div style={{
+                        width: '100%',
+                        height: 14,
+                        background: 'rgba(0, 0, 0, 0.4)',
+                        borderRadius: 10,
+                        overflow: 'hidden',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        padding: 2
+                      }}>
+                        <motion.div
+                          initial={{ width: 0 }}
+                          animate={{ width: `${Math.min(100, (n / TOTAL_N) * 100)}%` }}
+                          transition={{ duration: 0.5, ease: 'easeOut' }}
+                          style={{
+                            height: '100%',
+                            background: isAllCollected
+                              ? 'linear-gradient(90deg, #10B981 0%, #34D399 100%)'
+                              : 'linear-gradient(90deg, #00ADB5 0%, #38BDF8 100%)',
+                            borderRadius: 8,
+                            boxShadow: `0 0 10px ${badgeColor}88`
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )
+              })()}
+
+
+
+              {/* Collapsible Student Data Details Button */}
               {collectedStudents.length > 0 && (
-                <div style={{
-                  background: 'rgba(11, 30, 44, 0.8)',
-                  borderTop: '1px solid rgba(255,255,255,0.1)',
-                  padding: '12px',
-                  borderRadius: 14,
-                  display: 'flex',
-                  justifyContent: 'space-around',
-                  textAlign: 'center'
-                }}>
-                  <div>
-                    <div style={{ fontSize: 10, color: '#94A3B8', fontWeight: 700 }}>MIN SCREEN TIME</div>
-                    <div style={{ fontSize: 16, fontWeight: 900, color: '#10B981', fontFamily: 'var(--font-data)' }}>
-                      {Math.min(...collectedStudents.map(s => s.time))} Jam
-                    </div>
-                  </div>
-                  <div style={{ width: 1, background: 'rgba(255,255,255,0.1)' }} />
-                  <div>
-                    <div style={{ fontSize: 10, color: '#94A3B8', fontWeight: 700 }}>MAX SCREEN TIME</div>
-                    <div style={{ fontSize: 16, fontWeight: 900, color: '#F43F5E', fontFamily: 'var(--font-data)' }}>
-                      {Math.max(...collectedStudents.map(s => s.time))} Jam
-                    </div>
-                  </div>
+                <div style={{ marginTop: 8, borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: 14 }}>
+                  <button
+                    onClick={() => setShowStudentDetails(prev => !prev)}
+                    style={{
+                      width: '100%',
+                      padding: '10px 14px',
+                      borderRadius: 12,
+                      background: showStudentDetails ? 'rgba(0, 173, 181, 0.15)' : 'rgba(255, 255, 255, 0.04)',
+                      border: '1px solid rgba(0, 173, 181, 0.3)',
+                      color: '#00ADB5',
+                      fontSize: 11.5,
+                      fontWeight: 800,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 8,
+                      transition: 'all 0.2s'
+                    }}
+                  >
+                    <span>{showStudentDetails ? '🔼 Sembunyikan' : '👁️ Tampilkan'} Detail Catatan Data Siswa ({collectedStudents.length})</span>
+                  </button>
+
+                  {showStudentDetails && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 10 }}
+                    >
+                      {/* Class Filter Tabs */}
+                      <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 4 }} className="scrollbar-hidden">
+                        {[
+                          { id: 'ALL', label: 'Semua' },
+                          { id: 'A1', label: 'VII-A', color: '#818cf8' },
+                          { id: 'A2', label: 'VII-B', color: '#6366f1' },
+                          { id: 'B1', label: 'VIII-A', color: '#00ADB5' },
+                          { id: 'B2', label: 'VIII-B', color: '#0e8388' },
+                          { id: 'C1', label: 'IX', color: '#f472b6' },
+                        ].map(tab => {
+                          const active = inventoryTab === tab.id
+                          return (
+                            <button
+                              key={tab.id}
+                              onClick={() => setInventoryTab(tab.id as any)}
+                              style={{
+                                padding: '5px 10px',
+                                borderRadius: 8,
+                                fontSize: 10.5,
+                                fontWeight: 800,
+                                border: active ? `1.5px solid ${tab.color || '#00ADB5'}` : '1px solid rgba(255,255,255,0.1)',
+                                background: active ? (tab.color ? `${tab.color}33` : 'rgba(0, 173, 181, 0.25)') : 'rgba(255,255,255,0.04)',
+                                color: active ? (tab.color || '#00ADB5') : '#94A3B8',
+                                cursor: 'pointer',
+                                whiteSpace: 'nowrap',
+                              }}
+                            >
+                              {tab.label}
+                            </button>
+                          )
+                        })}
+                      </div>
+
+                      {/* Student Grid */}
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8, maxHeight: 220, overflowY: 'auto', paddingRight: 4 }}>
+                        {collectedStudents
+                          .filter(st => inventoryTab === 'ALL' || st.classId === inventoryTab)
+                          .map((st, idx) => {
+                            const doorMeta = CLASS_DOORS.find(cd => cd.id === st.classId)
+                            const themeColor = doorMeta?.color || '#00ADB5'
+                            return (
+                              <div
+                                key={`${st.classId}-${st.name}-${idx}`}
+                                style={{
+                                  background: 'rgba(11, 30, 44, 0.6)',
+                                  border: `1px solid ${themeColor}44`,
+                                  borderRadius: 10,
+                                  padding: '8px 10px',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: 8,
+                                }}
+                              >
+                                <div style={{
+                                  width: 26,
+                                  height: 26,
+                                  borderRadius: '50%',
+                                  background: `${themeColor}22`,
+                                  border: `1px solid ${themeColor}`,
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  fontSize: 12,
+                                  flexShrink: 0
+                                }}>
+                                  👤
+                                </div>
+                                <div style={{ minWidth: 0, flex: 1 }}>
+                                  <div style={{ fontSize: 11, fontWeight: 800, color: '#FFFFFF', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                    {st.name}
+                                  </div>
+                                  <div style={{ fontSize: 9.5, color: themeColor, fontWeight: 700, marginTop: 1 }}>
+                                    ⏱️ {st.time} Jam/hari
+                                  </div>
+                                </div>
+                              </div>
+                            )
+                          })}
+                      </div>
+                    </motion.div>
+                  )}
                 </div>
               )}
             </motion.div>

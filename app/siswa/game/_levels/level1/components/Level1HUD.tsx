@@ -49,7 +49,7 @@ export default function Level1HUD({
           className="astu-menu-btn astu-menu-btn-gold"
           style={{ padding: '6px 14px', fontSize: 11.5 }}
         >
-          📖 Jurnal Bukti ({collectedDataCount}) ►
+          📜 Misi ({collectedDataCount}/{totalTarget}) ►
         </button>
       </div>
     </>
