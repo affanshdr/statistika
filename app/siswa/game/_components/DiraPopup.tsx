@@ -346,7 +346,7 @@ export default function DiraPopup({ step, autoDismissMs = 7000, onDismiss }: Dir
                   initial={{ opacity: 0, y: 50 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ type: 'spring', stiffness: 100, damping: 15, delay: 0.1 }}
-                  src="/dira-avatar.png"
+                  src="/dira-avatar.webp"
                   alt="Agent DIRA"
                   style={{ height: '100%', objectFit: 'contain' }}
                 />

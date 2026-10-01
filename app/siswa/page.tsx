@@ -278,7 +278,7 @@ export default function SiswaPage() {
             justifyContent: 'center',
             padding: isMobile ? '12px' : '24px 32px',
             width: '100%',
-            backgroundImage: 'linear-gradient(rgba(44, 26, 16, 0.4), rgba(44, 26, 16, 0.65)), url("/backgr.png")',
+            backgroundImage: 'linear-gradient(rgba(44, 26, 16, 0.4), rgba(44, 26, 16, 0.65)), url("/backgr.webp")',
             backgroundSize: 'cover',
             backgroundPosition: 'top',
             position: 'relative',
@@ -1328,7 +1328,7 @@ export default function SiswaPage() {
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', borderBottom: '1px solid rgba(14, 131, 136, 0.15)', paddingBottom: '16px' }}>
                 <div style={{ position: 'relative', width: '40px', height: '40px', flexShrink: 0 }}>
                   <img
-                    src="/dira-avatar.png"
+                    src="/dira-avatar.webp"
                     alt="DiRA"
                     style={{ width: '40px', height: '40px', borderRadius: '50%', border: '1.5px solid #00ADB5' }}
                   />

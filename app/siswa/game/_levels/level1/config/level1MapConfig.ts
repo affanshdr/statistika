@@ -62,7 +62,7 @@ export const LEVEL1_MAPS: Record<string, MapConfig> = {
     id: 'hallway',
     name: 'Lorong Sekolah',
     type: 'hallway',
-    bgImage: '/Assets/Building/Kelas.jpg',
+    bgImage: '/Assets/Building/Kelas.webp',
     camera: {
       mode: 'follow',
       vw: 380,
@@ -82,7 +82,7 @@ export const LEVEL1_MAPS: Record<string, MapConfig> = {
     id: 'A1',
     name: 'Ruang VII-A',
     type: 'classroom',
-    bgImage: '/Assets/Building/Ruang VII-A/VII-A.png',
+    bgImage: '/Assets/Building/Ruang VII-A/VII-A.webp',
     camera: {
       mode: 'fixed',
       vw: WORLD_VW,
@@ -100,7 +100,7 @@ export const LEVEL1_MAPS: Record<string, MapConfig> = {
       x: 617,
       y: 415,
       size: 250,
-      spriteUrl: '/Assets/Building/Ruang VII-A/Bu Sari.png',
+      spriteUrl: '/Assets/Building/Ruang VII-A/Bu Sari.webp',
       cols: 5,
       rows: 5,
       totalFrames: 24,
@@ -117,7 +117,7 @@ export const LEVEL1_MAPS: Record<string, MapConfig> = {
     id: 'A2',
     name: 'Ruang VII-B',
     type: 'classroom',
-    bgImage: '/Assets/Building/Ruang VII-B/VII-B.png',
+    bgImage: '/Assets/Building/Ruang VII-B/VII-B.webp',
     camera: {
       mode: 'fixed',
       vw: WORLD_VW,
@@ -144,7 +144,7 @@ export const LEVEL1_MAPS: Record<string, MapConfig> = {
     id: 'B1',
     name: 'Ruang VIII-A',
     type: 'classroom',
-    bgImage: '/Assets/Building/Kelas.jpg',
+    bgImage: '/Assets/Building/Kelas.webp',
     camera: {
       mode: 'fixed',
       vw: WORLD_VW,
@@ -171,7 +171,7 @@ export const LEVEL1_MAPS: Record<string, MapConfig> = {
     id: 'B2',
     name: 'Ruang VIII-B',
     type: 'classroom',
-    bgImage: '/Assets/Building/Kelas.jpg',
+    bgImage: '/Assets/Building/Kelas.webp',
     camera: {
       mode: 'fixed',
       vw: WORLD_VW,
@@ -198,7 +198,7 @@ export const LEVEL1_MAPS: Record<string, MapConfig> = {
     id: 'C1',
     name: 'Ruang IX',
     type: 'classroom',
-    bgImage: '/Assets/Building/Kelas.jpg',
+    bgImage: '/Assets/Building/Kelas.webp',
     camera: {
       mode: 'fixed',
       vw: WORLD_VW,

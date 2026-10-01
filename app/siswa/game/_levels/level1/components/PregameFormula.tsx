@@ -254,7 +254,7 @@ function AgentSidebar({ message, isMobile }: { message: string; isMobile?: boole
           }}
         >
           <img
-            src="/dira-avatar.png"
+            src="/dira-avatar.webp"
             alt="Dira"
             style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
           />
@@ -1315,7 +1315,7 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                         overflow: 'hidden',
                       }}>
                         <img
-                          src="/dira-avatar.png"
+                          src="/dira-avatar.webp"
                           alt="Dira"
                           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                         />
@@ -1363,7 +1363,7 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                     overflow: 'hidden',
                   }}>
                     <img
-                      src="/dira-avatar.png"
+                      src="/dira-avatar.webp"
                       alt="Dira"
                       style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     />
@@ -1507,7 +1507,7 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                       initial={{ opacity: 0, y: 50 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ type: 'spring', stiffness: 100, damping: 15, delay: 0.3 }}
-                      src="/dira-avatar.png"
+                      src="/dira-avatar.webp"
                       alt="Agent DIRA"
                       style={{ height: '100%', objectFit: 'contain' }}
                     />

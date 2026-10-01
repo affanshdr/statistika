@@ -196,7 +196,7 @@ export default function DetektivBooklet({ mode, onComplete, unlockedLevelIds }: 
                     padding: '10px 14px', borderRadius: '12px',
                     background: `${accentColor}08`, border: `1px solid ${accentColor}25`,
                   }}>
-                    <img src="/dira-avatar.png" alt="DiRA" style={{ width: '28px', height: '28px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
+                    <img src="/dira-avatar.webp" alt="DiRA" style={{ width: '28px', height: '28px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
                     <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.75)', lineHeight: 1.6 }}>
                       <strong style={{ color: accentColor }}>DiRA: </strong>
                       Pelajari gambar rangkuman ini dengan seksama sebelum memulai game ya! Semua rumus yang kamu butuhkan ada di sini. Kalau ada yang kurang paham, tanya aku lewat menu Tanya DiRA! 😊

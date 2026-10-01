@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import PlayerCharacter from '@/app/siswa/game/_components/PlayerCharacter'
+import GamePreloader from '@/app/siswa/game/_components/GamePreloader'
 
 // ─── Classroom World Map dimensions ───────
 const WORLD_VW_KELAS = 1200
@@ -79,6 +80,7 @@ export default function Level2SchoolExploration({
   onStartInterrogation,
 }: Level2SchoolExplorationProps) {
   const accentColor = cognitiveStyle === 'FD' ? '#00ADB5' : '#38BDF8'
+  const [isLoadingAssets, setIsLoadingAssets] = useState(true)
 
   // Map state: 'kelas' (Kelas.jpg) vs 'jalan' (Jalan.jpg)
   const [activeMap, setActiveMap] = useState<'kelas' | 'jalan'>('kelas')
@@ -395,7 +397,7 @@ export default function Level2SchoolExploration({
         >
           {/* Background Image: Dynamic width per map */}
           <image
-            href={activeMap === 'jalan' ? '/Assets/Building/Jalan.jpg' : '/Assets/Building/Kelas.jpg'}
+            href={activeMap === 'jalan' ? '/Assets/Building/Jalan.webp' : '/Assets/Building/Kelas.webp'}
             x={0}
             y={0}
             width={worldVW}
@@ -663,6 +665,20 @@ export default function Level2SchoolExploration({
           />
         </div>
       </div>
+
+      {isLoadingAssets && (
+        <GamePreloader
+          title="MEMUAT INVESTIGASI LEVEL 2"
+          subtitle="Kasus Cyberbullying • Peta Investigasi"
+          imagesToPreload={[
+            '/Assets/Building/Jalan.webp',
+            '/Assets/Building/Kelas.webp',
+            '/Assets/Character/Stevunt-idle.png'
+          ]}
+          minDurationMs={1200}
+          onComplete={() => setIsLoadingAssets(false)}
+        />
+      )}
     </div>
   )
 }

@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import PlayerCharacter from '@/app/siswa/game/_components/PlayerCharacter'
 import NPCCharacter from '@/app/siswa/game/_components/NPCCharacter'
+import GamePreloader from '@/app/siswa/game/_components/GamePreloader'
 import {
   LEVEL1_MAPS,
   WORLD_VW,
@@ -1108,6 +1109,7 @@ function PakReportModal({ onProceed }: { onProceed: () => void }) {
 }
 
 export default function NPath({ onComplete, isFD = true, demoMode = false }: { onComplete: () => void; isFD?: boolean; demoMode?: boolean }) {
+  const [isLoadingAssets, setIsLoadingAssets] = useState(true)
   const [charPos, setCharPos] = useState({ x: 180, y: 585 })
   const [cinematicStage, setCinematicStage] = useState<'player_intro' | 'panning_to_pak' | 'pak_shouting' | 'pak_shouting_2' | 'panning_to_player' | 'quest_meet_pak' | 'pak_sanction_1' | 'pak_sanction_2' | 'pak_sanction_3' | 'player_reply_pak' | 'sanction_received'>(() => {
     return demoMode ? 'sanction_received' : 'player_intro'
@@ -1223,6 +1225,16 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
     }
     setNearClass(prev => (prev?.id === closest?.id ? prev : closest))
   }, [charPos])
+
+  // Preload background image of classroom dynamically when player approaches its door
+  useEffect(() => {
+    if (!nearClass) return
+    const bgUrl = LEVEL1_MAPS[nearClass.id]?.bgImage
+    if (bgUrl) {
+      const img = new Image()
+      img.src = bgUrl
+    }
+  }, [nearClass])
 
   // Finish trigger once all 35 data points are collected
   useEffect(() => {
@@ -1607,16 +1619,16 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
         }}>
           {/* Left: Quest Title & Data Counter Card */}
           <div style={{
-            background: 'rgba(11, 30, 44, 0.85)',
-            backdropFilter: 'blur(12px)',
+            background: 'rgba(11, 30, 44, 0.94)',
             border: n >= TOTAL_N ? '1.5px solid #10B981' : '1.5px solid rgba(0, 173, 181, 0.35)',
             borderRadius: 12,
             padding: 'clamp(4px, 0.7vw, 6px) clamp(8px, 1vw, 12px)',
             display: 'flex',
             alignItems: 'center',
             gap: 'clamp(6px, 1vw, 10px)',
-            boxShadow: '0 4px 16px rgba(0, 0, 0, 0.45)',
-            pointerEvents: 'auto'
+            boxShadow: '0 4px 16px rgba(0, 0, 0, 0.55)',
+            pointerEvents: 'auto',
+            willChange: 'transform'
           }}>
             <div style={{ fontSize: 'clamp(13px, 1.5vw, 15px)' }}>📜</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(4px, 0.8vw, 8px)' }}>
@@ -1635,21 +1647,21 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
             <button
               onClick={() => setShowDebug(prev => !prev)}
               style={{
-                background: showDebug ? 'rgba(16, 185, 129, 0.25)' : 'rgba(11, 30, 44, 0.85)',
-                backdropFilter: 'blur(12px)',
+                background: showDebug ? 'rgba(16, 185, 129, 0.25)' : 'rgba(11, 30, 44, 0.94)',
                 border: showDebug ? '1.5px solid #10b981' : '1.5px solid rgba(255, 255, 255, 0.15)',
                 borderRadius: 12,
                 padding: 'clamp(4px, 0.7vw, 6px) clamp(8px, 1vw, 12px)',
                 display: 'flex',
                 alignItems: 'center',
                 gap: 6,
-                boxShadow: showDebug ? '0 0 12px rgba(16, 185, 129, 0.4)' : '0 4px 16px rgba(0, 0, 0, 0.45)',
+                boxShadow: showDebug ? '0 0 12px rgba(16, 185, 129, 0.4)' : '0 4px 16px rgba(0, 0, 0, 0.55)',
                 pointerEvents: 'auto',
                 cursor: 'pointer',
                 color: showDebug ? '#10b981' : '#F8FAFC',
                 fontWeight: 800,
                 fontSize: 'clamp(9.5px, 1vw, 11.5px)',
-                transition: 'all 0.2s'
+                transition: 'all 0.2s',
+                willChange: 'transform'
               }}
               title="Klik untuk tampilkan/sembunyikan area berjalan hijau"
             >
@@ -1658,16 +1670,16 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
             </button>
 
             <div style={{
-              background: 'rgba(11, 30, 44, 0.85)',
-              backdropFilter: 'blur(12px)',
+              background: 'rgba(11, 30, 44, 0.94)',
               border: '1.5px solid rgba(255, 255, 255, 0.12)',
               borderRadius: 12,
               padding: 'clamp(4px, 0.7vw, 6px) clamp(8px, 1.1vw, 14px)',
               display: 'flex',
               alignItems: 'center',
               gap: 8,
-              boxShadow: '0 4px 16px rgba(0, 0, 0, 0.45)',
-              pointerEvents: 'auto'
+              boxShadow: '0 4px 16px rgba(0, 0, 0, 0.55)',
+              pointerEvents: 'auto',
+              willChange: 'transform'
             }}>
               <span style={{ fontSize: 'clamp(10px, 1vw, 11.5px)', color: '#00ADB5', fontWeight: 800 }}>📌</span>
               <span style={{ fontSize: 'clamp(9.5px, 1vw, 11.5px)', color: '#F8FAFC', fontWeight: 800, letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>Langkah 1 dari 3</span>
@@ -1688,8 +1700,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
             zIndex: 45,
             background: n >= TOTAL_N 
               ? 'linear-gradient(180deg, rgba(6, 78, 59, 0.95) 0%, rgba(11, 30, 44, 0.95) 100%)' 
-              : 'linear-gradient(180deg, rgba(15, 35, 56, 0.92) 0%, rgba(11, 30, 44, 0.95) 100%)',
-            backdropFilter: 'blur(12px)',
+              : 'linear-gradient(180deg, rgba(15, 35, 56, 0.95) 0%, rgba(11, 30, 44, 0.96) 100%)',
             border: n >= TOTAL_N ? '2px solid #10B981' : '1.5px solid #00ADB5',
             borderRadius: 16,
             padding: 'clamp(6px, 1vw, 10px) clamp(4px, 0.8vw, 8px)',
@@ -1761,7 +1772,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
               camY = Math.max(0, Math.min(WORLD_VH - viewVH, smoothCamPos.current.y - viewVH * 0.65))
             }
             return (
-              <svg viewBox={`${camX} ${camY} ${viewVW} ${viewVH}`} preserveAspectRatio={insideRoom ? "xMidYMid meet" : "none"} style={{ width: '100%', height: '100%', display: 'block' }}>
+              <svg viewBox={`${camX} ${camY} ${viewVW} ${viewVH}`} preserveAspectRatio={insideRoom ? "xMidYMid meet" : "none"} style={{ width: '100%', height: '100%', display: 'block', willChange: 'transform' }}>
                 <defs>
                   <filter id="avatar-super-glow" x="-100%" y="-100%" width="300%" height="300%">
                     <feGaussianBlur stdDeviation="5" result="blur" />
@@ -1779,8 +1790,8 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                 <image
                   href={encodeURI(
                     insideRoom 
-                      ? (LEVEL1_MAPS[insideRoom.id]?.bgImage || (insideRoom as any).image || CLASS_STUDENTS[insideRoom.id]?.image || '/Assets/Building/Kelas.jpg')
-                      : (LEVEL1_MAPS['hallway']?.bgImage || '/Assets/Building/Kelas.jpg')
+                      ? (LEVEL1_MAPS[insideRoom.id]?.bgImage || (insideRoom as any).image || CLASS_STUDENTS[insideRoom.id]?.image || '/Assets/Building/Kelas.webp')
+                      : (LEVEL1_MAPS['hallway']?.bgImage || '/Assets/Building/Kelas.webp')
                   )}
                   x={0}
                   y={0}
@@ -3180,6 +3191,22 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
       </AnimatePresence>
 
       {showCounter && <CounterResult onDone={onComplete} />}
+
+      {isLoadingAssets && (
+        <GamePreloader
+          title="MEMUAT INVESTIGASI LEVEL 1"
+          subtitle="Peta Lorong Sekolah & Aset Misi"
+          imagesToPreload={[
+            '/Assets/Building/Kelas.webp',
+            '/Assets/Building/Ruang VII-A/VII-A.webp',
+            '/Assets/Building/Ruang VII-B/VII-B.webp',
+            '/Assets/Character/Stevunt-idle.png',
+            '/Assets/Character/pak Sutrisno-iso_idle_right-trimmed.png'
+          ]}
+          minDurationMs={1200}
+          onComplete={() => setIsLoadingAssets(false)}
+        />
+      )}
     </div>
   )
 }

@@ -125,7 +125,7 @@ export default function ResultsPage({
       }}>
         <div style={{ fontWeight: 800, fontSize: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
           <motion.img
-            src="/dira-avatar.png"
+            src="/dira-avatar.webp"
             alt="DiRA"
             style={{ height: '32px', objectFit: 'contain' }}
             initial={{ opacity: 0, x: -10 }}

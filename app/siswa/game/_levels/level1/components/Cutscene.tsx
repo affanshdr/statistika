@@ -55,6 +55,7 @@ const playCommentPopSound = (muted: boolean) => {
 }
 
 
+
 function TypewriterText({ text, onDone }: { text: string; onDone: () => void }) {
   const [displayed, setDisplayed] = useState('')
   const indexRef = useRef(0)

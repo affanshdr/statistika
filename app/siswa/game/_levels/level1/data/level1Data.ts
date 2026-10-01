@@ -20,7 +20,7 @@ export const CLASS_DOORS: QuizDoor[] = [
   // Pintu 1 (Sayap Kiri) - Kelas VII-A
   {
     id: 'A1', roomId: 'A', label: 'Kelas VII-A', x: 290, y: 500, color: '#818cf8',
-    image: '/Assets/Building/Ruang VII-A/VII-A.png',
+    image: '/Assets/Building/Ruang VII-A/VII-A.webp',
     quizQ: 'Data screen time 5 siswa: 2, 4, 3, 8, 1 jam. Berapa rentang datanya?',
     quizA: 7, choices: [5, 6, 7, 8],
     fdContext: '💡 Ingat: rentang = nilai terbesar − nilai terkecil',
@@ -30,7 +30,7 @@ export const CLASS_DOORS: QuizDoor[] = [
   // Pintu 2 (Lorong Kiri) - Kelas VII-B
   {
     id: 'A2', roomId: 'A', label: 'Kelas VII-B', x: 451, y: 410, color: '#6366f1',
-    image: '/Assets/Building/Ruang VII-B/VII-B.png',
+    image: '/Assets/Building/Ruang VII-B/VII-B.webp',
     quizQ: 'Tepi bawah kelas interval 4–6 adalah?',
     quizA: 3.5, choices: [3, 3.5, 4, 4.5],
     fdContext: '💡 Ingat: tepi bawah = batas bawah − 0.5',
@@ -40,7 +40,7 @@ export const CLASS_DOORS: QuizDoor[] = [
   // Pintu 3 (Gedung Tengah / Pintu Ganda) - Kelas VIII-A
   {
     id: 'B1', roomId: 'B', label: 'Kelas VIII-A', x: 632, y: 410, color: '#00ADB5',
-    image: '/Assets/Building/Kelas.jpg',
+    image: '/Assets/Building/Kelas.webp',
     quizQ: 'Kamu menerima berita viral yang belum terverifikasi. Tindakan paling etis adalah?',
     quizA: 'Verifikasi dulu', choices: ['Langsung share', 'Verifikasi dulu', 'Screenshot & sebar', 'Abaikan saja'],
     fdContext: '💡 Pikirkan dampaknya terhadap orang lain',
@@ -50,7 +50,7 @@ export const CLASS_DOORS: QuizDoor[] = [
   // Pintu 4 (Lorong Kanan) - Kelas VIII-B
   {
     id: 'B2', roomId: 'B', label: 'Kelas VIII-B', x: 840, y: 410, color: '#0e8388',
-    image: '/Assets/Building/Kelas.jpg',
+    image: '/Assets/Building/Kelas.webp',
     quizQ: 'Seseorang memposting foto orang lain tanpa izin untuk konten viral. Ini termasuk pelanggaran?',
     quizA: 'Kedua-duanya', choices: ['Privasi', 'Hak cipta', 'Kedua-duanya', 'Bukan pelanggaran'],
     fdContext: '💡 Pikirkan mengenai kepemilikan dan privasi hak orang lain',
@@ -60,7 +60,7 @@ export const CLASS_DOORS: QuizDoor[] = [
   // Pintu 5 (Sayap Kanan) - Kelas IX
   {
     id: 'C1', roomId: 'C', label: 'Kelas IX', x: 900, y: 480, color: '#f472b6',
-    image: '/Assets/Building/Kelas.jpg',
+    image: '/Assets/Building/Kelas.webp',
     quizQ: 'Ciri utama berita hoax yang paling umum meupakan?',
     quizA: 'Sumber tidak jelas', choices: ['Sumber tidak jelas', 'Ada foto', 'Ada tanggal', 'Ditulis wartawan'],
     fdContext: '💡 Perhatikan kredibilitas pembuat informasi',
@@ -72,7 +72,7 @@ export const CLASS_STUDENTS: Record<string, { teacher: string; comment: string; 
   A1: {
     teacher: 'Bu Sari (Wali Kelas VII-A)',
     comment: 'Selamat datang di Kelas VII-A! Ini adalah sampel 7 data screen time siswa kami.',
-    image: '/Assets/Building/Ruang VII-A/VII-A.png',
+    image: '/Assets/Building/Ruang VII-A/VII-A.webp',
     students: [
       { name: 'Adit', time: 3 }, { name: 'Budi', time: 2 }, { name: 'Cici', time: 4 },
       { name: 'Deni', time: 5 }, { name: 'Evi', time: 3 }, { name: 'Fani', time: 2 },
@@ -82,7 +82,7 @@ export const CLASS_STUDENTS: Record<string, { teacher: string; comment: string; 
   A2: {
     teacher: 'Pak Bambang (Wali Kelas VII-B)',
     comment: 'Ini data 7 siswa Kelas VII-B. Mari kita gabungkan dengan data VII-A!',
-    image: '/Assets/Building/Ruang VII-B/VII-B.png',
+    image: '/Assets/Building/Ruang VII-B/VII-B.webp',
     students: [
       { name: 'Hadi', time: 3 }, { name: 'Indra', time: 4 }, { name: 'Joko', time: 5 },
       { name: 'Kiki', time: 4 }, { name: 'Lia', time: 6 }, { name: 'Mira', time: 3 },
@@ -92,7 +92,7 @@ export const CLASS_STUDENTS: Record<string, { teacher: string; comment: string; 
   B1: {
     teacher: 'Bu Rina (Wali Kelas VIII-A)',
     comment: 'Siswa Kelas VIII-A sangat disiplin membatasi waktu layar HP mereka!',
-    image: '/Assets/Building/Kelas.jpg',
+    image: '/Assets/Building/Kelas.webp',
     students: [
       { name: 'Oki', time: 4 }, { name: 'Putri', time: 5 }, { name: 'Rian', time: 3 },
       { name: 'Santi', time: 4 }, { name: 'Tono', time: 6 }, { name: 'Umar', time: 5 },
@@ -102,7 +102,7 @@ export const CLASS_STUDENTS: Record<string, { teacher: string; comment: string; 
   B2: {
     teacher: 'Pak Setiawan (Wali Kelas VIII-B)',
     comment: 'Data 7 siswa Kelas VIII-B siap dianalisis untuk tabel distribusi frekuensi!',
-    image: '/Assets/Building/Kelas.jpg',
+    image: '/Assets/Building/Kelas.webp',
     students: [
       { name: 'Wawan', time: 3 }, { name: 'Xena', time: 5 }, { name: 'Yayan', time: 4 },
       { name: 'Zaki', time: 6 }, { name: 'Alma', time: 5 }, { name: 'Bimo', time: 4 },
@@ -112,7 +112,7 @@ export const CLASS_STUDENTS: Record<string, { teacher: string; comment: string; 
   C1: {
     teacher: 'Pak Joko (Wali Kelas IX)',
     comment: 'Lengkap! 7 sampel siswa Kelas IX melengkapi 35 data sampel eksplorasi kita!',
-    image: '/Assets/Building/Kelas.jpg',
+    image: '/Assets/Building/Kelas.webp',
     students: [
       { name: 'Elga', time: 4 }, { name: 'Farhan', time: 6 }, { name: 'Gani', time: 5 },
       { name: 'Hana', time: 4 }, { name: 'Irfan', time: 5 }, { name: 'Jihan', time: 4 },

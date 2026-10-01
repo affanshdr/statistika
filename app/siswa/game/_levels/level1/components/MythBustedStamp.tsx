@@ -193,7 +193,7 @@ export default function MythBustedStamp({ onComplete }: MythBustedStampProps) {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ type: 'spring', stiffness: 120, damping: 14, delay: 0.15 }}
-                src="/dira-avatar.png"
+                src="/dira-avatar.webp"
                 alt="Agent DiRA"
                 style={{ height: '80px', objectFit: 'contain', filter: 'drop-shadow(0 0 16px rgba(14, 131, 136,0.4))' }}
               />

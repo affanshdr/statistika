@@ -173,7 +173,7 @@ export default function DiRA({ message, onDismiss, showAvatar = true }: DiRAProp
                   initial={{ opacity: 0, y: 50 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ type: 'spring', stiffness: 100, damping: 15 }}
-                  src="/dira-avatar.png"
+                  src="/dira-avatar.webp"
                   alt="Agent DIRA"
                   style={{ height: '100%', objectFit: 'contain' }}
                 />
