@@ -58,7 +58,7 @@ export default function NumeriaTitlePage() {
   }
 
   const handleLobbyClick = () => {
-    router.push('/siswa/game/lobby')
+    router.push('/siswa')
   }
 
   // Sprite animation calculations (5x5 grid)

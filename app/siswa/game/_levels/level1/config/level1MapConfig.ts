@@ -117,7 +117,7 @@ export const LEVEL1_MAPS: Record<string, MapConfig> = {
     id: 'A2',
     name: 'Ruang VII-B',
     type: 'classroom',
-    bgImage: '/Assets/Building/Ruang VII-B/VII-B.webp',
+    bgImage: '/Assets/Building/Ruang VII-A/VII-A.webp',
     camera: {
       mode: 'fixed',
       vw: WORLD_VW,
@@ -132,8 +132,9 @@ export const LEVEL1_MAPS: Record<string, MapConfig> = {
     spawn: { x: 1050, y: 510 },
     teacher: {
       name: 'Pak Bambang (Wali Kelas VII-B)',
-      x: 600,
-      y: 250,
+      x: 617,
+      y: 415,
+      size: 250,
       hotspotW: 140,
       hotspotH: 220
     },
@@ -159,8 +160,9 @@ export const LEVEL1_MAPS: Record<string, MapConfig> = {
     spawn: { x: 1050, y: 510 },
     teacher: {
       name: 'Bu Rina (Wali Kelas VIII-A)',
-      x: 600,
-      y: 250,
+      x: 617,
+      y: 415,
+      size: 250,
       hotspotW: 140,
       hotspotH: 220
     },
@@ -186,8 +188,9 @@ export const LEVEL1_MAPS: Record<string, MapConfig> = {
     spawn: { x: 1050, y: 510 },
     teacher: {
       name: 'Pak Setiawan (Wali Kelas VIII-B)',
-      x: 600,
-      y: 250,
+      x: 617,
+      y: 415,
+      size: 250,
       hotspotW: 140,
       hotspotH: 220
     },
@@ -213,8 +216,9 @@ export const LEVEL1_MAPS: Record<string, MapConfig> = {
     spawn: { x: 1050, y: 510 },
     teacher: {
       name: 'Pak Joko (Wali Kelas IX)',
-      x: 600,
-      y: 250,
+      x: 617,
+      y: 415,
+      size: 250,
       hotspotW: 140,
       hotspotH: 220
     },

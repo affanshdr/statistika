@@ -82,7 +82,7 @@ export const CLASS_STUDENTS: Record<string, { teacher: string; comment: string; 
   A2: {
     teacher: 'Pak Bambang (Wali Kelas VII-B)',
     comment: 'Ini data 7 siswa Kelas VII-B. Mari kita gabungkan dengan data VII-A!',
-    image: '/Assets/Building/Ruang VII-B/VII-B.webp',
+    image: '/Assets/Building/Ruang VII-A/VII-A.webp',
     students: [
       { name: 'Hadi', time: 3 }, { name: 'Indra', time: 4 }, { name: 'Joko', time: 5 },
       { name: 'Kiki', time: 4 }, { name: 'Lia', time: 6 }, { name: 'Mira', time: 3 },

@@ -1138,6 +1138,21 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
   const teacherCutsceneStageRef = useRef(teacherCutsceneStage)
   teacherCutsceneStageRef.current = teacherCutsceneStage
   const teacherTimerRef = useRef<NodeJS.Timeout | null>(null)
+
+  const [playerName, setPlayerName] = useState('kamu')
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const localData = localStorage.getItem('student')
+      if (localData) {
+        try {
+          const parsed = JSON.parse(localData)
+          if (parsed?.name && parsed.name !== 'Detektif') {
+            setPlayerName(parsed.name)
+          }
+        } catch (e) {}
+      }
+    }
+  }, [])
   const [collected, setCollected] = useState<Set<string>>(() => {
     if (demoMode) {
       const initialSet = new Set<string>()
@@ -1464,22 +1479,26 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
   }, [])
 
   const enterClassroom = useCallback((room: typeof CLASS_DOORS[number]) => {
-    if (savedClassesR.current.has(room.id)) return
     lastHallwayPosRef.current = { x: room.x, y: room.y + 20 }
     setInsideRoom(room)
     setCharPos(LEVEL1_MAPS[room.id]?.spawn || { x: 1050, y: 510 })
 
+    if (savedClassesR.current.has(room.id)) return
+
     const mapConfig = LEVEL1_MAPS[room.id]
+    if (teacherTimerRef.current) clearTimeout(teacherTimerRef.current)
+
     if (mapConfig?.teacher?.spriteUrl) {
-      if (teacherTimerRef.current) clearTimeout(teacherTimerRef.current)
       setTeacherCutsceneStage('anim_wait')
       const animDuration = (mapConfig.teacher.totalFrames || 24) * (mapConfig.teacher.speedMs || 90)
       teacherTimerRef.current = setTimeout(() => {
         setTeacherCutsceneStage('teacher_ask')
       }, animDuration)
     } else {
-      if (teacherTimerRef.current) clearTimeout(teacherTimerRef.current)
-      setTeacherCutsceneStage(null)
+      // Auto-trigger teacher dialogue bubble 500ms after entering room (same auto-start experience as VII-A)
+      teacherTimerRef.current = setTimeout(() => {
+        setTeacherCutsceneStage('teacher_ask')
+      }, 500)
     }
   }, [])
 
@@ -1495,19 +1514,18 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
     const mapConfig = LEVEL1_MAPS[room.id]
     const hasTeacherSprite = !!mapConfig?.teacher?.spriteUrl
 
-    if (!hasTeacherSprite) {
-      setShowWaliKelasPopup(room)
-      return
-    }
-
     const currentStage = teacherCutsceneStageRef.current
     if (!currentStage) {
-      if (teacherTimerRef.current) clearTimeout(teacherTimerRef.current)
-      setTeacherCutsceneStage('anim_wait')
-      const animDuration = (mapConfig.teacher?.totalFrames || 24) * (mapConfig.teacher?.speedMs || 90)
-      teacherTimerRef.current = setTimeout(() => {
+      if (hasTeacherSprite) {
+        if (teacherTimerRef.current) clearTimeout(teacherTimerRef.current)
+        setTeacherCutsceneStage('anim_wait')
+        const animDuration = (mapConfig.teacher?.totalFrames || 24) * (mapConfig.teacher?.speedMs || 90)
+        teacherTimerRef.current = setTimeout(() => {
+          setTeacherCutsceneStage('teacher_ask')
+        }, animDuration)
+      } else {
         setTeacherCutsceneStage('teacher_ask')
-      }, animDuration)
+      }
     } else if (currentStage === 'anim_wait') {
       if (teacherTimerRef.current) clearTimeout(teacherTimerRef.current)
       setTeacherCutsceneStage('teacher_ask')
@@ -2071,7 +2089,6 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                               rx={10}
                               fill="rgba(15, 35, 56, 0.96)"
                               stroke="#F59E0B"
-                              strokeWidth={2}
                               style={{ filter: 'drop-shadow(0 6px 20px rgba(0,0,0,0.7))' }}
                             />
                             <polygon
@@ -2091,9 +2108,9 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                       {teacherCutsceneStage === 'teacher_ask' && (
                         <g style={{ cursor: 'pointer' }} onClick={e => { e.stopPropagation(); handleInteractTeacher(insideRoom); }}>
                           <rect
-                            x={teacherX - 150}
+                            x={teacherX - 165}
                             y={bubbleY - 78}
-                            width={300}
+                            width={330}
                             height={68}
                             rx={14}
                             fill="rgba(15, 35, 56, 0.96)"
@@ -2107,13 +2124,24 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                             stroke="#38BDF8"
                             strokeWidth={1}
                           />
-                          <text x={teacherX - 138} y={bubbleY - 60} textAnchor="start" fill="#38BDF8" fontSize={10.5} fontWeight="900" fontFamily="var(--font-ui)">
+                          <text x={teacherX - 153} y={bubbleY - 60} textAnchor="start" fill="#38BDF8" fontSize={10.5} fontWeight="900" fontFamily="var(--font-ui)">
                             {teacherName}
                           </text>
-                          <text x={teacherX} y={bubbleY - 38} textAnchor="middle" fill="#FFFFFF" fontSize={11} fontWeight="800" fontFamily="var(--font-ui)">
-                            "Halo! Ada perlu apa kamu datang ke Ruang {insideRoom.label.replace('Kelas ', '')}?"
-                          </text>
-                          <text x={teacherX + 138} y={bubbleY - 20} textAnchor="end" fill="#38BDF8" fontSize={9.5} fontWeight="900" fontFamily="var(--font-ui)">
+                          {insideRoom.id === 'A2' ? (
+                            <>
+                              <text x={teacherX} y={bubbleY - 40} textAnchor="middle" fill="#FCD34D" fontSize={11} fontWeight="900" fontFamily="var(--font-ui)">
+                                "LOH?! {playerName.toUpperCase()}?! Kamu kan murid kelas ini!"
+                              </text>
+                              <text x={teacherX} y={bubbleY - 26} textAnchor="middle" fill="#FFFFFF" fontSize={10.5} fontWeight="800" fontFamily="var(--font-ui)">
+                                "Kenapa jam pelajaran malah keluyuran di luar?!"
+                              </text>
+                            </>
+                          ) : (
+                            <text x={teacherX} y={bubbleY - 38} textAnchor="middle" fill="#FFFFFF" fontSize={11} fontWeight="800" fontFamily="var(--font-ui)">
+                              "Halo! Ada perlu apa kamu datang ke Ruang {insideRoom.label.replace('Kelas ', '')}?"
+                            </text>
+                          )}
+                          <text x={teacherX + 153} y={bubbleY - 20} textAnchor="end" fill="#38BDF8" fontSize={9.5} fontWeight="900" fontFamily="var(--font-ui)">
                             [ Klik / Tap ▶ ]
                           </text>
                         </g>
@@ -2150,12 +2178,25 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                             <text x={pLeft + 14} y={pY + 18} textAnchor="start" fill="#38BDF8" fontSize={10.5} fontWeight="900" fontFamily="var(--font-ui)">
                               Kamu
                             </text>
-                            <text x={pTextX} y={pY + 38} textAnchor="middle" fill="#FFFFFF" fontSize={10.5} fontWeight="800" fontFamily="var(--font-ui)">
-                              "Saya sedang menjalankan sanksi Pak Sutrisno untuk"
-                            </text>
-                            <text x={pTextX} y={pY + 52} textAnchor="middle" fill="#FFFFFF" fontSize={10.5} fontWeight="800" fontFamily="var(--font-ui)">
-                              mengumpulkan sampel data screen time 7 siswa di kelas ini, Bu!"
-                            </text>
+                            {insideRoom.id === 'A2' ? (
+                              <>
+                                <text x={pTextX} y={pY + 38} textAnchor="middle" fill="#FFFFFF" fontSize={10.5} fontWeight="800" fontFamily="var(--font-ui)">
+                                  "A-ampun Pak Bambang! Saya tadi kena sanksi Pak Sutrisno"
+                                </text>
+                                <text x={pTextX} y={pY + 52} textAnchor="middle" fill="#FFFFFF" fontSize={10.5} fontWeight="800" fontFamily="var(--font-ui)">
+                                  "untuk ngumpulin 35 data screen time sekolah, Pak!"
+                                </text>
+                              </>
+                            ) : (
+                              <>
+                                <text x={pTextX} y={pY + 38} textAnchor="middle" fill="#FFFFFF" fontSize={10.5} fontWeight="800" fontFamily="var(--font-ui)">
+                                  "Saya sedang menjalankan sanksi Pak Sutrisno untuk"
+                                </text>
+                                <text x={pTextX} y={pY + 52} textAnchor="middle" fill="#FFFFFF" fontSize={10.5} fontWeight="800" fontFamily="var(--font-ui)">
+                                  "mengumpulkan sampel data screen time 7 siswa di kelas ini!"
+                                </text>
+                              </>
+                            )}
                             <text x={pLeft + pW - 14} y={pY + 58} textAnchor="end" fill="#38BDF8" fontSize={9.5} fontWeight="900" fontFamily="var(--font-ui)">
                               [ Klik / Tap ▶ ]
                             </text>
@@ -2167,9 +2208,9 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                       {teacherCutsceneStage === 'teacher_reply' && (
                         <g style={{ cursor: 'pointer' }} onClick={e => { e.stopPropagation(); handleInteractTeacher(insideRoom); }}>
                           <rect
-                            x={teacherX - 160}
+                            x={teacherX - 165}
                             y={bubbleY - 78}
-                            width={320}
+                            width={330}
                             height={68}
                             rx={14}
                             fill="rgba(15, 35, 56, 0.96)"
@@ -2183,16 +2224,29 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                             stroke="#10B981"
                             strokeWidth={1}
                           />
-                          <text x={teacherX - 148} y={bubbleY - 60} textAnchor="start" fill="#10B981" fontSize={10.5} fontWeight="900" fontFamily="var(--font-ui)">
+                          <text x={teacherX - 153} y={bubbleY - 60} textAnchor="start" fill="#10B981" fontSize={10.5} fontWeight="900" fontFamily="var(--font-ui)">
                             {teacherName}
                           </text>
-                          <text x={teacherX} y={bubbleY - 40} textAnchor="middle" fill="#FFFFFF" fontSize={10.5} fontWeight="800" fontFamily="var(--font-ui)">
-                            "Oh begitu! Baiklah, ini sampel data"
-                          </text>
-                          <text x={teacherX} y={bubbleY - 26} textAnchor="middle" fill="#FFFFFF" fontSize={10.5} fontWeight="800" fontFamily="var(--font-ui)">
-                            screen time 7 siswa dari Ruang {insideRoom.label.replace('Kelas ', '')}."
-                          </text>
-                          <text x={teacherX + 148} y={bubbleY - 20} textAnchor="end" fill="#10B981" fontSize={9.5} fontWeight="900" fontFamily="var(--font-ui)">
+                          {insideRoom.id === 'A2' ? (
+                            <>
+                              <text x={teacherX} y={bubbleY - 40} textAnchor="middle" fill="#FFFFFF" fontSize={10.5} fontWeight="800" fontFamily="var(--font-ui)">
+                                "Oalah Sutrisno... Ya sudah, ini data 7 teman sekelasmu."
+                              </text>
+                              <text x={teacherX} y={bubbleY - 26} textAnchor="middle" fill="#FCD34D" fontSize={10} fontWeight="800" fontFamily="var(--font-ui)">
+                                "Tapi ingat, jawab dulu soal tepi bawah ini biar datanya valid!"
+                              </text>
+                            </>
+                          ) : (
+                            <>
+                              <text x={teacherX} y={bubbleY - 40} textAnchor="middle" fill="#FFFFFF" fontSize={10.5} fontWeight="800" fontFamily="var(--font-ui)">
+                                "Oh begitu! Baiklah, ini sampel data"
+                              </text>
+                              <text x={teacherX} y={bubbleY - 26} textAnchor="middle" fill="#FFFFFF" fontSize={10.5} fontWeight="800" fontFamily="var(--font-ui)">
+                                screen time 7 siswa dari Ruang {insideRoom.label.replace('Kelas ', '')}."
+                              </text>
+                            </>
+                          )}
+                          <text x={teacherX + 153} y={bubbleY - 20} textAnchor="end" fill="#10B981" fontSize={9.5} fontWeight="900" fontFamily="var(--font-ui)">
                             [ Ambil Data ▶ ]
                           </text>
                         </g>
