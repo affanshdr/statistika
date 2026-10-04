@@ -55,7 +55,19 @@ const LEVELS = [
 
 export default function SiswaPage() {
   const router = useRouter()
-  const [student, setStudent] = useState<Student | null>(null)
+  const [student, setStudent] = useState<Student | null>(() => {
+    if (typeof window !== 'undefined') {
+      const data = localStorage.getItem('student')
+      if (data) {
+        try {
+          return JSON.parse(data) as Student
+        } catch (e) {
+          console.error(e)
+        }
+      }
+    }
+    return null
+  })
   const [showCognitiveModal, setShowCognitiveModal] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const [showExitConfirm, setShowExitConfirm] = useState(false)

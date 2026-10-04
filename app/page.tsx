@@ -18,6 +18,10 @@ export default function RootHomePage() {
   const [studentName, setStudentName] = useState('')
   const [isStarting, setIsStarting] = useState(false)
   const [isNameModalOpen, setIsNameModalOpen] = useState(false)
+  const [loadProgress, setLoadProgress] = useState(0)
+  const [loadStatus, setLoadStatus] = useState('Menginisialisasi Sistem...')
+  const [initialLoadingProgress, setInitialLoadingProgress] = useState(0)
+  const [isInitialLoading, setIsInitialLoading] = useState(true)
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -33,7 +37,28 @@ export default function RootHomePage() {
         console.error(e)
       }
     }
-  }, [])
+
+    // Prefetch routes in background to avoid navigation delay
+    router.prefetch('/siswa')
+    router.prefetch('/siswa/game/level/1')
+
+    // Initial asset preloading for splash screen background and icons
+    const splashBg = new Image()
+    splashBg.src = '/Assets/Building/Splash Screen/Splash Screen.png'
+
+    const startTime = performance.now()
+    const interval = setInterval(() => {
+      const elapsed = performance.now() - startTime
+      const pct = Math.min(100, Math.floor((elapsed / 500) * 100))
+      setInitialLoadingProgress(pct)
+      if (pct >= 100) {
+        clearInterval(interval)
+        setTimeout(() => setIsInitialLoading(false), 150)
+      }
+    }, 20)
+
+    return () => clearInterval(interval)
+  }, [router])
 
   useEffect(() => {
     if (isNameModalOpen) {
@@ -52,46 +77,90 @@ export default function RootHomePage() {
     const finalName = studentName.trim()
     if (!finalName) return
     setIsStarting(true)
+    setLoadProgress(0)
+    setLoadStatus('Menginisialisasi Identitas Detektif...')
 
-    let studentData = {
+    let studentData: Student = {
       id: 'detektif-guest',
       name: finalName,
       nisn: '-',
       classroom: { name: 'Kelas XII' }
     }
 
-    try {
-      const classRes = await fetch('/api/classrooms')
-      if (classRes.ok) {
-        const classrooms = await classRes.json()
-        const defaultClass = classrooms[0]
-        if (defaultClass?.id) {
-          const studentRes = await fetch('/api/students', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name: finalName, classroomId: defaultClass.id }),
-          })
-          if (studentRes.ok) {
-            const dbStudent = await studentRes.json()
-            if (dbStudent?.id) {
-              studentData = dbStudent
+    // Preload dashboard assets so /siswa renders instantly without asset delay
+    const assetsToPreload = [
+      '/backgr.webp',
+      '/thumbnails/level1.png',
+      '/thumbnails/level2.png',
+      '/avatarbaru.webp'
+    ]
+
+    let loadedCount = 0
+    assetsToPreload.forEach(src => {
+      const img = new Image()
+      img.onload = img.onerror = () => {
+        loadedCount++
+      }
+      img.src = src
+    })
+
+    // Perform database sync in parallel
+    const dbPromise = (async () => {
+      try {
+        const classRes = await fetch('/api/classrooms')
+        if (classRes.ok) {
+          const classrooms = await classRes.json()
+          const defaultClass = classrooms[0]
+          if (defaultClass?.id) {
+            const studentRes = await fetch('/api/students', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ name: finalName, classroomId: defaultClass.id }),
+            })
+            if (studentRes.ok) {
+              const dbStudent = await studentRes.json()
+              if (dbStudent?.id) {
+                studentData = dbStudent
+              }
             }
           }
         }
+      } catch (err) {
+        console.warn('DB Sync fallback to local guest session:', err)
       }
-    } catch (err) {
-      console.warn('DB Sync fallback to local guest session:', err)
-    }
+    })()
 
-    localStorage.setItem('student', JSON.stringify(studentData))
+    // Smooth progress bar animation over minDuration (e.g. 1100ms)
+    const startTime = performance.now()
+    const minDuration = 1100
 
-    setTimeout(() => {
-      // Direct launch into Siswa Corkboard Dashboard
-      router.push('/siswa')
-    }, 400)
+    const progressInterval = setInterval(() => {
+      const elapsed = performance.now() - startTime
+      const timePercent = Math.min(100, Math.floor((elapsed / minDuration) * 100))
+      const assetPercent = Math.floor((loadedCount / assetsToPreload.length) * 100)
+      const combinedPercent = Math.min(100, Math.max(timePercent, Math.floor((timePercent + assetPercent) / 2)))
+
+      setLoadProgress(combinedPercent)
+
+      if (combinedPercent < 30) {
+        setLoadStatus('Menginisialisasi Identitas Detektif...')
+      } else if (combinedPercent < 60) {
+        setLoadStatus('Menghubungkan Server & Sesi Kelas...')
+      } else if (combinedPercent < 90) {
+        setLoadStatus('Memuat Aset Papan Misi & Kartu...')
+      } else {
+        setLoadStatus('Menyiapkan Arena Misi...')
+      }
+
+      if (elapsed >= minDuration && combinedPercent >= 100) {
+        clearInterval(progressInterval)
+        dbPromise.finally(() => {
+          localStorage.setItem('student', JSON.stringify(studentData))
+          router.push('/siswa')
+        })
+      }
+    }, 25)
   }
-
-
 
   return (
     <OrientationGuard lockScreen={true}>
@@ -116,6 +185,36 @@ export default function RootHomePage() {
           userSelect: 'none',
         }}
       >
+        {/* Top Slim Loading Bar during Initial Page Load */}
+        <AnimatePresence>
+          {isInitialLoading && (
+            <motion.div
+              initial={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: '4px',
+                background: 'rgba(7, 19, 30, 0.6)',
+                zIndex: 200,
+              }}
+            >
+              <div
+                style={{
+                  height: '100%',
+                  width: `${initialLoadingProgress}%`,
+                  background: 'linear-gradient(90deg, #00ADB5 0%, #38BDF8 50%, #34D399 100%)',
+                  boxShadow: '0 0 10px rgba(0, 173, 181, 0.8)',
+                  transition: 'width 0.1s linear',
+                }}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Dark Ambient Vignette Overlay - Protects eyes from glare & enhances button contrast */}
         <div
           style={{
@@ -125,8 +224,6 @@ export default function RootHomePage() {
             pointerEvents: 'none',
           }}
         />
-
-
 
         {/* ── MAIN ACTION BUTTON (PLAY BUTTON) ── */}
         <motion.div
@@ -235,7 +332,8 @@ export default function RootHomePage() {
                     color: '#6B4226',
                     fontSize: '14px',
                     fontWeight: 800,
-                    cursor: 'pointer',
+                    cursor: isStarting ? 'not-allowed' : 'pointer',
+                    opacity: isStarting ? 0.4 : 1,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -243,14 +341,18 @@ export default function RootHomePage() {
                     zIndex: 10,
                   }}
                   onMouseEnter={e => {
-                    e.currentTarget.style.color = '#362014'
-                    e.currentTarget.style.borderColor = '#8C6239'
-                    e.currentTarget.style.background = 'rgba(140, 98, 57, 0.2)'
+                    if (!isStarting) {
+                      e.currentTarget.style.color = '#362014'
+                      e.currentTarget.style.borderColor = '#8C6239'
+                      e.currentTarget.style.background = 'rgba(140, 98, 57, 0.2)'
+                    }
                   }}
                   onMouseLeave={e => {
-                    e.currentTarget.style.color = '#6B4226'
-                    e.currentTarget.style.borderColor = 'rgba(140, 98, 57, 0.3)'
-                    e.currentTarget.style.background = 'rgba(140, 98, 57, 0.1)'
+                    if (!isStarting) {
+                      e.currentTarget.style.color = '#6B4226'
+                      e.currentTarget.style.borderColor = 'rgba(140, 98, 57, 0.3)'
+                      e.currentTarget.style.background = 'rgba(140, 98, 57, 0.1)'
+                    }
                   }}
                 >
                   ✕
@@ -322,6 +424,7 @@ export default function RootHomePage() {
                         fontWeight: 800,
                         transition: 'all 0.2s',
                         boxShadow: 'inset 0 2px 5px rgba(140, 98, 57, 0.15), 0 2px 6px rgba(0,0,0,0.04)',
+                        opacity: isStarting ? 0.7 : 1,
                       }}
                       onFocus={e => {
                         e.currentTarget.style.borderColor = '#0E8388'
@@ -334,44 +437,71 @@ export default function RootHomePage() {
                     />
                   </div>
 
-                  {/* Confirm & Start Button */}
-                  <motion.button
-                    whileHover={studentName.trim() && !isStarting ? { scale: 1.02, boxShadow: '0 8px 25px rgba(14, 131, 136, 0.45)' } : {}}
-                    whileTap={studentName.trim() && !isStarting ? { scale: 0.97 } : {}}
-                    type="submit"
-                    disabled={isStarting || !studentName.trim()}
-                    style={{
-                      width: '100%',
-                      padding: '15px 24px',
-                      fontSize: '16px',
-                      fontWeight: 900,
-                      letterSpacing: '2px',
-                      color: '#FFFFFF',
-                      background: studentName.trim() && !isStarting
-                        ? 'linear-gradient(135deg, #0E8388 0%, #0284C7 100%)'
-                        : 'linear-gradient(135deg, #94A3B8 0%, #64748B 100%)',
-                      border: '1.5px solid rgba(255, 255, 255, 0.4)',
-                      borderRadius: '16px',
-                      cursor: isStarting || !studentName.trim() ? 'not-allowed' : 'pointer',
-                      opacity: isStarting || !studentName.trim() ? 0.7 : 1,
-                      boxShadow: studentName.trim() && !isStarting ? '0 6px 20px rgba(14, 131, 136, 0.35)' : 'none',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '8px',
-                      transition: 'all 0.2s',
-                    }}
-                  >
-                    {isStarting ? (
-                      <>
-                        <span className="spinner" style={{ display: 'inline-block', animation: 'spin 1s linear infinite' }}>⚙️</span> MEMUAT...
-                      </>
-                    ) : (
-                      <>
-                        MULAI PETUALANGAN ▶
-                      </>
-                    )}
-                  </motion.button>
+                  {/* Confirm & Loading Bar Section */}
+                  {isStarting ? (
+                    <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '11.5px', fontWeight: 800 }}>
+                        <span style={{ color: '#8C6239', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '80%' }}>
+                          {loadStatus}
+                        </span>
+                        <span style={{ color: '#0E8388', fontFamily: 'monospace', fontWeight: 900, fontSize: '13px' }}>
+                          {loadProgress}%
+                        </span>
+                      </div>
+                      <div style={{
+                        width: '100%',
+                        height: '16px',
+                        background: 'rgba(54, 32, 20, 0.12)',
+                        border: '2px solid #B48C50',
+                        borderRadius: '10px',
+                        padding: '2px',
+                        boxSizing: 'border-box',
+                        overflow: 'hidden',
+                        boxShadow: 'inset 0 2px 5px rgba(0, 0, 0, 0.2)'
+                      }}>
+                        <motion.div
+                          style={{
+                            height: '100%',
+                            borderRadius: '6px',
+                            background: 'linear-gradient(90deg, #0E8388 0%, #00ADB5 50%, #38BDF8 100%)',
+                            boxShadow: '0 0 12px rgba(14, 131, 136, 0.7)',
+                            width: `${loadProgress}%`
+                          }}
+                          transition={{ ease: 'easeOut', duration: 0.05 }}
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <motion.button
+                      whileHover={studentName.trim() ? { scale: 1.02, boxShadow: '0 8px 25px rgba(14, 131, 136, 0.45)' } : {}}
+                      whileTap={studentName.trim() ? { scale: 0.97 } : {}}
+                      type="submit"
+                      disabled={!studentName.trim()}
+                      style={{
+                        width: '100%',
+                        padding: '15px 24px',
+                        fontSize: '16px',
+                        fontWeight: 900,
+                        letterSpacing: '2px',
+                        color: '#FFFFFF',
+                        background: studentName.trim()
+                          ? 'linear-gradient(135deg, #0E8388 0%, #0284C7 100%)'
+                          : 'linear-gradient(135deg, #94A3B8 0%, #64748B 100%)',
+                        border: '1.5px solid rgba(255, 255, 255, 0.4)',
+                        borderRadius: '16px',
+                        cursor: !studentName.trim() ? 'not-allowed' : 'pointer',
+                        opacity: !studentName.trim() ? 0.7 : 1,
+                        boxShadow: studentName.trim() ? '0 6px 20px rgba(14, 131, 136, 0.35)' : 'none',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '8px',
+                        transition: 'all 0.2s',
+                      }}
+                    >
+                      MULAI PETUALANGAN ▶
+                    </motion.button>
+                  )}
                 </form>
               </motion.div>
             </motion.div>
