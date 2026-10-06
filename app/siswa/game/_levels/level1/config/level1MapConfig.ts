@@ -117,7 +117,7 @@ export const LEVEL1_MAPS: Record<string, MapConfig> = {
     id: 'A2',
     name: 'Ruang VII-B',
     type: 'classroom',
-    bgImage: '/Assets/Building/Ruang VII-A/VII-A.webp',
+    bgImage: '/Assets/Building/Ruang VII-B/VII-B.png',
     camera: {
       mode: 'fixed',
       vw: WORLD_VW,
@@ -134,9 +134,14 @@ export const LEVEL1_MAPS: Record<string, MapConfig> = {
       name: 'Pak Bambang (Wali Kelas VII-B)',
       x: 617,
       y: 415,
-      size: 250,
+      size: 130,
+      aspectRatio: 2.068,
+      spriteUrl: '/Assets/Building/Ruang VII-B/Pak Bambang.png',
+      cols: 1,
+      rows: 1,
+      totalFrames: 1,
       hotspotW: 140,
-      hotspotH: 220
+      hotspotH: 260
     },
     isWalkable: (x, y) => checkClassroomWalkable(x, y)
   },

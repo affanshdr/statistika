@@ -30,6 +30,7 @@ export interface MapConfig {
     rows?: number
     totalFrames?: number
     size?: number
+    aspectRatio?: number
     pingPong?: boolean
     speedMs?: number
     showGlow?: boolean

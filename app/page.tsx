@@ -87,12 +87,24 @@ export default function RootHomePage() {
       classroom: { name: 'Kelas XII' }
     }
 
-    // Preload dashboard assets so /siswa renders instantly without asset delay
+    // Preload dashboard, classroom background & character assets so /siswa and game load instantly without delay
     const assetsToPreload = [
       '/backgr.webp',
       '/thumbnails/level1.png',
       '/thumbnails/level2.png',
-      '/avatarbaru.webp'
+      '/avatarbaru.webp',
+      '/dira-avatar.webp',
+      '/teen_silhouette.png',
+      '/Assets/Character/Stevunt-idle.png',
+      '/Assets/Character/Stevunt-iso_walk_down.png',
+      '/Assets/Character/Stevunt-iso_walk_right.png',
+      '/Assets/Character/Stevunt-iso_walk_up-trimmed.png',
+      '/Assets/Character/Pak Sutrisno.webp',
+      '/Assets/Character/pak Sutrisno-iso_idle_right-trimmed.png',
+      '/Assets/Building/Ruang VII-B/Pak Bambang.png',
+      '/Assets/Building/Ruang VII-B/VII-B.png',
+      '/Assets/Building/Ruang VII-A/Bu Sari.png',
+      '/Assets/Building/Ruang VII-A/VII-A.webp'
     ]
 
     let loadedCount = 0
@@ -130,9 +142,9 @@ export default function RootHomePage() {
       }
     })()
 
-    // Smooth progress bar animation over minDuration (e.g. 1100ms)
+    // Smooth progress bar animation over minDuration (e.g. 1200ms)
     const startTime = performance.now()
-    const minDuration = 1100
+    const minDuration = 1200
 
     const progressInterval = setInterval(() => {
       const elapsed = performance.now() - startTime
@@ -142,12 +154,14 @@ export default function RootHomePage() {
 
       setLoadProgress(combinedPercent)
 
-      if (combinedPercent < 30) {
+      if (combinedPercent < 25) {
         setLoadStatus('Menginisialisasi Identitas Detektif...')
-      } else if (combinedPercent < 60) {
-        setLoadStatus('Menghubungkan Server & Sesi Kelas...')
-      } else if (combinedPercent < 90) {
-        setLoadStatus('Memuat Aset Papan Misi & Kartu...')
+      } else if (combinedPercent < 50) {
+        setLoadStatus('Menghubungkan Server & Data Kelas...')
+      } else if (combinedPercent < 80) {
+        setLoadStatus('Memuat Pak Bambang (VII-B), Stevunt & Karakter 2D...')
+      } else if (combinedPercent < 95) {
+        setLoadStatus('Memuat Ruang VII-B & Papan Misi...')
       } else {
         setLoadStatus('Menyiapkan Arena Misi...')
       }

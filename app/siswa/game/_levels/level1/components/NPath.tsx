@@ -1989,6 +1989,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                           x={teacherX}
                           y={teacherY}
                           size={teacherConfig.size || 250}
+                          aspectRatio={(teacherConfig as any)?.aspectRatio}
                           label=""
                           spriteUrl={teacherConfig.spriteUrl}
                           cols={teacherConfig.cols || 5}
@@ -3253,7 +3254,9 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
           imagesToPreload={[
             '/Assets/Building/Kelas.webp',
             '/Assets/Building/Ruang VII-A/VII-A.webp',
-            '/Assets/Building/Ruang VII-B/VII-B.webp',
+            '/Assets/Building/Ruang VII-B/VII-B.png',
+            '/Assets/Building/Ruang VII-B/Pak Bambang.png',
+            '/Assets/Building/Ruang VII-A/Bu Sari.png',
             '/Assets/Character/Stevunt-idle.png',
             '/Assets/Character/pak Sutrisno-iso_idle_right-trimmed.png'
           ]}
