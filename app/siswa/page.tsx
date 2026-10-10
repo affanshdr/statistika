@@ -32,14 +32,14 @@ const LEVELS = [
   },
   {
     id: 2,
-    icon: '🛡️',
+    icon: '🏆',
     thumbnail: '/thumbnails/level2.png',
-    title: 'Level 2 (Kasus: Cyberbullying)',
-    desc: 'Investigasi kasus perundungan siber di sekolah. Kumpulkan data korban, bimbing pelaku, dan analisis pemusatan data.',
-    tags: ['Mean', 'Median', 'Modus', 'Ukuran Pemusatan'],
+    title: 'Level 2 (Seleksi Olimpiade)',
+    desc: 'Ikuti seleksi perwakilan sekolah untuk olimpiade matematika. Kuasai ukuran penyebaran data: Jangkauan, Kuartil, IQR, dan Simpangan Baku.',
+    tags: ['Jangkauan', 'Kuartil', 'IQR', 'Simpangan Baku'],
     locked: false,
     xpMax: 0,
-    locationName: '',
+    locationName: 'Kelas Seleksi',
   },
   {
     id: 3,
@@ -774,34 +774,62 @@ export default function SiswaPage() {
                         <div style={{ width: '100%', marginTop: '2px' }}>
                           {isUnlocked ? (
                             isCompleted ? (
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    router.push(`/siswa/game/results/${level.id}`)
-                                  }}
-                                  style={{
-                                    width: '100%',
-                                    padding: '8px',
-                                    borderRadius: '4px',
-                                    border: 'none',
-                                    background: '#0E8388',
-                                    color: '#FFFFFF',
-                                    fontSize: isMobile ? '9.5px' : '11px',
-                                    fontWeight: 800,
-                                    cursor: 'pointer',
-                                    boxShadow: '0 2px 6px rgba(14, 131, 136, 0.25)',
-                                    transition: 'all 0.2s',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    gap: '3px',
-                                  }}
-                                  onMouseEnter={e => e.currentTarget.style.filter = 'brightness(1.15)'}
-                                  onMouseLeave={e => e.currentTarget.style.filter = 'none'}
-                                >
-                                  <span>📊 Lihat Hasil Misi</span>
-                                </button>
-
+                                <div style={{ display: 'flex', gap: '4px', width: '100%' }}>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      handlePlayLevel(level.id)
+                                    }}
+                                    style={{
+                                      flex: 1,
+                                      padding: '8px 2px',
+                                      borderRadius: '4px',
+                                      border: 'none',
+                                      background: '#B84A39',
+                                      color: '#FFFFFF',
+                                      fontSize: isMobile ? '9.5px' : '11px',
+                                      fontWeight: 800,
+                                      cursor: 'pointer',
+                                      boxShadow: '0 2px 6px rgba(184, 74, 57, 0.25)',
+                                      transition: 'all 0.2s',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      gap: '2px',
+                                    }}
+                                    onMouseEnter={e => e.currentTarget.style.filter = 'brightness(1.15)'}
+                                    onMouseLeave={e => e.currentTarget.style.filter = 'none'}
+                                  >
+                                    <span>▶ Main</span>
+                                  </button>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      router.push(`/siswa/game/results/${level.id}`)
+                                    }}
+                                    style={{
+                                      flex: 1,
+                                      padding: '8px 2px',
+                                      borderRadius: '4px',
+                                      border: '1px solid rgba(14, 131, 136, 0.4)',
+                                      background: '#0E8388',
+                                      color: '#FFFFFF',
+                                      fontSize: isMobile ? '9.5px' : '11px',
+                                      fontWeight: 800,
+                                      cursor: 'pointer',
+                                      boxShadow: '0 2px 6px rgba(14, 131, 136, 0.25)',
+                                      transition: 'all 0.2s',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      gap: '2px',
+                                    }}
+                                    onMouseEnter={e => e.currentTarget.style.filter = 'brightness(1.15)'}
+                                    onMouseLeave={e => e.currentTarget.style.filter = 'none'}
+                                  >
+                                    <span>📊 Hasil</span>
+                                  </button>
+                                </div>
                             ) : (
                               <button
                                 onClick={(e) => {

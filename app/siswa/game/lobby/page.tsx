@@ -26,11 +26,11 @@ const LEVELS = [
   },
   {
     id: 2,
-    icon: '🛡️',
+    icon: '🏆',
     thumbnail: '/thumbnails/level2.png',
-    title: 'Level 2 (Kasus: Cyberbullying)',
-    desc: 'Investigasi kasus perundungan siber di sekolah. Kumpulkan data korban, bimbing pelaku siber, dan analisis pemusatan data.',
-    tags: ['Mean', 'Median', 'Modus', 'Ukuran Pemusatan'],
+    title: 'Level 2 (Seleksi Olimpiade)',
+    desc: 'Ikuti seleksi perwakilan sekolah untuk olimpiade matematika. Pelajari dan kuasai ukuran penyebaran data: Jangkauan, Kuartil, IQR, dan Simpangan Baku.',
+    tags: ['Jangkauan', 'Kuartil', 'IQR', 'Simpangan Baku'],
     locked: false,
     xpMax: 0,
   },
@@ -132,7 +132,7 @@ export default function LobbyPage() {
           </h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
             {LEVELS.filter(level => level.id <= 2).map((level, i) => {
-              const isUnlocked = level.id === 1 || completedLevels.includes(level.id - 1)
+              const isUnlocked = !level.locked || level.id === 1 || completedLevels.includes(level.id - 1)
               return (
                 <motion.div
                   key={level.id}
