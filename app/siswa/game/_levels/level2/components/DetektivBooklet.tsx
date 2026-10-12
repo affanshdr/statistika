@@ -31,8 +31,8 @@ const ALL_IMAGE_PAGES: {
 // ─── Level metadata for locked placeholder ────────────────────────────────────
 const LEVEL_META: Record<number, { title: string; icon: string; hint: string }> = {
   2: {
-    title: 'Kasus: Polling Pilkada',
-    icon: '🗳️',
+    title: 'Misi Pengukuran Lemparan',
+    icon: '🎯',
     hint: 'Selesaikan Level 1 untuk membuka materi ini',
   },
   3: {
