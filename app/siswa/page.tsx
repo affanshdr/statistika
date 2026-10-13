@@ -32,14 +32,14 @@ const LEVELS = [
   },
   {
     id: 2,
-    icon: '🏆',
+    icon: '🎯',
     thumbnail: '/thumbnails/level2.png',
-    title: 'Level 2 (Seleksi Olimpiade)',
-    desc: 'Ikuti seleksi perwakilan sekolah untuk olimpiade matematika. Kuasai ukuran penyebaran data: Jangkauan, Kuartil, IQR, dan Simpangan Baku.',
-    tags: ['Jangkauan', 'Kuartil', 'IQR', 'Simpangan Baku'],
+    title: 'Level 2 (Misi Pengukuran Lemparan)',
+    desc: 'Kumpulkan 15 data lemparan siswa bersama Pak Bambang di lapangan sekolah. Kuasai Jangkauan (Range), Kuartil (Q1, Q2, Q3), dan Jangkauan Kuartil (IQR).',
+    tags: ['Jangkauan (Range)', 'Kuartil (Q1-Q3)', 'IQR'],
     locked: false,
     xpMax: 0,
-    locationName: 'Kelas Seleksi',
+    locationName: 'Lapangan Sekolah',
   },
   {
     id: 3,
@@ -55,19 +55,7 @@ const LEVELS = [
 
 export default function SiswaPage() {
   const router = useRouter()
-  const [student, setStudent] = useState<Student | null>(() => {
-    if (typeof window !== 'undefined') {
-      const data = localStorage.getItem('student')
-      if (data) {
-        try {
-          return JSON.parse(data) as Student
-        } catch (e) {
-          console.error(e)
-        }
-      }
-    }
-    return null
-  })
+  const [student, setStudent] = useState<Student | null>(null)
   const [showCognitiveModal, setShowCognitiveModal] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const [showExitConfirm, setShowExitConfirm] = useState(false)

@@ -1,19 +1,18 @@
 export const LEVEL2_CONFIG = {
   id: 2,
-  title: 'Level 2 (Seleksi Olimpiade)',
-  subtitle: 'Jangkauan, Kuartil, IQR, Simpangan Baku',
-  description: 'Ikuti seleksi perwakilan sekolah untuk olimpiade matematika. Pelajari dan jawab pertanyaan statistika mengenai Jangkauan, Kuartil, Jangkauan Kuartil, dan Simpangan Baku.',
+  title: 'Level 2 (Misi Pengukuran Lemparan)',
+  subtitle: 'Jangkauan, Kuartil, dan IQR',
+  description: 'Kumpulkan data jarak lemparan 15 siswa di lapangan sekolah, lalu selesaikan misi statistika: menghitung Jangkauan, menentukan Kuartil (Q1, Q2, Q3), dan menghitung Jangkauan Kuartil (IQR).',
 }
 
 // Badges for Level 2
 export const BADGES = {
-  OLYMPIAD: { id: 'olympiad-champion', icon: '🏆', name: 'Juara Olimpiade', desc: 'Terpilih menjadi perwakilan sekolah' },
-  PERFECT: { id: 'perfect-stats-l2', icon: '🎯', name: 'Statistisi Sempurna', desc: '4/4 benar di Level 2' },
-  SPEED: { id: 'speed-stats-l2', icon: '⚡', name: 'Kalkulator Cepat', desc: 'Selesai di bawah 50% waktu' },
+  FIELD_MASTER: { id: 'field-master-l2', icon: '🏅', name: 'Ahli Lapangan', desc: 'Menyelesaikan semua misi pengukuran' },
+  PERFECT: { id: 'perfect-stats-l2', icon: '🎯', name: 'Statistisi Sempurna', desc: '3 bintang di Level 2' },
+  SPEED: { id: 'speed-stats-l2', icon: '⚡', name: 'Pengukur Cepat', desc: 'Selesai di bawah 50% waktu' },
 }
 
 // Verdict for Level 2
-export const CORRECT_VERDICT = 'SELEKSI_LOLOS'
+export const CORRECT_VERDICT = 'MEASUREMENT_COMPLETE'
 
-export const VERDICT_EXPLANATION = `Berdasarkan evaluasi statistik terhadap nilai seleksi, kamu berhasil memahami ukuran penyebaran data (Jangkauan, Kuartil, IQR, dan Simpangan Baku) dan memenuhi kualifikasi untuk mewakili sekolah di olimpiade matematika!`
-
+export const VERDICT_EXPLANATION = `Kamu berhasil mengumpulkan 15 data lemparan dan menggunakannya untuk memahami Jangkauan (Range), Kuartil (Q1, Q2, Q3), dan Jangkauan Kuartil (IQR). Statistika membantu kita memahami sebaran data, bukan sekadar menghafal rumus!`
