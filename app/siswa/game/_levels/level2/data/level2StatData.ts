@@ -72,8 +72,8 @@ export function generateThrowDistances(): number[] {
     let dist: number
     let attempts = 0
     do {
-      // Generate between 5.00 and 25.00 meters
-      dist = roundTo2(5 + Math.random() * 20)
+      // Generate between 16.00 and 82.00 meters to match the 10m-100m field
+      dist = roundTo2(16 + Math.random() * 66)
       attempts++
       // Safety: after many attempts, adjust slightly
       if (attempts > 100) {
