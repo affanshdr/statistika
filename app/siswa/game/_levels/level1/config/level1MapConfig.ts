@@ -117,7 +117,7 @@ export const LEVEL1_MAPS: Record<string, MapConfig> = {
     id: 'A2',
     name: 'Ruang VII-B',
     type: 'classroom',
-    bgImage: '/Assets/Building/Ruang VII-B/VII-B.png',
+    bgImage: '/Assets/Building/Ruang VII-B/VII-B.webp',
     camera: {
       mode: 'fixed',
       vw: WORLD_VW,
@@ -150,7 +150,7 @@ export const LEVEL1_MAPS: Record<string, MapConfig> = {
     id: 'B1',
     name: 'Ruang VIII-A',
     type: 'classroom',
-    bgImage: '/Assets/Building/Kelas.webp',
+    bgImage: '/Assets/Building/Ruang VIII-A/VIII-A.webp',
     camera: {
       mode: 'fixed',
       vw: WORLD_VW,
@@ -178,7 +178,7 @@ export const LEVEL1_MAPS: Record<string, MapConfig> = {
     id: 'B2',
     name: 'Ruang VIII-B',
     type: 'classroom',
-    bgImage: '/Assets/Building/Kelas.webp',
+    bgImage: '/Assets/Building/Ruang VIII-B/VIII-B.webp',
     camera: {
       mode: 'fixed',
       vw: WORLD_VW,
@@ -206,7 +206,7 @@ export const LEVEL1_MAPS: Record<string, MapConfig> = {
     id: 'C1',
     name: 'Ruang IX',
     type: 'classroom',
-    bgImage: '/Assets/Building/Kelas.webp',
+    bgImage: '/Assets/Building/Ruang IX/IX.webp',
     camera: {
       mode: 'fixed',
       vw: WORLD_VW,

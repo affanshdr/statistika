@@ -1000,7 +1000,8 @@ export default function SiswaPage() {
             onClick={() => setShowGreeting(false)}
             style={{
               position: 'fixed', inset: 0, zIndex: 300,
-              background: 'rgba(11, 30, 44, 0.85)', backdropFilter: 'blur(12px)',
+              background: 'rgba(7, 19, 30, 0.82)', backdropFilter: 'blur(12px)',
+              WebkitBackdropFilter: 'blur(12px)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               padding: '20px',
             }}
@@ -1011,58 +1012,97 @@ export default function SiswaPage() {
               onClick={e => e.stopPropagation()}
               className="modal-scrollbar"
               style={{
-                background: 'rgba(15, 35, 56, 0.95)',
-                border: '1px solid rgba(14, 131, 136, 0.25)',
-                borderRadius: '24px', padding: '32px 28px',
-                width: '100%', maxWidth: '440px',
+                position: 'relative',
+                background: 'linear-gradient(135deg, #FDF8EC 0%, #F5E8C7 100%)',
+                border: '2.5px solid #8C6239',
+                borderRadius: '24px', padding: '30px 24px',
+                width: '100%', maxWidth: '420px',
                 maxHeight: 'calc(100vh - 40px)',
                 overflowY: 'auto',
-                boxShadow: '0 8px 30px rgba(14, 131, 136, 0.1)',
-                color: '#F8FAFC',
+                boxShadow: '0 20px 50px rgba(0, 0, 0, 0.75), inset 0 0 25px rgba(180, 140, 80, 0.25)',
+                color: '#2C1A10',
               }}
             >
+              {/* Decorative Viewfinder Brackets */}
+              <div style={{ position: 'absolute', top: '10px', left: '10px', width: '14px', height: '14px', borderTop: '3px solid #8C6239', borderLeft: '3px solid #8C6239', borderRadius: '3px 0 0 0' }} />
+              <div style={{ position: 'absolute', top: '10px', right: '10px', width: '14px', height: '14px', borderTop: '3px solid #8C6239', borderRight: '3px solid #8C6239', borderRadius: '0 3px 0 0' }} />
+              <div style={{ position: 'absolute', bottom: '10px', left: '10px', width: '14px', height: '14px', borderBottom: '3px solid #8C6239', borderLeft: '3px solid #8C6239', borderRadius: '0 0 0 3px' }} />
+              <div style={{ position: 'absolute', bottom: '10px', right: '10px', width: '14px', height: '14px', borderBottom: '3px solid #8C6239', borderRight: '3px solid #8C6239', borderRadius: '0 0 3px 0' }} />
+
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
                 <div>
-                  <div style={{ fontSize: '11px', color: '#00ADB5', fontWeight: 800, letterSpacing: '1.5px', marginBottom: '6px' }}>
+                  <div style={{ fontSize: '11px', color: '#9A3412', fontWeight: 900, letterSpacing: '1.5px', marginBottom: '6px', textTransform: 'uppercase' }}>
                     LAPORAN MASUK
                   </div>
-                  <h3 style={{ margin: 0, fontSize: '20px', fontWeight: 900 }}>
+                  <h3 style={{ margin: 0, fontSize: '22px', fontWeight: 900, color: '#362014', fontFamily: "'Outfit', sans-serif" }}>
                     👋 Halo, {student.name.split(' ')[0]}!
                   </h3>
                 </div>
                 <button
                   onClick={handleCloseGreeting}
-                  style={{ background: 'none', border: 'none', color: '#A8A29E', fontSize: '20px', cursor: 'pointer', padding: '4px', lineHeight: 1 }}
-                  onMouseEnter={e => e.currentTarget.style.color = '#ff6b6b'}
-                  onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.4)'}
+                  style={{
+                    background: 'rgba(140, 98, 57, 0.1)',
+                    border: '1px solid rgba(140, 98, 57, 0.3)',
+                    borderRadius: '50%',
+                    width: '32px',
+                    height: '32px',
+                    color: '#6B4226',
+                    fontSize: '14px',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'all 0.2s',
+                    flexShrink: 0,
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.color = '#362014'
+                    e.currentTarget.style.borderColor = '#8C6239'
+                    e.currentTarget.style.background = 'rgba(140, 98, 57, 0.2)'
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.color = '#6B4226'
+                    e.currentTarget.style.borderColor = 'rgba(140, 98, 57, 0.3)'
+                    e.currentTarget.style.background = 'rgba(140, 98, 57, 0.1)'
+                  }}
                 >✕</button>
               </div>
 
               <div style={{
-                padding: '16px',
+                padding: '16px 18px',
                 borderRadius: '16px',
-                background: 'rgba(14, 131, 136, 0.04)',
-                border: '1px solid rgba(14, 131, 136, 0.15)',
+                background: '#FFFDF7',
+                border: '1.5px solid #B48C50',
                 fontSize: '13.5px',
                 lineHeight: 1.6,
-                color: 'rgba(255, 255, 255, 0.85)',
-                marginBottom: '20px'
+                color: '#362014',
+                fontWeight: 600,
+                marginBottom: '20px',
+                boxShadow: 'inset 0 2px 5px rgba(140, 98, 57, 0.12), 0 2px 6px rgba(0,0,0,0.04)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
               }}>
-                Selamat datang kembali! Mari kita pecahkan kasus investigasi data bersama.
+                <span style={{ fontSize: '22px', flexShrink: 0 }}>📂</span>
+                <div>
+                  Selamat datang kembali! Mari kita pecahkan kasus investigasi data bersama.
+                </div>
               </div>
 
               <button
                 onClick={handleCloseGreeting}
                 style={{
-                  width: '100%', padding: '12px', borderRadius: '12px', border: 'none',
-                  background: '#0E8388',
+                  width: '100%', padding: '14px 20px', borderRadius: '16px', border: '1.5px solid rgba(255, 255, 255, 0.4)',
+                  background: 'linear-gradient(135deg, #0E8388 0%, #0284C7 100%)',
                   color: '#FFFFFF',
-                  fontSize: '14px', fontWeight: 800, cursor: 'pointer',
-                  boxShadow: '0 4px 15px rgba(14, 131, 136, 0.3)',
-                  transition: 'all 0.2s'
+                  fontSize: '15px', fontWeight: 900, letterSpacing: '1px', cursor: 'pointer',
+                  boxShadow: '0 6px 20px rgba(14, 131, 136, 0.35)',
+                  transition: 'all 0.2s',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px'
                 }}
-                onMouseEnter={e => e.currentTarget.style.filter = 'brightness(1.15)'}
-                onMouseLeave={e => e.currentTarget.style.filter = 'none'}
+                onMouseEnter={e => { e.currentTarget.style.filter = 'brightness(1.15)'; e.currentTarget.style.transform = 'scale(1.02)' }}
+                onMouseLeave={e => { e.currentTarget.style.filter = 'none'; e.currentTarget.style.transform = 'scale(1)' }}
               >
                 Mulai Penyelidikan 🕵️‍♂️
               </button>

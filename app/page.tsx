@@ -485,6 +485,7 @@ export default function RootHomePage() {
                         />
                       </div>
                     </div>
+
                   ) : (
                     <motion.button
                       whileHover={studentName.trim() ? { scale: 1.02, boxShadow: '0 8px 25px rgba(14, 131, 136, 0.45)' } : {}}

@@ -2106,152 +2106,201 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                       )}
 
                       {/* 3. Teacher Question Speech Bubble ('teacher_ask') */}
-                      {teacherCutsceneStage === 'teacher_ask' && (
-                        <g style={{ cursor: 'pointer' }} onClick={e => { e.stopPropagation(); handleInteractTeacher(insideRoom); }}>
-                          <rect
-                            x={teacherX - 165}
-                            y={bubbleY - 78}
-                            width={330}
-                            height={68}
-                            rx={14}
-                            fill="rgba(15, 35, 56, 0.96)"
-                            stroke="#38BDF8"
-                            strokeWidth={2}
-                            style={{ filter: 'drop-shadow(0 8px 24px rgba(0,0,0,0.75))' }}
-                          />
-                          <polygon
-                            points={`${teacherX - 8},${bubbleY - 10} ${teacherX + 8},${bubbleY - 10} ${teacherX},${bubbleY + 2}`}
-                            fill="rgba(15, 35, 56, 0.96)"
-                            stroke="#38BDF8"
-                            strokeWidth={1}
-                          />
-                          <text x={teacherX - 153} y={bubbleY - 60} textAnchor="start" fill="#38BDF8" fontSize={10.5} fontWeight="900" fontFamily="var(--font-ui)">
-                            {teacherName}
-                          </text>
-                          {insideRoom.id === 'A2' ? (
-                            <>
-                              <text x={teacherX} y={bubbleY - 40} textAnchor="middle" fill="#FCD34D" fontSize={11} fontWeight="900" fontFamily="var(--font-ui)">
-                                "LOH?! {playerName.toUpperCase()}?! Kamu kan murid kelas ini!"
-                              </text>
-                              <text x={teacherX} y={bubbleY - 26} textAnchor="middle" fill="#FFFFFF" fontSize={10.5} fontWeight="800" fontFamily="var(--font-ui)">
-                                "Kenapa jam pelajaran malah keluyuran di luar?!"
-                              </text>
-                            </>
-                          ) : (
-                            <text x={teacherX} y={bubbleY - 38} textAnchor="middle" fill="#FFFFFF" fontSize={11} fontWeight="800" fontFamily="var(--font-ui)">
-                              "Halo! Ada perlu apa kamu datang ke Ruang {insideRoom.label.replace('Kelas ', '')}?"
-                            </text>
-                          )}
-                          <text x={teacherX + 153} y={bubbleY - 20} textAnchor="end" fill="#38BDF8" fontSize={9.5} fontWeight="900" fontFamily="var(--font-ui)">
-                            [ Klik / Tap ▶ ]
-                          </text>
-                        </g>
-                      )}
-
-                      {/* 4. Player Explanation Speech Bubble ('player_explain') */}
-                      {teacherCutsceneStage === 'player_explain' && (() => {
-                        const pW = 340
-                        const pLeft = Math.max(20, Math.min(WORLD_VW - pW - 170, charPos.x - pW * 0.75))
-                        const pTextX = pLeft + pW / 2
-                        const headTopY = charPos.y - 250 * 0.85
-                        const pY = headTopY - 100
-                        const pointerX = Math.max(pLeft + 30, Math.min(pLeft + pW - 30, charPos.x))
-
+                      {teacherCutsceneStage === 'teacher_ask' && (() => {
+                        const bW = 340
+                        const bH = 82
+                        const bX = teacherX - bW / 2
+                        const bY = bubbleY - bH - 12
                         return (
                           <g style={{ cursor: 'pointer' }} onClick={e => { e.stopPropagation(); handleInteractTeacher(insideRoom); }}>
-                            <rect
-                              x={pLeft}
-                              y={pY}
-                              width={pW}
-                              height={68}
-                              rx={14}
-                              fill="rgba(15, 35, 56, 0.96)"
-                              stroke="#38BDF8"
-                              strokeWidth={2}
-                              style={{ filter: 'drop-shadow(0 8px 24px rgba(0,0,0,0.75))' }}
-                            />
+                            <foreignObject x={bX} y={bY} width={bW} height={bH} style={{ overflow: 'visible' }}>
+                              <div style={{
+                                width: '100%',
+                                height: '100%',
+                                boxSizing: 'border-box',
+                                padding: '8px 14px 6px 14px',
+                                background: 'rgba(15, 35, 56, 0.96)',
+                                border: '2px solid #38BDF8',
+                                borderRadius: '14px',
+                                boxShadow: '0 8px 24px rgba(0,0,0,0.75)',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                justifyContent: 'space-between',
+                                userSelect: 'none',
+                              }}>
+                                <div style={{ fontSize: '10.5px', fontWeight: 900, color: '#38BDF8', fontFamily: 'var(--font-ui)', letterSpacing: '0.3px' }}>
+                                  {teacherName}
+                                </div>
+                                <div style={{
+                                  fontSize: '10.5px',
+                                  fontWeight: 800,
+                                  color: '#FFFFFF',
+                                  fontFamily: 'var(--font-ui)',
+                                  textAlign: 'center',
+                                  lineHeight: 1.35,
+                                  margin: '2px 0',
+                                }}>
+                                  {insideRoom.id === 'A2' ? (
+                                    <>
+                                      <span style={{ color: '#FCD34D', fontWeight: 900 }}>"LOH?! {playerName.toUpperCase()}?! Kamu kan murid kelas ini!"</span>
+                                      <br />
+                                      "Kenapa jam pelajaran malah keluyuran di luar?!"
+                                    </>
+                                  ) : (
+                                    `"Halo! Ada perlu apa kamu datang ke Ruang ${insideRoom.label.replace('Kelas ', '')}?"`
+                                  )}
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+                                  <span style={{ fontSize: '9.5px', fontWeight: 900, color: '#38BDF8', fontFamily: 'var(--font-ui)', letterSpacing: '0.3px' }}>
+                                    [ Klik / Tap ▶ ]
+                                  </span>
+                                </div>
+                              </div>
+                            </foreignObject>
                             <polygon
-                              points={`${pointerX - 10},${pY + 68} ${pointerX + 10},${pY + 68} ${Math.min(charPos.x, pointerX + 15)},${headTopY + 25}`}
+                              points={`${teacherX - 8},${bY + bH} ${teacherX + 8},${bY + bH} ${teacherX},${bubbleY + 2}`}
                               fill="rgba(15, 35, 56, 0.96)"
                               stroke="#38BDF8"
                               strokeWidth={1}
                             />
-                            <text x={pLeft + 14} y={pY + 18} textAnchor="start" fill="#38BDF8" fontSize={10.5} fontWeight="900" fontFamily="var(--font-ui)">
-                              Kamu
-                            </text>
-                            {insideRoom.id === 'A2' ? (
-                              <>
-                                <text x={pTextX} y={pY + 38} textAnchor="middle" fill="#FFFFFF" fontSize={10.5} fontWeight="800" fontFamily="var(--font-ui)">
-                                  "A-ampun Pak Bambang! Saya tadi kena sanksi Pak Sutrisno"
-                                </text>
-                                <text x={pTextX} y={pY + 52} textAnchor="middle" fill="#FFFFFF" fontSize={10.5} fontWeight="800" fontFamily="var(--font-ui)">
-                                  "untuk ngumpulin 35 data screen time sekolah, Pak!"
-                                </text>
-                              </>
-                            ) : (
-                              <>
-                                <text x={pTextX} y={pY + 38} textAnchor="middle" fill="#FFFFFF" fontSize={10.5} fontWeight="800" fontFamily="var(--font-ui)">
-                                  "Saya sedang menjalankan sanksi Pak Sutrisno untuk"
-                                </text>
-                                <text x={pTextX} y={pY + 52} textAnchor="middle" fill="#FFFFFF" fontSize={10.5} fontWeight="800" fontFamily="var(--font-ui)">
-                                  "mengumpulkan sampel data screen time 7 siswa di kelas ini!"
-                                </text>
-                              </>
-                            )}
-                            <text x={pLeft + pW - 14} y={pY + 58} textAnchor="end" fill="#38BDF8" fontSize={9.5} fontWeight="900" fontFamily="var(--font-ui)">
-                              [ Klik / Tap ▶ ]
-                            </text>
+                          </g>
+                        )
+                      })()}
+
+                      {/* 4. Player Explanation Speech Bubble ('player_explain') */}
+                      {teacherCutsceneStage === 'player_explain' && (() => {
+                        const pW = 350
+                        const pH = 84
+                        const pLeft = Math.max(20, Math.min(WORLD_VW - pW - 170, charPos.x - pW * 0.75))
+                        const headTopY = charPos.y - 250 * 0.85
+                        const pY = headTopY - pH - 15
+                        const pointerX = Math.max(pLeft + 30, Math.min(pLeft + pW - 30, charPos.x))
+
+                        return (
+                          <g style={{ cursor: 'pointer' }} onClick={e => { e.stopPropagation(); handleInteractTeacher(insideRoom); }}>
+                            <foreignObject x={pLeft} y={pY} width={pW} height={pH} style={{ overflow: 'visible' }}>
+                              <div style={{
+                                width: '100%',
+                                height: '100%',
+                                boxSizing: 'border-box',
+                                padding: '8px 14px 6px 14px',
+                                background: 'rgba(15, 35, 56, 0.96)',
+                                border: '2px solid #38BDF8',
+                                borderRadius: '14px',
+                                boxShadow: '0 8px 24px rgba(0,0,0,0.75)',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                justifyContent: 'space-between',
+                                userSelect: 'none',
+                              }}>
+                                <div style={{ fontSize: '10.5px', fontWeight: 900, color: '#38BDF8', fontFamily: 'var(--font-ui)', letterSpacing: '0.3px' }}>
+                                  Kamu
+                                </div>
+                                <div style={{
+                                  fontSize: '10.5px',
+                                  fontWeight: 800,
+                                  color: '#FFFFFF',
+                                  fontFamily: 'var(--font-ui)',
+                                  textAlign: 'center',
+                                  lineHeight: 1.35,
+                                  margin: '2px 0',
+                                }}>
+                                  {insideRoom.id === 'A2' ? (
+                                    <>
+                                      "A-ampun Pak Bambang! Saya tadi kena sanksi Pak Sutrisno"
+                                      <br />
+                                      "untuk ngumpulin 35 data screen time sekolah, Pak!"
+                                    </>
+                                  ) : (
+                                    <>
+                                      "Saya sedang menjalankan sanksi Pak Sutrisno untuk"
+                                      <br />
+                                      "mengumpulkan sampel data screen time 7 siswa di kelas ini!"
+                                    </>
+                                  )}
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+                                  <span style={{ fontSize: '9.5px', fontWeight: 900, color: '#38BDF8', fontFamily: 'var(--font-ui)', letterSpacing: '0.3px' }}>
+                                    [ Klik / Tap ▶ ]
+                                  </span>
+                                </div>
+                              </div>
+                            </foreignObject>
+                            <polygon
+                              points={`${pointerX - 10},${pY + pH} ${pointerX + 10},${pY + pH} ${Math.min(charPos.x, pointerX + 15)},${headTopY + 25}`}
+                              fill="rgba(15, 35, 56, 0.96)"
+                              stroke="#38BDF8"
+                              strokeWidth={1}
+                            />
                           </g>
                         )
                       })()}
 
                       {/* 5. Teacher Reply Speech Bubble ('teacher_reply') */}
-                      {teacherCutsceneStage === 'teacher_reply' && (
-                        <g style={{ cursor: 'pointer' }} onClick={e => { e.stopPropagation(); handleInteractTeacher(insideRoom); }}>
-                          <rect
-                            x={teacherX - 165}
-                            y={bubbleY - 78}
-                            width={330}
-                            height={68}
-                            rx={14}
-                            fill="rgba(15, 35, 56, 0.96)"
-                            stroke="#10B981"
-                            strokeWidth={2}
-                            style={{ filter: 'drop-shadow(0 8px 24px rgba(0,0,0,0.75))' }}
-                          />
-                          <polygon
-                            points={`${teacherX - 8},${bubbleY - 10} ${teacherX + 8},${bubbleY - 10} ${teacherX},${bubbleY + 2}`}
-                            fill="rgba(15, 35, 56, 0.96)"
-                            stroke="#10B981"
-                            strokeWidth={1}
-                          />
-                          <text x={teacherX - 153} y={bubbleY - 60} textAnchor="start" fill="#10B981" fontSize={10.5} fontWeight="900" fontFamily="var(--font-ui)">
-                            {teacherName}
-                          </text>
-                          {insideRoom.id === 'A2' ? (
-                            <>
-                              <text x={teacherX} y={bubbleY - 40} textAnchor="middle" fill="#FFFFFF" fontSize={10.5} fontWeight="800" fontFamily="var(--font-ui)">
-                                "Oalah Sutrisno... Ya sudah, ini data 7 teman sekelasmu."
-                              </text>
-                              <text x={teacherX} y={bubbleY - 26} textAnchor="middle" fill="#FCD34D" fontSize={10} fontWeight="800" fontFamily="var(--font-ui)">
-                                "Tapi ingat, jawab dulu soal tepi bawah ini biar datanya valid!"
-                              </text>
-                            </>
-                          ) : (
-                            <>
-                              <text x={teacherX} y={bubbleY - 40} textAnchor="middle" fill="#FFFFFF" fontSize={10.5} fontWeight="800" fontFamily="var(--font-ui)">
-                                "Oh begitu! Baiklah, ini sampel data"
-                              </text>
-                              <text x={teacherX} y={bubbleY - 26} textAnchor="middle" fill="#FFFFFF" fontSize={10.5} fontWeight="800" fontFamily="var(--font-ui)">
-                                screen time 7 siswa dari Ruang {insideRoom.label.replace('Kelas ', '')}."
-                              </text>
-                            </>
-                          )}
-                          <text x={teacherX + 153} y={bubbleY - 20} textAnchor="end" fill="#10B981" fontSize={9.5} fontWeight="900" fontFamily="var(--font-ui)">
-                            [ Ambil Data ▶ ]
-                          </text>
-                        </g>
-                      )}
+                      {teacherCutsceneStage === 'teacher_reply' && (() => {
+                        const bW = 340
+                        const bH = 82
+                        const bX = teacherX - bW / 2
+                        const bY = bubbleY - bH - 12
+                        return (
+                          <g style={{ cursor: 'pointer' }} onClick={e => { e.stopPropagation(); handleInteractTeacher(insideRoom); }}>
+                            <foreignObject x={bX} y={bY} width={bW} height={bH} style={{ overflow: 'visible' }}>
+                              <div style={{
+                                width: '100%',
+                                height: '100%',
+                                boxSizing: 'border-box',
+                                padding: '8px 14px 6px 14px',
+                                background: 'rgba(15, 35, 56, 0.96)',
+                                border: '2px solid #10B981',
+                                borderRadius: '14px',
+                                boxShadow: '0 8px 24px rgba(0,0,0,0.75)',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                justifyContent: 'space-between',
+                                userSelect: 'none',
+                              }}>
+                                <div style={{ fontSize: '10.5px', fontWeight: 900, color: '#10B981', fontFamily: 'var(--font-ui)', letterSpacing: '0.3px' }}>
+                                  {teacherName}
+                                </div>
+                                <div style={{
+                                  fontSize: '10.5px',
+                                  fontWeight: 800,
+                                  color: '#FFFFFF',
+                                  fontFamily: 'var(--font-ui)',
+                                  textAlign: 'center',
+                                  lineHeight: 1.35,
+                                  margin: '2px 0',
+                                }}>
+                                  {insideRoom.id === 'A2' ? (
+                                    <>
+                                      "Oalah Sutrisno... Ya sudah, ini data 7 teman sekelasmu."
+                                      <br />
+                                      <span style={{ color: '#FCD34D' }}>"Tapi ingat, jawab dulu soal tepi bawah ini biar datanya valid!"</span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      "Oh begitu! Baiklah, ini sampel data"
+                                      <br />
+                                      `screen time 7 siswa dari Ruang ${insideRoom.label.replace('Kelas ', '')}.`
+                                    </>
+                                  )}
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+                                  <span style={{ fontSize: '9.5px', fontWeight: 900, color: '#10B981', fontFamily: 'var(--font-ui)', letterSpacing: '0.3px' }}>
+                                    [ Ambil Data ▶ ]
+                                  </span>
+                                </div>
+                              </div>
+                            </foreignObject>
+                            <polygon
+                              points={`${teacherX - 8},${bY + bH} ${teacherX + 8},${bY + bH} ${teacherX},${bubbleY + 2}`}
+                              fill="rgba(15, 35, 56, 0.96)"
+                              stroke="#10B981"
+                              strokeWidth={1}
+                            />
+                          </g>
+                        )
+                      })()}
                     </g>
                   )
                 })() : ((cinematicStage === 'sanction_received' || demoMode) ? CLASS_DOORS.map(door => {
@@ -2402,247 +2451,197 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                         const isSanctionStage = ['pak_sanction_1', 'pak_sanction_2', 'pak_sanction_3'].includes(cinematicStage)
 
                         {/* Speech bubble for Pak Sutrisno */}
-                        const renderShoutBubble = isSpeechActive && cinematicStage !== 'player_reply_pak' && (
-                          <g
-                            key="pak-shout-bubble"
-                            style={{ cursor: 'pointer' }}
-                            onClick={handleTalkToPak}
-                          >
-                            {/* Dialogue Card Container */}
-                            <rect
-                              x={pakX - (isSanctionStage ? 165 : 130)}
-                              y={pakY - (isSanctionStage ? 198 : 180)}
-                              width={isSanctionStage ? 330 : 260}
-                              height={isSanctionStage ? 76 : 58}
-                              rx={14}
-                              fill="rgba(15, 35, 56, 0.96)"
-                              stroke="#38BDF8"
-                              strokeWidth={2}
-                              style={{ filter: 'drop-shadow(0 8px 24px rgba(0,0,0,0.7))' }}
-                            />
-                            {/* Pointer Triangle */}
-                            <polygon
-                              points={`${pakX - 8},${pakY - 122} ${pakX + 8},${pakY - 122} ${pakX},${pakY - 110}`}
-                              fill="rgba(15, 35, 56, 0.96)"
-                              stroke="#38BDF8"
-                              strokeWidth={1}
-                            />
+                        const renderShoutBubble = isSpeechActive && cinematicStage !== 'player_reply_pak' && (() => {
+                          const isSanctionStage = ['pak_sanction_1', 'pak_sanction_2', 'pak_sanction_3'].includes(cinematicStage)
+                          const bubbleW = isSanctionStage ? 340 : 270
+                          const bubbleH = isSanctionStage ? 82 : 66
+                          const bubbleLeft = pakX - bubbleW / 2
+                          const bubbleTop = pakY - bubbleH - 122
 
-                            {/* Speaker Name in Top-Left Corner */}
-                            <text
-                              x={pakX - (isSanctionStage ? 152 : 118)}
-                              y={pakY - (isSanctionStage ? 182 : 164)}
-                              textAnchor="start"
-                              fill="#38BDF8"
-                              fontSize={10.5}
-                              fontWeight="900"
-                              fontFamily="var(--font-ui)"
-                              style={{ letterSpacing: '0.3px' }}
+                          return (
+                            <g
+                              key="pak-shout-bubble"
+                              style={{ cursor: 'pointer' }}
+                              onClick={handleTalkToPak}
                             >
-                              Pak Sutrisno
-                            </text>
-
-                            {/* Dialogue Lines */}
-                            {cinematicStage === 'pak_shouting' && (
-                              <text x={pakX} y={pakY - 143} textAnchor="middle" fill="#FFFFFF" fontSize={10.5} fontWeight="800" fontFamily="var(--font-ui)">
-                                "Hey kamu! Baru jam segini sampai sekolah?!"
-                              </text>
-                            )}
-                            {cinematicStage === 'pak_shouting_2' && (
-                              <text x={pakX} y={pakY - 143} textAnchor="middle" fill="#FFFFFF" fontSize={10.5} fontWeight="800" fontFamily="var(--font-ui)">
-                                "Kamu kesini!"
-                              </text>
-                            )}
-                            {cinematicStage === 'pak_sanction_1' && (
-                              <g>
-                                <text x={pakX} y={pakY - 162} textAnchor="middle" fill="#FFFFFF" fontSize={10.5} fontWeight="800" fontFamily="var(--font-ui)">
-                                  "Kamu terlambat lagi! Bel sekolah sudah lama berbunyi
-                                </text>
-                                <text x={pakX} y={pakY - 146} textAnchor="middle" fill="#FFFFFF" fontSize={10.5} fontWeight="800" fontFamily="var(--font-ui)">
-                                  dan kamu baru saja melangkah di lapangan ini."
-                                </text>
-                              </g>
-                            )}
-                            {cinematicStage === 'pak_sanction_2' && (
-                              <g>
-                                <text x={pakX} y={pakY - 162} textAnchor="middle" fill="#FFFFFF" fontSize={10.5} fontWeight="800" fontFamily="var(--font-ui)">
-                                  "Sebagai sanksi kedisiplinan, kamu <tspan fill="#EF4444" fontWeight="900">TIDAK BOLEH</tspan>"
-                                </text>
-                                <text x={pakX} y={pakY - 146} textAnchor="middle" fill="#FFFFFF" fontSize={10.5} fontWeight="800" fontFamily="var(--font-ui)">
-                                  masuk kelas sebelum menyelesaikan tugas ini!"
-                                </text>
-                              </g>
-                            )}
-                            {cinematicStage === 'pak_sanction_3' && (
-                              <g>
-                                <text x={pakX} y={pakY - 162} textAnchor="middle" fill="#FFFFFF" fontSize={10.5} fontWeight="800" fontFamily="var(--font-ui)">
-                                  "Kelilingi lorong sekolah dan kumpulkan <tspan fill="#38BDF8" fontWeight="900">35 sampel data</tspan>"
-                                </text>
-                                <text x={pakX} y={pakY - 146} textAnchor="middle" fill="#FFFFFF" fontSize={10.5} fontWeight="800" fontFamily="var(--font-ui)">
-                                  screen time dari 5 kelas (VII-A, VII-B, VIII-A, VIII-B, IX)!"
-                                </text>
-                              </g>
-                            )}
-
-                            {/* Action Prompt Line */}
-                            <text
-                              x={pakX + (isSanctionStage ? 152 : 118)}
-                              y={pakY - 128}
-                              textAnchor="end"
-                              fill="#38BDF8"
-                              fontSize={9.5}
-                              fontWeight="900"
-                              fontFamily="var(--font-ui)"
-                            >
-                              [ Klik / Tap ▶ ]
-                            </text>
-                          </g>
-                        )
+                              <foreignObject x={bubbleLeft} y={bubbleTop} width={bubbleW} height={bubbleH} style={{ overflow: 'visible' }}>
+                                <div style={{
+                                  width: '100%',
+                                  height: '100%',
+                                  boxSizing: 'border-box',
+                                  padding: '8px 14px 6px 14px',
+                                  background: 'rgba(15, 35, 56, 0.96)',
+                                  border: '2px solid #38BDF8',
+                                  borderRadius: '14px',
+                                  boxShadow: '0 8px 24px rgba(0,0,0,0.7)',
+                                  display: 'flex',
+                                  flexDirection: 'column',
+                                  justifyContent: 'space-between',
+                                  userSelect: 'none',
+                                }}>
+                                  <div style={{ fontSize: '10.5px', fontWeight: 900, color: '#38BDF8', fontFamily: 'var(--font-ui)', letterSpacing: '0.3px' }}>
+                                    Pak Sutrisno
+                                  </div>
+                                  <div style={{
+                                    fontSize: '10.5px',
+                                    fontWeight: 800,
+                                    color: '#FFFFFF',
+                                    fontFamily: 'var(--font-ui)',
+                                    textAlign: 'center',
+                                    lineHeight: 1.35,
+                                    margin: '2px 0',
+                                  }}>
+                                    {cinematicStage === 'pak_shouting' && '"Hey kamu! Baru jam segini sampai sekolah?!"'}
+                                    {cinematicStage === 'pak_shouting_2' && '"Kamu kesini!"'}
+                                    {cinematicStage === 'pak_sanction_1' && (
+                                      <>
+                                        "Kamu terlambat lagi! Bel sekolah sudah lama berbunyi
+                                        <br />
+                                        dan kamu baru saja melangkah di lapangan ini."
+                                      </>
+                                    )}
+                                    {cinematicStage === 'pak_sanction_2' && (
+                                      <>
+                                        "Sebagai sanksi kedisiplinan, kamu <span style={{ color: '#EF4444', fontWeight: 900 }}>TIDAK BOLEH</span>"
+                                        <br />
+                                        "masuk kelas sebelum menyelesaikan tugas ini!"
+                                      </>
+                                    )}
+                                    {cinematicStage === 'pak_sanction_3' && (
+                                      <>
+                                        "Kelilingi lorong sekolah dan kumpulkan <span style={{ color: '#38BDF8', fontWeight: 900 }}>35 sampel data</span>"
+                                        <br />
+                                        "screen time dari 5 kelas (VII-A, VII-B, VIII-A, VIII-B, IX)!"
+                                      </>
+                                    )}
+                                  </div>
+                                  <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+                                    <span style={{ fontSize: '9.5px', fontWeight: 900, color: '#38BDF8', fontFamily: 'var(--font-ui)', letterSpacing: '0.3px' }}>
+                                      [ Klik / Tap ▶ ]
+                                    </span>
+                                  </div>
+                                </div>
+                              </foreignObject>
+                              <polygon
+                                points={`${pakX - 8},${bubbleTop + bubbleH} ${pakX + 8},${bubbleTop + bubbleH} ${pakX},${pakY - 110}`}
+                                fill="rgba(15, 35, 56, 0.96)"
+                                stroke="#38BDF8"
+                                strokeWidth={1}
+                              />
+                            </g>
+                          )
+                        })()
 
                         {/* Player Opening Monologue Speech Bubble */}
                         const renderPlayerIntroBubble = cinematicStage === 'player_intro' && (() => {
-                          const pW = 240
+                          const pW = 250
+                          const pH = 66
                           const pLeft = Math.max(camX + 10, Math.min(camX + VIEW_VW - pW - 10, charPos.x - pW / 2))
-                          const pTextX = pLeft + pW / 2
+                          const pY = btnY - pH - 10
                           return (
                             <g
                               key="player-intro-bubble"
                               style={{ cursor: 'pointer' }}
                               onClick={handleTalkToPak}
                             >
-                              {/* Dialogue Card Container above Player */}
-                              <rect
-                                x={pLeft}
-                                y={btnY - 32}
-                                width={pW}
-                                height={54}
-                                rx={14}
-                                fill="rgba(15, 35, 56, 0.96)"
-                                stroke="#38BDF8"
-                                strokeWidth={2}
-                                style={{ filter: 'drop-shadow(0 8px 24px rgba(0,0,0,0.7))' }}
-                              />
-                              {/* Pointer Triangle */}
+                              <foreignObject x={pLeft} y={pY} width={pW} height={pH} style={{ overflow: 'visible' }}>
+                                <div style={{
+                                  width: '100%',
+                                  height: '100%',
+                                  boxSizing: 'border-box',
+                                  padding: '8px 12px 6px 12px',
+                                  background: 'rgba(15, 35, 56, 0.96)',
+                                  border: '2px solid #38BDF8',
+                                  borderRadius: '14px',
+                                  boxShadow: '0 8px 24px rgba(0,0,0,0.7)',
+                                  display: 'flex',
+                                  flexDirection: 'column',
+                                  justifyContent: 'space-between',
+                                  userSelect: 'none',
+                                }}>
+                                  <div style={{ fontSize: '10.5px', fontWeight: 900, color: '#38BDF8', fontFamily: 'var(--font-ui)', letterSpacing: '0.3px' }}>
+                                    Kamu
+                                  </div>
+                                  <div style={{
+                                    fontSize: '10.5px',
+                                    fontWeight: 800,
+                                    color: '#FFFFFF',
+                                    fontFamily: 'var(--font-ui)',
+                                    textAlign: 'center',
+                                    lineHeight: 1.35,
+                                  }}>
+                                    "Duh... aku terlambat lagi ke sekolah!"
+                                  </div>
+                                  <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+                                    <span style={{ fontSize: '9px', fontWeight: 900, color: '#38BDF8', fontFamily: 'var(--font-ui)', letterSpacing: '0.3px' }}>
+                                      [ Klik / Tap ▶ ]
+                                    </span>
+                                  </div>
+                                </div>
+                              </foreignObject>
                               <polygon
-                                points={`${charPos.x - 8},${btnY + 22} ${charPos.x + 8},${btnY + 22} ${charPos.x},${btnY + 32}`}
+                                points={`${charPos.x - 8},${pY + pH} ${charPos.x + 8},${pY + pH} ${charPos.x},${btnY + 22}`}
                                 fill="rgba(15, 35, 56, 0.96)"
                                 stroke="#38BDF8"
                                 strokeWidth={1}
                               />
-
-                              {/* Speaker Name: Kamu */}
-                              <text
-                                x={pLeft + 14}
-                                y={btnY - 16}
-                                textAnchor="start"
-                                fill="#38BDF8"
-                                fontSize={10.5}
-                                fontWeight="900"
-                                fontFamily="var(--font-ui)"
-                                style={{ letterSpacing: '0.3px' }}
-                              >
-                                Kamu
-                              </text>
-
-                              {/* Dialogue Line */}
-                              <text
-                                x={pTextX}
-                                y={btnY + 1}
-                                textAnchor="middle"
-                                fill="#FFFFFF"
-                                fontSize={11}
-                                fontWeight="800"
-                                fontFamily="var(--font-ui)"
-                              >
-                                "Duh... aku terlambat lagi ke sekolah!"
-                              </text>
-
-                              {/* Action Prompt Line */}
-                              <text
-                                x={pLeft + pW - 12}
-                                y={btnY + 15}
-                                textAnchor="end"
-                                fill="#38BDF8"
-                                fontSize={9}
-                                fontWeight="900"
-                                fontFamily="var(--font-ui)"
-                              >
-                                [ Klik / Tap ▶ ]
-                              </text>
                             </g>
                           )
                         })()
 
                         {/* Player Reply Speech Bubble */}
                         const renderPlayerReplyBubble = cinematicStage === 'player_reply_pak' && (() => {
-                          const pW = 210
+                          const pW = 230
+                          const pH = 66
                           const pLeft = Math.max(camX + 10, Math.min(camX + VIEW_VW - pW - 10, charPos.x - pW / 2))
-                          const pTextX = pLeft + pW / 2
+                          const pY = btnY - pH - 10
                           return (
                             <g
                               key="player-reply-bubble"
                               style={{ cursor: 'pointer' }}
                               onClick={handleTalkToPak}
                             >
-                              {/* Dialogue Card Container above Player */}
-                              <rect
-                                x={pLeft}
-                                y={btnY - 32}
-                                width={pW}
-                                height={54}
-                                rx={14}
-                                fill="rgba(15, 35, 56, 0.96)"
-                                stroke="#10B981"
-                                strokeWidth={2}
-                                style={{ filter: 'drop-shadow(0 8px 24px rgba(0,0,0,0.7))' }}
-                              />
-                              {/* Pointer Triangle */}
+                              <foreignObject x={pLeft} y={pY} width={pW} height={pH} style={{ overflow: 'visible' }}>
+                                <div style={{
+                                  width: '100%',
+                                  height: '100%',
+                                  boxSizing: 'border-box',
+                                  padding: '8px 12px 6px 12px',
+                                  background: 'rgba(15, 35, 56, 0.96)',
+                                  border: '2px solid #10B981',
+                                  borderRadius: '14px',
+                                  boxShadow: '0 8px 24px rgba(0,0,0,0.7)',
+                                  display: 'flex',
+                                  flexDirection: 'column',
+                                  justifyContent: 'space-between',
+                                  userSelect: 'none',
+                                }}>
+                                  <div style={{ fontSize: '10.5px', fontWeight: 900, color: '#10B981', fontFamily: 'var(--font-ui)', letterSpacing: '0.3px' }}>
+                                    Kamu
+                                  </div>
+                                  <div style={{
+                                    fontSize: '11px',
+                                    fontWeight: 800,
+                                    color: '#FFFFFF',
+                                    fontFamily: 'var(--font-ui)',
+                                    textAlign: 'center',
+                                    lineHeight: 1.35,
+                                  }}>
+                                    "Baik Pak!"
+                                  </div>
+                                  <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+                                    <span style={{ fontSize: '9px', fontWeight: 900, color: '#10B981', fontFamily: 'var(--font-ui)', letterSpacing: '0.3px' }}>
+                                      [ 📝 Mulai Investigasi ▶ ]
+                                    </span>
+                                  </div>
+                                </div>
+                              </foreignObject>
                               <polygon
-                                points={`${charPos.x - 8},${btnY + 22} ${charPos.x + 8},${btnY + 22} ${charPos.x},${btnY + 32}`}
+                                points={`${charPos.x - 8},${pY + pH} ${charPos.x + 8},${pY + pH} ${charPos.x},${btnY + 22}`}
                                 fill="rgba(15, 35, 56, 0.96)"
                                 stroke="#10B981"
                                 strokeWidth={1}
                               />
-
-                              {/* Speaker Name: Kamu */}
-                              <text
-                                x={pLeft + 14}
-                                y={btnY - 16}
-                                textAnchor="start"
-                                fill="#10B981"
-                                fontSize={10.5}
-                                fontWeight="900"
-                                fontFamily="var(--font-ui)"
-                                style={{ letterSpacing: '0.3px' }}
-                              >
-                                Kamu
-                              </text>
-
-                              {/* Dialogue Line */}
-                              <text
-                                x={pTextX}
-                                y={btnY + 1}
-                                textAnchor="middle"
-                                fill="#FFFFFF"
-                                fontSize={11}
-                                fontWeight="800"
-                                fontFamily="var(--font-ui)"
-                              >
-                                "Baik Pak!"
-                              </text>
-
-                              {/* Action Prompt Line */}
-                              <text
-                                x={pLeft + pW - 12}
-                                y={btnY + 15}
-                                textAnchor="end"
-                                fill="#10B981"
-                                fontSize={9}
-                                fontWeight="900"
-                                fontFamily="var(--font-ui)"
-                              >
-                                [ 📝 Mulai Investigasi ▶ ]
-                              </text>
                             </g>
                           )
                         })()
@@ -3254,9 +3253,12 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
           imagesToPreload={[
             '/Assets/Building/Kelas.webp',
             '/Assets/Building/Ruang VII-A/VII-A.webp',
-            '/Assets/Building/Ruang VII-B/VII-B.png',
+            '/Assets/Building/Ruang VII-B/VII-B.webp',
+            '/Assets/Building/Ruang VIII-A/VIII-A.webp',
+            '/Assets/Building/Ruang VIII-B/VIII-B.webp',
+            '/Assets/Building/Ruang IX/IX.webp',
             '/Assets/Building/Ruang VII-B/Pak Bambang.png',
-            '/Assets/Building/Ruang VII-A/Bu Sari.png',
+            '/Assets/Building/Ruang VII-A/Bu Sari.webp',
             '/Assets/Character/Stevunt-idle.png',
             '/Assets/Character/pak Sutrisno-iso_idle_right-trimmed.png'
           ]}
