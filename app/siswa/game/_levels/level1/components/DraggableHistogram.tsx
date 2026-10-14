@@ -4,6 +4,7 @@ import { useState, useCallback, useEffect, useMemo } from 'react'
 import { motion, AnimatePresence, PanInfo } from 'framer-motion'
 import { CLASS_LABELS, getClassIndex, getLevel1Data } from '@/app/siswa/game/_data/level1'
 import { useGameStore } from '@/lib/store/gameStore'
+import { gameAudio } from '@/lib/utils/gameAudio'
 
 interface DataPoint {
   id: string
@@ -190,6 +191,7 @@ export default function DraggableHistogram({
         const slotIdx = parseInt(slotEl.getAttribute('data-slot-idx') ?? '-1')
         if (slotIdx !== -1) {
           if (dp.classIdx === slotIdx) {
+            gameAudio.playSuccess()
             setDataPoints(prev => {
               const updated = prev.map(item => item.id === dp.id ? { ...item, placed: true } : item)
               if (onPlacedChange) {
@@ -206,6 +208,7 @@ export default function DraggableHistogram({
               return prev
             })
           } else {
+            gameAudio.playError()
             handleWrongAttempt(dp.val, slotIdx)
           }
         }
@@ -221,6 +224,7 @@ export default function DraggableHistogram({
   const onTapSlot = useCallback((slotIdx: number) => {
     if (!selectedPoint) return
     if (selectedPoint.classIdx === slotIdx) {
+      gameAudio.playSuccess()
       setDataPoints(prev => {
         const updated = prev.map(dp => dp.id === selectedPoint.id ? { ...dp, placed: true } : dp)
         if (onPlacedChange) {
@@ -238,12 +242,14 @@ export default function DraggableHistogram({
       })
       setSelectedPoint(null)
     } else {
+      gameAudio.playError()
       handleWrongAttempt(selectedPoint.val, slotIdx)
     }
   }, [selectedPoint, onPlacedChange, handleWrongAttempt])
 
   const handleSubmit = () => {
     if (!dataPoints.every(dp => dp.placed)) return
+    gameAudio.playUnlockJingle()
     setSubmitted(true)
     onSubmit?.(true)
   }

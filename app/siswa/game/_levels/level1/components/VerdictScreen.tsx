@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { getLevel1Data } from '@/app/siswa/game/_data/level1'
 import { useGameStore } from '@/lib/store/gameStore'
 import DiRA from '@/app/siswa/game/_components/DiRA'
+import { gameAudio } from '@/lib/utils/gameAudio'
 
 interface VerificationScreenProps {
   onCorrect: () => void    // jawaban benar → lanjut MythBusted
@@ -47,8 +48,10 @@ export default function VerificationScreen({ onCorrect, onWrong, guidedMode }: V
     if (!selected) return
     setSubmitted(true)
     if (selected === 'hoaks') {
+      gameAudio.playSuccess()
       setTimeout(() => onCorrect(), 1200)
     } else {
+      gameAudio.playError()
       setIsWrong(true)
       setDiraMsg(
         guidedMode

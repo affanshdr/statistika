@@ -18,6 +18,8 @@ import {
 import Level1HUD from '@/app/siswa/game/_levels/level1/components/Level1HUD'
 import QuizModal from '@/app/siswa/game/_levels/level1/components/modals/QuizModal'
 import WaliKelasModal from '@/app/siswa/game/_levels/level1/components/modals/WaliKelasModal'
+import OutlierSimulator from './OutlierSimulator'
+import { gameAudio } from '@/lib/utils/gameAudio'
 const VIEW_VW = 640
 const VIEW_VH = 360
 const SPEED = 1.0
@@ -1076,9 +1078,11 @@ function PakReportModal({ dataset, onProceed }: { dataset: number[]; onProceed: 
     setSelectedMean(val)
     if (Math.abs(val - meanVal) < 0.05) {
       setMeanIsCorrect(true)
+      gameAudio.playSuccess()
     } else {
       setMeanIsCorrect(false)
       setShakeStep(prev => prev + 1)
+      gameAudio.playError()
     }
   }
 
@@ -1086,9 +1090,11 @@ function PakReportModal({ dataset, onProceed }: { dataset: number[]; onProceed: 
     setSelectedClaim(claim)
     if (claim === 'misleading') {
       setClaimIsCorrect(true)
+      gameAudio.playSuccess()
     } else {
       setClaimIsCorrect(false)
       setShakeStep(prev => prev + 1)
+      gameAudio.playError()
     }
   }
 
@@ -1487,30 +1493,32 @@ function PakReportModal({ dataset, onProceed }: { dataset: number[]; onProceed: 
             )}
 
             {claimIsCorrect === true && (
-              <motion.div
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1.5px solid #10B981', borderRadius: 14, padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 8 }}
-              >
-                <div style={{ fontSize: 14, fontWeight: 900, color: '#10B981' }}>
-                  🎯 ANALISIS KRITIS TEPAT SEKALI!
-                </div>
-                <div style={{ fontSize: 13, color: '#E2E8F0', lineHeight: 1.6 }}>
-                  "Luar biasa, Stevunt! Kamu berhasil membuktikan secara objektif bahwa postingan tersebut melebih-lebihkan fakta!<br /><br />
-                  Data empiris kita menunjukkan rata-rata screen time hanya <strong style={{ color: '#38BDF8' }}>{meanVal} jam/hari</strong>. Sebagian besar siswa ({lte8Count} dari 24) bermain secara normal. Angka tinggi pada postingan terjadi karena ada beberapa siswa dengan waktu layar sangat tinggi (hingga 18 jam) yang kita sebut <strong style={{ color: '#FCD34D' }}>OUTLIER (pencilan)</strong>!<br /><br />
-                  Agar temuan ini diakui secara ilmiah oleh sekolah dan dinas, mari kita susun data 24 siswa ini ke dalam <strong style={{ color: '#10B981' }}>Tabel Distribusi Frekuensi</strong> dan <strong style={{ color: '#10B981' }}>Histogram</strong>!"
-                </div>
-              </motion.div>
-            )}
+              <>
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1.5px solid #10B981', borderRadius: 14, padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 8 }}
+                >
+                  <div style={{ fontSize: 14, fontWeight: 900, color: '#10B981' }}>
+                    🎯 ANALISIS KRITIS TEPAT SEKALI!
+                  </div>
+                  <div style={{ fontSize: 13, color: '#E2E8F0', lineHeight: 1.6 }}>
+                    "Luar biasa, Stevunt! Kamu berhasil membuktikan secara objektif bahwa postingan tersebut melebih-lebihkan fakta!<br /><br />
+                    Data empiris kita menunjukkan rata-rata screen time hanya <strong style={{ color: '#38BDF8' }}>{meanVal} jam/hari</strong>. Sebagian besar siswa ({lte8Count} dari 24) bermain secara normal. Angka tinggi pada postingan terjadi karena ada beberapa siswa dengan waktu layar sangat tinggi (hingga 18 jam) yang kita sebut <strong style={{ color: '#FCD34D' }}>OUTLIER (pencilan)</strong>!<br /><br />
+                    Coba uji interaktif simulator di bawah untuk melihat perbedaan drastis pada Mean vs Median saat data pencilan ini disaring!"
+                  </div>
+                </motion.div>
 
-            {claimIsCorrect === true && (
-              <button
-                className="game-btn game-btn-primary"
-                style={{ padding: '13px 18px', fontSize: 14.5, fontWeight: 900, width: '100%', borderRadius: 14, background: 'linear-gradient(135deg, #10B981 0%, #38BDF8 100%)', boxShadow: '0 0 20px rgba(16, 185, 129, 0.45)', cursor: 'pointer' }}
-                onClick={onProceed}
-              >
-                MULAI ANALISIS DISTRIBUSI FREKUENSI (RENTANG R) →
-              </button>
+                <OutlierSimulator dataset={dataset} />
+
+                <button
+                  className="game-btn game-btn-primary"
+                  style={{ padding: '13px 18px', fontSize: 14.5, fontWeight: 900, width: '100%', borderRadius: 14, background: 'linear-gradient(135deg, #10B981 0%, #38BDF8 100%)', boxShadow: '0 0 20px rgba(16, 185, 129, 0.45)', cursor: 'pointer' }}
+                  onClick={onProceed}
+                >
+                  MULAI ANALISIS DISTRIBUSI FREKUENSI (RENTANG R) →
+                </button>
+              </>
             )}
           </div>
         )}
@@ -1625,6 +1633,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
   const animRef = useRef<number | null>(null)
   const unlockedR = useRef(unlocked); unlockedR.current = unlocked
   const savedClassesR = useRef(savedClasses); savedClassesR.current = savedClasses
+  const collectedR = useRef(collected); collectedR.current = collected
   const activeDoorR = useRef(activeDoor); activeDoorR.current = activeDoor
   const nearDoorR = useRef(nearDoor); nearDoorR.current = nearDoor
   const activeClassR = useRef(activeClass); activeClassR.current = activeClass
@@ -1660,7 +1669,8 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
     for (const d of doors) {
       if (d.roomId !== 'RG' && !unlockedR.current.has(d.roomId)) continue
       const dist = Math.hypot(d.x - cx, d.y - cy)
-      if (dist < 50 && dist < minDist) {
+      const threshold = d.roomId === 'RG' ? 85 : 60
+      if (dist < threshold && dist < minDist) {
         minDist = dist
         closest = d
       }
@@ -1836,10 +1846,11 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
       } else if ((e.key === 'Enter' || e.key === ' ' || e.key === 'e' || e.key === 'E') && nearClassVal) {
         e.preventDefault()
         if (nearClassVal.id === 'RG') {
-          if (collected.size >= TOTAL_N) {
+          const isRGUnlocked = collectedR.current.size >= TOTAL_N || savedClassesR.current.size >= 4
+          if (isRGUnlocked) {
             enterClassroom(nearClassVal)
           } else {
-            setRgLockedToast(`🔒 Ruang Guru Terkunci! Kumpulkan seluruh data dari 4 kelas terlebih dahulu (${collected.size}/${TOTAL_N}).`)
+            setRgLockedToast(`🔒 Ruang Guru Terkunci! Kumpulkan seluruh data dari 4 kelas terlebih dahulu (${collectedR.current.size}/${TOTAL_N}).`)
             setTimeout(() => setRgLockedToast(null), 2500)
           }
           return
@@ -1901,11 +1912,13 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
 
   const handleCorrect = useCallback(() => {
     if (!activeDoor) return
+    gameAudio.playSuccess()
     setUnlocked(p => new Set([...p, activeDoor.id]))
     setActiveDoor(null)
   }, [activeDoor])
 
   const handleExitClassroom = useCallback(() => {
+    gameAudio.playDoorOpen()
     if (teacherTimerRef.current) clearTimeout(teacherTimerRef.current)
     setTeacherCutsceneStage(null)
     setInsideRoom(null)
@@ -1913,6 +1926,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
   }, [])
 
   const enterClassroom = useCallback((room: QuizDoor) => {
+    gameAudio.playDoorOpen()
     lastHallwayPosRef.current = { x: room.x, y: room.y + 20 }
     setInsideRoom(room)
     setCharPos(LEVEL1_MAPS[room.id]?.spawn || { x: 1050, y: 510 })
@@ -2015,15 +2029,19 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
       const newSize = next.size
 
       if (oldSize < 12 && newSize >= 12) {
+        gameAudio.playItemCollect()
         setMilestoneGlow('50%')
         setTimeout(() => setMilestoneGlow(null), 1800)
       } else if (oldSize < 24 && newSize >= 24) {
+        gameAudio.playUnlockJingle()
         setMilestoneGlow('100%')
         setRoomMilestoneText('DATA TERKUMPUL 24/24! 🎉 RUANG GURU TERBUKA!')
         setTimeout(() => {
           setMilestoneGlow(null)
           setRoomMilestoneText(null)
         }, 3000)
+      } else {
+        gameAudio.playItemCollect()
       }
 
       return next
@@ -2770,7 +2788,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                   )
                 })() : ((cinematicStage === 'sanction_received' || demoMode) ? doors.map(door => {
                   const isRG = door.id === 'RG'
-                  const isRGUnlocked = isRG && collected.size >= TOTAL_N
+                  const isRGUnlocked = isRG && (collected.size >= TOTAL_N || savedClasses.size >= 4)
                   const isSaved = !isRG && savedClasses.has(door.id)
                   const open = isRG ? isRGUnlocked : unlocked.has(door.id)
                   const near = nearClass?.id === door.id
@@ -3195,7 +3213,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                       })()}
 
                       {/* Glowing Waypoint Arrow pointing to Ruang Guru when all 24 data points collected */}
-                      {collected.size >= TOTAL_N && !insideRoom && (
+                      {(collected.size >= TOTAL_N || savedClasses.size >= 4) && !insideRoom && (
                         <g key="waypoint-arrow-rg" style={{ pointerEvents: 'none' }}>
                           <motion.circle
                             cx={625}
@@ -3305,7 +3323,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                         {/* 2. Hallway Door Interaction Prompt (Locked door -> Kuis; Unlocked door -> Masuk Kelas; Saved -> Completed) */}
                         {!insideRoom && nearClass && !activeClass && !nearDoor && (cinematicStage === 'sanction_received' || demoMode) && (() => {
                           const isRG = nearClass.id === 'RG'
-                          const isRGUnlocked = isRG && collected.size >= TOTAL_N
+                          const isRGUnlocked = isRG && (collected.size >= TOTAL_N || savedClasses.size >= 4)
                           const isSaved = !isRG && savedClasses.has(nearClass.id)
                           const isUnlocked = isRG ? isRGUnlocked : unlocked.has(nearClass.id)
                           const buttonW = isRG ? (isRGUnlocked ? 220 : 210) : isSaved ? 180 : 160
@@ -3322,7 +3340,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                                   if (isRGUnlocked) {
                                     enterClassroom(nearClass)
                                   } else {
-                                    setRgLockedToast(`🔒 Ruang Guru Terkunci! Kumpulkan seluruh data dari 4 kelas terlebih dahulu (${collected.size}/${TOTAL_N}).`)
+                                    setRgLockedToast(`🔒 Ruang Guru Terkunci! Kumpulkan seluruh data dari 4 kelas terlebih dahulu (${Math.max(collected.size, savedClasses.size * 6)}/${TOTAL_N}).`)
                                     setTimeout(() => setRgLockedToast(null), 2500)
                                   }
                                   return
@@ -3362,7 +3380,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                                 {isRG
                                   ? isRGUnlocked
                                     ? `[ E ] ✨ Masuk ke Ruang Guru ►`
-                                    : `[ E ] 🔒 Ruang Guru Terkunci (${collected.size}/${TOTAL_N})`
+                                    : `[ E ] 🔒 Ruang Guru Terkunci (${Math.max(collected.size, savedClasses.size * 6)}/${TOTAL_N})`
                                   : isSaved
                                     ? `✓ Data ${nearClass.label} Saved`
                                     : isUnlocked
@@ -3614,7 +3632,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
               {/* Dynamic Quest Status Card */}
               {(() => {
                 const isTaskGiven = cinematicStage === 'sanction_received' || demoMode
-                const isAllCollected = n >= TOTAL_N
+                const isAllCollected = n >= TOTAL_N || savedClasses.size >= 4
 
                 let badgeColor = '#38BDF8'
                 let badgeText = '📍 MISI UTAMA'

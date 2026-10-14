@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { motion, AnimatePresence, PanInfo } from 'framer-motion'
 import { useGameStore } from '@/lib/store/gameStore'
 import DiRA from '@/app/siswa/game/_components/DiRA'
+import { gameAudio } from '@/lib/utils/gameAudio'
 
 // Define the 6 class intervals
 const CLASSES = [
@@ -154,6 +155,7 @@ export default function IntervalKelasPhase({
           
           if (item.val === expectedVal) {
             // Correct placement!
+            gameAudio.playSuccess()
             setFilledSlots(prev => {
               const next = [...prev]
               next[slotIdx] = item.val
@@ -163,12 +165,13 @@ export default function IntervalKelasPhase({
             setPool(prev => prev.filter(p => p.id !== item.id))
           } else {
             // Wrong placement!
+            gameAudio.playError()
             setShakeSlotIdx(slotIdx)
             setTimeout(() => setShakeSlotIdx(null), 500)
             incrementMistake()
             triggerToast(
               DISTRACTORS.includes(item.val) 
-                ? 'Coba cek lagi, apakah ini sudah dikurangi/ditambah 0.5? Ingat batas kelas harus kontinu!'
+                ? '💡 Ingat: Tepi Bawah = Batas Bawah − 0.5 dan Tepi Atas = Batas Atas + 0.5. Jangan masukkan batas bulat langsung!'
                 : 'Coba re-check, letak tepi bawah/atas di slot ini kurang tepat.'
             )
           }

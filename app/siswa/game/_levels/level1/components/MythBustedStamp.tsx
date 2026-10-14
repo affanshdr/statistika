@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { gameAudio } from '@/lib/utils/gameAudio'
 
 interface MythBustedStampProps {
   onComplete: () => void
@@ -13,6 +14,7 @@ export default function MythBustedStamp({ onComplete }: MythBustedStampProps) {
 
   // After stamp animation (3.5s), transition to mentor dialog
   useEffect(() => {
+    gameAudio.playUnlockJingle()
     timerRef.current = setTimeout(() => setPhase('mentor'), 3500)
     return () => { if (timerRef.current) clearTimeout(timerRef.current) }
   }, [])
