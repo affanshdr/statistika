@@ -21,7 +21,7 @@ import WaliKelasModal from '@/app/siswa/game/_levels/level1/components/modals/Wa
 const VIEW_VW = 640
 const VIEW_VH = 360
 const SPEED = 1.0
-const TOTAL_N = 35
+const TOTAL_N = 24
 
 import {
   CLASS_DOORS,
@@ -957,7 +957,7 @@ function CounterResult({ onDone }: { onDone: () => void }) {
           <AnimatePresence>{done && (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               <div style={{ padding: '16px 20px', borderRadius: 16, background: 'rgba(14, 131, 136, 0.04)', border: '1px solid rgba(14, 131, 136, 0.2)', fontSize: 15, fontWeight: 600, color: '#E2E8F0', lineHeight: 1.7, textAlign: 'left' }}>
-                Kamu telah mengumpulkan seluruh data dari 3 ruangan.<br />
+                Kamu telah mengumpulkan seluruh data dari 4 kelas (VII-A, VII-B, VIII-A, VIII-B).<br />
                 Ukuran sampel yang terkumpul adalah <strong style={{ color: '#00ADB5', fontSize: 19 }}>n = {TOTAL_N}</strong>.
               </div>
               {btn && <button className="game-btn game-btn-primary" style={{ width: '100%', fontSize: 16, fontWeight: 800, padding: '12px 18px' }} onClick={onDone}>Lanjut ke Perhitungan Rentang (R) →</button>}
@@ -1013,7 +1013,7 @@ function PakSanctionModal({ onAccept }: { onAccept: () => void }) {
           <p style={{ margin: 0, fontSize: 13.5, color: '#E2E8F0', fontWeight: 600, lineHeight: 1.65 }}>
             "Kamu terlambat lagi! Bel sekolah sudah lama berbunyi dan kamu baru saja melangkah di lapangan ini.<br /><br />
             Sebagai sanksi kedisiplinan, kamu <strong style={{ color: '#F87171' }}>TIDAK BOLEH masuk kelas</strong> sebelum menyelesaikan tugas ini:<br />
-            <strong style={{ color: '#38BDF8' }}>Kelilingi lorong sekolah dan kumpulkan 35 sampel data screen time dari 5 kelas (VII-A, VII-B, VIII-A, VIII-B, IX)!</strong>"
+            <strong style={{ color: '#38BDF8' }}>Kelilingi lorong sekolah dan kumpulkan 24 sampel data screen time dari 4 kelas (VII-A, VII-B, VIII-A, VIII-B)!</strong>"
           </p>
         </div>
 
@@ -1089,9 +1089,9 @@ function PakReportModal({ onProceed }: { onProceed: () => void }) {
           }} />
           <div style={{ background: 'rgba(16, 185, 129, 0.06)', border: '1.5px solid rgba(16, 185, 129, 0.25)', borderRadius: 16, padding: '16px 14px', position: 'relative', zIndex: 1 }}>
             <p style={{ margin: 0, fontSize: 13.5, color: '#E2E8F0', fontWeight: 600, lineHeight: 1.65 }}>
-              "Bagus sekali! Kamu sudah berhasil mengumpulkan <strong style={{ color: '#10B981' }}>35 sampel data screen time</strong> dari 5 ruang kelas.<br /><br />
-              Namun sanksimu belum selesai! Data mentah ini harus dianalisis secara statistik.<br />
-              <strong style={{ color: '#38BDF8' }}>Mari mulai dengan menghitung Rentang Data (R) untuk mengukur sebaran penggunaan gadget siswa!</strong>"
+              "Bagus sekali Stevunt! Kamu sudah berhasil mengumpulkan <strong style={{ color: '#10B981' }}>24 sampel data screen time</strong> dari 4 ruang kelas.<br /><br />
+              Sekarang, saatnya kita tuntaskan investigasi ini! Data mentah ini harus dianalisis secara statistik.<br />
+              <strong style={{ color: '#38BDF8' }}>Mari mulai dengan menghitung Rentang Data (R) untuk mengukur sebaran penggunaan gawai siswa!</strong>"
             </p>
           </div>
         </div>
@@ -1101,7 +1101,7 @@ function PakReportModal({ onProceed }: { onProceed: () => void }) {
           style={{ padding: '12px 18px', fontSize: 14, fontWeight: 900, width: '100%', borderRadius: 14, background: 'linear-gradient(135deg, #10B981 0%, #38BDF8 100%)', boxShadow: '0 0 15px rgba(16, 185, 129, 0.4)', cursor: 'pointer' }}
           onClick={onProceed}
         >
-          MULAI ANALISIS DATA & HITUNG RENTANG (R) →
+          MULAI ANALISIS DATA (24 SAMPEL) →
         </button>
       </motion.div>
     </div>
@@ -1121,7 +1121,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
   const [showPakReportModal, setShowPakReportModal] = useState(false)
   const smoothCamPos = useRef({ x: 180, y: 585 })
   const [unlocked, setUnlocked] = useState<Set<string>>(() => {
-    return demoMode ? new Set(['A', 'B', 'C', 'A1', 'A2', 'A3', 'B1']) : new Set(['A', 'B', 'C'])
+    return demoMode ? new Set(['A', 'B', 'RG', 'A1', 'A2', 'B1', 'B2']) : new Set(['A', 'B', 'RG'])
   })
   const [savedClasses, setSavedClasses] = useState<Set<string>>(() => new Set())
   const [justCompletedClassId, setJustCompletedClassId] = useState<string | null>(null)
@@ -1156,7 +1156,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
   const [collected, setCollected] = useState<Set<string>>(() => {
     if (demoMode) {
       const initialSet = new Set<string>()
-      const demoClassIds = ['A1', 'A2', 'A3', 'B1']
+      const demoClassIds = ['A1', 'A2', 'B1', 'B2']
       const classCircles = DATA_CIRCLES.filter(c => demoClassIds.includes(c.classId))
       classCircles.forEach(c => initialSet.add(c.id))
       return initialSet
@@ -1165,12 +1165,13 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
   })
   const [showCounter, setShowCounter] = useState(demoMode ? true : false)
   const [roomMilestoneText, setRoomMilestoneText] = useState<string | null>(null)
+  const [rgLockedToast, setRgLockedToast] = useState<string | null>(null)
   const [milestoneGlow, setMilestoneGlow] = useState<'50%' | '100%' | null>(null)
   const [moveDir, setMoveDir] = useState({ x: 0, y: 0 })
   const [showDebug, setShowDebug] = useState(false)
   const [isInventoryOpen, setIsInventoryOpen] = useState(false)
   const [showStudentDetails, setShowStudentDetails] = useState(false)
-  const [inventoryTab, setInventoryTab] = useState<'ALL' | 'A1' | 'A2' | 'B1' | 'B2' | 'C1'>('ALL')
+  const [inventoryTab, setInventoryTab] = useState<'ALL' | 'A1' | 'A2' | 'B1' | 'B2'>('ALL')
 
   const charPosRef = useRef({ x: 650, y: 550 })
 
@@ -1231,7 +1232,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
     let closest: typeof CLASS_DOORS[number] | null = null
     let minDist = Infinity
     for (const d of CLASS_DOORS) {
-      if (!unlockedR.current.has(d.roomId)) continue
+      if (d.roomId !== 'RG' && !unlockedR.current.has(d.roomId)) continue
       const dist = Math.hypot(d.x - cx, d.y - cy)
       if (dist < 50 && dist < minDist) {
         minDist = dist
@@ -1408,6 +1409,15 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
         setUnlocked(p => new Set([...p, nearDoorVal.id]))
       } else if ((e.key === 'Enter' || e.key === ' ' || e.key === 'e' || e.key === 'E') && nearClassVal) {
         e.preventDefault()
+        if (nearClassVal.id === 'RG') {
+          if (collected.size >= TOTAL_N) {
+            enterClassroom(nearClassVal)
+          } else {
+            setRgLockedToast(`🔒 Ruang Guru Terkunci! Kumpulkan seluruh data dari 4 kelas terlebih dahulu (${collected.size}/${TOTAL_N}).`)
+            setTimeout(() => setRgLockedToast(null), 2500)
+          }
+          return
+        }
         if (savedClassesR.current.has(nearClassVal.id)) {
           return
         }
@@ -1425,15 +1435,13 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
           e.preventDefault()
           handleInteractTeacher(insideRoomR.current)
         }
-      } else if ((e.key === 'Enter' || e.key === ' ' || e.key === 'e' || e.key === 'E') && !insideRoomR.current) {
+      } else if ((e.key === 'Enter' || e.key === ' ' || e.key === 'e' || e.key === 'E') && !insideRoomR.current && cinematicStageRef.current !== 'sanction_received') {
         const pakX = PAK_SUTRISNO_POS.x
         const pakY = PAK_SUTRISNO_POS.y
         const distToPak = Math.hypot(charPosRef.current.x - pakX, charPosRef.current.y - pakY)
         if (distToPak < 135) {
           e.preventDefault()
-          if (collected.size >= TOTAL_N) {
-            setShowPakReportModal(true)
-          } else if (cinematicStageRef.current === 'player_intro') {
+          if (cinematicStageRef.current === 'player_intro') {
             setCinematicStage('panning_to_pak')
           } else if (cinematicStageRef.current === 'quest_meet_pak') {
             setCinematicStage('pak_sanction_1')
@@ -1516,6 +1524,10 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
 
     const currentStage = teacherCutsceneStageRef.current
     if (!currentStage) {
+      if (room.id === 'RG') {
+        setShowPakReportModal(true)
+        return
+      }
       if (hasTeacherSprite) {
         if (teacherTimerRef.current) clearTimeout(teacherTimerRef.current)
         setTeacherCutsceneStage('anim_wait')
@@ -1535,7 +1547,11 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
       setTeacherCutsceneStage('teacher_reply')
     } else if (currentStage === 'teacher_reply') {
       setTeacherCutsceneStage(null)
-      setShowWaliKelasPopup(room)
+      if (room.id === 'RG') {
+        setShowPakReportModal(true)
+      } else {
+        setShowWaliKelasPopup(room)
+      }
     }
   }, [])
 
@@ -1572,12 +1588,16 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
       const oldSize = prev.size
       const newSize = next.size
 
-      if (oldSize < 18 && newSize >= 18) {
+      if (oldSize < 12 && newSize >= 12) {
         setMilestoneGlow('50%')
         setTimeout(() => setMilestoneGlow(null), 1800)
-      } else if (oldSize < 35 && newSize >= 35) {
+      } else if (oldSize < 24 && newSize >= 24) {
         setMilestoneGlow('100%')
-        setTimeout(() => setMilestoneGlow(null), 2500)
+        setRoomMilestoneText('DATA TERKUMPUL 24/24! 🎉 RUANG GURU TERBUKA!')
+        setTimeout(() => {
+          setMilestoneGlow(null)
+          setRoomMilestoneText(null)
+        }, 3000)
       }
 
       return next
@@ -1595,7 +1615,6 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
   const n = collected.size
   const isRoomACompleted = CLASS_DOORS.filter(cd => cd.roomId === 'A').every(cd => unlocked.has(cd.id))
   const isRoomBCompleted = CLASS_DOORS.filter(cd => cd.roomId === 'B').every(cd => unlocked.has(cd.id))
-  const isRoomCCompleted = CLASS_DOORS.filter(cd => cd.roomId === 'C').every(cd => unlocked.has(cd.id))
 
   const collectedStudents = CLASS_DOORS
     .filter(cd => unlocked.has(cd.id))
@@ -1651,7 +1670,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
             <div style={{ fontSize: 'clamp(13px, 1.5vw, 15px)' }}>📜</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(4px, 0.8vw, 8px)' }}>
               <span style={{ fontSize: 'clamp(10.5px, 1.1vw, 12.5px)', fontWeight: 900, color: '#F8FAFC', letterSpacing: '0.3px', whiteSpace: 'nowrap' }}>
-                {n >= TOTAL_N ? 'Misi: Laporkan Pak Sutrisno!' : (cinematicStage === 'sanction_received' || demoMode) ? 'Misi: Kumpulkan Data' : 'Misi: Jumpai Pak Sutrisno'}
+                {n >= TOTAL_N ? 'Misi: Temui Pak Sutrisno di Ruang Guru!' : (cinematicStage === 'sanction_received' || demoMode) ? 'Misi: Kumpulkan Data' : 'Misi: Jumpai Pak Sutrisno'}
               </span>
               <span style={{ color: 'rgba(255,255,255,0.2)' }}>|</span>
               <span style={{ fontSize: 'clamp(9.5px, 1vw, 11.5px)', fontWeight: 800, color: n >= TOTAL_N ? '#10B981' : '#00ADB5', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>
@@ -1753,7 +1772,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
               lineHeight: 1.2,
               whiteSpace: 'nowrap'
             }}>
-              {n >= TOTAL_N ? '⚡ 35/35' : (cinematicStage === 'sanction_received' || demoMode) ? `${n}/${TOTAL_N}` : 'Temui Pak'}
+              {n >= TOTAL_N ? '⚡ 24/24' : (cinematicStage === 'sanction_received' || demoMode) ? `${n}/${TOTAL_N}` : 'Temui Pak'}
             </span>
           </div>
           {/* Vertical Label */}
@@ -2140,14 +2159,20 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                                   lineHeight: 1.35,
                                   margin: '2px 0',
                                 }}>
-                                  {insideRoom.id === 'A2' ? (
+                                  {insideRoom.id === 'RG' ? (
+                                    <>
+                                      <span style={{ color: '#10B981', fontWeight: 900 }}>"Stevunt! Bagaimana perkembangan tugasmu?"</span>
+                                      <br />
+                                      "Apakah 24 sampel data screen time dari 4 kelas sudah siap?"
+                                    </>
+                                  ) : insideRoom.id === 'A2' ? (
                                     <>
                                       <span style={{ color: '#FCD34D', fontWeight: 900 }}>"LOH?! {playerName.toUpperCase()}?! Kamu kan murid kelas ini!"</span>
                                       <br />
                                       "Kenapa jam pelajaran malah keluyuran di luar?!"
                                     </>
                                   ) : (
-                                    `"Halo! Ada perlu apa kamu datang ke Ruang ${insideRoom.label.replace('Kelas ', '')}?"`
+                                    `"Halo! Ada perlu apa kamu datang ke ${insideRoom.label}?"`
                                   )}
                                 </div>
                                 <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
@@ -2175,6 +2200,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                         const headTopY = charPos.y - 250 * 0.85
                         const pY = headTopY - pH - 15
                         const pointerX = Math.max(pLeft + 30, Math.min(pLeft + pW - 30, charPos.x))
+                        const classStudentCount = CLASS_STUDENTS[insideRoom.id]?.students?.length || 0
 
                         return (
                           <g style={{ cursor: 'pointer' }} onClick={e => { e.stopPropagation(); handleInteractTeacher(insideRoom); }}>
@@ -2205,17 +2231,23 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                                   lineHeight: 1.35,
                                   margin: '2px 0',
                                 }}>
-                                  {insideRoom.id === 'A2' ? (
+                                  {insideRoom.id === 'RG' ? (
+                                    <>
+                                      "Sudah lengkap, Pak Sutrisno! Seluruh 24 data sampel"
+                                      <br />
+                                      "screen time dari Kelas VII-A, VII-B, VIII-A, dan VIII-B sudah saya kumpulkan!"
+                                    </>
+                                  ) : insideRoom.id === 'A2' ? (
                                     <>
                                       "A-ampun Pak Bambang! Saya tadi kena sanksi Pak Sutrisno"
                                       <br />
-                                      "untuk ngumpulin 35 data screen time sekolah, Pak!"
+                                      "untuk ngumpulin 24 data screen time sekolah, Pak!"
                                     </>
                                   ) : (
                                     <>
-                                      "Saya sedang menjalankan sanksi Pak Sutrisno untuk"
+                                      "Saya sedang menjalankan tugas sanksi Pak Sutrisno untuk"
                                       <br />
-                                      "mengumpulkan sampel data screen time 7 siswa di kelas ini!"
+                                      {`mengumpulkan sampel data ${classStudentCount} siswa di kelas ini!`}
                                     </>
                                   )}
                                 </div>
@@ -2242,6 +2274,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                         const bH = 82
                         const bX = teacherX - bW / 2
                         const bY = bubbleY - bH - 12
+                        const classStudentCount = CLASS_STUDENTS[insideRoom.id]?.students?.length || 0
                         return (
                           <g style={{ cursor: 'pointer' }} onClick={e => { e.stopPropagation(); handleInteractTeacher(insideRoom); }}>
                             <foreignObject x={bX} y={bY} width={bW} height={bH} style={{ overflow: 'visible' }}>
@@ -2271,23 +2304,29 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                                   lineHeight: 1.35,
                                   margin: '2px 0',
                                 }}>
-                                  {insideRoom.id === 'A2' ? (
+                                  {insideRoom.id === 'RG' ? (
+                                    <>
+                                      <span style={{ color: '#10B981', fontWeight: 900 }}>"Kerja luar biasa, Stevunt!"</span>
+                                      <br />
+                                      "Mari kita bawa data ini ke meja analisis untuk memeriksa klaim viral tersebut!"
+                                    </>
+                                  ) : insideRoom.id === 'A2' ? (
                                     <>
                                       "Oalah Sutrisno... Ya sudah, ini data 7 teman sekelasmu."
                                       <br />
-                                      <span style={{ color: '#FCD34D' }}>"Tapi ingat, jawab dulu soal tepi bawah ini biar datanya valid!"</span>
+                                      <span style={{ color: '#FCD34D' }}>"Pelajari dengan teliti untuk bahan analisismu nanti ya!"</span>
                                     </>
                                   ) : (
                                     <>
                                       "Oh begitu! Baiklah, ini sampel data"
                                       <br />
-                                      `screen time 7 siswa dari Ruang ${insideRoom.label.replace('Kelas ', '')}.`
+                                      {`screen time ${classStudentCount} siswa dari ${insideRoom.label}.`}
                                     </>
                                   )}
                                 </div>
                                 <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
                                   <span style={{ fontSize: '9.5px', fontWeight: 900, color: '#10B981', fontFamily: 'var(--font-ui)', letterSpacing: '0.3px' }}>
-                                    [ Ambil Data ▶ ]
+                                    {insideRoom.id === 'RG' ? '[ Buka Meja Analisis ▶ ]' : '[ Ambil Data ▶ ]'}
                                   </span>
                                 </div>
                               </div>
@@ -2304,8 +2343,10 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                     </g>
                   )
                 })() : ((cinematicStage === 'sanction_received' || demoMode) ? CLASS_DOORS.map(door => {
-                  const isSaved = savedClasses.has(door.id)
-                  const open = unlocked.has(door.id)
+                  const isRG = door.id === 'RG'
+                  const isRGUnlocked = isRG && collected.size >= TOTAL_N
+                  const isSaved = !isRG && savedClasses.has(door.id)
+                  const open = isRG ? isRGUnlocked : unlocked.has(door.id)
                   const near = nearClass?.id === door.id
                   const isJustCompleted = justCompletedClassId === door.id
 
@@ -2315,6 +2356,15 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                       style={{ cursor: isSaved ? 'default' : 'pointer' }}
                       onClick={e => {
                         e.stopPropagation()
+                        if (isRG) {
+                          if (isRGUnlocked) {
+                            enterClassroom(door)
+                          } else {
+                            setRgLockedToast(`🔒 Ruang Guru Terkunci! Kumpulkan seluruh data dari 4 kelas terlebih dahulu (${collected.size}/${TOTAL_N}).`)
+                            setTimeout(() => setRgLockedToast(null), 2500)
+                          }
+                          return
+                        }
                         if (isSaved) return
                         if (open) {
                           enterClassroom(door)
@@ -2324,7 +2374,20 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                       }}
                     >
                       {/* Interactive Pulse Radar Glow */}
-                      {!isSaved && (!open || isJustCompleted) ? (
+                      {isRG ? (
+                        isRGUnlocked ? (
+                          <motion.circle
+                            cx={door.x}
+                            cy={door.y}
+                            r={24}
+                            fill="#10B98133"
+                            animate={{ scale: [1, 1.45, 1], fill: ['#10B98133', '#10B98177', '#10B98133'] }}
+                            transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+                          />
+                        ) : (
+                          <circle cx={door.x} cy={door.y} r={14} fill="rgba(245, 158, 11, 0.15)" stroke="#F59E0B" strokeWidth={1} />
+                        )
+                      ) : !isSaved && (!open || isJustCompleted) ? (
                         <motion.circle
                           cx={door.x}
                           cy={door.y}
@@ -2347,8 +2410,8 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                         cx={door.x}
                         cy={door.y}
                         r={12}
-                        fill={isSaved ? '#10b981' : open ? '#00ADB5' : 'rgba(15, 23, 42, 0.88)'}
-                        stroke={near ? '#FFFFFF' : isSaved ? '#10b981' : door.color}
+                        fill={isRG ? (isRGUnlocked ? '#10B981' : '#B45309') : isSaved ? '#10b981' : open ? '#00ADB5' : 'rgba(15, 23, 42, 0.88)'}
+                        stroke={near ? '#FFFFFF' : isRG ? (isRGUnlocked ? '#10B981' : '#F59E0B') : isSaved ? '#10b981' : door.color}
                         strokeWidth={near ? 2 : 1.5}
                       />
                       <text
@@ -2359,30 +2422,30 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                         fontSize={10}
                         style={{ userSelect: 'none', pointerEvents: 'none' }}
                       >
-                        {isSaved ? '✓' : open ? '🔓' : '📍'}
+                        {isRG ? (isRGUnlocked ? '🔓' : '🔒') : isSaved ? '✓' : open ? '🔓' : '📍'}
                       </text>
 
                       {/* Hotspot Title Card */}
                       <rect
-                        x={door.x - 45}
+                        x={door.x - (isRG ? 52 : 45)}
                         y={door.y - 36}
-                        width={90}
+                        width={isRG ? 104 : 90}
                         height={20}
                         rx={6}
                         fill="rgba(15, 23, 42, 0.9)"
-                        stroke={near ? '#FFFFFF' : isSaved ? '#10b981' : open ? '#00ADB5' : `${door.color}88`}
+                        stroke={near ? '#FFFFFF' : isRG ? (isRGUnlocked ? '#10B981' : '#F59E0B88') : isSaved ? '#10b981' : open ? '#00ADB5' : `${door.color}88`}
                         strokeWidth={near ? 1.5 : 1}
                       />
                       <text
                         x={door.x}
                         y={door.y - 23}
                         textAnchor="middle"
-                        fill={isSaved ? '#10b981' : '#FFFFFF'}
+                        fill={isRG ? (isRGUnlocked ? '#10B981' : '#F59E0B') : isSaved ? '#10b981' : '#FFFFFF'}
                         fontSize={9.5}
                         fontWeight="bold"
                         fontFamily="var(--font-ui)"
                       >
-                        {isSaved ? `${door.label} (Selesai)` : door.label}
+                        {isRG ? (isRGUnlocked ? 'Ruang Guru (Buka)' : 'Ruang Guru 🔒') : isSaved ? `${door.label} (Selesai)` : door.label}
                       </text>
                     </g>
                   )
@@ -2399,16 +2462,14 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
 
                   return (
                     <>
-                      {/* Pak Sutrisno NPC (Only in Hallway / Lapangan) */}
-                      {!insideRoom && (() => {
+                      {/* Pak Sutrisno NPC (Only in Hallway / Lapangan BEFORE sanction_received) */}
+                      {!insideRoom && cinematicStage !== 'sanction_received' && (() => {
                         const pakX = PAK_SUTRISNO_POS.x
                         const pakY = PAK_SUTRISNO_POS.y
                         const pakDepth = Math.max(0, Math.min(1, (pakY - 410) / (650 - 410)))
                         const pakSize = 145 + pakDepth * 65
                         const distToPak = Math.hypot(charPos.x - pakX, charPos.y - pakY)
                         const isNearPak = distToPak < 135
-
-                        const isAllCollected = collected.size >= TOTAL_N
 
                         const handleTalkToPak = (e?: React.MouseEvent) => {
                           if (e) e.stopPropagation()
@@ -2426,8 +2487,6 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                             setCinematicStage('player_reply_pak')
                           } else if (cinematicStage === 'player_reply_pak') {
                             setCinematicStage('sanction_received')
-                          } else if (isAllCollected) {
-                            setShowPakReportModal(true)
                           }
                         }
 
@@ -2442,7 +2501,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                             cols={5}
                             rows={4}
                             flipX={true}
-                            glowColor={isAllCollected ? "#10B981" : "#38BDF8"}
+                            glowColor="#38BDF8"
                             onClick={handleTalkToPak}
                           />
                         )
@@ -2509,9 +2568,9 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                                     )}
                                     {cinematicStage === 'pak_sanction_3' && (
                                       <>
-                                        "Kelilingi lorong sekolah dan kumpulkan <span style={{ color: '#38BDF8', fontWeight: 900 }}>35 sampel data</span>"
+                                        "Kelilingi lorong sekolah dan kumpulkan <span style={{ color: '#38BDF8', fontWeight: 900 }}>24 sampel data</span>"
                                         <br />
-                                        "screen time dari 5 kelas (VII-A, VII-B, VIII-A, VIII-B, IX)!"
+                                        "screen time dari 4 kelas (VII-A, VII-B, VIII-A, VIII-B)!"
                                       </>
                                     )}
                                   </div>
@@ -2591,7 +2650,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
 
                         {/* Player Reply Speech Bubble */}
                         const renderPlayerReplyBubble = cinematicStage === 'player_reply_pak' && (() => {
-                          const pW = 230
+                          const pW = 270
                           const pH = 66
                           const pLeft = Math.max(camX + 10, Math.min(camX + VIEW_VW - pW - 10, charPos.x - pW / 2))
                           const pY = btnY - pH - 10
@@ -2620,14 +2679,14 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                                     Kamu
                                   </div>
                                   <div style={{
-                                    fontSize: '11px',
+                                    fontSize: '10.5px',
                                     fontWeight: 800,
                                     color: '#FFFFFF',
                                     fontFamily: 'var(--font-ui)',
                                     textAlign: 'center',
                                     lineHeight: 1.35,
                                   }}>
-                                    "Baik Pak!"
+                                    "Baik Pak Sutrisno! Saya akan kumpulkan 24 data screen time sekarang!"
                                   </div>
                                   <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
                                     <span style={{ fontSize: '9px', fontWeight: 900, color: '#10B981', fontFamily: 'var(--font-ui)', letterSpacing: '0.3px' }}>
@@ -2646,17 +2705,17 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                           )
                         })()
 
-                        {/* Glowing Waypoint Arrow towards Pak Sutrisno when player needs to meet him */}
-                        const renderWaypointArrow = ((cinematicStage === 'quest_meet_pak' || isAllCollected) && !isNearPak) && (
+                        {/* Glowing Waypoint Arrow towards Pak Sutrisno during intro quest */}
+                        const renderWaypointArrow = (cinematicStage === 'quest_meet_pak' && !isNearPak) && (
                           <g key="waypoint-arrow" style={{ pointerEvents: 'none' }}>
-                            <circle cx={pakX} cy={pakY - 120} r={16} fill={isAllCollected ? "rgba(16, 185, 129, 0.2)" : "rgba(56, 189, 248, 0.2)"} stroke={isAllCollected ? "#10B981" : "#38BDF8"} strokeWidth={2} />
-                            <text x={pakX} y={pakY - 115} textAnchor="middle" fill={isAllCollected ? "#10B981" : "#38BDF8"} fontSize={18} fontWeight="900">
+                            <circle cx={pakX} cy={pakY - 120} r={16} fill="rgba(56, 189, 248, 0.2)" stroke="#38BDF8" strokeWidth={2} />
+                            <text x={pakX} y={pakY - 115} textAnchor="middle" fill="#38BDF8" fontSize={18} fontWeight="900">
                               ↓
                             </text>
                           </g>
                         )
 
-                        const buttonW = 220
+                        const buttonW = 200
                         const buttonLeft = Math.max(camX + 10, Math.min(camX + VIEW_VW - buttonW - 10, charPos.x - buttonW / 2))
                         const textX = buttonLeft + buttonW / 2
 
@@ -2678,7 +2737,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                               height={26}
                               rx={13}
                               fill="rgba(15, 23, 42, 0.95)"
-                              stroke={isAllCollected ? "#10B981" : "#38BDF8"}
+                              stroke="#38BDF8"
                               strokeWidth={2}
                               style={{ filter: 'drop-shadow(0px 4px 8px rgba(0,0,0,0.6))' }}
                             />
@@ -2692,7 +2751,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                               fontWeight="bold"
                               fontFamily="var(--font-ui)"
                             >
-                              {isAllCollected ? "📋 Lapor 35 Data ke Pak Sutrisno" : "💬 Bicara dengan Pak Sutrisno"}
+                              💬 Bicara dengan Pak Sutrisno
                             </text>
                           </motion.g>
                         )
@@ -2708,6 +2767,55 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                           </g>
                         )
                       })()}
+
+                      {/* Glowing Waypoint Arrow pointing to Ruang Guru when all 24 data points collected */}
+                      {collected.size >= TOTAL_N && !insideRoom && (
+                        <g key="waypoint-arrow-rg" style={{ pointerEvents: 'none' }}>
+                          <motion.circle
+                            cx={625}
+                            cy={280}
+                            r={16}
+                            fill="rgba(16, 185, 129, 0.25)"
+                            stroke="#10B981"
+                            strokeWidth={2}
+                            animate={{ y: [0, -6, 0] }}
+                            transition={{ duration: 1.2, repeat: Infinity, ease: 'easeInOut' }}
+                          />
+                          <motion.text
+                            x={625}
+                            y={285}
+                            textAnchor="middle"
+                            fill="#10B981"
+                            fontSize={18}
+                            fontWeight="900"
+                            animate={{ y: [0, -6, 0] }}
+                            transition={{ duration: 1.2, repeat: Infinity, ease: 'easeInOut' }}
+                          >
+                            ↓
+                          </motion.text>
+                          <rect
+                            x={625 - 75}
+                            y={240}
+                            width={150}
+                            height={22}
+                            rx={6}
+                            fill="rgba(15, 23, 42, 0.95)"
+                            stroke="#10B981"
+                            strokeWidth={1.5}
+                          />
+                          <text
+                            x={625}
+                            y={254}
+                            textAnchor="middle"
+                            fill="#10B981"
+                            fontSize={9.5}
+                            fontWeight="900"
+                            fontFamily="var(--font-ui)"
+                          >
+                            ✨ Temui Pak Sutrisno di Ruang Guru!
+                          </text>
+                        </g>
+                      )}
 
                       {/* Player Character */}
                       <PlayerCharacter
@@ -2770,9 +2878,11 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
 
                         {/* 2. Hallway Door Interaction Prompt (Locked door -> Kuis; Unlocked door -> Masuk Kelas; Saved -> Completed) */}
                         {!insideRoom && nearClass && !activeClass && !nearDoor && (cinematicStage === 'sanction_received' || demoMode) && (() => {
-                          const isSaved = savedClasses.has(nearClass.id)
-                          const isUnlocked = unlocked.has(nearClass.id)
-                          const buttonW = isSaved ? 180 : 160
+                          const isRG = nearClass.id === 'RG'
+                          const isRGUnlocked = isRG && collected.size >= TOTAL_N
+                          const isSaved = !isRG && savedClasses.has(nearClass.id)
+                          const isUnlocked = isRG ? isRGUnlocked : unlocked.has(nearClass.id)
+                          const buttonW = isRG ? (isRGUnlocked ? 220 : 210) : isSaved ? 180 : 160
                           const buttonLeft = Math.max(camX + 10, Math.min(camX + VIEW_VW - buttonW - 10, charPos.x - buttonW / 2))
                           const textX = buttonLeft + buttonW / 2
                           return (
@@ -2782,6 +2892,15 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                               animate={{ opacity: 1, scale: 1, y: 0 }}
                               exit={{ opacity: 0, scale: 0.8, y: 5 }}
                               onClick={() => {
+                                if (isRG) {
+                                  if (isRGUnlocked) {
+                                    enterClassroom(nearClass)
+                                  } else {
+                                    setRgLockedToast(`🔒 Ruang Guru Terkunci! Kumpulkan seluruh data dari 4 kelas terlebih dahulu (${collected.size}/${TOTAL_N}).`)
+                                    setTimeout(() => setRgLockedToast(null), 2500)
+                                  }
+                                  return
+                                }
                                 if (isSaved) return
                                 if (isUnlocked) {
                                   enterClassroom(nearClass)
@@ -2800,7 +2919,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                                 height={28}
                                 rx={6}
                                 fill="#0B1726"
-                                stroke={isSaved ? '#10B981' : isUnlocked ? '#38BDF8' : '#F59E0B'}
+                                stroke={isRG ? (isRGUnlocked ? '#10B981' : '#F59E0B') : isSaved ? '#10B981' : isUnlocked ? '#38BDF8' : '#F59E0B'}
                                 strokeWidth={2}
                                 style={{ filter: 'drop-shadow(0px 4px 12px rgba(0,0,0,0.85))' }}
                               />
@@ -2809,12 +2928,20 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                                 y={btnTextY + 2}
                                 textAnchor="middle"
                                 dominantBaseline="middle"
-                                fill={isSaved ? '#10B981' : '#FFFFFF'}
+                                fill={isRG ? (isRGUnlocked ? '#10B981' : '#F59E0B') : isSaved ? '#10B981' : '#FFFFFF'}
                                 fontSize={10.5}
                                 fontWeight="900"
                                 style={{ userSelect: 'none', pointerEvents: 'none', fontFamily: 'var(--font-ui)', letterSpacing: '0.4px' }}
                               >
-                                {isSaved ? `✓ Data ${nearClass.label} Saved` : isUnlocked ? `[ E ] 🚪 Masuk ${nearClass.label} ►` : `[ E ] 📍 Periksa ${nearClass.label} ►`}
+                                {isRG
+                                  ? isRGUnlocked
+                                    ? `[ E ] ✨ Masuk ke Ruang Guru ►`
+                                    : `[ E ] 🔒 Ruang Guru Terkunci (${collected.size}/${TOTAL_N})`
+                                  : isSaved
+                                    ? `✓ Data ${nearClass.label} Saved`
+                                    : isUnlocked
+                                      ? `[ E ] 🚪 Masuk ${nearClass.label} ►`
+                                      : `[ E ] 📍 Periksa ${nearClass.label} ►`}
                               </text>
                             </motion.g>
                           )
@@ -2960,6 +3087,36 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
         )}
       </AnimatePresence>
 
+      {/* Ruang Guru Locked Toast Overlay */}
+      <AnimatePresence>
+        {rgLockedToast && (
+          <div style={{ position: 'fixed', top: 'clamp(55px, 8vh, 75px)', left: '50%', transform: 'translateX(-50%)', zIndex: 750, pointerEvents: 'none' }}>
+            <motion.div
+              initial={{ opacity: 0, y: -20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -20, scale: 0.95 }}
+              style={{
+                background: 'rgba(15, 23, 42, 0.96)',
+                border: '1.5px solid #F59E0B',
+                boxShadow: '0 8px 32px rgba(245, 158, 11, 0.4)',
+                borderRadius: 14,
+                padding: '10px 18px',
+                color: '#FFFFFF',
+                fontSize: '12.5px',
+                fontWeight: 800,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 10,
+                backdropFilter: 'blur(8px)',
+              }}
+            >
+              <span style={{ fontSize: 18 }}>🔒</span>
+              <span>{rgLockedToast}</span>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
       {/* Inventory Side Drawer Modal Overlay (Misi & Target Tugas) */}
       <AnimatePresence>
         {isInventoryOpen && (
@@ -3039,13 +3196,13 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                 if (isAllCollected) {
                   badgeColor = '#10B981'
                   badgeText = '⚡ SELESAI — SIAP DILAPORKAN'
-                  questTitle = 'Laporkan 35 Data ke Pak Sutrisno'
-                  questDesc = 'Semua 35 sampel data screen time siswa telah berhasil terkumpul dari 5 kelas! Kembalilah ke Pak Sutrisno di Lorong Utama untuk menyerahkan data.'
+                  questTitle = 'Laporkan 24 Data ke Pak Sutrisno di Ruang Guru'
+                  questDesc = 'Semua 24 sampel data screen time siswa telah berhasil terkumpul dari 4 kelas! Masuklah ke Ruang Guru di Gedung Tengah untuk menyerahkan data kepada Pak Sutrisno.'
                 } else if (isTaskGiven) {
                   badgeColor = '#00ADB5'
                   badgeText = '🟢 SEDANG BERLANGSUNG'
-                  questTitle = 'Kumpulkan 35 Data Screen Time Siswa'
-                  questDesc = 'Kunjungi Wali-Wali Kelas di Ruang VII, VIII, dan IX. Bicara dengan guru di setiap kelas untuk mengumpulkan sampel data screen time.'
+                  questTitle = 'Kumpulkan 24 Data Screen Time Siswa'
+                  questDesc = 'Kunjungi Wali-Wali Kelas di Ruang VII-A, VII-B, VIII-A, dan VIII-B. Bicara dengan guru di setiap kelas untuk mengumpulkan sampel data screen time.'
                 }
 
                 return (
@@ -3073,7 +3230,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                         {badgeText}
                       </span>
                       <span style={{ fontSize: 11, fontWeight: 800, color: '#94A3B8' }}>
-                        Target: 35 Sampel Data
+                        Target: 24 Sampel Data
                       </span>
                     </div>
 
@@ -3164,7 +3321,6 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                           { id: 'A2', label: 'VII-B', color: '#6366f1' },
                           { id: 'B1', label: 'VIII-A', color: '#00ADB5' },
                           { id: 'B2', label: 'VIII-B', color: '#0e8388' },
-                          { id: 'C1', label: 'IX', color: '#f472b6' },
                         ].map(tab => {
                           const active = inventoryTab === tab.id
                           return (
@@ -3256,12 +3412,11 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
             '/Assets/Building/Ruang VII-B/VII-B.webp',
             '/Assets/Building/Ruang VIII-A/VIII-A.webp',
             '/Assets/Building/Ruang VIII-B/VIII-B.webp',
-            '/Assets/Building/Ruang IX/IX.webp',
+            '/Assets/Building/Ruang Guru/Ruang Guru.webp',
             '/Assets/Building/Ruang VII-B/Pak Bambang.png',
             '/Assets/Building/Ruang VII-A/Bu Sari.webp',
             '/Assets/Building/Ruang VIII-A/Bu Rina.webp',
             '/Assets/Building/Ruang VIII-B/Pak Setiawan.webp',
-            '/Assets/Building/Ruang IX/Pak Joko.webp',
             '/Assets/Character/Stevunt-idle.png',
             '/Assets/Character/pak Sutrisno-iso_idle_right-trimmed.png'
           ]}

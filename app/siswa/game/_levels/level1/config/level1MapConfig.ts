@@ -149,6 +149,40 @@ export const LEVEL1_MAPS: Record<string, MapConfig> = {
     isWalkable: (x, y) => checkClassroomWalkable(x, y)
   },
 
+  RG: {
+    id: 'RG',
+    name: 'Ruang Guru',
+    type: 'classroom',
+    bgImage: '/Assets/Building/Ruang Guru/Ruang Guru.webp',
+    camera: {
+      mode: 'fixed',
+      vw: WORLD_VW,
+      vh: WORLD_VH,
+      preserveAspectRatio: 'xMidYMid meet'
+    },
+    character: {
+      baseSize: 340,
+      depthFactor: 60,
+      speed: 3.8
+    },
+    spawn: { x: 1050, y: 510 },
+    teacher: {
+      name: 'Pak Sutrisno (Guru BK & Kedisiplinan)',
+      x: 580,
+      y: 415,
+      size: 240,
+      spriteUrl: '/Assets/Character/pak Sutrisno-iso_idle_right-trimmed.png',
+      cols: 5,
+      rows: 4,
+      totalFrames: 20,
+      pingPong: false,
+      speedMs: 120,
+      hotspotW: 140,
+      hotspotH: 260
+    },
+    isWalkable: (x, y) => checkClassroomWalkable(x, y)
+  },
+
   B1: {
     id: 'B1',
     name: 'Ruang VIII-A',

@@ -5,8 +5,8 @@ export const LEVEL1_CONFIG = {
   description: 'Sebuah postingan viral mengklaim remaja Indonesia rata-rata >8 jam/hari di media sosial. Tugasmu: selidiki kebenarannya menggunakan statistika.',
 }
 
-// Raw dataset: screen time (jam/hari) dari 35 siswa — diacak agar menantang
-export const screenTimeData = [1, 2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 7, 7, 7, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
+// Raw dataset: screen time (jam/hari) dari 24 siswa (Kelas VII-A: 5, VII-B: 7, VIII-A: 4, VIII-B: 8)
+export const screenTimeData = [1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 7, 7, 8, 9, 11, 14, 16, 18]
 
 // Interval classes: width = 3 (1-3, 4-6, 7-9, 10-12, 13-15, 16-18)
 export const CLASS_LABELS = ['1 – 3', '4 – 6', '7 – 9', '10 – 12', '13 – 15', '16 – 18']
@@ -65,11 +65,11 @@ const median = sorted.length % 2 === 0
   : sorted[Math.floor(sorted.length / 2)]
 
 export const STATS = {
-  n: 35,
+  n: 24,
   min: 1,
   max: 18,
   range: 17,
-  mean: Number((total / 35).toFixed(2)), // ~7.06
+  mean: Number((total / 24).toFixed(2)), // ~6.17
   median,
   numClasses: 6,
   classWidth: 3,
@@ -77,15 +77,15 @@ export const STATS = {
 
 // Correct answer: frequency distribution table
 export const CORRECT_TABLE = [
-  { kelas: '1 – 3', f: 9, fRel: 25.7, fKum: 9 },
-  { kelas: '4 – 6', f: 11, fRel: 31.4, fKum: 20 },
-  { kelas: '7 – 9', f: 6, fRel: 17.1, fKum: 26 },
-  { kelas: '10 – 12', f: 3, fRel: 8.6, fKum: 29 },
-  { kelas: '13 – 15', f: 3, fRel: 8.6, fKum: 32 },
-  { kelas: '16 – 18', f: 3, fRel: 8.6, fKum: 35 },
+  { kelas: '1 – 3', f: 8, fRel: 33.3, fKum: 8 },
+  { kelas: '4 – 6', f: 8, fRel: 33.3, fKum: 16 },
+  { kelas: '7 – 9', f: 4, fRel: 16.7, fKum: 20 },
+  { kelas: '10 – 12', f: 1, fRel: 4.2, fKum: 21 },
+  { kelas: '13 – 15', f: 1, fRel: 4.2, fKum: 22 },
+  { kelas: '16 – 18', f: 2, fRel: 8.3, fKum: 24 },
 ]
 
-// Bar heights as percentage of max frequency (13)
+// Bar heights as percentage of max frequency (8)
 const maxF = Math.max(...CORRECT_TABLE.map(row => row.f))
 export const HISTOGRAM_BARS = CORRECT_TABLE.map(row => ({
   label: row.kelas,
@@ -97,7 +97,7 @@ export const HISTOGRAM_BARS = CORRECT_TABLE.map(row => ({
 export const CORRECT_VERDICT = 'MISLEADING'
 
 // Verdict explanation
-export const VERDICT_EXPLANATION = `Rata-rata screen time dari 35 siswa adalah <strong>${STATS.mean} jam/hari</strong> (7.06 jam) — di bawah klaim "lebih dari 8 jam". Sebagian besar siswa (<strong>25 dari 35 siswa atau 71.4%</strong>) bermain medsos <strong>8 jam atau kurang</strong> sehari. Hanya beberapa siswa (tertinggi 17 dan 18 jam) yang bermain sangat lama — ini merupakan <strong>outlier/pencilan</strong>. Distribusi data menunjukkan pola pencilan ke kanan (skewed to the right). Klaim tersebut bersifat <strong>MISLEADING</strong> karena menggeneralisasi dari data ekstrem yang tidak mewakili mayoritas.`
+export const VERDICT_EXPLANATION = `Rata-rata screen time dari 24 siswa adalah <strong>${STATS.mean} jam/hari</strong> (6.17 jam) — di bawah klaim "lebih dari 8 jam". Sebagian besar siswa (<strong>19 dari 24 siswa atau 79.2%</strong>) bermain medsos <strong>8 jam atau kurang</strong> sehari. Hanya beberapa siswa (tertinggi 16 dan 18 jam) yang bermain sangat lama — ini merupakan <strong>outlier/pencilan</strong>. Distribusi data menunjukkan pola pencilan ke kanan (skewed to the right). Klaim tersebut bersifat <strong>MISLEADING</strong> karena menggeneralisasi dari data ekstrem yang tidak mewakili mayoritas.`
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Keyword checker for TEXT ANALYSIS (Tahap B) — dipakai KEDUA path FI & FD

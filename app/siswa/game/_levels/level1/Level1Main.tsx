@@ -133,7 +133,7 @@ export default function Level1Main({
 
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative', height: '100%' }}>
-      {/* Phase 1: Exploration (NPath) - Collect 35 Student Data */}
+      {/* Phase 1: Exploration (NPath) - Collect 24 Student Data */}
       {phase === 'exploration' && (
         <NPath
           isFD={false}
