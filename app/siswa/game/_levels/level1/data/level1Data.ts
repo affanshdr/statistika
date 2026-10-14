@@ -17,9 +17,9 @@ export interface QuizDoor {
 }
 
 export const CLASS_DOORS: QuizDoor[] = [
-  // Pintu 1 (Sayap Kiri) - Kelas VII-A
+  // Pintu 1 (Sayap Kiri Depan) - Kelas VII-A
   {
-    id: 'A1', roomId: 'A', label: 'Kelas VII-A', x: 290, y: 500, color: '#818cf8',
+    id: 'A1', roomId: 'A', label: 'Kelas VII-A', x: 135, y: 475, color: '#818cf8',
     image: '/Assets/Building/Ruang VII-A/VII-A.webp',
     quizQ: 'Data screen time 5 siswa: 2, 4, 3, 8, 1 jam. Berapa rentang datanya?',
     quizA: 7, choices: [5, 6, 7, 8],
@@ -27,9 +27,9 @@ export const CLASS_DOORS: QuizDoor[] = [
     hint: 'Kurangkan nilai terbesar (8) dengan nilai terkecil (1) untuk mendapatkan rentang.', count: 7
   },
 
-  // Pintu 2 (Lorong Kiri) - Kelas VII-B
+  // Pintu 2 (Sayap Kiri Dalam) - Kelas VII-B
   {
-    id: 'A2', roomId: 'A', label: 'Kelas VII-B', x: 451, y: 410, color: '#6366f1',
+    id: 'A2', roomId: 'A', label: 'Kelas VII-B', x: 250, y: 385, color: '#6366f1',
     image: '/Assets/Building/Ruang VII-B/VII-B.webp',
     quizQ: 'Tepi bawah kelas interval 4–6 adalah?',
     quizA: 3.5, choices: [3, 3.5, 4, 4.5],
@@ -37,9 +37,9 @@ export const CLASS_DOORS: QuizDoor[] = [
     hint: 'Kurangi batas bawah kelas (4) dengan 0.5.', count: 7
   },
 
-  // Pintu 3 (Gedung Tengah / Pintu Ganda) - Kelas VIII-A
+  // Pintu 3 (Gedung Tengah / Pintu Utama) - Kelas VIII-A
   {
-    id: 'B1', roomId: 'B', label: 'Kelas VIII-A', x: 632, y: 410, color: '#00ADB5',
+    id: 'B1', roomId: 'B', label: 'Kelas VIII-A', x: 625, y: 345, color: '#00ADB5',
     image: '/Assets/Building/Ruang VIII-A/VIII-A.webp',
     quizQ: 'Kamu menerima berita viral yang belum terverifikasi. Tindakan paling etis adalah?',
     quizA: 'Verifikasi dulu', choices: ['Langsung share', 'Verifikasi dulu', 'Screenshot & sebar', 'Abaikan saja'],
@@ -47,9 +47,9 @@ export const CLASS_DOORS: QuizDoor[] = [
     hint: 'Cari tindakan yang memastikan kebenaran informasi sebelum membagikannya.', count: 7
   },
 
-  // Pintu 4 (Lorong Kanan) - Kelas VIII-B
+  // Pintu 4 (Sayap Kanan Dalam) - Kelas VIII-B
   {
-    id: 'B2', roomId: 'B', label: 'Kelas VIII-B', x: 840, y: 410, color: '#0e8388',
+    id: 'B2', roomId: 'B', label: 'Kelas VIII-B', x: 985, y: 385, color: '#0e8388',
     image: '/Assets/Building/Ruang VIII-B/VIII-B.webp',
     quizQ: 'Seseorang memposting foto orang lain tanpa izin untuk konten viral. Ini termasuk pelanggaran?',
     quizA: 'Kedua-duanya', choices: ['Privasi', 'Hak cipta', 'Kedua-duanya', 'Bukan pelanggaran'],
@@ -57,9 +57,9 @@ export const CLASS_DOORS: QuizDoor[] = [
     hint: 'Memposting foto orang lain melanggar ranah pribadi sekaligus kepemilikan ciptaan.', count: 7
   },
 
-  // Pintu 5 (Sayap Kanan) - Kelas IX
+  // Pintu 5 (Sayap Kanan Depan) - Kelas IX
   {
-    id: 'C1', roomId: 'C', label: 'Kelas IX', x: 900, y: 480, color: '#f472b6',
+    id: 'C1', roomId: 'C', label: 'Kelas IX', x: 1100, y: 475, color: '#f472b6',
     image: '/Assets/Building/Ruang IX/IX.webp',
     quizQ: 'Ciri utama berita hoax yang paling umum meupakan?',
     quizA: 'Sumber tidak jelas', choices: ['Sumber tidak jelas', 'Ada foto', 'Ada tanggal', 'Ditulis wartawan'],

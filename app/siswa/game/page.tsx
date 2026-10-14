@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import OrientationGuard from './_components/OrientationGuard'
 import './game.css'
 
@@ -13,23 +13,10 @@ type Student = {
   classroom: { name: string }
 }
 
-export default function NumeriaTitlePage() {
+export default function StatCasecodeTitlePage() {
   const router = useRouter()
   const [student, setStudent] = useState<Student | null>(null)
-  const [frame, setFrame] = useState(0)
   const [isStarting, setIsStarting] = useState(false)
-
-  // Floating math symbols for background
-  const bgSymbols = [
-    { symbol: '📊', left: '10%', top: '20%', size: '32px', duration: 6 },
-    { symbol: '∑</symbol', left: '82%', top: '15%', size: '28px', duration: 7 },
-    { symbol: 'x̄', left: '15%', top: '70%', size: '36px', duration: 8 },
-    { symbol: 'fᵢ', left: '75%', top: '65%', size: '30px', duration: 5 },
-    { symbol: '%', left: '88%', top: '40%', size: '26px', duration: 9 },
-    { symbol: 'σ', left: '8%', top: '45%', size: '30px', duration: 7.5 },
-    { symbol: '📈', left: '68%', top: '80%', size: '34px', duration: 6.5 },
-    { symbol: '🔍', left: '25%', top: '82%', size: '32px', duration: 8.5 },
-  ]
 
   useEffect(() => {
     const data = localStorage.getItem('student')
@@ -41,31 +28,27 @@ export default function NumeriaTitlePage() {
       }
     }
 
-    // Animate sprite frame cycle for Stevunt idle
-    const interval = setInterval(() => {
-      setFrame(prev => (prev + 1) % 25)
-    }, 120)
-
-    return () => clearInterval(interval)
+    // Keyboard shortcut: Press Enter to Play
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Enter') {
+        handlePlayClick()
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
   }, [])
 
   const handlePlayClick = () => {
+    if (isStarting) return
     setIsStarting(true)
     setTimeout(() => {
-      // Direct transition to Level 1 or Lobby
       router.push('/siswa/game/level/1')
-    }, 600)
+    }, 450)
   }
 
   const handleLobbyClick = () => {
-    router.push('/siswa')
+    router.push('/siswa/game/lobby')
   }
-
-  // Sprite animation calculations (5x5 grid)
-  const col = frame % 5
-  const row = Math.floor(frame / 5)
-  const bgX = col * 25
-  const bgY = row * 25
 
   return (
     <OrientationGuard lockScreen={true}>
@@ -77,87 +60,49 @@ export default function NumeriaTitlePage() {
           width: '100vw',
           overflow: 'hidden',
           position: 'relative',
-          background: 'radial-gradient(circle at 50% 40%, #0F2A3F 0%, #07131E 60%, #03080D 100%)',
+          backgroundImage: "url('/Assets/Building/Splash Screen/Splash Screen.webp')",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
           color: '#F8FAFC',
           fontFamily: 'var(--font-ui, sans-serif)',
+          userSelect: 'none',
         }}
       >
-        {/* Animated Cyber Grid Overlay */}
+        {/* Soft Cinematic Vignette Overlay */}
         <div
           style={{
             position: 'absolute',
             inset: 0,
-            backgroundImage: `
-              linear-gradient(to right, rgba(0, 173, 181, 0.05) 1px, transparent 1px),
-              linear-gradient(to bottom, rgba(0, 173, 181, 0.05) 1px, transparent 1px)
-            `,
-            backgroundSize: '40px 40px',
+            background:
+              'linear-gradient(180deg, rgba(8, 20, 36, 0.42) 0%, rgba(8, 20, 36, 0.12) 40%, rgba(8, 20, 36, 0.58) 100%)',
             pointerEvents: 'none',
           }}
         />
 
-        {/* Ambient Glowing Orbs */}
+        {/* Scanline CRT Subtle Texture */}
         <div
           style={{
             position: 'absolute',
-            top: '20%',
-            left: '30%',
-            width: '320px',
-            height: '320px',
-            borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(0, 173, 181, 0.25) 0%, rgba(0,0,0,0) 70%)',
-            filter: 'blur(40px)',
+            inset: 0,
+            backgroundImage:
+              'repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.04) 0px, rgba(0, 0, 0, 0.04) 1px, transparent 1px, transparent 3px)',
             pointerEvents: 'none',
-          }}
-        />
-        <div
-          style={{
-            position: 'absolute',
-            bottom: '15%',
-            right: '25%',
-            width: '360px',
-            height: '360px',
-            borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(59, 130, 246, 0.2) 0%, rgba(0,0,0,0) 70%)',
-            filter: 'blur(50px)',
-            pointerEvents: 'none',
+            zIndex: 1,
           }}
         />
 
-        {/* Floating Math & Detective Background Icons */}
-        {bgSymbols.map((item, idx) => (
-          <motion.div
-            key={idx}
-            initial={{ y: 0, opacity: 0.2 }}
-            animate={{ y: [-10, 10, -10], opacity: [0.2, 0.5, 0.2] }}
-            transition={{ duration: item.duration, repeat: Infinity, ease: 'easeInOut' }}
-            style={{
-              position: 'absolute',
-              left: item.left,
-              top: item.top,
-              fontSize: item.size,
-              color: 'rgba(0, 173, 181, 0.4)',
-              fontWeight: 800,
-              userSelect: 'none',
-              pointerEvents: 'none',
-              textShadow: '0 0 12px rgba(0, 173, 181, 0.5)',
-            }}
-          >
-            {item.symbol}
-          </motion.div>
-        ))}
-
-        {/* Header HUD / Student Profile Info */}
+        {/* ── HEADER HUD ── */}
         <header
           style={{
             position: 'absolute',
             top: '20px',
-            left: '20px',
-            right: '20px',
+            left: '24px',
+            right: '24px',
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
@@ -168,292 +113,284 @@ export default function NumeriaTitlePage() {
           <button
             onClick={() => router.push('/siswa')}
             style={{
-              background: 'rgba(15, 35, 53, 0.75)',
-              backdropFilter: 'blur(12px)',
-              border: '1px solid rgba(0, 173, 181, 0.3)',
-              borderRadius: '50px',
-              padding: '8px 18px',
-              color: '#94A3B8',
+              background: 'rgba(11, 23, 38, 0.82)',
+              backdropFilter: 'blur(10px)',
+              border: '2px solid rgba(56, 189, 248, 0.35)',
+              borderRadius: '12px',
+              padding: '10px 20px',
+              color: '#CBD5E1',
               fontSize: '13px',
-              fontWeight: 700,
+              fontWeight: 800,
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               gap: '8px',
-              transition: 'all 0.2s',
+              transition: 'all 0.2s ease',
+              boxShadow: '0 4px 14px rgba(0,0,0,0.4)',
             }}
             onMouseEnter={e => {
               e.currentTarget.style.color = '#FFFFFF'
-              e.currentTarget.style.borderColor = '#00ADB5'
+              e.currentTarget.style.borderColor = '#38BDF8'
+              e.currentTarget.style.background = 'rgba(14, 131, 136, 0.9)'
             }}
             onMouseLeave={e => {
-              e.currentTarget.style.color = '#94A3B8'
-              e.currentTarget.style.borderColor = 'rgba(0, 173, 181, 0.3)'
+              e.currentTarget.style.color = '#CBD5E1'
+              e.currentTarget.style.borderColor = 'rgba(56, 189, 248, 0.35)'
+              e.currentTarget.style.background = 'rgba(11, 23, 38, 0.82)'
             }}
           >
             ← Kembali ke Dashboard
           </button>
 
-          {/* Student Tag */}
+          {/* Student Profile Info */}
           {student && (
             <div
               style={{
-                background: 'rgba(15, 35, 53, 0.75)',
-                backdropFilter: 'blur(12px)',
-                border: '1px solid rgba(0, 173, 181, 0.3)',
-                borderRadius: '50px',
-                padding: '6px 16px',
+                background: 'rgba(11, 23, 38, 0.82)',
+                backdropFilter: 'blur(10px)',
+                border: '2px solid rgba(56, 189, 248, 0.35)',
+                borderRadius: '12px',
+                padding: '8px 18px',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '10px',
+                boxShadow: '0 4px 14px rgba(0,0,0,0.4)',
               }}
             >
-              <span style={{ fontSize: '14px' }}>🕵️</span>
-              <span style={{ fontSize: '12px', fontWeight: 700, color: '#F8FAFC' }}>
-                {student.name}
-              </span>
+              <span style={{ fontSize: '16px' }}>🎒</span>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                <span style={{ fontSize: '13px', fontWeight: 800, color: '#F8FAFC' }}>
+                  {student.name}
+                </span>
+                <span style={{ fontSize: '11px', color: '#38BDF8', fontWeight: 600 }}>
+                  {student.classroom?.name || 'Siswa SMP'}
+                </span>
+              </div>
             </div>
           )}
         </header>
 
-        {/* ── MAIN TITLE CONTENT CONTAINER ── */}
+        {/* ── MAIN TITLE & MENU CONTAINER ── */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.9, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: 'easeOut' }}
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, ease: 'easeOut' }}
           style={{
-            zIndex: 10,
+            zIndex: 20,
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             textAlign: 'center',
-            maxWidth: '600px',
-            padding: '20px',
+            maxWidth: '680px',
+            padding: '24px',
+            marginTop: '-10px',
           }}
         >
-          {/* Subtitle Badge */}
+          {/* Badge */}
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
+            transition={{ delay: 0.15 }}
             style={{
               display: 'inline-flex',
               alignItems: 'center',
               gap: '8px',
-              background: 'rgba(0, 173, 181, 0.12)',
-              border: '1px solid rgba(0, 173, 181, 0.4)',
-              borderRadius: '50px',
-              padding: '6px 18px',
-              marginBottom: '16px',
-              boxShadow: '0 0 20px rgba(0, 173, 181, 0.2)',
+              background: 'rgba(11, 23, 38, 0.85)',
+              backdropFilter: 'blur(8px)',
+              border: '2px solid #00ADB5',
+              borderRadius: '999px',
+              padding: '6px 20px',
+              marginBottom: '14px',
+              boxShadow: '0 4px 16px rgba(0, 173, 181, 0.35)',
             }}
           >
-            <span style={{ fontSize: '14px' }}>🔍</span>
+            <span style={{ fontSize: '13px' }}>🏫</span>
             <span
               style={{
                 fontSize: '11px',
                 fontWeight: 800,
                 letterSpacing: '2.5px',
-                color: '#00ADB5',
+                color: '#38BDF8',
                 textTransform: 'uppercase',
               }}
             >
-              Game Investigasi Statistik
+              SMP NEGERI • GAME EDUKASI STATISTIKA
             </span>
           </motion.div>
 
-          {/* MAIN GAME TITLE: NUMERIA */}
+          {/* DYNAMIC TITLE: STAT-CASECODE (Pixel-Art Styled) */}
           <h1
             style={{
-              margin: '0 0 12px 0',
-              fontSize: 'clamp(52px, 8vw, 84px)',
-              fontWeight: 900,
-              letterSpacing: '4px',
+              margin: '0 0 10px 0',
+              fontFamily: "'Pixelify Sans', 'Press Start 2P', monospace, sans-serif",
+              fontSize: 'clamp(44px, 7vw, 76px)',
+              fontWeight: 700,
+              letterSpacing: '3px',
+              color: '#FFFFFF',
+              textShadow: `
+                3px 3px 0 #0284C7,
+                6px 6px 0 #034870,
+                9px 9px 0 #071E33,
+                0 0 35px rgba(56, 189, 248, 0.65)
+              `,
+              lineHeight: 1.05,
               textTransform: 'uppercase',
-              background: 'linear-gradient(180deg, #FFFFFF 0%, #7DD3FC 45%, #00ADB5 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              filter: 'drop-shadow(0 0 35px rgba(0, 173, 181, 0.6)) drop-shadow(0 6px 10px rgba(0,0,0,0.8))',
-              lineHeight: 1,
-              position: 'relative',
             }}
           >
-            NUMERIA
+            Stat-Casecode
           </h1>
 
+          {/* Subtitle / Tagline */}
           <p
             style={{
-              margin: '0 0 24px 0',
-              fontSize: 'clamp(14px, 2.5vw, 17px)',
-              color: '#CBD5E1',
-              fontWeight: 500,
-              maxWidth: '460px',
-              lineHeight: 1.6,
-              textShadow: '0 2px 4px rgba(0,0,0,0.8)',
+              margin: '0 0 28px 0',
+              fontSize: 'clamp(14px, 2.2vw, 17px)',
+              color: '#F1F5F9',
+              fontWeight: 600,
+              maxWidth: '520px',
+              lineHeight: 1.5,
+              textShadow: '0 2px 6px rgba(0,0,0,0.9), 0 0 12px rgba(0,0,0,0.7)',
             }}
           >
-            Ungkap Kebenaran di Balik Mitos & Data Viral Bersama Detektif Statistik!
+            Petualangan Siswa SMP Memecahkan Masalah Data & Fakta di Sekolah!
           </p>
 
-          {/* CHARACTER SHOWCASE (Stevunt Sprite Animation) */}
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.3, type: 'spring', stiffness: 120 }}
-            style={{
-              position: 'relative',
-              width: '180px',
-              height: '180px',
-              margin: '10px 0 28px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            {/* Glowing Aura Ring */}
-            <div
-              style={{
-                position: 'absolute',
-                inset: '10px',
-                borderRadius: '50%',
-                background: 'radial-gradient(circle, rgba(0, 173, 181, 0.3) 0%, transparent 70%)',
-                border: '2px dashed rgba(0, 173, 181, 0.4)',
-                animation: 'spin 20s linear infinite',
-              }}
-            />
-
-            {/* Ground Shadow */}
-            <div
-              style={{
-                position: 'absolute',
-                bottom: '15px',
-                width: '100px',
-                height: '24px',
-                background: 'rgba(0, 0, 0, 0.5)',
-                borderRadius: '50%',
-                filter: 'blur(6px)',
-              }}
-            />
-
-            {/* Stevunt Animated Character Sprite */}
-            <div
-              style={{
-                width: '140px',
-                height: '140px',
-                backgroundImage: `url("/Assets/Character/Stevunt-idle.png")`,
-                backgroundSize: '500% 500%',
-                backgroundPosition: `${bgX}% ${bgY}%`,
-                backgroundRepeat: 'no-repeat',
-                imageRendering: 'pixelated',
-                filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.7))',
-                zIndex: 2,
-              }}
-            />
-
-            {/* Floating Character Badge */}
-            <div
-              style={{
-                position: 'absolute',
-                bottom: '0',
-                background: 'rgba(11, 30, 44, 0.9)',
-                border: '1px solid #00ADB5',
-                borderRadius: '50px',
-                padding: '4px 14px',
-                fontSize: '11px',
-                fontWeight: 800,
-                color: '#38BDF8',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
-                zIndex: 3,
-                whiteSpace: 'nowrap',
-              }}
-            >
-              🕵️ Agent Stevunt
-            </div>
-          </motion.div>
-
-          {/* ── BUTTON CONTROLS ── */}
+          {/* ── ACTION BUTTONS ── */}
           <div
             style={{
               display: 'flex',
               flexDirection: 'column',
-              gap: '12px',
+              gap: '14px',
               width: '100%',
-              maxWidth: '280px',
+              maxWidth: '300px',
             }}
           >
-            {/* PLAY BUTTON */}
+            {/* PRIMARY PLAY BUTTON */}
             <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.96 }}
+              whileHover={{ scale: 1.04, y: -2 }}
+              whileTap={{ scale: 0.97, y: 2 }}
               onClick={handlePlayClick}
               disabled={isStarting}
               style={{
                 width: '100%',
-                padding: '16px 32px',
+                padding: '16px 28px',
                 fontSize: '20px',
-                fontWeight: 900,
+                fontFamily: "'Pixelify Sans', 'Press Start 2P', monospace, sans-serif",
+                fontWeight: 700,
                 letterSpacing: '2px',
                 color: '#FFFFFF',
-                background: 'linear-gradient(135deg, #00ADB5 0%, #2563EB 100%)',
-                border: '2px solid rgba(255, 255, 255, 0.4)',
-                borderRadius: '16px',
+                background: 'linear-gradient(180deg, #0284C7 0%, #0369A1 50%, #075985 100%)',
+                border: '3px solid #38BDF8',
+                borderRadius: '14px',
                 cursor: 'pointer',
-                boxShadow: '0 0 30px rgba(0, 173, 181, 0.5), 0 8px 24px rgba(0,0,0,0.5)',
-                textShadow: '0 2px 4px rgba(0,0,0,0.5)',
+                boxShadow: '0 6px 0 #082F49, 0 14px 28px rgba(0,0,0,0.6)',
+                textShadow: '2px 2px 0 #082F49',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '10px',
-                position: 'relative',
-                overflow: 'hidden',
+                gap: '12px',
+                transition: 'filter 0.2s',
+                outline: 'none',
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.filter = 'brightness(1.15)'
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.filter = 'brightness(1)'
               }}
             >
-              <span>▶</span> {isStarting ? 'MEMUAT...' : 'PLAY'}
+              <span>▶</span> {isStarting ? 'MEMUAT...' : 'MAIN'}
             </motion.button>
 
-            {/* LOBBY / LEVEL SELECT BUTTON */}
+            {/* SECONDARY LOBBY BUTTON */}
             <motion.button
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
               onClick={handleLobbyClick}
               style={{
                 width: '100%',
-                padding: '12px 24px',
+                padding: '13px 22px',
                 fontSize: '14px',
-                fontWeight: 700,
-                color: '#CBD5E1',
-                background: 'rgba(255, 255, 255, 0.05)',
-                border: '1px solid rgba(255, 255, 255, 0.15)',
+                fontWeight: 800,
+                color: '#E2E8F0',
+                background: 'rgba(11, 23, 38, 0.85)',
+                border: '2px solid rgba(56, 189, 248, 0.45)',
                 borderRadius: '12px',
                 cursor: 'pointer',
-                backdropFilter: 'blur(8px)',
-                transition: 'all 0.2s',
+                backdropFilter: 'blur(10px)',
+                transition: 'all 0.2s ease',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: '8px',
+                boxShadow: '0 4px 14px rgba(0,0,0,0.4)',
               }}
               onMouseEnter={e => {
-                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'
+                e.currentTarget.style.background = 'rgba(15, 35, 53, 0.95)'
+                e.currentTarget.style.borderColor = '#38BDF8'
                 e.currentTarget.style.color = '#FFFFFF'
               }}
               onMouseLeave={e => {
-                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)'
-                e.currentTarget.style.color = '#CBD5E1'
+                e.currentTarget.style.background = 'rgba(11, 23, 38, 0.85)'
+                e.currentTarget.style.borderColor = 'rgba(56, 189, 248, 0.45)'
+                e.currentTarget.style.color = '#E2E8F0'
               }}
             >
-              🗂️ Pilih Kasus (Lobby)
+              🗂️ Pilih Kasus / Level
             </motion.button>
+          </div>
+
+          {/* Quick Key Hint */}
+          <div
+            style={{
+              marginTop: '20px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              fontSize: '12px',
+              color: 'rgba(241, 245, 249, 0.8)',
+              textShadow: '0 1px 3px rgba(0,0,0,0.8)',
+              fontWeight: 600,
+            }}
+          >
+            <kbd
+              style={{
+                background: 'rgba(0, 0, 0, 0.6)',
+                border: '1px solid rgba(255, 255, 255, 0.25)',
+                borderRadius: '4px',
+                padding: '2px 6px',
+                fontSize: '10px',
+                fontWeight: 700,
+                color: '#38BDF8',
+              }}
+            >
+              ENTER
+            </kbd>
+            <span>Tekan untuk langsung bermain</span>
           </div>
         </motion.div>
 
-        {/* Global Keyframe CSS Animations */}
-        <style jsx global>{`
-          @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-          }
-        `}</style>
+        {/* Bottom Credits / School Life Flavor */}
+        <div
+          style={{
+            position: 'absolute',
+            bottom: '16px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            fontSize: '11px',
+            color: 'rgba(226, 232, 240, 0.75)',
+            textShadow: '0 1px 3px rgba(0,0,0,0.8)',
+            fontWeight: 600,
+            zIndex: 10,
+          }}
+        >
+          <span>SMP Negeri Edition</span>
+          <span>•</span>
+          <span>Kurikulum Merdeka</span>
+          <span>•</span>
+          <span>Stat-Casecode v2.0</span>
+        </div>
       </div>
     </OrientationGuard>
   )

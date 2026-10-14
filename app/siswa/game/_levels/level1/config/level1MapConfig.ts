@@ -5,16 +5,19 @@ export const WORLD_VH = 650
 
 // Ground boundary line nodes for the outdoor hallway
 export const RED_LINE_POINTS = [
-  { x: 100, y: 510 },
-  { x: 290, y: 500 },
-  { x: 451, y: 410 },
-  { x: 632, y: 410 },
-  { x: 840, y: 410 },
-  { x: 1000, y: 500 },
+  { x: 70, y: 500 },
+  { x: 135, y: 460 },
+  { x: 250, y: 375 },
+  { x: 420, y: 335 },
+  { x: 625, y: 335 },
+  { x: 820, y: 335 },
+  { x: 985, y: 375 },
+  { x: 1100, y: 460 },
+  { x: 1165, y: 500 },
 ] as const
 
 // Position coordinates for Pak Sutrisno NPC in the hallway / lapangan
-export const PAK_SUTRISNO_POS = { x: 800, y: 500 }
+export const PAK_SUTRISNO_POS = { x: 740, y: 470 }
 
 export function getRedLineY(x: number): number {
   const sortedPoints = [...RED_LINE_POINTS].sort((a, b) => a.x - b.x)
@@ -74,7 +77,7 @@ export const LEVEL1_MAPS: Record<string, MapConfig> = {
       depthFactor: 65,
       speed: 3.5 // Reduced by 10% from 3.9 (originally 5.2) for smoother, controlled exploration
     },
-    spawn: { x: 650, y: 550 },
+    spawn: { x: 625, y: 520 },
     isWalkable: (x, y) => checkHallwayWalkable(x, y)
   },
 
@@ -167,9 +170,14 @@ export const LEVEL1_MAPS: Record<string, MapConfig> = {
       name: 'Bu Rina (Wali Kelas VIII-A)',
       x: 617,
       y: 415,
-      size: 250,
+      size: 130,
+      aspectRatio: 2.068,
+      spriteUrl: '/Assets/Building/Ruang VIII-A/Bu Rina.webp',
+      cols: 1,
+      rows: 1,
+      totalFrames: 1,
       hotspotW: 140,
-      hotspotH: 220
+      hotspotH: 260
     },
     isWalkable: (x, y) => checkClassroomWalkable(x, y)
   },
@@ -195,9 +203,14 @@ export const LEVEL1_MAPS: Record<string, MapConfig> = {
       name: 'Pak Setiawan (Wali Kelas VIII-B)',
       x: 617,
       y: 415,
-      size: 250,
+      size: 130,
+      aspectRatio: 2.068,
+      spriteUrl: '/Assets/Building/Ruang VIII-B/Pak Setiawan.webp',
+      cols: 1,
+      rows: 1,
+      totalFrames: 1,
       hotspotW: 140,
-      hotspotH: 220
+      hotspotH: 260
     },
     isWalkable: (x, y) => checkClassroomWalkable(x, y)
   },
@@ -223,9 +236,14 @@ export const LEVEL1_MAPS: Record<string, MapConfig> = {
       name: 'Pak Joko (Wali Kelas IX)',
       x: 617,
       y: 415,
-      size: 250,
+      size: 130,
+      aspectRatio: 2.068,
+      spriteUrl: '/Assets/Building/Ruang IX/Pak Joko.webp',
+      cols: 1,
+      rows: 1,
+      totalFrames: 1,
       hotspotW: 140,
-      hotspotH: 220
+      hotspotH: 260
     },
     isWalkable: (x, y) => checkClassroomWalkable(x, y)
   }

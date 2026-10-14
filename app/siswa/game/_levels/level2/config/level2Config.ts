@@ -12,6 +12,8 @@
 
 export type Level2State =
   | 'LEVEL_START'
+  | 'CLASSROOM_PROLOGUE'
+  | 'TRANSITION_TO_FIELD'
   | 'MEET_TEACHER'
   | 'BRIEFING'
   | 'GATHER_STUDENTS'
@@ -134,6 +136,64 @@ export const TOTAL_STUDENTS = 15
 // ──────────────────────────────────────────────────────
 // DIALOG SEQUENCES
 // ──────────────────────────────────────────────────────
+
+export const CLASSROOM_DIALOGS: DialogLine[] = [
+  {
+    speaker: 'teacher',
+    speakerName: TEACHER_NAME,
+    text: 'Selamat siang anak-anak kelas VII-B! Sebelum kita berpanas-panasan, Bapak mau tanya dulu nih. Masih ingat kan materi mean (rata-rata) yang kemarin kita bahas?',
+  },
+  {
+    speaker: 'player',
+    speakerName: 'Stevunt',
+    text: 'Masih ingat, Pak! Rata-rata itu jumlah seluruh nilai data dibagi dengan banyaknya data!',
+  },
+  {
+    speaker: 'teacher',
+    speakerName: TEACHER_NAME,
+    text: 'Tepat! Nah, sekarang coba bayangkan: ada dua tim atlet lempar lembing, Tim Garuda dan Tim Rajawali. Keduanya punya rata-rata lemparan yang sama persis, yaitu 20 meter. Menurut kalian, apakah kemampuan kedua tim itu sama?',
+  },
+  {
+    speaker: 'player',
+    speakerName: 'Stevunt',
+    text: 'Hmm... kalau rata-ratanya sama-sama 20 meter, mestinya kekuatan dan performanya seimbang dong, Pak?',
+  },
+  {
+    speaker: 'teacher',
+    speakerName: TEACHER_NAME,
+    text: 'Hahaha, belum tentu! Di Tim Garuda, semua atletnya konsisten melempar di kisaran 19 sampai 21 meter. Tapi di Tim Rajawali, ada yang cuma sanggup lempar 6 meter, dan ada yang melesat sampai 34 meter!',
+  },
+  {
+    speaker: 'dira',
+    speakerName: 'DiRA',
+    text: 'Tepat sekali! Rata-ratanya memang identik (20 m), tapi tingkat kestabilan dan sebaran nilainya sangat berbeda jauh. Di sinilah angka rata-rata saja tidak cukup.',
+  },
+  {
+    speaker: 'teacher',
+    speakerName: TEACHER_NAME,
+    text: 'Betul kata DiRA! Untuk melihat seberapa menyebar atau konsistennya data, kita membutuhkan Ukuran Penyebaran Data: Jangkauan (Range), Kuartil (Q1, Q2, Q3), dan Jangkauan Interkuartil (IQR)!',
+  },
+  {
+    speaker: 'player',
+    speakerName: 'Stevunt',
+    text: 'Wah, masuk akal sekali, Pak! Jadi kita harus tahu lemparan terdekat, terjauh, dan sebaran 50% data di bagian tengahnya ya?',
+  },
+  {
+    speaker: 'teacher',
+    speakerName: TEACHER_NAME,
+    text: 'Persis, Stevunt! Nah, daripada cuma mencatat rumus di papan tulis yang bikin ngantuk, bagaimana kalau kita langsung buktikan dengan lemparan kelas kita sendiri di lapangan?',
+  },
+  {
+    speaker: 'player',
+    speakerName: 'Stevunt',
+    text: 'Setuju banget, Pak! Praktik langsung pasti jauh lebih seru dan nyata!',
+  },
+  {
+    speaker: 'teacher',
+    speakerName: TEACHER_NAME,
+    text: 'Mantap! Ayo rapikan buku kalian, ganti sepatu olahraga, dan bawa meteran lapangan. Kita kumpul di lapangan sekolah sekarang juga! 🏃‍♂️💨',
+  },
+]
 
 export const BRIEFING_DIALOGS: DialogLine[] = [
   {

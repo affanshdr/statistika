@@ -22,6 +22,7 @@ import type { ThrowSessionData, StudentThrowData, ComputedStats } from './data/l
 
 // Level 2 config
 import {
+  CLASSROOM_DIALOGS,
   BRIEFING_DIALOGS,
   DIRA_BRIEFING,
   DATA_COMPLETE_DIALOG,
@@ -227,6 +228,10 @@ export default function Level2Main({
   const [scoring, setScoring] = useState<SessionScoring>(createInitialScoring())
   const [pendingBadges, setPendingBadges] = useState<PendingBadge[]>([])
 
+  // ── CLASSROOM PROLOGUE STATE ─────────────────
+  const [classroomIndex, setClassroomIndex] = useState(0)
+  const currentClassroomDialog = CLASSROOM_DIALOGS[classroomIndex]
+
   // ── PLAYER (DETECTIVE) & TEACHER STATE ────────
   const [playerPos, setPlayerPos] = useState({ x: 480, y: 645 })
   const [playerDir, setPlayerDir] = useState({ x: 0, y: 0 })
@@ -295,8 +300,8 @@ export default function Level2Main({
     setSession(newSession)
 
     const timer = setTimeout(() => {
-      setGameState('MEET_TEACHER')
-    }, 800)
+      setGameState('CLASSROOM_PROLOGUE')
+    }, 400)
 
     return () => clearTimeout(timer)
   }, [])
@@ -306,6 +311,44 @@ export default function Level2Main({
     if (feedbackTimer.current) clearTimeout(feedbackTimer.current)
     feedbackTimer.current = setTimeout(() => setFeedbackMsg(null), duration)
   }, [])
+
+  // ── CLASSROOM DIALOG HANDLERS ────────────────
+  const handleTransitionToField = useCallback(() => {
+    playSound('whistle')
+    setGameState('TRANSITION_TO_FIELD')
+    showFeedback('🏃 Berpindah dari ruang kelas menuju lapangan sekolah...', 2500)
+
+    setTimeout(() => {
+      setGameState('GATHER_STUDENTS')
+      showFeedback('📢 Pak Bambang meniup peluit! 15 Siswa bersiap di pinggir lapangan...', 2500)
+      setTimeout(() => {
+        setGameState('COLLECTING_DATA')
+        showFeedback('👥 Pilih siswa di Zona Siswa atau mulai lemparan!', 2500)
+      }, 1800)
+    }, 1800)
+  }, [showFeedback])
+
+  const handleClassroomNext = useCallback(() => {
+    playSound('chime')
+    if (classroomIndex < CLASSROOM_DIALOGS.length - 1) {
+      setClassroomIndex(prev => prev + 1)
+    } else {
+      handleTransitionToField()
+    }
+  }, [classroomIndex, handleTransitionToField])
+
+  // Space / Enter shortcut for classroom dialogue
+  useEffect(() => {
+    if (gameState !== 'CLASSROOM_PROLOGUE') return
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === ' ' || e.key === 'Enter') {
+        e.preventDefault()
+        handleClassroomNext()
+      }
+    }
+    window.addEventListener('keydown', handleKey)
+    return () => window.removeEventListener('keydown', handleKey)
+  }, [gameState, handleClassroomNext])
 
   const awardBadge = useCallback((badge: typeof LEVEL2_BADGES[keyof typeof LEVEL2_BADGES]) => {
     unlockBadge(badge.id)
@@ -844,6 +887,7 @@ export default function Level2Main({
           gap: '8px',
         }}
       >
+
         <button
           onClick={() => setCameraZoom(prev => (prev === 'fit' ? 'focus' : 'fit'))}
           style={{
@@ -887,6 +931,8 @@ export default function Level2Main({
           height={FIELD_HEIGHT}
           preserveAspectRatio="none"
         />
+
+
         {/* ── 1. MISSION 1 RED RIBBON (Between Min and Max Flags) ── */}
         {ribbonPlaced && minFlagCoord && maxFlagCoord && (
           <g>
@@ -1061,6 +1107,7 @@ export default function Level2Main({
               fill="#FFFBEB"
               opacity={0.8}
             />
+
           </g>
         )}
 
@@ -1691,6 +1738,434 @@ export default function Level2Main({
                 KEMBALI KE MARKAS DETEKTIF ▶
               </button>
             </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── CLASSROOM PROLOGUE MODAL / SCENE ── */}
+      <AnimatePresence>
+        {gameState === 'CLASSROOM_PROLOGUE' && currentClassroomDialog && (
+          <motion.div
+            key="classroom-prologue-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.4 }}
+            style={{
+              position: 'fixed',
+              inset: 0,
+              zIndex: 850,
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              backgroundImage: 'url("/Assets/Building/field/kelas.png")',
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              overflow: 'hidden',
+            }}
+          >
+            {/* Ambient Dark Gradient Overlay */}
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                background:
+                  'radial-gradient(ellipse at center, rgba(15, 23, 42, 0.4) 0%, rgba(7, 19, 30, 0.85) 100%)',
+                pointerEvents: 'none',
+              }}
+            />
+
+            {/* ── TOP HEADER (TITLE & SKIP) ── */}
+            <div
+              style={{
+                position: 'relative',
+                zIndex: 10,
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: 'clamp(12px, 2vh, 20px) clamp(16px, 3vw, 32px)',
+                background: 'linear-gradient(180deg, rgba(7, 19, 30, 0.9) 0%, transparent 100%)',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <span
+                  style={{
+                    background: 'rgba(245, 158, 11, 0.2)',
+                    border: '1.5px solid #F59E0B',
+                    padding: '4px 12px',
+                    borderRadius: '8px',
+                    fontSize: '12.5px',
+                    fontWeight: 900,
+                    color: '#FCD34D',
+                    letterSpacing: '0.5px',
+                  }}
+                >
+                  🏫 RUANG KELAS VII-B
+                </span>
+                <span
+                  style={{
+                    fontSize: '13px',
+                    fontWeight: 700,
+                    color: '#E2E8F0',
+                  }}
+                >
+                  Pengantar Ukuran Penyebaran Data
+                </span>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <span
+                  style={{
+                    fontSize: '12px',
+                    fontWeight: 800,
+                    color: '#94A3B8',
+                    background: 'rgba(15, 23, 42, 0.8)',
+                    padding: '4px 10px',
+                    borderRadius: '8px',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                  }}
+                >
+                  💬 {classroomIndex + 1} / {CLASSROOM_DIALOGS.length}
+                </span>
+
+                <button
+                  onClick={handleTransitionToField}
+                  style={{
+                    background: 'rgba(15, 23, 42, 0.85)',
+                    border: '1.5px solid rgba(56, 189, 248, 0.5)',
+                    borderRadius: '10px',
+                    color: '#38BDF8',
+                    cursor: 'pointer',
+                    padding: '6px 14px',
+                    fontSize: '12px',
+                    fontWeight: 800,
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.4)',
+                    transition: 'all 0.2s',
+                  }}
+                >
+                  Lewati Pengantar ⏩
+                </button>
+              </div>
+            </div>
+
+            {/* ── CHARACTERS VISUAL PRESENTATION ── */}
+            <div
+              style={{
+                position: 'relative',
+                zIndex: 5,
+                flex: 1,
+                display: 'flex',
+                alignItems: 'flex-end',
+                justifyContent: 'space-between',
+                padding: '0 clamp(16px, 6vw, 80px)',
+                pointerEvents: 'none',
+              }}
+            >
+              {/* Pak Bambang */}
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  transition: 'all 0.3s ease',
+                  transform:
+                    currentClassroomDialog.speaker === 'teacher'
+                      ? 'scale(1.05) translateY(-6px)'
+                      : 'scale(0.96) translateY(0)',
+                  opacity: currentClassroomDialog.speaker === 'teacher' ? 1 : 0.65,
+                }}
+              >
+                <img
+                  src="/Assets/Character/Pak Bambang.png"
+                  alt="Pak Bambang"
+                  style={{
+                    height: 'clamp(240px, 45vh, 440px)',
+                    objectFit: 'contain',
+                    filter:
+                      currentClassroomDialog.speaker === 'teacher'
+                        ? 'drop-shadow(0 0 25px rgba(245, 158, 11, 0.7)) brightness(1.05)'
+                        : 'drop-shadow(0 6px 16px rgba(0,0,0,0.6)) grayscale(0.2)',
+                  }}
+                />
+              </div>
+
+              {/* DiRA Floating Avatar */}
+              <AnimatePresence>
+                {currentClassroomDialog.speaker === 'dira' && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.8, y: 15 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.8, y: -15 }}
+                    style={{
+                      position: 'absolute',
+                      top: '18%',
+                      left: '50%',
+                      transform: 'translateX(-50%)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      background: 'rgba(15, 23, 42, 0.9)',
+                      padding: '14px 24px',
+                      borderRadius: '18px',
+                      border: '2px solid #38BDF8',
+                      boxShadow: '0 0 35px rgba(56, 189, 248, 0.55)',
+                      backdropFilter: 'blur(10px)',
+                    }}
+                  >
+                    <div style={{ fontSize: '38px', marginBottom: '4px' }}>🤖</div>
+                    <span style={{ fontSize: '12px', fontWeight: 900, color: '#38BDF8', letterSpacing: '0.5px' }}>
+                      DiRA — ASISTEN ANALITIK AI
+                    </span>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Stevunt */}
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  transition: 'all 0.3s ease',
+                  transform:
+                    currentClassroomDialog.speaker === 'player'
+                      ? 'scale(1.05) translateY(-6px)'
+                      : 'scale(0.96) translateY(0)',
+                  opacity: currentClassroomDialog.speaker === 'player' ? 1 : 0.65,
+                }}
+              >
+                <img
+                  src="/Assets/Character/Stevunt-idle.png"
+                  alt="Stevunt"
+                  style={{
+                    height: 'clamp(210px, 40vh, 400px)',
+                    objectFit: 'contain',
+                    filter:
+                      currentClassroomDialog.speaker === 'player'
+                        ? 'drop-shadow(0 0 25px rgba(0, 173, 181, 0.75)) brightness(1.05)'
+                        : 'drop-shadow(0 6px 16px rgba(0,0,0,0.6)) grayscale(0.2)',
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* ── DIALOGUE BUBBLE BOX (BOTTOM) ── */}
+            <div
+              style={{
+                position: 'relative',
+                zIndex: 20,
+                width: '100%',
+                padding: '0 clamp(16px, 4vw, 36px) clamp(16px, 3vh, 28px)',
+                display: 'flex',
+                justifyContent: 'center',
+              }}
+              onClick={handleClassroomNext}
+            >
+              <div
+                style={{
+                  width: '100%',
+                  maxWidth: '840px',
+                  background:
+                    'linear-gradient(135deg, rgba(15, 23, 42, 0.96) 0%, rgba(10, 15, 26, 0.98) 100%)',
+                  borderRadius: '22px',
+                  border: `2px solid ${
+                    currentClassroomDialog.speaker === 'teacher'
+                      ? '#F59E0B'
+                      : currentClassroomDialog.speaker === 'dira'
+                      ? '#38BDF8'
+                      : '#00ADB5'
+                  }`,
+                  padding: '20px 24px',
+                  boxShadow: `0 16px 40px rgba(0,0,0,0.8), 0 0 25px ${
+                    currentClassroomDialog.speaker === 'teacher'
+                      ? 'rgba(245, 158, 11, 0.35)'
+                      : currentClassroomDialog.speaker === 'dira'
+                      ? 'rgba(56, 189, 248, 0.35)'
+                      : 'rgba(0, 173, 181, 0.35)'
+                  }`,
+                  color: '#FFFFFF',
+                  cursor: 'pointer',
+                  userSelect: 'none',
+                }}
+              >
+                {/* Header row in bubble */}
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    marginBottom: '10px',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span
+                      style={{
+                        fontSize: '14px',
+                        fontWeight: 900,
+                        color:
+                          currentClassroomDialog.speaker === 'teacher'
+                            ? '#FCD34D'
+                            : currentClassroomDialog.speaker === 'dira'
+                            ? '#38BDF8'
+                            : '#5EEAD4',
+                      }}
+                    >
+                      {currentClassroomDialog.speaker === 'teacher'
+                        ? '👨‍🏫 Pak Bambang'
+                        : currentClassroomDialog.speaker === 'dira'
+                        ? '🤖 DiRA'
+                        : '🕵️ Stevunt'}
+                    </span>
+                    <span
+                      style={{
+                        fontSize: '11px',
+                        color: '#94A3B8',
+                        background: 'rgba(255, 255, 255, 0.08)',
+                        padding: '2px 8px',
+                        borderRadius: '6px',
+                        fontWeight: 700,
+                      }}
+                    >
+                      {currentClassroomDialog.speaker === 'teacher'
+                        ? 'Guru Olahraga'
+                        : currentClassroomDialog.speaker === 'dira'
+                        ? 'Asisten Analitik'
+                        : 'Detektif Siswa'}
+                    </span>
+                  </div>
+
+                  <span style={{ fontSize: '11px', color: '#64748B', fontWeight: 600 }}>
+                    Klik / Tekan [Spasi]
+                  </span>
+                </div>
+
+                {/* Dialog Text */}
+                <p
+                  style={{
+                    margin: '0 0 16px',
+                    fontSize: '15px',
+                    lineHeight: 1.65,
+                    color: '#F1F5F9',
+                    minHeight: '48px',
+                  }}
+                >
+                  <Typewriter text={currentClassroomDialog.text} />
+                </p>
+
+                {/* Bottom button row */}
+                <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '10px' }}>
+                  {classroomIndex < CLASSROOM_DIALOGS.length - 1 ? (
+                    <button
+                      onClick={e => {
+                        e.stopPropagation()
+                        handleClassroomNext()
+                      }}
+                      style={{
+                        background:
+                          currentClassroomDialog.speaker === 'teacher'
+                            ? 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)'
+                            : currentClassroomDialog.speaker === 'dira'
+                            ? 'linear-gradient(135deg, #0284C7 0%, #0369A1 100%)'
+                            : 'linear-gradient(135deg, #00ADB5 0%, #007A80 100%)',
+                        border: 'none',
+                        borderRadius: '10px',
+                        color: '#FFFFFF',
+                        fontWeight: 900,
+                        fontSize: '12.5px',
+                        padding: '8px 18px',
+                        cursor: 'pointer',
+                        boxShadow: '0 4px 14px rgba(0,0,0,0.4)',
+                        transition: 'transform 0.15s ease',
+                      }}
+                    >
+                      Lanjut ▶
+                    </button>
+                  ) : (
+                    <motion.button
+                      animate={{ scale: [1, 1.04, 1] }}
+                      transition={{ duration: 1.2, repeat: Infinity }}
+                      onClick={e => {
+                        e.stopPropagation()
+                        handleTransitionToField()
+                      }}
+                      style={{
+                        background: 'linear-gradient(135deg, #F59E0B 0%, #EF4444 100%)',
+                        border: 'none',
+                        borderRadius: '12px',
+                        color: '#FFFFFF',
+                        fontWeight: 900,
+                        fontSize: '14px',
+                        padding: '10px 24px',
+                        cursor: 'pointer',
+                        boxShadow: '0 6px 20px rgba(245, 158, 11, 0.6)',
+                        letterSpacing: '0.5px',
+                      }}
+                    >
+                      AYO MENUJU LAPANGAN! 🏃‍♂️💨
+                    </motion.button>
+                  )}
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── CINEMATIC TRANSITION TO FIELD SCREEN ── */}
+      <AnimatePresence>
+        {gameState === 'TRANSITION_TO_FIELD' && (
+          <motion.div
+            key="transition-to-field"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+            style={{
+              position: 'fixed',
+              inset: 0,
+              zIndex: 900,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: 'radial-gradient(ellipse at center, #0F172A 0%, #020617 100%)',
+              color: '#FFFFFF',
+              textAlign: 'center',
+              padding: '24px',
+            }}
+          >
+            <motion.div
+              animate={{ y: [0, -10, 0] }}
+              transition={{ repeat: Infinity, duration: 1.4, ease: 'easeInOut' }}
+              style={{ fontSize: '56px', marginBottom: '16px' }}
+            >
+              🏃‍♂️ 💨 ⚽
+            </motion.div>
+            <h2
+              style={{
+                fontSize: '24px',
+                fontWeight: 900,
+                color: '#FCD34D',
+                margin: '0 0 10px',
+                letterSpacing: '0.5px',
+              }}
+            >
+              Menuju Lapangan Sekolah...
+            </h2>
+            <p style={{ fontSize: '14px', color: '#94A3B8', maxWidth: '440px', lineHeight: 1.6, margin: 0 }}>
+              Pak Bambang dan 15 siswa kelas VII-B telah bersiap di pinggir lapangan untuk agenda pengukuran lemparan!
+            </p>
+
+            <div
+              style={{
+                marginTop: '28px',
+                width: '60px',
+                height: '4px',
+                borderRadius: '2px',
+                background: 'linear-gradient(90deg, #F59E0B, #10B981)',
+                animation: 'pulse 1.5s infinite',
+              }}
+            />
           </motion.div>
         )}
       </AnimatePresence>

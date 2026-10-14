@@ -44,7 +44,7 @@ export default function RootHomePage() {
 
     // Initial asset preloading for splash screen background and icons
     const splashBg = new Image()
-    splashBg.src = '/Assets/Building/Splash Screen/Splash Screen.png'
+    splashBg.src = '/Assets/Building/Splash Screen/Splash Screen.webp'
 
     const startTime = performance.now()
     const interval = setInterval(() => {
@@ -68,6 +68,16 @@ export default function RootHomePage() {
     }
   }, [isNameModalOpen])
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Enter' && !isNameModalOpen && !isStarting) {
+        setIsNameModalOpen(true)
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [isNameModalOpen, isStarting])
+
   const handleOpenPlayModal = () => {
     setIsNameModalOpen(true)
   }
@@ -78,13 +88,13 @@ export default function RootHomePage() {
     if (!finalName) return
     setIsStarting(true)
     setLoadProgress(0)
-    setLoadStatus('Menginisialisasi Identitas Detektif...')
+    setLoadStatus('Menginisialisasi Profil Siswa...')
 
     let studentData: Student = {
-      id: 'detektif-guest',
+      id: 'siswa-guest',
       name: finalName,
       nisn: '-',
-      classroom: { name: 'Kelas XII' }
+      classroom: { name: 'Kelas VII-A' }
     }
 
     // Preload dashboard, classroom background & character assets so /siswa and game load instantly without delay
@@ -155,15 +165,15 @@ export default function RootHomePage() {
       setLoadProgress(combinedPercent)
 
       if (combinedPercent < 25) {
-        setLoadStatus('Menginisialisasi Identitas Detektif...')
+        setLoadStatus('Menginisialisasi Profil Siswa...')
       } else if (combinedPercent < 50) {
         setLoadStatus('Menghubungkan Server & Data Kelas...')
       } else if (combinedPercent < 80) {
-        setLoadStatus('Memuat Pak Bambang (VII-B), Stevunt & Karakter 2D...')
+        setLoadStatus('Memuat Pak Bambang, Stevunt & Karakter 2D...')
       } else if (combinedPercent < 95) {
-        setLoadStatus('Memuat Ruang VII-B & Papan Misi...')
+        setLoadStatus('Memuat Ruang Kelas & Papan Tantangan...')
       } else {
-        setLoadStatus('Menyiapkan Arena Misi...')
+        setLoadStatus('Menyiapkan Arena Petualangan Sekolah...')
       }
 
       if (elapsed >= minDuration && combinedPercent >= 100) {
@@ -185,7 +195,7 @@ export default function RootHomePage() {
           width: '100vw',
           overflow: 'hidden',
           position: 'relative',
-          backgroundImage: 'url("/Assets/Building/Splash Screen/Splash Screen.png")',
+          backgroundImage: 'url("/Assets/Building/Splash Screen/Splash Screen.webp")',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
@@ -239,48 +249,155 @@ export default function RootHomePage() {
           }}
         />
 
-        {/* ── MAIN ACTION BUTTON (PLAY BUTTON) ── */}
+        {/* ── MAIN TITLE & PLAY BUTTON CONTAINER ── */}
         <motion.div
-          initial={{ opacity: 0, y: 30, scale: 0.96 }}
+          initial={{ opacity: 0, y: 25, scale: 0.96 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.6, ease: 'easeOut' }}
+          transition={{ duration: 0.7, ease: 'easeOut' }}
           style={{
             zIndex: 10,
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            width: '100%',
-            maxWidth: '320px',
-            padding: '12px',
+            textAlign: 'center',
+            maxWidth: '680px',
+            padding: '24px 16px',
+            marginTop: '-20px',
           }}
         >
+          {/* School Life Badge */}
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              background: 'rgba(11, 23, 38, 0.85)',
+              backdropFilter: 'blur(8px)',
+              border: '2px solid #00ADB5',
+              borderRadius: '999px',
+              padding: '6px 20px',
+              marginBottom: '14px',
+              boxShadow: '0 4px 16px rgba(0, 173, 181, 0.35)',
+            }}
+          >
+            <span style={{ fontSize: '13px' }}>🏫</span>
+            <span
+              style={{
+                fontSize: '11px',
+                fontWeight: 800,
+                letterSpacing: '2.5px',
+                color: '#38BDF8',
+                textTransform: 'uppercase',
+              }}
+            >
+              SMP NEGERI • GAME EDUKASI STATISTIKA
+            </span>
+          </motion.div>
+
+          {/* DYNAMIC PIXEL TITLE: STAT-CASECODE */}
+          <h1
+            style={{
+              margin: '0 0 10px 0',
+              fontFamily: "'Pixelify Sans', 'Press Start 2P', monospace, sans-serif",
+              fontSize: 'clamp(46px, 7.5vw, 80px)',
+              fontWeight: 700,
+              letterSpacing: '3px',
+              color: '#FFFFFF',
+              textShadow: `
+                3px 3px 0 #0284C7,
+                6px 6px 0 #034870,
+                9px 9px 0 #071E33,
+                0 0 35px rgba(56, 189, 248, 0.65)
+              `,
+              lineHeight: 1.05,
+              textTransform: 'uppercase',
+            }}
+          >
+            Stat-Casecode
+          </h1>
+
+          {/* Subtitle / Tagline */}
+          <p
+            style={{
+              margin: '0 0 26px 0',
+              fontSize: 'clamp(14px, 2.2vw, 17px)',
+              color: '#F1F5F9',
+              fontWeight: 600,
+              maxWidth: '520px',
+              lineHeight: 1.5,
+              textShadow: '0 2px 6px rgba(0,0,0,0.9), 0 0 12px rgba(0,0,0,0.7)',
+            }}
+          >
+            Petualangan Siswa SMP Memecahkan Masalah Data & Fakta di Sekolah!
+          </p>
+
+          {/* Play Button */}
           <motion.button
-            whileHover={{ scale: 1.05, boxShadow: '0 0 45px rgba(0, 173, 181, 0.8), 0 8px 30px rgba(0,0,0,0.7)' }}
-            whileTap={{ scale: 0.95 }}
+            whileHover={{ scale: 1.05, y: -2 }}
+            whileTap={{ scale: 0.95, y: 2 }}
             onClick={handleOpenPlayModal}
             style={{
               width: '100%',
-              padding: '18px 36px',
-              fontSize: '24px',
-              fontWeight: 900,
-              letterSpacing: '4px',
+              maxWidth: '280px',
+              padding: '16px 36px',
+              fontSize: '22px',
+              fontFamily: "'Pixelify Sans', 'Press Start 2P', monospace, sans-serif",
+              fontWeight: 700,
+              letterSpacing: '3px',
               color: '#FFFFFF',
-              background: 'linear-gradient(135deg, #00ADB5 0%, #2563EB 100%)',
-              border: '2px solid rgba(255, 255, 255, 0.5)',
-              borderRadius: '20px',
+              background: 'linear-gradient(180deg, #0284C7 0%, #0369A1 50%, #075985 100%)',
+              border: '3px solid #38BDF8',
+              borderRadius: '16px',
               cursor: 'pointer',
-              boxShadow: '0 0 35px rgba(0, 173, 181, 0.6), 0 8px 24px rgba(0,0,0,0.6)',
-              textShadow: '0 2px 4px rgba(0,0,0,0.5)',
+              boxShadow: '0 6px 0 #082F49, 0 14px 28px rgba(0,0,0,0.6)',
+              textShadow: '2px 2px 0 #082F49',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               gap: '12px',
-              position: 'relative',
-              overflow: 'hidden',
+              transition: 'filter 0.2s',
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.filter = 'brightness(1.15)'
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.filter = 'brightness(1)'
             }}
           >
-            <span style={{ fontSize: '22px' }}>▶</span> PLAY
+            <span style={{ fontSize: '20px' }}>▶</span> MAIN
           </motion.button>
+
+          {/* Quick Key Hint */}
+          <div
+            style={{
+              marginTop: '16px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              fontSize: '12px',
+              color: 'rgba(241, 245, 249, 0.85)',
+              textShadow: '0 1px 3px rgba(0,0,0,0.8)',
+              fontWeight: 600,
+            }}
+          >
+            <kbd
+              style={{
+                background: 'rgba(0, 0, 0, 0.6)',
+                border: '1px solid rgba(255, 255, 255, 0.25)',
+                borderRadius: '4px',
+                padding: '2px 6px',
+                fontSize: '10px',
+                fontWeight: 700,
+                color: '#38BDF8',
+              }}
+            >
+              ENTER
+            </kbd>
+            <span>Tekan untuk mulai bermain</span>
+          </div>
         </motion.div>
 
         {/* ── POPUP MODAL (WARM DETECTIVE CREAM / CORKBOARD PAPER THEME) ── */}
@@ -396,7 +513,7 @@ export default function RootHomePage() {
                     fontWeight: 600,
                   }}
                 >
-                  Masukkan nama panggilanmu untuk mencatat sesi investigasi dan progres permainan.
+                  Masukkan nama panggilanmu untuk memulai petualangan statistika di sekolah.
                 </p>
 
                 {/* Form Input */}

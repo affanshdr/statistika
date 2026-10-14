@@ -3259,6 +3259,9 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
             '/Assets/Building/Ruang IX/IX.webp',
             '/Assets/Building/Ruang VII-B/Pak Bambang.png',
             '/Assets/Building/Ruang VII-A/Bu Sari.webp',
+            '/Assets/Building/Ruang VIII-A/Bu Rina.webp',
+            '/Assets/Building/Ruang VIII-B/Pak Setiawan.webp',
+            '/Assets/Building/Ruang IX/Pak Joko.webp',
             '/Assets/Character/Stevunt-idle.png',
             '/Assets/Character/pak Sutrisno-iso_idle_right-trimmed.png'
           ]}
