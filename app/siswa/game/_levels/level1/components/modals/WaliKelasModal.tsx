@@ -2,10 +2,12 @@
 
 import React, { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
-import { CLASS_STUDENTS, QuizDoor } from '@/app/siswa/game/_levels/level1/data/level1Data'
+import { CLASS_STUDENTS, getClassStudents, QuizDoor } from '@/app/siswa/game/_levels/level1/data/level1Data'
+import { useGameStore } from '@/lib/store/gameStore'
 
 interface WaliKelasModalProps {
   door: QuizDoor
+  studentsData?: Record<string, { teacher: string; comment: string; image?: string; students: { name: string; time: number }[] }>
   onCollectData: () => void
   onClose: () => void
 }
@@ -39,8 +41,10 @@ function TeacherTypewriter({ text, onDone }: { text: string; onDone?: () => void
   )
 }
 
-export default function WaliKelasModal({ door, onCollectData, onClose }: WaliKelasModalProps) {
-  const info = CLASS_STUDENTS[door.id]
+export default function WaliKelasModal({ door, studentsData, onCollectData, onClose }: WaliKelasModalProps) {
+  const level1Dataset = useGameStore(s => s.level1Dataset)
+  const currentStudents = studentsData || getClassStudents(level1Dataset)
+  const info = currentStudents[door.id] || CLASS_STUDENTS[door.id]
   if (!info) return null
 
   return (

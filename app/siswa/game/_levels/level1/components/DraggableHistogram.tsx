@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useMemo } from 'react'
 import { motion, AnimatePresence, PanInfo } from 'framer-motion'
 import { CLASS_LABELS, getClassIndex, getLevel1Data } from '@/app/siswa/game/_data/level1'
 import { useGameStore } from '@/lib/store/gameStore'
@@ -42,14 +42,21 @@ const SCATTERED_POSITIONS = [
 
 const CLASS_COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#EC4899', '#8B5CF6']
 
-const PREPLACED_INDICES = new Set([
-  0, 1, 2, 4, 5, 6,       // class 0 (1-3)
-  9, 10, 11, 13, 14, 15, 17, 18, // class 1 (4-6)
-  20, 21, 23, 24,         // class 2 (7-9)
-  26, 28,                 // class 3 (10-12)
-  29, 31,                 // class 4 (13-15)
-  32, 34,                 // class 5 (16-18)
-])
+function getPreplacedIndices(data: number[]): Set<number> {
+  const preplaced = new Set<number>()
+  // For each class 0..5, leave 1 unplaced point so player drags 6 points (1 for each class)
+  const unplacedIndices = new Set<number>()
+  for (let c = 0; c < 6; c++) {
+    const matchIdx = data.findIndex((val, idx) => getClassIndex(val) === c && !unplacedIndices.has(idx))
+    if (matchIdx !== -1) unplacedIndices.add(matchIdx)
+  }
+  data.forEach((_, idx) => {
+    if (!unplacedIndices.has(idx)) {
+      preplaced.add(idx)
+    }
+  })
+  return preplaced
+}
 
 export default function DraggableHistogram({
   mode = 'FI', onSubmit, readOnly = false, forceStack = false,
@@ -57,6 +64,8 @@ export default function DraggableHistogram({
 }: DraggableHistogramProps) {
   const level1Dataset = useGameStore(state => state.level1Dataset)
   const { screenTimeData, CORRECT_TABLE } = getLevel1Data(level1Dataset)
+
+  const preplacedIndices = useMemo(() => getPreplacedIndices(screenTimeData), [screenTimeData])
 
   const answers = useGameStore(state => state.answers)
   const intervalKelas = answers?.intervalKelas as { kelasInterval: string, tepiBawah: number, tepiAtas: number }[] | undefined
@@ -88,7 +97,7 @@ export default function DraggableHistogram({
   const [dataPoints, setDataPoints] = useState<DataPoint[]>(() =>
     screenTimeData.map((val, idx) => {
       const cIdx = getClassIndex(val)
-      const isPreplaced = readOnly || PREPLACED_INDICES.has(idx)
+      const isPreplaced = readOnly || preplacedIndices.has(idx)
       return { id: `dp-${idx}`, val, classIdx: cIdx, placed: isPreplaced, originalIdx: idx }
     })
   )
@@ -97,11 +106,11 @@ export default function DraggableHistogram({
     setDataPoints(
       screenTimeData.map((val, idx) => {
         const cIdx = getClassIndex(val)
-        const isPreplaced = readOnly || PREPLACED_INDICES.has(idx) || (placedIndices && placedIndices.includes(idx))
+        const isPreplaced = readOnly || preplacedIndices.has(idx) || (placedIndices && placedIndices.includes(idx))
         return { id: `dp-${idx}`, val, classIdx: cIdx, placed: !!isPreplaced, originalIdx: idx }
       })
     )
-  }, [screenTimeData, readOnly, placedIndices])
+  }, [screenTimeData, readOnly, placedIndices, preplacedIndices])
 
   const [selectedPoint, setSelectedPoint] = useState<DataPoint | null>(null)
   const [flashError, setFlashError] = useState<number | null>(null)

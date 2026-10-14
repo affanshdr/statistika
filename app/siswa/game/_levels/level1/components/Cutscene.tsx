@@ -708,7 +708,7 @@ export default function Cutscene({ onComplete, onPhaseChange, teamId, studentId,
                   fontFamily: 'var(--font-ui)',
                 }}>
                   <TypewriterText
-                    text="Postingan viral ini memicu perdebatan panas netizen! Beruntung, kamu baru saja mengumpulkan 35 sampel data screen time siswa dari 5 ruang kelas. Sekarang saatnya kamu menganalisis data tersebut untuk membuktikan kebenarannya!"
+                    text="Postingan viral ini memicu perdebatan panas netizen! Beruntung, bersama Pak Sutrisno kamu baru saja mengumpulkan 24 sampel data screen time siswa dari 4 ruang kelas. Sekarang saatnya kamu menganalisis distribusi data tersebut untuk membuktikan kebenarannya!"
                     onDone={() => setMentorTypingDone(true)}
                   />
                 </p>

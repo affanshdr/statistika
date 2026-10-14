@@ -5,8 +5,26 @@ export const LEVEL1_CONFIG = {
   description: 'Sebuah postingan viral mengklaim remaja Indonesia rata-rata >8 jam/hari di media sosial. Tugasmu: selidiki kebenarannya menggunakan statistika.',
 }
 
-// Raw dataset: screen time (jam/hari) dari 24 siswa (Kelas VII-A: 5, VII-B: 7, VIII-A: 4, VIII-B: 8)
-export const screenTimeData = [1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 7, 7, 8, 9, 11, 14, 16, 18]
+// Raw dataset presets: 24 siswa (Kelas VII-A: 5, VII-B: 7, VIII-A: 4, VIII-B: 8)
+// Memiliki rentang min=1, max=18, K=6, P=3 dengan rata-rata terhitung bersih (5.5, 5.75, 6.0, 6.17, 6.25, 6.5)
+export const LEVEL1_DATASET_PRESETS = [
+  // Varian 1: Sum = 144, Mean = 6.0 (Bulat)
+  [1, 1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 8, 10, 15, 16, 18],
+  // Varian 2: Sum = 132, Mean = 5.5 (0.5)
+  [1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 6, 6, 7, 7, 8, 8, 10, 14, 18],
+  // Varian 3: Sum = 156, Mean = 6.5 (0.5)
+  [1, 2, 3, 3, 3, 3, 3, 3, 4, 4, 5, 5, 6, 6, 6, 6, 7, 7, 8, 8, 12, 15, 18, 18],
+  // Varian 4: Sum = 138, Mean = 5.75
+  [1, 1, 2, 2, 2, 2, 2, 3, 4, 4, 4, 4, 4, 4, 5, 5, 7, 7, 8, 8, 11, 14, 16, 18],
+  // Varian 5: Sum = 150, Mean = 6.25
+  [1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 6, 7, 8, 8, 9, 11, 15, 18, 18],
+  // Varian 6: Sum = 144, Mean = 6.0 (Variasi B)
+  [1, 1, 2, 2, 2, 2, 3, 3, 4, 4, 4, 5, 5, 5, 5, 6, 7, 7, 8, 8, 11, 13, 18, 18],
+  // Varian 7: Sum = 148, Mean = 6.17 (Baseline Klasik)
+  [1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 7, 7, 8, 9, 11, 14, 16, 18],
+]
+
+export const screenTimeData = LEVEL1_DATASET_PRESETS[0]
 
 // Interval classes: width = 3 (1-3, 4-6, 7-9, 10-12, 13-15, 16-18)
 export const CLASS_LABELS = ['1 – 3', '4 – 6', '7 – 9', '10 – 12', '13 – 15', '16 – 18']
@@ -20,12 +38,23 @@ export function getClassIndex(val: number): number {
   if (val >= 16 && val <= 18) return 5
   return -1
 }
+
 export function generateRandomLevel1Data(): number[] {
-  return [...screenTimeData]
+  // Pilih salah satu varian acak yang telah terverifikasi
+  const randomPreset = LEVEL1_DATASET_PRESETS[Math.floor(Math.random() * LEVEL1_DATASET_PRESETS.length)]
+  const copy = [...randomPreset]
+  
+  // Acak urutan tampilan di dalam masing-masing kelas (VII-A: 5, VII-B: 7, VIII-A: 4, VIII-B: 8)
+  const a1 = copy.slice(0, 5).sort(() => Math.random() - 0.5)
+  const a2 = copy.slice(5, 12).sort(() => Math.random() - 0.5)
+  const b1 = copy.slice(12, 16).sort(() => Math.random() - 0.5)
+  const b2 = copy.slice(16, 24).sort(() => Math.random() - 0.5)
+  
+  return [...a1, ...a2, ...b1, ...b2]
 }
 
 export function getLevel1Data(customDataset?: number[] | null) {
-  const data = customDataset && customDataset.length > 0 ? customDataset : screenTimeData
+  const data = customDataset && customDataset.length === 24 ? customDataset : screenTimeData
   const total = data.reduce((a, b) => a + b, 0)
   const sorted = [...data].sort((a, b) => a - b)
   const n = data.length
@@ -42,62 +71,63 @@ export function getLevel1Data(customDataset?: number[] | null) {
     min,
     max,
     range,
+    sum: total,
     mean,
     median,
     numClasses: 6,
     classWidth: 3,
   }
 
+  // Dynamic Frequency Table calculation
+  const rawClasses = [
+    { kelas: '1 – 3', f: data.filter(v => v >= 1 && v <= 3).length },
+    { kelas: '4 – 6', f: data.filter(v => v >= 4 && v <= 6).length },
+    { kelas: '7 – 9', f: data.filter(v => v >= 7 && v <= 9).length },
+    { kelas: '10 – 12', f: data.filter(v => v >= 10 && v <= 12).length },
+    { kelas: '13 – 15', f: data.filter(v => v >= 13 && v <= 15).length },
+    { kelas: '16 – 18', f: data.filter(v => v >= 16 && v <= 18).length },
+  ]
+
+  let kum = 0
+  const correctTable = rawClasses.map(row => {
+    kum += row.f
+    return {
+      kelas: row.kelas,
+      f: row.f,
+      fRel: Number(((row.f / n) * 100).toFixed(1)),
+      fKum: kum,
+    }
+  })
+
+  const maxF = Math.max(...correctTable.map(row => row.f))
+  const histogramBars = correctTable.map(row => ({
+    label: row.kelas,
+    f: row.f,
+    heightPct: maxF > 0 ? Math.round((row.f / maxF) * 100) : 0,
+  }))
+
+  const lte8 = data.filter(v => v <= 8).length
+  const lte8Pct = ((lte8 / n) * 100).toFixed(1)
+
+  const verdictExplanation = `Rata-rata screen time dari ${n} siswa adalah <strong>${mean} jam/hari</strong> — di bawah klaim "lebih dari 8 jam". Sebagian besar siswa (<strong>${lte8} dari ${n} siswa atau ${lte8Pct}%</strong>) bermain medsos <strong>8 jam atau kurang</strong> sehari. Hanya beberapa siswa (tertinggi ${sorted[n - 2]} dan ${max} jam) yang bermain sangat lama — ini merupakan <strong>outlier/pencilan</strong>. Distribusi data menunjukkan pola pencilan ke kanan (skewed to the right). Klaim tersebut bersifat <strong>MISLEADING</strong> karena menggeneralisasi dari data ekstrem yang tidak mewakili mayoritas.`
+
   return {
     screenTimeData: data,
     STATS: stats,
-    CORRECT_TABLE,
-    HISTOGRAM_BARS,
-    CORRECT_VERDICT,
-    VERDICT_EXPLANATION,
+    CORRECT_TABLE: correctTable,
+    HISTOGRAM_BARS: histogramBars,
+    CORRECT_VERDICT: 'MISLEADING',
+    VERDICT_EXPLANATION: verdictExplanation,
   }
 }
-// Computed statistics
-const total = screenTimeData.reduce((a, b) => a + b, 0)
-const sorted = [...screenTimeData].sort((a, b) => a - b)
-const median = sorted.length % 2 === 0
-  ? (sorted[sorted.length / 2 - 1] + sorted[sorted.length / 2]) / 2
-  : sorted[Math.floor(sorted.length / 2)]
 
-export const STATS = {
-  n: 24,
-  min: 1,
-  max: 18,
-  range: 17,
-  mean: Number((total / 24).toFixed(2)), // ~6.17
-  median,
-  numClasses: 6,
-  classWidth: 3,
-}
-
-// Correct answer: frequency distribution table
-export const CORRECT_TABLE = [
-  { kelas: '1 – 3', f: 8, fRel: 33.3, fKum: 8 },
-  { kelas: '4 – 6', f: 8, fRel: 33.3, fKum: 16 },
-  { kelas: '7 – 9', f: 4, fRel: 16.7, fKum: 20 },
-  { kelas: '10 – 12', f: 1, fRel: 4.2, fKum: 21 },
-  { kelas: '13 – 15', f: 1, fRel: 4.2, fKum: 22 },
-  { kelas: '16 – 18', f: 2, fRel: 8.3, fKum: 24 },
-]
-
-// Bar heights as percentage of max frequency (8)
-const maxF = Math.max(...CORRECT_TABLE.map(row => row.f))
-export const HISTOGRAM_BARS = CORRECT_TABLE.map(row => ({
-  label: row.kelas,
-  f: row.f,
-  heightPct: Math.round((row.f / maxF) * 100),
-}))
-
-// Correct verdict
+// Default export fallback for backward compatibility
+const defaultData = getLevel1Data(screenTimeData)
+export const STATS = defaultData.STATS
+export const CORRECT_TABLE = defaultData.CORRECT_TABLE
+export const HISTOGRAM_BARS = defaultData.HISTOGRAM_BARS
 export const CORRECT_VERDICT = 'MISLEADING'
-
-// Verdict explanation
-export const VERDICT_EXPLANATION = `Rata-rata screen time dari 24 siswa adalah <strong>${STATS.mean} jam/hari</strong> (6.17 jam) — di bawah klaim "lebih dari 8 jam". Sebagian besar siswa (<strong>19 dari 24 siswa atau 79.2%</strong>) bermain medsos <strong>8 jam atau kurang</strong> sehari. Hanya beberapa siswa (tertinggi 16 dan 18 jam) yang bermain sangat lama — ini merupakan <strong>outlier/pencilan</strong>. Distribusi data menunjukkan pola pencilan ke kanan (skewed to the right). Klaim tersebut bersifat <strong>MISLEADING</strong> karena menggeneralisasi dari data ekstrem yang tidak mewakili mayoritas.`
+export const VERDICT_EXPLANATION = defaultData.VERDICT_EXPLANATION
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Keyword checker for TEXT ANALYSIS (Tahap B) — dipakai KEDUA path FI & FD

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import PlayerCharacter from '@/app/siswa/game/_components/PlayerCharacter'
 import NPCCharacter from '@/app/siswa/game/_components/NPCCharacter'
@@ -26,10 +26,14 @@ const TOTAL_N = 24
 import {
   CLASS_DOORS,
   CLASS_STUDENTS,
+  getClassDoors,
+  getClassStudents,
   DATA_CIRCLES,
   AMBIENT_PARTICLES,
   QuizDoor
 } from '@/app/siswa/game/_levels/level1/data/level1Data'
+import { getLevel1Data, generateRandomLevel1Data, screenTimeData } from '@/app/siswa/game/_data/level1'
+import { useGameStore } from '@/lib/store/gameStore'
 
 import { DoorId } from '@/app/siswa/game/_levels/level1/data/level1Data'
 
@@ -1029,33 +1033,95 @@ function PakSanctionModal({ onAccept }: { onAccept: () => void }) {
   )
 }
 
-// ─── Pak Sutrisno Report Modal ───────────────────────────────────────────────
-function PakReportModal({ onProceed }: { onProceed: () => void }) {
+// ─── Pak Sutrisno Report & Mean Analysis Modal ──────────────────────────────
+function PakReportModal({ dataset, onProceed }: { dataset: number[]; onProceed: () => void }) {
+  const [step, setStep] = useState<1 | 2 | 3>(1)
+  const [selectedMean, setSelectedMean] = useState<number | null>(null)
+  const [meanIsCorrect, setMeanIsCorrect] = useState<boolean | null>(null)
+  const [selectedClaim, setSelectedClaim] = useState<'misleading' | 'true' | null>(null)
+  const [claimIsCorrect, setClaimIsCorrect] = useState<boolean | null>(null)
+  const [shakeStep, setShakeStep] = useState<number>(0)
+
+  const { STATS } = getLevel1Data(dataset)
+  const totalSum = STATS.sum
+  const meanVal = STATS.mean
+  const lte8Count = dataset.filter(x => x <= 8).length
+
+  // Subtotals per classroom
+  const a1Data = dataset.slice(0, 5)
+  const a2Data = dataset.slice(5, 12)
+  const b1Data = dataset.slice(12, 16)
+  const b2Data = dataset.slice(16, 24)
+
+  const sumA1 = a1Data.reduce((a, b) => a + b, 0)
+  const sumA2 = a2Data.reduce((a, b) => a + b, 0)
+  const sumB1 = b1Data.reduce((a, b) => a + b, 0)
+  const sumB2 = b2Data.reduce((a, b) => a + b, 0)
+
+  // 4 Multiple choice options for mean (1 correct, 3 distractors)
+  const meanChoices = useMemo(() => {
+    const pool = new Set<number>([meanVal])
+    const candidateOffsets = [-1.0, 1.2, -0.5, 1.5, 2.0, -1.5]
+    for (const off of candidateOffsets) {
+      if (pool.size >= 4) break
+      const cand = Number((meanVal + off).toFixed(1))
+      if (cand > 0 && !pool.has(cand)) {
+        pool.add(cand)
+      }
+    }
+    return Array.from(pool).sort((a, b) => a - b)
+  }, [meanVal])
+
+  const handleChooseMean = (val: number) => {
+    setSelectedMean(val)
+    if (Math.abs(val - meanVal) < 0.05) {
+      setMeanIsCorrect(true)
+    } else {
+      setMeanIsCorrect(false)
+      setShakeStep(prev => prev + 1)
+    }
+  }
+
+  const handleChooseClaim = (claim: 'misleading' | 'true') => {
+    setSelectedClaim(claim)
+    if (claim === 'misleading') {
+      setClaimIsCorrect(true)
+    } else {
+      setClaimIsCorrect(false)
+      setShakeStep(prev => prev + 1)
+    }
+  }
+
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 650, background: 'rgba(4, 7, 10, 0.85)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+    <div style={{ position: 'fixed', inset: 0, zIndex: 650, background: 'rgba(4, 7, 10, 0.88)', backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
       <motion.div
-        initial={{ opacity: 0, scale: 0.88, y: 24 }}
+        key={`step-${step}`}
+        initial={{ opacity: 0, scale: 0.92, y: 16 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.88, y: 24 }}
+        exit={{ opacity: 0, scale: 0.92, y: 16 }}
         transition={{ type: 'spring', damping: 24, stiffness: 350 }}
         style={{
-          maxWidth: 480,
+          maxWidth: 580,
           width: '100%',
-          background: 'rgba(15, 35, 56, 0.96)',
-          border: '2px solid #10B981',
-          boxShadow: '0 0 35px rgba(16, 185, 129, 0.35)',
+          maxHeight: 'calc(100vh - 32px)',
+          overflowY: 'auto',
+          background: 'rgba(15, 35, 56, 0.98)',
+          border: '2px solid #00ADB5',
+          boxShadow: '0 0 40px rgba(0, 173, 181, 0.35)',
           borderRadius: 24,
           padding: '24px 20px',
           display: 'flex',
           flexDirection: 'column',
-          gap: 16
+          gap: 16,
+          boxSizing: 'border-box'
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14, borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: 12 }}>
+        {/* Modal Top Header */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14, borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: 14 }}>
           <motion.div
-            animate={{ scale: [1, 1.05, 1] }}
-            transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-            style={{ width: 56, height: 56, borderRadius: '50%', background: 'rgba(16, 185, 129, 0.15)', border: '2px solid #10B981', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 }}
+            animate={{ scale: [1, 1.06, 1] }}
+            transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
+            style={{ width: 56, height: 56, borderRadius: '50%', background: 'rgba(0, 173, 181, 0.15)', border: '2px solid #00ADB5', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 }}
           >
             <div style={{
               width: '100%',
@@ -1068,47 +1134,407 @@ function PakReportModal({ onProceed }: { onProceed: () => void }) {
               imageRendering: 'pixelated'
             }} />
           </motion.div>
-          <div>
-            <div style={{ fontSize: 10, fontWeight: 900, color: '#10B981', letterSpacing: '1.5px', textTransform: 'uppercase' }}>👨‍🏫 LAPOR SANKSI TERPENUHI</div>
-            <h3 style={{ margin: 0, fontSize: 17, color: '#FFFFFF', fontWeight: 900 }}>Pak Sutrisno</h3>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 10.5, fontWeight: 900, color: '#38BDF8', letterSpacing: '1.2px', textTransform: 'uppercase' }}>
+              👨‍🏫 RUANG GURU — EVALUASI &amp; VERIFIKASI SANKSI
+            </div>
+            <h3 style={{ margin: 0, fontSize: 17, color: '#FFFFFF', fontWeight: 900 }}>Pak Sutrisno (Guru Kedisiplinan)</h3>
           </div>
         </div>
 
-        <div style={{ position: 'relative' }}>
-          <div style={{
-            position: 'absolute',
-            top: -7,
-            left: 24,
-            width: 12,
-            height: 12,
-            background: 'rgba(15, 35, 56, 0.96)',
-            borderTop: '1.5px solid rgba(16, 185, 129, 0.35)',
-            borderLeft: '1.5px solid rgba(16, 185, 129, 0.35)',
-            transform: 'rotate(45deg)',
-            zIndex: 2,
-          }} />
-          <div style={{ background: 'rgba(16, 185, 129, 0.06)', border: '1.5px solid rgba(16, 185, 129, 0.25)', borderRadius: 16, padding: '16px 14px', position: 'relative', zIndex: 1 }}>
-            <p style={{ margin: 0, fontSize: 13.5, color: '#E2E8F0', fontWeight: 600, lineHeight: 1.65 }}>
-              "Bagus sekali Stevunt! Kamu sudah berhasil mengumpulkan <strong style={{ color: '#10B981' }}>24 sampel data screen time</strong> dari 4 ruang kelas.<br /><br />
-              Sekarang, saatnya kita tuntaskan investigasi ini! Data mentah ini harus dianalisis secara statistik.<br />
-              <strong style={{ color: '#38BDF8' }}>Mari mulai dengan menghitung Rentang Data (R) untuk mengukur sebaran penggunaan gawai siswa!</strong>"
+        {/* Quest Step Tabs */}
+        <div style={{ display: 'flex', gap: 6, background: 'rgba(0,0,0,0.3)', padding: 4, borderRadius: 12, border: '1px solid rgba(255,255,255,0.06)' }}>
+          {[
+            { s: 1, label: '1. Rekap Data' },
+            { s: 2, label: '2. Hitung Rata-Rata (x̄)' },
+            { s: 3, label: '3. Uji Klaim Viral' }
+          ].map(item => (
+            <div
+              key={item.s}
+              style={{
+                flex: 1,
+                textAlign: 'center',
+                padding: '6px 4px',
+                borderRadius: 8,
+                fontSize: 11,
+                fontWeight: 800,
+                background: step === item.s ? 'rgba(0, 173, 181, 0.25)' : 'transparent',
+                color: step === item.s ? '#38BDF8' : step > item.s ? '#10B981' : '#64748B',
+                border: step === item.s ? '1px solid rgba(0, 173, 181, 0.5)' : '1px solid transparent',
+                transition: 'all 0.2s'
+              }}
+            >
+              {step > item.s ? '✓ ' : ''}{item.label}
+            </div>
+          ))}
+        </div>
+
+        {/* ── STEP 1: Rekap 24 Data ── */}
+        {step === 1 && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+            <div style={{ background: 'rgba(0, 173, 181, 0.06)', border: '1.5px solid rgba(0, 173, 181, 0.25)', borderRadius: 16, padding: '14px 14px' }}>
+              <p style={{ margin: 0, fontSize: 13.5, color: '#E2E8F0', fontWeight: 600, lineHeight: 1.6 }}>
+                "Bagus sekali Stevunt! Kamu sudah berkeliling ke 4 ruang kelas dan sukses mengumpulkan seluruh <strong style={{ color: '#38BDF8' }}>24 sampel data screen time siswa</strong>.<br />
+                Berikut adalah rangkuman data yang telah kamu kumpulkan:"
+              </p>
+            </div>
+
+            {/* Classrooms Breakdown Cards */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
+              {/* VII-A */}
+              <div style={{ background: 'rgba(129, 140, 248, 0.08)', border: '1px solid rgba(129, 140, 248, 0.25)', borderRadius: 12, padding: '10px 12px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                  <span style={{ fontSize: 11, fontWeight: 900, color: '#818cf8' }}>🏫 KELAS VII-A (5 Siswa)</span>
+                  <span style={{ fontSize: 10, fontWeight: 800, color: '#94A3B8' }}>Σ = {sumA1} jam</span>
+                </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                  {a1Data.map((t, idx) => (
+                    <span key={idx} style={{ background: 'rgba(129, 140, 248, 0.2)', border: '1px solid rgba(129, 140, 248, 0.4)', borderRadius: 6, padding: '2px 7px', fontSize: 11, fontWeight: 800, color: '#FFFFFF' }}>{t}h</span>
+                  ))}
+                </div>
+              </div>
+
+              {/* VII-B */}
+              <div style={{ background: 'rgba(99, 102, 241, 0.08)', border: '1px solid rgba(99, 102, 241, 0.25)', borderRadius: 12, padding: '10px 12px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                  <span style={{ fontSize: 11, fontWeight: 900, color: '#6366f1' }}>🏫 KELAS VII-B (7 Siswa)</span>
+                  <span style={{ fontSize: 10, fontWeight: 800, color: '#94A3B8' }}>Σ = {sumA2} jam</span>
+                </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                  {a2Data.map((t, idx) => (
+                    <span key={idx} style={{ background: 'rgba(99, 102, 241, 0.2)', border: '1px solid rgba(99, 102, 241, 0.4)', borderRadius: 6, padding: '2px 7px', fontSize: 11, fontWeight: 800, color: '#FFFFFF' }}>{t}h</span>
+                  ))}
+                </div>
+              </div>
+
+              {/* VIII-A */}
+              <div style={{ background: 'rgba(0, 173, 181, 0.08)', border: '1px solid rgba(0, 173, 181, 0.25)', borderRadius: 12, padding: '10px 12px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                  <span style={{ fontSize: 11, fontWeight: 900, color: '#00ADB5' }}>🏫 KELAS VIII-A (4 Siswa)</span>
+                  <span style={{ fontSize: 10, fontWeight: 800, color: '#94A3B8' }}>Σ = {sumB1} jam</span>
+                </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                  {b1Data.map((t, idx) => (
+                    <span key={idx} style={{ background: 'rgba(0, 173, 181, 0.2)', border: '1px solid rgba(0, 173, 181, 0.4)', borderRadius: 6, padding: '2px 7px', fontSize: 11, fontWeight: 800, color: '#FFFFFF' }}>{t}h</span>
+                  ))}
+                </div>
+              </div>
+
+              {/* VIII-B */}
+              <div style={{ background: 'rgba(14, 131, 136, 0.08)', border: '1px solid rgba(14, 131, 136, 0.25)', borderRadius: 12, padding: '10px 12px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                  <span style={{ fontSize: 11, fontWeight: 900, color: '#2DD4BF' }}>🏫 KELAS VIII-B (8 Siswa)</span>
+                  <span style={{ fontSize: 10, fontWeight: 800, color: '#94A3B8' }}>Σ = {sumB2} jam</span>
+                </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                  {b2Data.map((t, idx) => (
+                    <span key={idx} style={{ background: 'rgba(14, 131, 136, 0.2)', border: '1px solid rgba(14, 131, 136, 0.4)', borderRadius: 6, padding: '2px 7px', fontSize: 11, fontWeight: 800, color: '#FFFFFF' }}>{t}h</span>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Total Summary Strip */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: 12, padding: '10px 16px' }}>
+              <div>
+                <div style={{ fontSize: 10.5, color: '#94A3B8', fontWeight: 700 }}>JUMLAH SAMPEL (n)</div>
+                <div style={{ fontSize: 18, color: '#10B981', fontWeight: 900 }}>24 Siswa</div>
+              </div>
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ fontSize: 10.5, color: '#94A3B8', fontWeight: 700 }}>TOTAL WAKTU LAYAR (Σx)</div>
+                <div style={{ fontSize: 18, color: '#38BDF8', fontWeight: 900 }}>{totalSum} Jam</div>
+              </div>
+            </div>
+
+            <p style={{ margin: 0, fontSize: 13, color: '#CBD5E1', lineHeight: 1.5 }}>
+              "Sebagai tugas penentu untuk menuntaskan sanksimu: <strong style={{ color: '#FCD34D' }}>Hitunglah nilai rata-rata (mean / x̄)</strong> screen time dari 24 siswa ini!"
             </p>
-          </div>
-        </div>
 
-        <button
-          className="game-btn game-btn-primary"
-          style={{ padding: '12px 18px', fontSize: 14, fontWeight: 900, width: '100%', borderRadius: 14, background: 'linear-gradient(135deg, #10B981 0%, #38BDF8 100%)', boxShadow: '0 0 15px rgba(16, 185, 129, 0.4)', cursor: 'pointer' }}
-          onClick={onProceed}
-        >
-          MULAI ANALISIS DATA (24 SAMPEL) →
-        </button>
+            <button
+              className="game-btn game-btn-primary"
+              style={{ padding: '12px 18px', fontSize: 14, fontWeight: 900, width: '100%', borderRadius: 14, background: 'linear-gradient(135deg, #00ADB5 0%, #38BDF8 100%)', boxShadow: '0 0 15px rgba(0, 173, 181, 0.4)', cursor: 'pointer' }}
+              onClick={() => setStep(2)}
+            >
+              LANJUT: HITUNG NILAI RATA-RATA (x̄) →
+            </button>
+          </div>
+        )}
+
+        {/* ── STEP 2: Hitung Rata-Rata (x̄) ── */}
+        {step === 2 && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+            {/* Formula Card */}
+            <div style={{ background: 'rgba(56, 189, 248, 0.08)', border: '1.5px solid rgba(56, 189, 248, 0.3)', borderRadius: 16, padding: '14px 16px', textAlign: 'center' }}>
+              <div style={{ fontSize: 11, fontWeight: 800, color: '#38BDF8', letterSpacing: '1px', marginBottom: 6 }}>RUMUS RATA-RATA (MEAN)</div>
+              <div style={{ fontSize: 18, fontWeight: 900, color: '#FFFFFF', fontFamily: 'var(--font-data)' }}>
+                x̄ = Σx ÷ n = {totalSum} ÷ 24
+              </div>
+              <div style={{ fontSize: 11.5, color: '#94A3B8', marginTop: 4 }}>
+                Bagi total screen time ({totalSum} jam) dengan banyaknya siswa (24 siswa).
+              </div>
+            </div>
+
+            <div style={{ fontSize: 13.5, fontWeight: 700, color: '#E2E8F0' }}>
+              Berapakah nilai rata-rata (<span style={{ color: '#38BDF8' }}>x̄</span>) screen time 24 siswa kita?
+            </div>
+
+            {/* 4 Choices */}
+            <motion.div
+              key={shakeStep}
+              animate={meanIsCorrect === false ? { x: [-8, 8, -6, 6, 0] } : {}}
+              transition={{ duration: 0.35 }}
+              style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}
+            >
+              {meanChoices.map((choice) => {
+                const isSelected = selectedMean === choice
+                const isCorrect = Math.abs(choice - meanVal) < 0.05
+                const isSelectedCorrect = isSelected && meanIsCorrect === true
+                const isSelectedWrong = isSelected && meanIsCorrect === false
+
+                return (
+                  <button
+                    key={choice}
+                    disabled={meanIsCorrect === true}
+                    onClick={() => handleChooseMean(choice)}
+                    style={{
+                      padding: '14px 16px',
+                      borderRadius: 14,
+                      fontSize: 15,
+                      fontWeight: 900,
+                      cursor: meanIsCorrect === true ? 'default' : 'pointer',
+                      border: isSelectedCorrect
+                        ? '2px solid #10B981'
+                        : isSelectedWrong
+                        ? '2px solid #EF4444'
+                        : isSelected
+                        ? '2px solid #38BDF8'
+                        : '1.5px solid rgba(255,255,255,0.12)',
+                      background: isSelectedCorrect
+                        ? 'rgba(16, 185, 129, 0.2)'
+                        : isSelectedWrong
+                        ? 'rgba(239, 68, 68, 0.2)'
+                        : 'rgba(255,255,255,0.04)',
+                      color: isSelectedCorrect ? '#10B981' : isSelectedWrong ? '#EF4444' : '#FFFFFF',
+                      boxShadow: isSelectedCorrect ? '0 0 15px rgba(16, 185, 129, 0.3)' : 'none',
+                      transition: 'all 0.2s',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 8
+                    }}
+                  >
+                    <span>{choice} jam/hari</span>
+                    {isSelectedCorrect && <span>✓</span>}
+                    {isSelectedWrong && <span>✕</span>}
+                  </button>
+                )
+              })}
+            </motion.div>
+
+            {/* Feedback notification */}
+            {meanIsCorrect === false && (
+              <div style={{ background: 'rgba(239, 68, 68, 0.12)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: 12, padding: '10px 14px', fontSize: 12.5, color: '#FCA5A5', fontWeight: 600 }}>
+                💡 Kurang tepat! Coba bagi {totalSum} dengan 24. Berapa hasil dari {totalSum} ÷ 24? Hitung kembali dengan teliti.
+              </div>
+            )}
+
+            {meanIsCorrect === true && (
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                style={{ background: 'rgba(16, 185, 129, 0.12)', border: '1.5px solid #10B981', borderRadius: 14, padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 6 }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#10B981', fontWeight: 900, fontSize: 13.5 }}>
+                  <span>🎉 TEPAT SEKALI!</span>
+                </div>
+                <div style={{ fontSize: 13, color: '#E2E8F0', lineHeight: 1.5 }}>
+                  Nilai rata-rata screen time dari 24 siswa adalah <strong style={{ color: '#10B981' }}>{meanVal} jam/hari</strong> ({totalSum} ÷ 24).<br />
+                  Sekarang, mari kita bandingkan angka ini dengan postingan yang sedang viral di linimasa!
+                </div>
+              </motion.div>
+            )}
+
+            {meanIsCorrect === true && (
+              <button
+                className="game-btn game-btn-primary"
+                style={{ padding: '12px 18px', fontSize: 14, fontWeight: 900, width: '100%', borderRadius: 14, background: 'linear-gradient(135deg, #10B981 0%, #38BDF8 100%)', boxShadow: '0 0 15px rgba(16, 185, 129, 0.4)', cursor: 'pointer' }}
+                onClick={() => setStep(3)}
+              >
+                LANJUT: EVALUASI KLAIM VIRAL MEDSOS →
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* ── STEP 3: Uji Klaim Viral ── */}
+        {step === 3 && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+            <p style={{ margin: 0, fontSize: 13, color: '#E2E8F0', lineHeight: 1.5 }}>
+              "Perhatikan postingan yang sedang viral dan menuai kekhawatiran masyarakat berikut ini:"
+            </p>
+
+            {/* Social Media Viral Card */}
+            <div style={{
+              background: '#0B132B',
+              border: '1.5px solid rgba(239, 68, 68, 0.4)',
+              borderRadius: 16,
+              padding: '14px 16px',
+              boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 10
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'linear-gradient(135deg, #EF4444 0%, #F59E0B 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12 }}>
+                    📱
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 12, fontWeight: 800, color: '#FFFFFF', display: 'flex', alignItems: 'center', gap: 4 }}>
+                      @faktaviral.id <span style={{ color: '#38BDF8', fontSize: 11 }}>☑️</span>
+                    </div>
+                    <div style={{ fontSize: 9.5, color: '#64748B' }}>3 jam lalu • Publik</div>
+                  </div>
+                </div>
+                <span style={{ background: 'rgba(239, 68, 68, 0.2)', border: '1px solid rgba(239, 68, 68, 0.5)', color: '#F87171', fontSize: 9.5, fontWeight: 900, padding: '2px 8px', borderRadius: 20 }}>
+                  🔥 TRENDING #1
+                </span>
+              </div>
+
+              <div style={{ fontSize: 13.5, fontWeight: 700, color: '#FFFFFF', lineHeight: 1.45 }}>
+                "SURVEI VIRAL: Remaja Indonesia rata-rata habiskan <span style={{ color: '#F87171', background: 'rgba(239, 68, 68, 0.2)', padding: '1px 6px', borderRadius: 4 }}>&gt; 8 jam per hari</span> di media sosial! Generasi muda cemas dan kecanduan layar!"
+              </div>
+
+              <div style={{ display: 'flex', gap: 16, fontSize: 11, color: '#94A3B8', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: 8 }}>
+                <span>❤️ 128.4K suka</span>
+                <span>💬 4.9K komentar</span>
+                <span>🔄 28.1K dibagikan</span>
+              </div>
+            </div>
+
+            {/* Pak Sutrisno prompt */}
+            <div style={{ fontSize: 13, color: '#E2E8F0', fontWeight: 600, lineHeight: 1.5 }}>
+              Pak Sutrisno: "Berdasarkan hasil investigasi data 24 siswa kita dengan rata-rata <strong style={{ color: '#38BDF8' }}>{meanVal} jam/hari</strong>, apakah klaim postingan viral bahwa <em>'rata-rata remaja &gt; 8 jam/hari'</em> ini terbukti BENAR atau SALAH / MISLEADING?"
+            </div>
+
+            {/* 2 Verdict Cards */}
+            <motion.div
+              key={shakeStep}
+              animate={claimIsCorrect === false ? { x: [-8, 8, -6, 6, 0] } : {}}
+              transition={{ duration: 0.35 }}
+              style={{ display: 'flex', flexDirection: 'column', gap: 10 }}
+            >
+              {/* Option A: MISLEADING */}
+              <button
+                disabled={claimIsCorrect === true}
+                onClick={() => handleChooseClaim('misleading')}
+                style={{
+                  padding: '12px 16px',
+                  borderRadius: 14,
+                  textAlign: 'left',
+                  cursor: claimIsCorrect === true ? 'default' : 'pointer',
+                  border: selectedClaim === 'misleading'
+                    ? '2px solid #10B981'
+                    : '1.5px solid rgba(255,255,255,0.12)',
+                  background: selectedClaim === 'misleading'
+                    ? 'rgba(16, 185, 129, 0.16)'
+                    : 'rgba(255,255,255,0.03)',
+                  color: '#FFFFFF',
+                  transition: 'all 0.2s',
+                  boxShadow: selectedClaim === 'misleading' ? '0 0 15px rgba(16, 185, 129, 0.25)' : 'none'
+                }}
+              >
+                <div style={{ fontSize: 13.5, fontWeight: 900, color: '#10B981', marginBottom: 3 }}>
+                  🚨 KLAIM SALAH / MISLEADING (Tidak Terbukti)
+                </div>
+                <div style={{ fontSize: 12, color: '#CBD5E1', lineHeight: 1.45 }}>
+                  Rata-rata nyata siswa kita adalah <strong>{meanVal} jam/hari</strong> (jauh di bawah 8 jam), dan mayoritas siswa ({lte8Count} dari 24 siswa) bermain gawai ≤ 8 jam.
+                </div>
+              </button>
+
+              {/* Option B: TRUE */}
+              <button
+                disabled={claimIsCorrect === true}
+                onClick={() => handleChooseClaim('true')}
+                style={{
+                  padding: '12px 16px',
+                  borderRadius: 14,
+                  textAlign: 'left',
+                  cursor: claimIsCorrect === true ? 'default' : 'pointer',
+                  border: selectedClaim === 'true'
+                    ? '2px solid #EF4444'
+                    : '1.5px solid rgba(255,255,255,0.12)',
+                  background: selectedClaim === 'true'
+                    ? 'rgba(239, 68, 68, 0.16)'
+                    : 'rgba(255,255,255,0.03)',
+                  color: '#FFFFFF',
+                  transition: 'all 0.2s'
+                }}
+              >
+                <div style={{ fontSize: 13.5, fontWeight: 900, color: '#F87171', marginBottom: 3 }}>
+                  ✅ KLAIM BENAR (Terbukti)
+                </div>
+                <div style={{ fontSize: 12, color: '#CBD5E1', lineHeight: 1.45 }}>
+                  Remaja memang rata-rata bermain gawai lebih dari 8 jam per hari sesuai klaim postingan viral.
+                </div>
+              </button>
+            </motion.div>
+
+            {claimIsCorrect === false && (
+              <div style={{ background: 'rgba(239, 68, 68, 0.12)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: 12, padding: '10px 14px', fontSize: 12.5, color: '#FCA5A5', fontWeight: 600 }}>
+                💡 Tunggu dulu! Nilai rata-rata yang baru saja kamu hitung adalah {meanVal} jam/hari. Angka {meanVal} jam itu LEBIH KECIL dari 8 jam! Jadi klaim bahwa rata-rata &gt; 8 jam tidak sesuai data nyata!
+              </div>
+            )}
+
+            {claimIsCorrect === true && (
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1.5px solid #10B981', borderRadius: 14, padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 8 }}
+              >
+                <div style={{ fontSize: 14, fontWeight: 900, color: '#10B981' }}>
+                  🎯 ANALISIS KRITIS TEPAT SEKALI!
+                </div>
+                <div style={{ fontSize: 13, color: '#E2E8F0', lineHeight: 1.6 }}>
+                  "Luar biasa, Stevunt! Kamu berhasil membuktikan secara objektif bahwa postingan tersebut melebih-lebihkan fakta!<br /><br />
+                  Data empiris kita menunjukkan rata-rata screen time hanya <strong style={{ color: '#38BDF8' }}>{meanVal} jam/hari</strong>. Sebagian besar siswa ({lte8Count} dari 24) bermain secara normal. Angka tinggi pada postingan terjadi karena ada beberapa siswa dengan waktu layar sangat tinggi (hingga 18 jam) yang kita sebut <strong style={{ color: '#FCD34D' }}>OUTLIER (pencilan)</strong>!<br /><br />
+                  Agar temuan ini diakui secara ilmiah oleh sekolah dan dinas, mari kita susun data 24 siswa ini ke dalam <strong style={{ color: '#10B981' }}>Tabel Distribusi Frekuensi</strong> dan <strong style={{ color: '#10B981' }}>Histogram</strong>!"
+                </div>
+              </motion.div>
+            )}
+
+            {claimIsCorrect === true && (
+              <button
+                className="game-btn game-btn-primary"
+                style={{ padding: '13px 18px', fontSize: 14.5, fontWeight: 900, width: '100%', borderRadius: 14, background: 'linear-gradient(135deg, #10B981 0%, #38BDF8 100%)', boxShadow: '0 0 20px rgba(16, 185, 129, 0.45)', cursor: 'pointer' }}
+                onClick={onProceed}
+              >
+                MULAI ANALISIS DISTRIBUSI FREKUENSI (RENTANG R) →
+              </button>
+            )}
+          </div>
+        )}
       </motion.div>
     </div>
   )
 }
 
 export default function NPath({ onComplete, isFD = true, demoMode = false }: { onComplete: () => void; isFD?: boolean; demoMode?: boolean }) {
+  const level1Dataset = useGameStore(s => s.level1Dataset)
+
+  useEffect(() => {
+    if (!level1Dataset || level1Dataset.length !== 24) {
+      useGameStore.setState({ level1Dataset: generateRandomLevel1Data() })
+    }
+  }, [level1Dataset])
+
+  const activeDataset = useMemo(() => {
+    return (level1Dataset && level1Dataset.length === 24) ? level1Dataset : screenTimeData
+  }, [level1Dataset])
+
+  const doors = useMemo(() => getClassDoors(activeDataset), [activeDataset])
+  const currentClassStudents = useMemo(() => getClassStudents(activeDataset), [activeDataset])
+
   const [isLoadingAssets, setIsLoadingAssets] = useState(true)
   const [charPos, setCharPos] = useState({ x: 180, y: 585 })
   const [cinematicStage, setCinematicStage] = useState<'player_intro' | 'panning_to_pak' | 'pak_shouting' | 'pak_shouting_2' | 'panning_to_player' | 'quest_meet_pak' | 'pak_sanction_1' | 'pak_sanction_2' | 'pak_sanction_3' | 'player_reply_pak' | 'sanction_received'>(() => {
@@ -1127,13 +1553,13 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
   const [justCompletedClassId, setJustCompletedClassId] = useState<string | null>(null)
   const [activeDoor, setActiveDoor] = useState<typeof DOORS[number] | null>(null)
   const [nearDoor, setNearDoor] = useState<typeof DOORS[number] | null>(null)
-  const [activeClass, setActiveClass] = useState<typeof CLASS_DOORS[number] | null>(null)
-  const [nearClass, setNearClass] = useState<typeof CLASS_DOORS[number] | null>(null)
-  const [insideRoom, setInsideRoom] = useState<typeof CLASS_DOORS[number] | null>(null)
+  const [activeClass, setActiveClass] = useState<QuizDoor | null>(null)
+  const [nearClass, setNearClass] = useState<QuizDoor | null>(null)
+  const [insideRoom, setInsideRoom] = useState<QuizDoor | null>(null)
   const insideRoomR = useRef(insideRoom); insideRoomR.current = insideRoom
   const lastHallwayPosRef = useRef<{ x: number; y: number }>({ x: 650, y: 550 })
   const [visitedRooms, setVisitedRooms] = useState<Set<DoorId>>(new Set())
-  const [showWaliKelasPopup, setShowWaliKelasPopup] = useState<typeof CLASS_DOORS[number] | null>(null)
+  const [showWaliKelasPopup, setShowWaliKelasPopup] = useState<QuizDoor | null>(null)
   const [teacherCutsceneStage, setTeacherCutsceneStage] = useState<'anim_wait' | 'teacher_ask' | 'player_explain' | 'teacher_reply' | null>(null)
   const teacherCutsceneStageRef = useRef(teacherCutsceneStage)
   teacherCutsceneStageRef.current = teacherCutsceneStage
@@ -1229,9 +1655,9 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
   // Proximity to class doors (calculated smoothly from player position)
   useEffect(() => {
     const { x: cx, y: cy } = charPos
-    let closest: typeof CLASS_DOORS[number] | null = null
+    let closest: QuizDoor | null = null
     let minDist = Infinity
-    for (const d of CLASS_DOORS) {
+    for (const d of doors) {
       if (d.roomId !== 'RG' && !unlockedR.current.has(d.roomId)) continue
       const dist = Math.hypot(d.x - cx, d.y - cy)
       if (dist < 50 && dist < minDist) {
@@ -1240,7 +1666,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
       }
     }
     setNearClass(prev => (prev?.id === closest?.id ? prev : closest))
-  }, [charPos])
+  }, [charPos, doors])
 
   // Preload background image of classroom dynamically when player approaches its door
   useEffect(() => {
@@ -1486,7 +1912,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
     setCharPos(lastHallwayPosRef.current || { x: 650, y: 550 })
   }, [])
 
-  const enterClassroom = useCallback((room: typeof CLASS_DOORS[number]) => {
+  const enterClassroom = useCallback((room: QuizDoor) => {
     lastHallwayPosRef.current = { x: room.x, y: room.y + 20 }
     setInsideRoom(room)
     setCharPos(LEVEL1_MAPS[room.id]?.spawn || { x: 1050, y: 510 })
@@ -1518,7 +1944,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
     enterClassroom(roomToEnter)
   }, [activeClass, enterClassroom])
 
-  const handleInteractTeacher = useCallback((room: typeof CLASS_DOORS[number]) => {
+  const handleInteractTeacher = useCallback((room: QuizDoor) => {
     const mapConfig = LEVEL1_MAPS[room.id]
     const hasTeacherSprite = !!mapConfig?.teacher?.spriteUrl
 
@@ -1567,7 +1993,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
       const next = new Set(prev)
       next.add(cid)
 
-      const roomClasses = CLASS_DOORS.filter(cd => cd.roomId === roomId)
+      const roomClasses = doors.filter(cd => cd.roomId === roomId)
       const completed = roomClasses.every(cd => next.has(cd.id))
       if (completed) {
         setRoomMilestoneText(`RUANG ${roomId} SELESAI! 🚀`)
@@ -1610,16 +2036,16 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
 
     setShowWaliKelasPopup(null)
     handleExitClassroom()
-  }, [showWaliKelasPopup, handleExitClassroom])
+  }, [showWaliKelasPopup, doors, handleExitClassroom])
 
   const n = collected.size
-  const isRoomACompleted = CLASS_DOORS.filter(cd => cd.roomId === 'A').every(cd => unlocked.has(cd.id))
-  const isRoomBCompleted = CLASS_DOORS.filter(cd => cd.roomId === 'B').every(cd => unlocked.has(cd.id))
+  const isRoomACompleted = doors.filter(cd => cd.roomId === 'A').every(cd => unlocked.has(cd.id))
+  const isRoomBCompleted = doors.filter(cd => cd.roomId === 'B').every(cd => unlocked.has(cd.id))
 
-  const collectedStudents = CLASS_DOORS
+  const collectedStudents = doors
     .filter(cd => unlocked.has(cd.id))
     .flatMap(cd => {
-      const info = CLASS_STUDENTS[cd.id]
+      const info = currentClassStudents[cd.id]
       return info ? info.students.map(s => ({ classId: cd.id, name: s.name, time: s.time })) : []
     })
 
@@ -1827,7 +2253,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                 <image
                   href={encodeURI(
                     insideRoom 
-                      ? (LEVEL1_MAPS[insideRoom.id]?.bgImage || (insideRoom as any).image || CLASS_STUDENTS[insideRoom.id]?.image || '/Assets/Building/Kelas.webp')
+                      ? (LEVEL1_MAPS[insideRoom.id]?.bgImage || (insideRoom as any).image || currentClassStudents[insideRoom.id]?.image || '/Assets/Building/Kelas.webp')
                       : (LEVEL1_MAPS['hallway']?.bgImage || '/Assets/Building/Kelas.webp')
                   )}
                   x={0}
@@ -1982,7 +2408,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
 
                 {/* Map Hotspots: Render Teacher NPC inside room OR Class Doors in hallway */}
                 {insideRoom ? (() => {
-                  const info = CLASS_STUDENTS[insideRoom.id]
+                  const info = currentClassStudents[insideRoom.id]
                   const teacherName = info?.teacher || 'Wali Kelas'
                   const currentMap = LEVEL1_MAPS[insideRoom.id]
                   const teacherConfig = currentMap?.teacher
@@ -2200,7 +2626,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                         const headTopY = charPos.y - 250 * 0.85
                         const pY = headTopY - pH - 15
                         const pointerX = Math.max(pLeft + 30, Math.min(pLeft + pW - 30, charPos.x))
-                        const classStudentCount = CLASS_STUDENTS[insideRoom.id]?.students?.length || 0
+                        const classStudentCount = currentClassStudents[insideRoom.id]?.students?.length || 0
 
                         return (
                           <g style={{ cursor: 'pointer' }} onClick={e => { e.stopPropagation(); handleInteractTeacher(insideRoom); }}>
@@ -2342,7 +2768,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                       })()}
                     </g>
                   )
-                })() : ((cinematicStage === 'sanction_received' || demoMode) ? CLASS_DOORS.map(door => {
+                })() : ((cinematicStage === 'sanction_received' || demoMode) ? doors.map(door => {
                   const isRG = door.id === 'RG'
                   const isRGUnlocked = isRG && collected.size >= TOTAL_N
                   const isSaved = !isRG && savedClasses.has(door.id)
@@ -3034,9 +3460,10 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
       <AnimatePresence>
         {showPakReportModal && (
           <PakReportModal
+            dataset={activeDataset}
             onProceed={() => {
               setShowPakReportModal(false)
-              setShowCounter(true)
+              onComplete()
             }}
           />
         )}
@@ -3047,6 +3474,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
         {showWaliKelasPopup && (
           <WaliKelasModal
             door={showWaliKelasPopup}
+            studentsData={currentClassStudents}
             onCollectData={handleCloseWaliKelas}
             onClose={() => setShowWaliKelasPopup(null)}
           />
@@ -3350,7 +3778,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                         {collectedStudents
                           .filter(st => inventoryTab === 'ALL' || st.classId === inventoryTab)
                           .map((st, idx) => {
-                            const doorMeta = CLASS_DOORS.find(cd => cd.id === st.classId)
+                            const doorMeta = doors.find(cd => cd.id === st.classId)
                             const themeColor = doorMeta?.color || '#00ADB5'
                             return (
                               <div

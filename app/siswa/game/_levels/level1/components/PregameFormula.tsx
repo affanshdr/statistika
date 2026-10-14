@@ -1925,7 +1925,7 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                       marginBottom: '4px'
                     }}>
                       <div style={{ fontSize: '10px', fontWeight: 800, color: '#00ADB5', letterSpacing: '1px', textTransform: 'uppercase' }}>
-                        📊 DATA TERKUMPUL (35)
+                        📊 DATA TERKUMPUL ({STATS.n})
                       </div>
                       <div style={{
                         display: 'flex',
