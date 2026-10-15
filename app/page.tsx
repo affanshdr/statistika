@@ -297,7 +297,7 @@ export default function RootHomePage() {
             </span>
           </motion.div>
 
-          {/* DYNAMIC PIXEL TITLE: STAT-CASECODE */}
+          {/* DYNAMIC PIXEL TITLE: CASECODE */}
           <h1
             style={{
               margin: '0 0 10px 0',
@@ -316,7 +316,7 @@ export default function RootHomePage() {
               textTransform: 'uppercase',
             }}
           >
-            Stat-Casecode
+            Casecode
           </h1>
 
           {/* Subtitle / Tagline */}

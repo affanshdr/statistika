@@ -13,13 +13,26 @@ import {
   PAK_SUTRISNO_POS,
   getRedLineY,
   checkHallwayWalkable,
-  checkClassroomWalkable
+  checkClassroomWalkable,
+  checkFacilityWalkable,
+  checkGateWalkable
 } from '@/app/siswa/game/_levels/level1/config/level1MapConfig'
 import Level1HUD from '@/app/siswa/game/_levels/level1/components/Level1HUD'
 import QuizModal from '@/app/siswa/game/_levels/level1/components/modals/QuizModal'
 import WaliKelasModal from '@/app/siswa/game/_levels/level1/components/modals/WaliKelasModal'
 import OutlierSimulator from './OutlierSimulator'
 import { gameAudio } from '@/lib/utils/gameAudio'
+import { MotherCatModal, KittenRescueModal } from '@/app/siswa/game/_levels/level1/components/modals/CatQuestModal'
+
+export const KITTEN_SPAWN_SPOTS = [
+  { zone: 'Perpustakaan', x: 820, y: 460, label: 'Pojok Tenang Perpustakaan' },
+  { zone: 'LabKomputer', x: 850, y: 470, label: 'Meja Server Lab Komputer' },
+  { zone: 'facility_courtyard', x: 270, y: 460, label: 'Dekat Meja Santai Kantin' },
+  { zone: 'hallway', x: 880, y: 530, label: 'Taman Halaman Sekolah' },
+] as const
+
+export type CatQuestStage = 'untriggered' | 'cat_spawned' | 'quest_active' | 'kitten_rescued' | 'completed'
+
 const VIEW_VW = 640
 const VIEW_VH = 360
 const SPEED = 1.0
@@ -40,6 +53,382 @@ import { useGameStore } from '@/lib/store/gameStore'
 import { DoorId } from '@/app/siswa/game/_levels/level1/data/level1Data'
 
 const DOORS: readonly QuizDoor[] = []
+
+export interface FacilityDoor {
+  id: 'KANTIN' | 'LAB_KOMPUTER' | 'PERPUSTAKAAN'
+  label: string
+  subLabel: string
+  characterName: string
+  characterRole: string
+  x: number
+  y: number
+  color: string
+  icon: string
+  roomId?: 'Perpustakaan' | 'LabKomputer'
+  dialogue: {
+    greeting: string
+    body: string
+    tip: string
+  }
+}
+
+export const FACILITY_DOORS: readonly FacilityDoor[] = [
+  {
+    id: 'KANTIN',
+    label: 'Kantin Sekolah',
+    subLabel: 'Tempat jajan & istirahat siswa',
+    characterName: 'Bu Endang',
+    characterRole: 'Pengelola Kantin Sekolah',
+    x: 260,
+    y: 395,
+    color: '#F59E0B',
+    icon: '🥪',
+    dialogue: {
+      greeting: '"Halo Stevunt! Mau beli es teh atau camilan segar?"',
+      body: 'Tadi pas jam istirahat, banyak anak kelas 7 dan 8 kumpul di sini sambil mabar game online. Ada yang bilang kalau tidak ikut main bersama, rasanya ketinggalan obrolan tongkrongan!',
+      tip: '💡 Fakta Lapangan: Siswa sering menghabiskan screen time bersama saat istirahat untuk interaksi sosial, namun penting menjaga batasan waktu agar tidak terlambat masuk kelas.'
+    }
+  },
+  {
+    id: 'LAB_KOMPUTER',
+    label: 'Lab Komputer',
+    subLabel: 'Ruang TIK & Praktikum Digital',
+    characterName: 'Pak Hendra',
+    characterRole: 'Guru Informatika & Pembina OSIS',
+    x: 620,
+    y: 390,
+    color: '#38BDF8',
+    icon: '💻',
+    roomId: 'LabKomputer',
+    dialogue: {
+      greeting: '"Halo Stevunt! Sedang mengumpulkan data screen time ya?"',
+      body: 'Di era literasi digital sekarang, teknologi itu pisau bermata dua. Kalau dipakai belajar coding atau riset ilmiah, waktu layar tinggi sangat produktif. Tapi kalau sampai larut malam hanya untuk scrolling medsos tanpa henti, itu yang membahayakan kesehatan!',
+      tip: '💡 Tips Literasi Digital: Tidak semua waktu layar bernilai sama — pisahkan antara "Active Creation" (belajar & berkreasi) dan "Passive Consumption" (scrolling tanpa tujuan).'
+    }
+  },
+  {
+    id: 'PERPUSTAKAAN',
+    label: 'Perpustakaan',
+    subLabel: 'Pusat Literasi & Ruang Baca',
+    characterName: 'Bu Widya',
+    characterRole: 'Pustakawati SMP',
+    x: 985,
+    y: 395,
+    color: '#10B981',
+    icon: '📚',
+    roomId: 'Perpustakaan',
+    dialogue: {
+      greeting: '"Selamat datang di perpustakaan, Stevunt!"',
+      body: 'Ibu dengar kamu sedang memverifikasi kebenaran berita viral memakai statistika? Bagus sekali! Literasi informasi itu kuncinya membaca data secara objektif. Jangan mudah terhasut judul bombastis sebelum memeriksa sampel datanya!',
+      tip: '💡 Kunci Berpikir Kritis: Selalu tanyakan: "Berapa ukuran sampelnya (n)?" dan "Apakah ada nilai pencilan (outlier) yang membiaskan nilai rata-rata?"'
+    }
+  }
+]
+
+function FacilityModal({ facility, onClose }: { facility: FacilityDoor; onClose: () => void }) {
+  return (
+    <div style={{ position: 'fixed', inset: 0, zIndex: 650, background: 'rgba(4, 7, 10, 0.85)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9, y: 16 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.9, y: 16 }}
+        transition={{ type: 'spring', damping: 24, stiffness: 350 }}
+        style={{
+          maxWidth: 520,
+          width: '100%',
+          maxHeight: 'calc(100vh - 32px)',
+          overflowY: 'auto',
+          background: 'rgba(15, 35, 56, 0.98)',
+          border: `2px solid ${facility.color}`,
+          boxShadow: `0 0 35px ${facility.color}33`,
+          borderRadius: 24,
+          padding: '24px 22px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 16,
+          boxSizing: 'border-box'
+        }}
+      >
+        {/* Header */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14, borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: 14 }}>
+          <div style={{
+            width: 54,
+            height: 54,
+            borderRadius: 16,
+            background: `${facility.color}22`,
+            border: `2px solid ${facility.color}`,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '28px',
+            boxShadow: `0 0 16px ${facility.color}44`,
+            flexShrink: 0
+          }}>
+            {facility.icon}
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 10.5, fontWeight: 900, color: facility.color, letterSpacing: '1.2px', textTransform: 'uppercase' }}>
+              📍 {facility.label.toUpperCase()} — {facility.subLabel}
+            </div>
+            <h3 style={{ margin: 0, fontSize: 17, color: '#FFFFFF', fontWeight: 900 }}>
+              {facility.characterName} <span style={{ fontSize: 12, color: '#94A3B8', fontWeight: 600 }}>({facility.characterRole})</span>
+            </h3>
+          </div>
+        </div>
+
+        {/* Dialogue Card */}
+        <div style={{ background: 'rgba(0, 0, 0, 0.35)', border: `1.5px solid ${facility.color}44`, borderRadius: 16, padding: '16px' }}>
+          <div style={{ fontSize: 14, fontWeight: 900, color: facility.color, marginBottom: 8 }}>
+            {facility.dialogue.greeting}
+          </div>
+          <p style={{ margin: 0, fontSize: 13, color: '#E2E8F0', lineHeight: 1.6, fontWeight: 500 }}>
+            {facility.dialogue.body}
+          </p>
+        </div>
+
+        {/* Tip Box */}
+        <div style={{ background: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: 14, padding: '12px 14px' }}>
+          <div style={{ fontSize: 11.5, color: '#34D399', fontWeight: 700, lineHeight: 1.5 }}>
+            {facility.dialogue.tip}
+          </div>
+        </div>
+
+        {/* Action Button */}
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 4 }}>
+          <button
+            className="game-btn game-btn-primary"
+            style={{
+              padding: '10px 20px',
+              fontSize: 13,
+              fontWeight: 800,
+              borderRadius: 12,
+              background: `linear-gradient(135deg, ${facility.color} 0%, #00ADB5 100%)`,
+              color: '#FFFFFF',
+              boxShadow: `0 4px 14px ${facility.color}44`,
+              cursor: 'pointer'
+            }}
+            onClick={onClose}
+          >
+            Lanjut Eksplorasi →
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  )
+}
+
+function SatpamModal({ onEnterSchool, onClose }: { onEnterSchool: () => void; onClose: () => void }) {
+  return (
+    <div style={{ position: 'fixed', inset: 0, zIndex: 650, background: 'rgba(4, 7, 10, 0.85)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9, y: 16 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.9, y: 16 }}
+        transition={{ type: 'spring', damping: 24, stiffness: 350 }}
+        style={{
+          maxWidth: 480,
+          width: '100%',
+          background: 'rgba(15, 35, 56, 0.98)',
+          border: '2px solid #F59E0B',
+          boxShadow: '0 0 35px rgba(245, 158, 11, 0.35)',
+          borderRadius: 24,
+          padding: '24px 22px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 16,
+          boxSizing: 'border-box'
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14, borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: 14 }}>
+          <div style={{ width: 52, height: 52, borderRadius: 16, background: 'rgba(245, 158, 11, 0.15)', border: '2px solid #F59E0B', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26, flexShrink: 0 }}>
+            👮
+          </div>
+          <div>
+            <div style={{ fontSize: 10.5, fontWeight: 900, color: '#F59E0B', letterSpacing: '1px' }}>POS KEAMANAN SEKOLAH</div>
+            <h3 style={{ margin: 0, fontSize: 17, color: '#FFFFFF', fontWeight: 900 }}>Pak Joko (Satpam Sekolah)</h3>
+          </div>
+        </div>
+        <div style={{ background: 'rgba(0, 0, 0, 0.35)', border: '1px solid rgba(245, 158, 11, 0.25)', borderRadius: 14, padding: '14px 16px', fontSize: 13.5, color: '#E2E8F0', lineHeight: 1.6 }}>
+          <strong style={{ color: '#FCD34D' }}>"Lho, Stevunt!</strong> Kok baru sampai jam segini?! Bel sekolah sudah berbunyi dari tadi!
+          <br /><br />
+          Ayo lekas lari masuk lewat gerbang ke lapangan, itu <strong style={{ color: '#EF4444' }}>Pak Sutrisno</strong> sudah berdiri memantau siswa yang terlambat!"
+        </div>
+        <div style={{ display: 'flex', gap: 10 }}>
+          <button
+            className="game-btn game-btn-primary"
+            style={{
+              flex: 1,
+              padding: '12px 18px',
+              borderRadius: 12,
+              fontSize: 13.5,
+              fontWeight: 900,
+              background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
+              color: '#FFFFFF',
+              boxShadow: '0 0 16px rgba(245, 158, 11, 0.4)',
+              cursor: 'pointer',
+              border: 'none'
+            }}
+            onClick={() => {
+              onClose()
+              onEnterSchool()
+            }}
+          >
+            🏃 Lari Masuk Gerbang Sekarang!
+          </button>
+          <button
+            onClick={onClose}
+            style={{
+              padding: '12px 16px',
+              borderRadius: 12,
+              fontSize: 13,
+              fontWeight: 800,
+              background: 'rgba(255, 255, 255, 0.08)',
+              border: '1px solid rgba(255, 255, 255, 0.15)',
+              color: '#CBD5E1',
+              cursor: 'pointer'
+            }}
+          >
+            Tutup
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  )
+}
+
+function LibraryBookModal({ onClose }: { onClose: () => void }) {
+  return (
+    <div style={{ position: 'fixed', inset: 0, zIndex: 650, background: 'rgba(4, 7, 10, 0.85)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9, y: 16 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.9, y: 16 }}
+        transition={{ type: 'spring', damping: 24, stiffness: 350 }}
+        style={{
+          maxWidth: 560,
+          width: '100%',
+          maxHeight: 'calc(100vh - 32px)',
+          overflowY: 'auto',
+          background: 'rgba(15, 35, 56, 0.98)',
+          border: '2px solid #10B981',
+          boxShadow: '0 0 35px rgba(16, 185, 129, 0.3)',
+          borderRadius: 24,
+          padding: '24px 22px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 16,
+          boxSizing: 'border-box'
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14, borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: 14 }}>
+          <div style={{ width: 50, height: 50, borderRadius: 14, background: 'rgba(16, 185, 129, 0.15)', border: '2px solid #10B981', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26, flexShrink: 0 }}>
+            📖
+          </div>
+          <div>
+            <div style={{ fontSize: 10.5, fontWeight: 900, color: '#10B981', letterSpacing: '1px' }}>POJOK BACA STATISTIKA SMP</div>
+            <h3 style={{ margin: 0, fontSize: 17, color: '#FFFFFF', fontWeight: 900 }}>Buku Pintar: Analisis Data &amp; Pencilan</h3>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, fontSize: 13, color: '#E2E8F0', lineHeight: 1.5 }}>
+          <div style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(16,185,129,0.3)', borderRadius: 12, padding: '12px 14px' }}>
+            <div style={{ fontWeight: 800, color: '#34D399', marginBottom: 4 }}>1. Rata-Rata (Mean / x̄)</div>
+            Jumlah semua nilai data dibagi banyak sampel (Σx ÷ n). Mean sangat <em>sensitif</em> terhadap nilai ekstrem (outlier).
+          </div>
+          <div style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(56,189,248,0.3)', borderRadius: 12, padding: '12px 14px' }}>
+            <div style={{ fontWeight: 800, color: '#38BDF8', marginBottom: 4 }}>2. Nilai Tengah (Median / Me)</div>
+            Nilai yang tepat berada di posisi tengah data terurut. Median <em>resisten</em> (kebal) terhadap outlier.
+          </div>
+          <div style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(245,158,11,0.3)', borderRadius: 12, padding: '12px 14px' }}>
+            <div style={{ fontWeight: 800, color: '#FCD34D', marginBottom: 4 }}>3. Outlier (Nilai Pencilan) &amp; Rentang (R)</div>
+            Data yang nilainya melonjak jauh dari mayoritas siswa (misal: 18 jam saat rata-rata teman hanya 3-6 jam). Rentang R = Nilai Maksimal − Nilai Minimal.
+          </div>
+        </div>
+
+        <div style={{ background: 'rgba(16,185,129,0.1)', border: '1px dashed #10B981', borderRadius: 12, padding: '10px 14px', fontSize: 12, color: '#6EE7B7' }}>
+          💡 <strong>Pesan Bu Widya:</strong> "Ketika membaca berita viral di internet, jangan hanya melihat angka rata-rata! Tanyakan apakah ada pencilan yang membiaskan klaim tersebut."
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 4 }}>
+          <button
+            className="game-btn game-btn-primary"
+            style={{ padding: '9px 18px', fontSize: 13, fontWeight: 800, borderRadius: 12, background: 'linear-gradient(135deg, #10B981 0%, #00ADB5 100%)', color: '#FFFFFF', cursor: 'pointer' }}
+            onClick={onClose}
+          >
+            Tutup Buku →
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  )
+}
+
+function LabTerminalModal({ onClose }: { onClose: () => void }) {
+  return (
+    <div style={{ position: 'fixed', inset: 0, zIndex: 650, background: 'rgba(4, 7, 10, 0.85)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9, y: 16 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.9, y: 16 }}
+        transition={{ type: 'spring', damping: 24, stiffness: 350 }}
+        style={{
+          maxWidth: 560,
+          width: '100%',
+          maxHeight: 'calc(100vh - 32px)',
+          overflowY: 'auto',
+          background: 'rgba(15, 35, 56, 0.98)',
+          border: '2px solid #38BDF8',
+          boxShadow: '0 0 35px rgba(56, 189, 248, 0.3)',
+          borderRadius: 24,
+          padding: '24px 22px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 16,
+          boxSizing: 'border-box'
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14, borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: 14 }}>
+          <div style={{ width: 50, height: 50, borderRadius: 14, background: 'rgba(56, 189, 248, 0.15)', border: '2px solid #38BDF8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26, flexShrink: 0 }}>
+            💻
+          </div>
+          <div>
+            <div style={{ fontSize: 10.5, fontWeight: 900, color: '#38BDF8', letterSpacing: '1px' }}>LAB TIK — PUSAT ANALISIS DIGITAL</div>
+            <h3 style={{ margin: 0, fontSize: 17, color: '#FFFFFF', fontWeight: 900 }}>Terminal Literasi &amp; Verifikasi Data</h3>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, fontSize: 13, color: '#E2E8F0', lineHeight: 1.5 }}>
+          <div style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(56,189,248,0.3)', borderRadius: 12, padding: '12px 14px' }}>
+            <div style={{ fontWeight: 800, color: '#38BDF8', marginBottom: 4 }}>1. Active Creation vs Passive Consumption</div>
+            Waktu layar (screen time) produktif mencakup belajar coding, riset, dan membuat konten edukatif. Konsumsi pasif adalah scrolling media sosial tanpa tujuan.
+          </div>
+          <div style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(245,158,11,0.3)', borderRadius: 12, padding: '12px 14px' }}>
+            <div style={{ fontWeight: 800, color: '#FCD34D', marginBottom: 4 }}>2. Algoritma Sensasionalisme Media Sosial</div>
+            Postingan provokatif ("Semua Siswa Kecanduan!") sengaja dibuat viral untuk memancing amarah dan mengejar views (clickbait).
+          </div>
+          <div style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(16,185,129,0.3)', borderRadius: 12, padding: '12px 14px' }}>
+            <div style={{ fontWeight: 800, color: '#34D399', marginBottom: 4 }}>3. Menyelidiki Fakta dengan Sampel Representatif</div>
+            Sebuah klaim tidak dapat dibuktikan hanya dari satu atau dua siswa ekstrem. Perlu sampel acak yang cukup (seperti 24 siswa dari 4 kelas) untuk mendapatkan kesimpulan objektif.
+          </div>
+        </div>
+
+        <div style={{ background: 'rgba(56,189,248,0.1)', border: '1px dashed #38BDF8', borderRadius: 12, padding: '10px 14px', fontSize: 12, color: '#7DD3FC' }}>
+          💡 <strong>Pesan Pak Hendra:</strong> "Gunakan teknologi sebagai instrumen pencari kebenaran, bukan sekadar mempercayai apa yang viral di beranda ponselmu!"
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 4 }}>
+          <button
+            className="game-btn game-btn-primary"
+            style={{ padding: '9px 18px', fontSize: 13, fontWeight: 800, borderRadius: 12, background: 'linear-gradient(135deg, #38BDF8 0%, #00ADB5 100%)', color: '#FFFFFF', cursor: 'pointer' }}
+            onClick={onClose}
+          >
+            Tutup Terminal →
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  )
+}
 
 // ─── Joystick ─────────────────────────────────────────────────────────────────
 function Joystick({ onDir }: { onDir: (x: number, y: number) => void }) {
@@ -1527,7 +1916,7 @@ function PakReportModal({ dataset, onProceed }: { dataset: number[]; onProceed: 
   )
 }
 
-export default function NPath({ onComplete, isFD = true, demoMode = false }: { onComplete: () => void; isFD?: boolean; demoMode?: boolean }) {
+export default function NPath({ onComplete, isFD = true, demoMode = false, demoStep = null }: { onComplete: () => void; isFD?: boolean; demoMode?: boolean; demoStep?: string | null }) {
   const level1Dataset = useGameStore(s => s.level1Dataset)
 
   useEffect(() => {
@@ -1544,16 +1933,31 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
   const currentClassStudents = useMemo(() => getClassStudents(activeDataset), [activeDataset])
 
   const [isLoadingAssets, setIsLoadingAssets] = useState(true)
-  const [charPos, setCharPos] = useState({ x: 180, y: 585 })
-  const [cinematicStage, setCinematicStage] = useState<'player_intro' | 'panning_to_pak' | 'pak_shouting' | 'pak_shouting_2' | 'panning_to_player' | 'quest_meet_pak' | 'pak_sanction_1' | 'pak_sanction_2' | 'pak_sanction_3' | 'player_reply_pak' | 'sanction_received'>(() => {
-    return demoMode ? 'sanction_received' : 'player_intro'
+  const isDemoExploration = demoMode && (demoStep === 'exploration' || demoStep === 'interval' || demoStep === 'histogram')
+  const [charPos, setCharPos] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const p = new URLSearchParams(window.location.search)
+      if (p.get('zone') === 'gate') return { x: 615, y: 575 }
+    }
+    return isDemoExploration ? { x: 180, y: 585 } : { x: 615, y: 575 }
+  })
+  const [cinematicStage, setCinematicStage] = useState<'gate_intro' | 'player_intro' | 'panning_to_pak' | 'pak_shouting' | 'pak_shouting_2' | 'panning_to_player' | 'quest_meet_pak' | 'pak_sanction_1' | 'pak_sanction_2' | 'pak_sanction_3' | 'player_reply_pak' | 'sanction_received'>(() => {
+    if (typeof window !== 'undefined') {
+      const p = new URLSearchParams(window.location.search)
+      if (p.get('zone') === 'gate') return 'gate_intro'
+    }
+    return isDemoExploration ? 'sanction_received' : 'gate_intro'
   })
   const cinematicStageRef = useRef(cinematicStage)
   cinematicStageRef.current = cinematicStage
 
   const [showPakSanctionModal, setShowPakSanctionModal] = useState(false)
   const [showPakReportModal, setShowPakReportModal] = useState(false)
-  const smoothCamPos = useRef({ x: 180, y: 585 })
+  const smoothCamPos = useRef(
+    (typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('zone') === 'gate')
+      ? { x: 615, y: 575 }
+      : isDemoExploration ? { x: 180, y: 585 } : { x: 615, y: 575 }
+  )
   const [unlocked, setUnlocked] = useState<Set<string>>(() => {
     return new Set(['A', 'B', 'RG', 'A1', 'A2', 'B1', 'B2'])
   })
@@ -1573,6 +1977,102 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
   teacherCutsceneStageRef.current = teacherCutsceneStage
   const teacherTimerRef = useRef<NodeJS.Timeout | null>(null)
 
+  // ── Multi-Zone State (Zona 0: Gerbang, Zona 1: Kelas, Zona 2: Fasilitas) ──
+  const [currentZone, setCurrentZone] = useState<'gate' | 'main' | 'facility'>(() => {
+    return isDemoExploration ? 'main' : 'gate'
+  })
+  const currentZoneR = useRef(currentZone); currentZoneR.current = currentZone
+  const [gateBubbleStep, setGateBubbleStep] = useState(0)
+  const [showSatpamModal, setShowSatpamModal] = useState(false)
+  const showSatpamModalR = useRef(showSatpamModal); showSatpamModalR.current = showSatpamModal
+  const [activeFacility, setActiveFacility] = useState<FacilityDoor | null>(null)
+  const activeFacilityR = useRef(activeFacility); activeFacilityR.current = activeFacility
+  const [nearFacility, setNearFacility] = useState<FacilityDoor | null>(null)
+  const nearFacilityR = useRef(nearFacility); nearFacilityR.current = nearFacility
+  const [zoneTransitionPrompt, setZoneTransitionPrompt] = useState<'to_facility' | 'to_main' | null>(null)
+
+  // Facility Room Learning Hotspot Modals & Proximity States
+  const [showLibraryBookModal, setShowLibraryBookModal] = useState(false)
+  const showLibraryBookModalR = useRef(showLibraryBookModal); showLibraryBookModalR.current = showLibraryBookModal
+  const [showLabTerminalModal, setShowLabTerminalModal] = useState(false)
+  const showLabTerminalModalR = useRef(showLabTerminalModal); showLabTerminalModalR.current = showLabTerminalModal
+  const [nearLibraryShelf, setNearLibraryShelf] = useState(false)
+  const nearLibraryShelfR = useRef(nearLibraryShelf); nearLibraryShelfR.current = nearLibraryShelf
+  const [nearLabTerminal, setNearLabTerminal] = useState(false)
+  const nearLabTerminalR = useRef(nearLabTerminal); nearLabTerminalR.current = nearLabTerminal
+
+  // ── Cat Quest Mini-Game States ──
+  const [catQuestStage, setCatQuestStage] = useState<CatQuestStage>('untriggered')
+  const catQuestStageR = useRef(catQuestStage); catQuestStageR.current = catQuestStage
+  const [motherCatPos, setMotherCatPos] = useState<{ x: number; y: number; classLabel: string }>({ x: 380, y: 550, classLabel: 'VII-A' })
+  const motherCatPosR = useRef(motherCatPos); motherCatPosR.current = motherCatPos
+  const [kittenLocation, setKittenLocation] = useState<{ zone: string; x: number; y: number; label: string }>(KITTEN_SPAWN_SPOTS[0])
+  const kittenLocationR = useRef(kittenLocation); kittenLocationR.current = kittenLocation
+  const [nearMotherCat, setNearMotherCat] = useState(false)
+  const nearMotherCatR = useRef(nearMotherCat); nearMotherCatR.current = nearMotherCat
+  const [nearKitten, setNearKitten] = useState(false)
+  const nearKittenR = useRef(nearKitten); nearKittenR.current = nearKitten
+  const [showMotherCatModal, setShowMotherCatModal] = useState(false)
+  const showMotherCatModalR = useRef(showMotherCatModal); showMotherCatModalR.current = showMotherCatModal
+  const [showKittenRescueModal, setShowKittenRescueModal] = useState(false)
+  const showKittenRescueModalR = useRef(showKittenRescueModal); showKittenRescueModalR.current = showKittenRescueModal
+
+  const dirRef = useRef({ x: 0, y: 0 })
+  const pressedKeysRef = useRef<Set<string>>(new Set())
+
+  const resetMovement = useCallback(() => {
+    pressedKeysRef.current.clear()
+    dirRef.current = { x: 0, y: 0 }
+    setMoveDir({ x: 0, y: 0 })
+  }, [])
+
+  const enterFacilityRoom = useCallback((fac: FacilityDoor) => {
+    if (!fac.roomId) return
+    gameAudio.playDoorOpen()
+    resetMovement()
+    lastHallwayPosRef.current = { x: fac.x, y: fac.y + 20 }
+    setInsideRoom({
+      id: fac.roomId,
+      label: fac.label,
+      color: fac.color,
+      x: fac.x,
+      y: fac.y,
+      roomId: fac.roomId as any,
+      quizQ: '',
+      quizA: '',
+      hint: '',
+      count: 0
+    })
+    setCharPos(LEVEL1_MAPS[fac.roomId]?.spawn || { x: 1050, y: 510 })
+  }, [resetMovement])
+
+  const goToFacilityZone = useCallback(() => {
+    gameAudio.playDoorOpen()
+    resetMovement()
+    setCurrentZone('facility')
+    setCharPos({ x: 625, y: 550 })
+    smoothCamPos.current = { x: 625, y: 550 }
+    setZoneTransitionPrompt(null)
+  }, [resetMovement])
+
+  const goToMainZone = useCallback(() => {
+    gameAudio.playDoorOpen()
+    resetMovement()
+    setCurrentZone('main')
+    setCharPos({ x: 625, y: 575 })
+    smoothCamPos.current = { x: 625, y: 575 }
+    setZoneTransitionPrompt(null)
+  }, [resetMovement])
+
+  const enterSchoolFromGate = useCallback(() => {
+    gameAudio.playDoorOpen()
+    resetMovement()
+    setCurrentZone('main')
+    setCharPos({ x: 180, y: 585 })
+    smoothCamPos.current = { x: 180, y: 585 }
+    setCinematicStage('panning_to_pak')
+  }, [resetMovement])
+
   const [playerName, setPlayerName] = useState('kamu')
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -1587,8 +2087,9 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
       }
     }
   }, [])
+  const isGateZone = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('zone') === 'gate'
   const [collected, setCollected] = useState<Set<string>>(() => {
-    if (demoMode) {
+    if (demoMode && demoStep !== 'exploration' && !isGateZone) {
       const initialSet = new Set<string>()
       const demoClassIds = ['A1', 'A2', 'B1', 'B2']
       const classCircles = DATA_CIRCLES.filter(c => demoClassIds.includes(c.classId))
@@ -1597,7 +2098,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
     }
     return new Set()
   })
-  const [showCounter, setShowCounter] = useState(demoMode ? true : false)
+  const [showCounter, setShowCounter] = useState(demoMode && demoStep !== 'exploration' && !isGateZone ? true : false)
   const [roomMilestoneText, setRoomMilestoneText] = useState<string | null>(null)
   const [rgLockedToast, setRgLockedToast] = useState<string | null>(null)
   const [milestoneGlow, setMilestoneGlow] = useState<'50%' | '100%' | null>(null)
@@ -1629,7 +2130,6 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
     return () => ro.disconnect()
   }, [])
 
-  const dirRef = useRef({ x: 0, y: 0 })
   const animRef = useRef<number | null>(null)
   const unlockedR = useRef(unlocked); unlockedR.current = unlocked
   const savedClassesR = useRef(savedClasses); savedClassesR.current = savedClasses
@@ -1661,8 +2161,12 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
     setNearDoor(prev => (prev?.id === closest?.id ? prev : closest))
   }, [charPos])
 
-  // Proximity to class doors (calculated smoothly from player position)
+  // Proximity to class doors (calculated smoothly from player position, only in main zone)
   useEffect(() => {
+    if (currentZone !== 'main' || insideRoom) {
+      setNearClass(null)
+      return
+    }
     const { x: cx, y: cy } = charPos
     let closest: QuizDoor | null = null
     let minDist = Infinity
@@ -1676,7 +2180,101 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
       }
     }
     setNearClass(prev => (prev?.id === closest?.id ? prev : closest))
-  }, [charPos, doors])
+  }, [charPos, doors, currentZone, insideRoom])
+
+  // Proximity to facility doors (when in facility zone)
+  useEffect(() => {
+    if (currentZone !== 'facility' || insideRoom) {
+      setNearFacility(null)
+      return
+    }
+    const { x: cx, y: cy } = charPos
+    let closest: FacilityDoor | null = null
+    let minDist = Infinity
+    for (const fac of FACILITY_DOORS) {
+      const dist = Math.hypot(fac.x - cx, fac.y - cy)
+      if (dist < 75 && dist < minDist) {
+        minDist = dist
+        closest = fac
+      }
+    }
+    setNearFacility(prev => (prev?.id === closest?.id ? prev : closest))
+  }, [charPos, currentZone, insideRoom])
+
+  // Proximity to facility room learning stations (Bookshelf in Perpustakaan, Terminal in Lab Komputer)
+  useEffect(() => {
+    if (!insideRoom) {
+      setNearLibraryShelf(false)
+      setNearLabTerminal(false)
+      return
+    }
+    if (insideRoom.id === 'Perpustakaan') {
+      const dist = Math.hypot(charPos.x - 280, charPos.y - 440)
+      setNearLibraryShelf(dist < 90)
+      setNearLabTerminal(false)
+    } else if (insideRoom.id === 'LabKomputer') {
+      const dist = Math.hypot(charPos.x - 300, charPos.y - 440)
+      setNearLabTerminal(dist < 90)
+      setNearLibraryShelf(false)
+    } else {
+      setNearLibraryShelf(false)
+      setNearLabTerminal(false)
+    }
+  }, [charPos, insideRoom])
+
+  // Proximity to Mother Cat (only in main hallway)
+  useEffect(() => {
+    if (insideRoom || currentZone !== 'main' || catQuestStage === 'untriggered') {
+      setNearMotherCat(false)
+      return
+    }
+    const dist = Math.hypot(charPos.x - motherCatPos.x, charPos.y - motherCatPos.y)
+    setNearMotherCat(dist < 75)
+  }, [charPos, insideRoom, currentZone, catQuestStage, motherCatPos])
+
+  // Proximity to Kitten in Box
+  useEffect(() => {
+    if (catQuestStage !== 'quest_active') {
+      setNearKitten(false)
+      return
+    }
+    const isPlayerInKittenZone =
+      (kittenLocation.zone === 'Perpustakaan' && insideRoom?.id === 'Perpustakaan') ||
+      (kittenLocation.zone === 'LabKomputer' && insideRoom?.id === 'LabKomputer') ||
+      (kittenLocation.zone === 'facility_courtyard' && currentZone === 'facility' && !insideRoom) ||
+      (kittenLocation.zone === 'hallway' && currentZone === 'main' && !insideRoom)
+
+    if (!isPlayerInKittenZone) {
+      setNearKitten(false)
+      return
+    }
+
+    const dist = Math.hypot(charPos.x - kittenLocation.x, charPos.y - kittenLocation.y)
+    setNearKitten(dist < 75)
+  }, [charPos, catQuestStage, kittenLocation, insideRoom, currentZone])
+
+  // Proximity to Zone Transition Gateway & Auto-step transition
+  useEffect(() => {
+    if (insideRoom) {
+      setZoneTransitionPrompt(null)
+      return
+    }
+    const isAtGateway = charPos.y >= 590 && Math.abs(charPos.x - 625) < 220
+    if (isAtGateway) {
+      setZoneTransitionPrompt(currentZone === 'main' ? 'to_facility' : 'to_main')
+    } else {
+      setZoneTransitionPrompt(null)
+    }
+
+    // Auto-step transition when walking to the very edge (y >= 635)
+    if (charPos.y >= 635 && Math.abs(charPos.x - 625) < 220) {
+      if (currentZone === 'main') {
+        goToFacilityZone()
+      } else {
+        goToMainZone()
+      }
+    }
+  }, [charPos.x, charPos.y, currentZone, insideRoom, goToFacilityZone, goToMainZone])
 
   // Preload background image of classroom dynamically when player approaches its door
   useEffect(() => {
@@ -1688,21 +2286,32 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
     }
   }, [nearClass])
 
-  // Finish trigger once all 35 data points are collected
+  // Finish trigger once all 24 data points are collected
   useEffect(() => {
     if (collected.size >= TOTAL_N && !showCounter && !showPakReportModal) {
       // Waypoint arrow points to Pak Sutrisno to report back
     }
   }, [collected.size, showCounter, showPakReportModal])
 
-  // Auto-clamp player Y position if ever above RED_LINE_POINTS
+  // Auto-clamp player Y position if ever above boundaries
   useEffect(() => {
     if (insideRoom) return
-    const redLineY = getRedLineY(charPos.x)
-    if (charPos.y < redLineY - 1) {
-      setCharPos(prev => (prev.y < redLineY - 1 ? { ...prev, y: redLineY } : prev))
+    if (currentZone === 'gate') {
+      const minGateY = (charPos.x >= 490 && charPos.x <= 745) ? 330 : 445
+      if (charPos.y < minGateY - 1) {
+        setCharPos(prev => (prev.y < minGateY - 1 ? { ...prev, y: minGateY } : prev))
+      }
+    } else if (currentZone === 'facility') {
+      if (charPos.y < 380) {
+        setCharPos(prev => (prev.y < 380 ? { ...prev, y: 380 } : prev))
+      }
+    } else {
+      const redLineY = getRedLineY(charPos.x)
+      if (charPos.y < redLineY - 1) {
+        setCharPos(prev => (prev.y < redLineY - 1 ? { ...prev, y: redLineY } : prev))
+      }
     }
-  }, [charPos.x, charPos.y, insideRoom])
+  }, [charPos.x, charPos.y, insideRoom, currentZone])
 
   const lastTimeRef = useRef<number>(0)
 
@@ -1718,7 +2327,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
       let targetFocusX = isInside ? 600 : charPosRef.current.x
       let targetFocusY = isInside ? 580 : charPosRef.current.y
 
-      if (!isInside && (cinematicStageRef.current === 'panning_to_pak' || cinematicStageRef.current === 'pak_shouting' || cinematicStageRef.current === 'pak_shouting_2')) {
+      if (!isInside && currentZoneR.current === 'main' && (cinematicStageRef.current === 'panning_to_pak' || cinematicStageRef.current === 'pak_shouting' || cinematicStageRef.current === 'pak_shouting_2')) {
         targetFocusX = PAK_SUTRISNO_POS.x
         targetFocusY = PAK_SUTRISNO_POS.y
       }
@@ -1755,35 +2364,79 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                                 cinematicStageRef.current === 'pak_sanction_3' ||
                                 cinematicStageRef.current === 'player_reply_pak'
 
-      if (!activeDoor && !activeClass && !showWaliKelasPopup && !isCinematicActive) {
+      if (!activeDoor && !activeClass && !showWaliKelasPopup && !activeFacilityR.current && !showLibraryBookModalR.current && !showLabTerminalModalR.current && !isCinematicActive) {
         const { x: dx, y: dy } = dirRef.current
         if (dx || dy) {
-          const currentMapKey = insideRoomR.current?.id || 'hallway'
+          const currentMapKey = insideRoomR.current?.id || (currentZoneR.current === 'gate' ? 'gate' : currentZoneR.current === 'facility' ? 'facility_courtyard' : 'hallway')
           const activeMap = LEVEL1_MAPS[currentMapKey] || LEVEL1_MAPS['hallway']
           const moveSpeed = activeMap.character.speed * 40
           const dist = moveSpeed * dt
 
           setCharPos(p => {
-            const currentRedLineY = isInside ? 380 : getRedLineY(p.x)
-            const safeY = Math.max(p.y, currentRedLineY)
+            const isInsideClass = !!insideRoomR.current
+            const isFacility = currentZoneR.current === 'facility'
+            const isGate = currentZoneR.current === 'gate'
 
-            const nx = Math.max(10, Math.min(WORLD_VW - 10, p.x + dx * dist))
-            const ny = Math.max(10, Math.min(WORLD_VH - 10, safeY + dy * dist))
+            let minX = 70
+            let maxX = 1165
+            let maxY = 640
 
-            if (activeMap.isWalkable(nx, ny, unlockedR.current)) {
-              if (nx === p.x && ny === p.y) return p
-              return { x: nx, y: ny }
+            if (isInsideClass) {
+              minX = 50
+              maxX = WORLD_VW - 50
+              maxY = WORLD_VH - 40 // 610
+            } else if (isFacility) {
+              minX = 60
+              maxX = WORLD_VW - 60
+              maxY = 640
+            } else if (isGate) {
+              minX = 60
+              maxX = WORLD_VW - 60
+              maxY = 630
             }
-            if (activeMap.isWalkable(nx, safeY, unlockedR.current)) {
-              if (nx === p.x && safeY === p.y) return p
-              return { x: nx, y: safeY }
+
+            // 1. Sanitize current position p so it is NEVER outside valid bounds
+            const clampedX = Math.max(minX, Math.min(maxX, p.x))
+            const currentMinY = isInsideClass ? 380 : isFacility ? 380 : isGate ? (clampedX >= 490 && clampedX <= 745 ? 330 : 445) : getRedLineY(clampedX)
+            const clampedY = Math.max(currentMinY, Math.min(maxY, p.y))
+
+            // Desired target coordinates
+            const targetX = Math.max(minX, Math.min(maxX, clampedX + dx * dist))
+            const targetMinY = isInsideClass ? 380 : isFacility ? 380 : isGate ? (targetX >= 490 && targetX <= 745 ? 330 : 445) : getRedLineY(targetX)
+            const targetY = Math.max(targetMinY, Math.min(maxY, clampedY + dy * dist))
+
+            // Auto-transition into school when walking through open gate
+            if (isGate && targetY <= 365 && targetX >= 490 && targetX <= 745) {
+              setTimeout(() => {
+                enterSchoolFromGate()
+              }, 10)
+              return { x: targetX, y: targetY }
             }
-            if (activeMap.isWalkable(p.x, ny, unlockedR.current)) {
-              if (p.x === p.x && ny === p.y) return p
-              return { x: p.x, y: ny }
+
+            // Option A: Direct diagonal move
+            if (activeMap.isWalkable(targetX, targetY, unlockedR.current)) {
+              return { x: targetX, y: targetY }
             }
-            if (p.x === p.x && safeY === p.y) return p
-            return { x: p.x, y: safeY }
+
+            // Option B: Slide horizontally (with slope adaptation for hallway)
+            if (!isInsideClass && !isFacility && !isGate) {
+              const slopeY = Math.max(getRedLineY(targetX), clampedY)
+              if (slopeY <= maxY && activeMap.isWalkable(targetX, slopeY, unlockedR.current)) {
+                return { x: targetX, y: slopeY }
+              }
+            } else {
+              if (activeMap.isWalkable(targetX, clampedY, unlockedR.current)) {
+                return { x: targetX, y: clampedY }
+              }
+            }
+
+            // Option C: Slide vertically
+            if (activeMap.isWalkable(clampedX, targetY, unlockedR.current)) {
+              return { x: clampedX, y: targetY }
+            }
+
+            // Option D: Fallback to sanitized position (prevents out-of-bounds trap)
+            return { x: clampedX, y: clampedY }
           })
         }
       }
@@ -1791,138 +2444,20 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
     }
     animRef.current = requestAnimationFrame(tick)
     return () => { if (animRef.current) cancelAnimationFrame(animRef.current) }
-  }, [activeDoor, activeClass, showWaliKelasPopup])
-
-  // Keyboard navigation listeners
-  useEffect(() => {
-    const KEY_MAP: Record<string, { x: number; y: number }> = {
-      ArrowUp: { x: 0, y: -1 }, w: { x: 0, y: -1 }, W: { x: 0, y: -1 },
-      ArrowDown: { x: 0, y: 1 }, s: { x: 0, y: 1 }, S: { x: 0, y: 1 },
-      ArrowLeft: { x: -1, y: 0 }, a: { x: -1, y: 0 }, A: { x: -1, y: 0 },
-      ArrowRight: { x: 1, y: 0 }, d: { x: 1, y: 0 }, D: { x: 1, y: 0 },
-    }
-    const pressedKeys = new Set<string>()
-
-    const updateDir = () => {
-      let nx = 0, ny = 0
-      pressedKeys.forEach(k => {
-        const d = KEY_MAP[k]
-        if (d) { nx += d.x; ny += d.y }
-      })
-      const len = Math.sqrt(nx * nx + ny * ny)
-      const nextDir = len > 0 ? { x: nx / len, y: ny / len } : { x: 0, y: 0 }
-      dirRef.current = nextDir
-      setMoveDir(nextDir)
-    }
-
-    const onKeyDown = (e: KeyboardEvent) => {
-      const activeDoorVal = activeDoorR.current
-      const activeClassVal = activeClassR.current
-      const nearDoorVal = nearDoorR.current
-      const nearClassVal = nearClassR.current
-
-      if (activeDoorVal || activeClassVal || showWaliKelasPopupR.current) {
-        if (e.key === 'Escape') {
-          e.preventDefault()
-          setActiveDoor(null)
-          setActiveClass(null)
-        }
-        return
-      }
-      if (insideRoomR.current && e.key === 'Escape') {
-        e.preventDefault()
-        setInsideRoom(null)
-        setCharPos(lastHallwayPosRef.current || { x: 650, y: 550 })
-        return
-      }
-      if (KEY_MAP[e.key]) {
-        e.preventDefault()
-        pressedKeys.add(e.key)
-        updateDir()
-      }
-      if ((e.key === 'Enter' || e.key === ' ' || e.key === 'e' || e.key === 'E') && nearDoorVal && !unlockedR.current.has(nearDoorVal.id)) {
-        e.preventDefault()
-        setUnlocked(p => new Set([...p, nearDoorVal.id]))
-      } else if ((e.key === 'Enter' || e.key === ' ' || e.key === 'e' || e.key === 'E') && nearClassVal) {
-        e.preventDefault()
-        if (nearClassVal.id === 'RG') {
-          const isRGUnlocked = collectedR.current.size >= TOTAL_N || savedClassesR.current.size >= 4
-          if (isRGUnlocked) {
-            enterClassroom(nearClassVal)
-          } else {
-            setRgLockedToast(`🔒 Ruang Guru Terkunci! Kumpulkan seluruh data dari 4 kelas terlebih dahulu (${collectedR.current.size}/${TOTAL_N}).`)
-            setTimeout(() => setRgLockedToast(null), 2500)
-          }
-          return
-        }
-        if (savedClassesR.current.has(nearClassVal.id)) {
-          return
-        }
-        enterClassroom(nearClassVal)
-      } else if ((e.key === 'Enter' || e.key === ' ' || e.key === 'e' || e.key === 'E') && insideRoomR.current) {
-        const currentMap = LEVEL1_MAPS[insideRoomR.current.id]
-        const teacherX = currentMap?.teacher?.x ?? 617
-        const teacherY = currentMap?.teacher?.y ?? 415
-        const distToTeacher = Math.hypot(charPosRef.current.x - teacherX, charPosRef.current.y - teacherY)
-        if (distToTeacher < 350 || teacherCutsceneStageRef.current) {
-          e.preventDefault()
-          handleInteractTeacher(insideRoomR.current)
-        }
-      } else if ((e.key === 'Enter' || e.key === ' ' || e.key === 'e' || e.key === 'E') && !insideRoomR.current && cinematicStageRef.current !== 'sanction_received') {
-        const pakX = PAK_SUTRISNO_POS.x
-        const pakY = PAK_SUTRISNO_POS.y
-        const distToPak = Math.hypot(charPosRef.current.x - pakX, charPosRef.current.y - pakY)
-        if (distToPak < 135) {
-          e.preventDefault()
-          if (cinematicStageRef.current === 'player_intro') {
-            setCinematicStage('panning_to_pak')
-          } else if (cinematicStageRef.current === 'quest_meet_pak') {
-            setCinematicStage('pak_sanction_1')
-          } else if (cinematicStageRef.current === 'pak_sanction_1') {
-            setCinematicStage('pak_sanction_2')
-          } else if (cinematicStageRef.current === 'pak_sanction_2') {
-            setCinematicStage('pak_sanction_3')
-          } else if (cinematicStageRef.current === 'pak_sanction_3') {
-            setCinematicStage('player_reply_pak')
-          } else if (cinematicStageRef.current === 'player_reply_pak') {
-            setCinematicStage('sanction_received')
-          }
-        }
-      }
-    }
-
-    const onKeyUp = (e: KeyboardEvent) => {
-      pressedKeys.delete(e.key)
-      updateDir()
-    }
-
-    window.addEventListener('keydown', onKeyDown)
-    window.addEventListener('keyup', onKeyUp)
-    return () => {
-      window.removeEventListener('keydown', onKeyDown)
-      window.removeEventListener('keyup', onKeyUp)
-      dirRef.current = { x: 0, y: 0 }
-      setMoveDir({ x: 0, y: 0 })
-    }
-  }, [])
-
-  const handleCorrect = useCallback(() => {
-    if (!activeDoor) return
-    gameAudio.playSuccess()
-    setUnlocked(p => new Set([...p, activeDoor.id]))
-    setActiveDoor(null)
-  }, [activeDoor])
+  }, [activeDoor, activeClass, showWaliKelasPopup, activeFacility])
 
   const handleExitClassroom = useCallback(() => {
     gameAudio.playDoorOpen()
+    resetMovement()
     if (teacherTimerRef.current) clearTimeout(teacherTimerRef.current)
     setTeacherCutsceneStage(null)
     setInsideRoom(null)
     setCharPos(lastHallwayPosRef.current || { x: 650, y: 550 })
-  }, [])
+  }, [resetMovement])
 
   const enterClassroom = useCallback((room: QuizDoor) => {
     gameAudio.playDoorOpen()
+    resetMovement()
     lastHallwayPosRef.current = { x: room.x, y: room.y + 20 }
     setInsideRoom(room)
     setCharPos(LEVEL1_MAPS[room.id]?.spawn || { x: 1050, y: 510 })
@@ -1944,7 +2479,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
         setTeacherCutsceneStage('teacher_ask')
       }, 500)
     }
-  }, [])
+  }, [resetMovement])
 
   const handleClassCorrect = useCallback(() => {
     if (!activeClass) return
@@ -1955,6 +2490,17 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
   }, [activeClass, enterClassroom])
 
   const handleInteractTeacher = useCallback((room: QuizDoor) => {
+    if (room.id === 'Perpustakaan') {
+      const fac = FACILITY_DOORS.find(f => f.id === 'PERPUSTAKAAN')
+      if (fac) setActiveFacility(fac)
+      return
+    }
+    if (room.id === 'LabKomputer') {
+      const fac = FACILITY_DOORS.find(f => f.id === 'LAB_KOMPUTER')
+      if (fac) setActiveFacility(fac)
+      return
+    }
+
     const mapConfig = LEVEL1_MAPS[room.id]
     const hasTeacherSprite = !!mapConfig?.teacher?.spriteUrl
 
@@ -1990,6 +2536,282 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
       }
     }
   }, [])
+
+  // Keyboard navigation listeners
+  useEffect(() => {
+    const KEY_MAP: Record<string, { x: number; y: number }> = {
+      ArrowUp: { x: 0, y: -1 }, w: { x: 0, y: -1 },
+      ArrowDown: { x: 0, y: 1 }, s: { x: 0, y: 1 },
+      ArrowLeft: { x: -1, y: 0 }, a: { x: -1, y: 0 },
+      ArrowRight: { x: 1, y: 0 }, d: { x: 1, y: 0 },
+    }
+
+    const updateDir = () => {
+      let nx = 0, ny = 0
+      pressedKeysRef.current.forEach(k => {
+        const d = KEY_MAP[k]
+        if (d) { nx += d.x; ny += d.y }
+      })
+      const len = Math.sqrt(nx * nx + ny * ny)
+      const nextDir = len > 0 ? { x: nx / len, y: ny / len } : { x: 0, y: 0 }
+      dirRef.current = nextDir
+      setMoveDir(nextDir)
+    }
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      const activeDoorVal = activeDoorR.current
+      const activeClassVal = activeClassR.current
+      const nearDoorVal = nearDoorR.current
+      const nearClassVal = nearClassR.current
+      const activeFacilityVal = activeFacilityR.current
+      const nearFacilityVal = nearFacilityR.current
+      if (showMotherCatModalR.current) {
+        if (e.key === 'Escape') {
+          e.preventDefault()
+          setShowMotherCatModal(false)
+          resetMovement()
+        }
+        return
+      }
+
+      if (showKittenRescueModalR.current) {
+        if (e.key === 'Escape') {
+          e.preventDefault()
+          setShowKittenRescueModal(false)
+          resetMovement()
+        }
+        return
+      }
+
+      if (showLibraryBookModalR.current) {
+        if (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          setShowLibraryBookModal(false)
+          resetMovement()
+        }
+        return
+      }
+
+      if (showLabTerminalModalR.current) {
+        if (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          setShowLabTerminalModal(false)
+          resetMovement()
+        }
+        return
+      }
+
+      if (activeFacilityVal) {
+        if (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          setActiveFacility(null)
+          resetMovement()
+        }
+        return
+      }
+
+      if (showSatpamModalR.current) {
+        if (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          setShowSatpamModal(false)
+          resetMovement()
+        }
+        return
+      }
+
+      if (activeDoorVal || activeClassVal || showWaliKelasPopupR.current) {
+        if (e.key === 'Escape') {
+          e.preventDefault()
+          setActiveDoor(null)
+          setActiveClass(null)
+          resetMovement()
+        }
+        return
+      }
+      if (insideRoomR.current && e.key === 'Escape') {
+        e.preventDefault()
+        setInsideRoom(null)
+        resetMovement()
+        setCharPos(lastHallwayPosRef.current || { x: 650, y: 550 })
+        return
+      }
+
+      const keyNormalized = e.key.length === 1 ? e.key.toLowerCase() : e.key
+      if (KEY_MAP[keyNormalized]) {
+        e.preventDefault()
+        pressedKeysRef.current.add(keyNormalized)
+        updateDir()
+      }
+
+      // ── Gate Zone Entry or Satpam Interaction via Key ──
+      if ((e.key === 'Enter' || e.key === ' ' || e.key === 'e' || e.key === 'E') && !insideRoomR.current && currentZoneR.current === 'gate') {
+        const isNearSatpam = Math.hypot(charPosRef.current.x - 950, charPosRef.current.y - 480) < 85
+        if (isNearSatpam) {
+          e.preventDefault()
+          gameAudio.playDoorOpen()
+          setShowSatpamModal(true)
+          resetMovement()
+          return
+        }
+        const isNearGateOpening = charPosRef.current.y <= 425 && charPosRef.current.x >= 490 && charPosRef.current.x <= 745
+        if (isNearGateOpening) {
+          e.preventDefault()
+          enterSchoolFromGate()
+          return
+        }
+        if (cinematicStageRef.current === 'gate_intro') {
+          setGateBubbleStep(p => p + 1)
+        }
+      }
+
+      // ── Gateway Zone Transition via Key ──
+      if ((e.key === 'Enter' || e.key === ' ' || e.key === 'e' || e.key === 'E') && !insideRoomR.current && currentZoneR.current !== 'gate') {
+        const isAtGateway = charPosRef.current.y >= 590 && Math.abs(charPosRef.current.x - 625) < 220
+        if (isAtGateway) {
+          e.preventDefault()
+          if (currentZoneR.current === 'main') {
+            goToFacilityZone()
+          } else {
+            goToMainZone()
+          }
+          return
+        }
+      }
+
+      // ── Cat Quest Interaction via Key ──
+      if ((e.key === 'Enter' || e.key === ' ' || e.key === 'e' || e.key === 'E')) {
+        if (nearMotherCatR.current && !insideRoomR.current && currentZoneR.current === 'main') {
+          e.preventDefault()
+          gameAudio.playCatMeow()
+          setShowMotherCatModal(true)
+          resetMovement()
+          return
+        }
+        if (nearKittenR.current && catQuestStageR.current === 'quest_active') {
+          e.preventDefault()
+          gameAudio.playCatMeow()
+          setShowKittenRescueModal(true)
+          resetMovement()
+          return
+        }
+      }
+
+      // ── Facility Interaction via Key ──
+      if ((e.key === 'Enter' || e.key === ' ' || e.key === 'e' || e.key === 'E') && currentZoneR.current === 'facility' && nearFacilityVal && !insideRoomR.current) {
+        e.preventDefault()
+        if (nearFacilityVal.roomId) {
+          enterFacilityRoom(nearFacilityVal)
+        } else {
+          setActiveFacility(nearFacilityVal)
+          resetMovement()
+          gameAudio.playDoorOpen()
+        }
+        return
+      }
+
+      if ((e.key === 'Enter' || e.key === ' ' || e.key === 'e' || e.key === 'E') && nearDoorVal && !unlockedR.current.has(nearDoorVal.id)) {
+        e.preventDefault()
+        setUnlocked(p => new Set([...p, nearDoorVal.id]))
+      } else if ((e.key === 'Enter' || e.key === ' ' || e.key === 'e' || e.key === 'E') && nearClassVal) {
+        e.preventDefault()
+        if (nearClassVal.id === 'RG') {
+          const isRGUnlocked = collectedR.current.size >= TOTAL_N || savedClassesR.current.size >= 4
+          if (isRGUnlocked) {
+            enterClassroom(nearClassVal)
+          } else {
+            setRgLockedToast(`🔒 Ruang Guru Terkunci! Kumpulkan seluruh data dari 4 kelas terlebih dahulu (${collectedR.current.size}/${TOTAL_N}).`)
+            setTimeout(() => setRgLockedToast(null), 2500)
+          }
+          return
+        }
+        if (savedClassesR.current.has(nearClassVal.id)) {
+          return
+        }
+        enterClassroom(nearClassVal)
+      } else if ((e.key === 'Enter' || e.key === ' ' || e.key === 'e' || e.key === 'E') && insideRoomR.current) {
+        if (insideRoomR.current.id === 'Perpustakaan' && nearLibraryShelfR.current) {
+          e.preventDefault()
+          setShowLibraryBookModal(true)
+          resetMovement()
+          return
+        }
+        if (insideRoomR.current.id === 'LabKomputer' && nearLabTerminalR.current) {
+          e.preventDefault()
+          setShowLabTerminalModal(true)
+          resetMovement()
+          return
+        }
+
+        const currentMap = LEVEL1_MAPS[insideRoomR.current.id]
+        const teacherX = currentMap?.teacher?.x ?? 617
+        const teacherY = currentMap?.teacher?.y ?? 415
+        const distToTeacher = Math.hypot(charPosRef.current.x - teacherX, charPosRef.current.y - teacherY)
+        if (distToTeacher < 350 || teacherCutsceneStageRef.current) {
+          e.preventDefault()
+          handleInteractTeacher(insideRoomR.current)
+        }
+      } else if ((e.key === 'Enter' || e.key === ' ' || e.key === 'e' || e.key === 'E') && !insideRoomR.current && cinematicStageRef.current !== 'sanction_received') {
+        if (cinematicStageRef.current === 'player_intro') {
+          e.preventDefault()
+          setCinematicStage('panning_to_pak')
+          return
+        } else if (cinematicStageRef.current === 'pak_shouting') {
+          e.preventDefault()
+          setCinematicStage('pak_shouting_2')
+          return
+        } else if (cinematicStageRef.current === 'pak_shouting_2') {
+          e.preventDefault()
+          setCinematicStage('panning_to_player')
+          return
+        }
+
+        const pakX = PAK_SUTRISNO_POS.x
+        const pakY = PAK_SUTRISNO_POS.y
+        const distToPak = Math.hypot(charPosRef.current.x - pakX, charPosRef.current.y - pakY)
+        if (distToPak < 135) {
+          e.preventDefault()
+          if (cinematicStageRef.current === 'quest_meet_pak') {
+            setCinematicStage('pak_sanction_1')
+          } else if (cinematicStageRef.current === 'pak_sanction_1') {
+            setCinematicStage('pak_sanction_2')
+          } else if (cinematicStageRef.current === 'pak_sanction_2') {
+            setCinematicStage('pak_sanction_3')
+          } else if (cinematicStageRef.current === 'pak_sanction_3') {
+            setCinematicStage('player_reply_pak')
+          } else if (cinematicStageRef.current === 'player_reply_pak') {
+            setCinematicStage('sanction_received')
+          }
+        }
+      }
+    }
+
+    const onKeyUp = (e: KeyboardEvent) => {
+      const keyNormalized = e.key.length === 1 ? e.key.toLowerCase() : e.key
+      pressedKeysRef.current.delete(keyNormalized)
+      updateDir()
+    }
+
+    const onBlur = () => {
+      resetMovement()
+    }
+
+    window.addEventListener('keydown', onKeyDown)
+    window.addEventListener('keyup', onKeyUp)
+    window.addEventListener('blur', onBlur)
+    return () => {
+      window.removeEventListener('keydown', onKeyDown)
+      window.removeEventListener('keyup', onKeyUp)
+      window.removeEventListener('blur', onBlur)
+      resetMovement()
+    }
+  }, [resetMovement, goToFacilityZone, goToMainZone, enterClassroom, enterFacilityRoom, handleInteractTeacher])
+
+  const handleCorrect = useCallback(() => {
+    if (!activeDoor) return
+    gameAudio.playSuccess()
+    setUnlocked(p => new Set([...p, activeDoor.id]))
+    setActiveDoor(null)
+  }, [activeDoor])
 
   const handleCloseWaliKelas = useCallback(() => {
     if (!showWaliKelasPopup) return
@@ -2047,6 +2869,21 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
     setTimeout(() => {
       setJustCompletedClassId(null)
     }, 1500)
+
+    // Cat Quest: Random Mother Cat Spawn upon exiting classroom after collecting data
+    if (catQuestStageR.current === 'untriggered') {
+      const classDoor = doors.find(d => d.id === cid) || showWaliKelasPopup
+      const spawnX = classDoor.x + 35
+      const spawnY = Math.min(620, Math.max(getRedLineY(spawnX) + 15, classDoor.y + 35))
+      const randomSpot = KITTEN_SPAWN_SPOTS[Math.floor(Math.random() * KITTEN_SPAWN_SPOTS.length)]
+
+      setMotherCatPos({ x: spawnX, y: spawnY, classLabel: classDoor.label })
+      setKittenLocation(randomSpot)
+      setCatQuestStage('cat_spawned')
+      setTimeout(() => {
+        gameAudio.playCatMeow()
+      }, 500)
+    }
 
     setShowWaliKelasPopup(null)
     handleExitClassroom()
@@ -2161,6 +2998,45 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
               <span style={{ fontSize: 'clamp(10px, 1vw, 11.5px)', color: '#00ADB5', fontWeight: 800 }}>📌</span>
               <span style={{ fontSize: 'clamp(9.5px, 1vw, 11.5px)', color: '#F8FAFC', fontWeight: 800, letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>Langkah 1 dari 3</span>
             </div>
+
+            {/* Zone Location Pill */}
+            {!insideRoom && (
+              <motion.button
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.96 }}
+                onClick={() => {
+                  if (currentZone === 'gate') {
+                    enterSchoolFromGate()
+                  } else if (currentZone === 'main') {
+                    goToFacilityZone()
+                  } else {
+                    goToMainZone()
+                  }
+                }}
+                style={{
+                  background: currentZone === 'gate' ? 'rgba(6, 78, 59, 0.94)' : currentZone === 'main' ? 'rgba(15, 35, 56, 0.94)' : 'rgba(30, 27, 75, 0.94)',
+                  border: currentZone === 'gate' ? '1.5px solid rgba(16, 185, 129, 0.45)' : currentZone === 'main' ? '1.5px solid rgba(56, 189, 248, 0.45)' : '1.5px solid rgba(245, 158, 11, 0.45)',
+                  borderRadius: 12,
+                  padding: 'clamp(4px, 0.7vw, 6px) clamp(8px, 1.1vw, 14px)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  boxShadow: '0 4px 16px rgba(0, 0, 0, 0.55)',
+                  cursor: 'pointer',
+                  pointerEvents: 'auto',
+                  transition: 'all 0.2s'
+                }}
+                title="Klik untuk berpindah area sekolah"
+              >
+                <span style={{ fontSize: 'clamp(11px, 1.1vw, 13px)' }}>
+                  {currentZone === 'gate' ? '🚪' : currentZone === 'main' ? '🏫' : '☕'}
+                </span>
+                <span style={{ fontSize: 'clamp(9.5px, 1vw, 11px)', color: currentZone === 'gate' ? '#34D399' : currentZone === 'main' ? '#38BDF8' : '#F59E0B', fontWeight: 900, whiteSpace: 'nowrap' }}>
+                  {currentZone === 'gate' ? 'Zona 0: Depan Gerbang' : currentZone === 'main' ? 'Zona 1: Halaman Kelas' : 'Zona 2: Area Fasilitas'}
+                </span>
+                <span style={{ fontSize: '10px', color: '#94A3B8', marginLeft: 2 }}>⇄</span>
+              </motion.button>
+            )}
           </div>
         </div>
 
@@ -2268,7 +3144,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                   href={encodeURI(
                     insideRoom 
                       ? (LEVEL1_MAPS[insideRoom.id]?.bgImage || (insideRoom as any).image || currentClassStudents[insideRoom.id]?.image || '/Assets/Building/Kelas.webp')
-                      : (LEVEL1_MAPS['hallway']?.bgImage || '/Assets/Building/Kelas.webp')
+                      : (currentZone === 'gate' ? '/Assets/Building/Gerbang.jpg' : currentZone === 'facility' ? '/Assets/Building/Fasilitas.webp' : (LEVEL1_MAPS['hallway']?.bgImage || '/Assets/Building/Kelas.webp'))
                   )}
                   x={0}
                   y={0}
@@ -2423,7 +3299,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                 {/* Map Hotspots: Render Teacher NPC inside room OR Class Doors in hallway */}
                 {insideRoom ? (() => {
                   const info = currentClassStudents[insideRoom.id]
-                  const teacherName = info?.teacher || 'Wali Kelas'
+                  const teacherName = info?.teacher || LEVEL1_MAPS[insideRoom.id]?.teacher?.name || 'Wali Kelas'
                   const currentMap = LEVEL1_MAPS[insideRoom.id]
                   const teacherConfig = currentMap?.teacher
                   const teacherX = teacherConfig?.x ?? 617
@@ -2434,14 +3310,15 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                   const bubbleY = teacherY - (teacherConfig?.spriteUrl ? 220 : 50)
 
                   return (
-                    <g
-                      key={`teacher-${insideRoom.id}`}
-                      style={{ cursor: 'pointer' }}
-                      onClick={e => {
-                        e.stopPropagation()
-                        handleInteractTeacher(insideRoom)
-                      }}
-                    >
+                    <g key={`room-objects-${insideRoom.id}`}>
+                      <g
+                        key={`teacher-${insideRoom.id}`}
+                        style={{ cursor: 'pointer' }}
+                        onClick={e => {
+                          e.stopPropagation()
+                          handleInteractTeacher(insideRoom)
+                        }}
+                      >
                       {teacherConfig?.spriteUrl ? (
                         <NPCCharacter
                           key={`teacher-sprite-${insideRoom.id}`}
@@ -2516,7 +3393,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                               fontFamily="var(--font-ui)"
                               style={{ letterSpacing: '0.3px' }}
                             >
-                              👩‍🏫 {teacherName}
+                              {(insideRoom.id === 'LabKomputer' ? '👨‍🏫 ' : '👩‍🏫 ') + teacherName}
                             </text>
                             <text
                               x={teacherX}
@@ -2527,7 +3404,9 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                               fontWeight="700"
                               fontFamily="var(--font-ui)"
                             >
-                              {isCompleted ? '✓ Data Screen Time Saved' : '💬 Klik / Tekan E untuk Bicara'}
+                              {insideRoom.id === 'Perpustakaan' || insideRoom.id === 'LabKomputer'
+                                ? '💬 Klik / Tekan E untuk Berdiskusi'
+                                : isCompleted ? '✓ Data Screen Time Saved' : '💬 Klik / Tekan E untuk Bicara'}
                             </text>
                           </motion.g>
                         </g>
@@ -2781,8 +3660,201 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                         )
                       })()}
                     </g>
-                  )
-                })() : ((cinematicStage === 'sanction_received' || demoMode) ? doors.map(door => {
+
+                    {/* Perpustakaan Bookshelf Learning Station Hotspot */}
+                    {insideRoom.id === 'Perpustakaan' && (
+                      <g
+                        key="library-bookshelf-hotspot"
+                        id="hotspot-library-bookshelf"
+                        style={{ cursor: 'pointer' }}
+                        onClick={e => {
+                          e.stopPropagation()
+                          setShowLibraryBookModal(true)
+                        }}
+                      >
+                        {/* Interactive Click Hitbox */}
+                        <rect
+                          x={280 - 80}
+                          y={440 - 50}
+                          width={160}
+                          height={100}
+                          fill="transparent"
+                          pointerEvents="all"
+                        />
+                        <motion.circle
+                          cx={280}
+                          cy={440}
+                          r={24}
+                          fill="rgba(16, 185, 129, 0.2)"
+                          animate={{ scale: [1, 1.4, 1], fill: ['rgba(16, 185, 129, 0.2)', 'rgba(16, 185, 129, 0.45)', 'rgba(16, 185, 129, 0.2)'] }}
+                          transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+                        />
+                        <circle cx={280} cy={440} r={14} fill="#10B981" stroke="#FFFFFF" strokeWidth={1.5} />
+                        <text x={280} y={444} textAnchor="middle" fontSize={11} style={{ userSelect: 'none', pointerEvents: 'none' }}>
+                          📖
+                        </text>
+                        <rect
+                          x={280 - 75}
+                          y={440 - 42}
+                          width={150}
+                          height={22}
+                          rx={6}
+                          fill="rgba(15, 23, 42, 0.92)"
+                          stroke={nearLibraryShelf ? '#FFFFFF' : '#10B981'}
+                          strokeWidth={nearLibraryShelf ? 2 : 1}
+                          style={{ filter: 'drop-shadow(0 4px 10px rgba(0,0,0,0.6))' }}
+                        />
+                        <text
+                          x={280}
+                          y={440 - 27}
+                          textAnchor="middle"
+                          fill="#FFFFFF"
+                          fontSize={9.5}
+                          fontWeight="900"
+                          fontFamily="var(--font-ui)"
+                        >
+                          {nearLibraryShelf ? '[ E ] 📖 Baca Buku Statistika' : '📖 Rak Buku Statistika'}
+                        </text>
+                      </g>
+                    )}
+
+                    {/* Lab Komputer Terminal Learning Station Hotspot */}
+                    {insideRoom.id === 'LabKomputer' && (
+                      <g
+                        key="lab-terminal-hotspot"
+                        id="hotspot-lab-terminal"
+                        style={{ cursor: 'pointer' }}
+                        onClick={e => {
+                          e.stopPropagation()
+                          setShowLabTerminalModal(true)
+                        }}
+                      >
+                        {/* Interactive Click Hitbox */}
+                        <rect
+                          x={300 - 85}
+                          y={440 - 50}
+                          width={170}
+                          height={100}
+                          fill="transparent"
+                          pointerEvents="all"
+                        />
+                        <motion.circle
+                          cx={300}
+                          cy={440}
+                          r={24}
+                          fill="rgba(56, 189, 248, 0.2)"
+                          animate={{ scale: [1, 1.4, 1], fill: ['rgba(56, 189, 248, 0.2)', 'rgba(56, 189, 248, 0.45)', 'rgba(56, 189, 248, 0.2)'] }}
+                          transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+                        />
+                        <circle cx={300} cy={440} r={14} fill="#38BDF8" stroke="#FFFFFF" strokeWidth={1.5} />
+                        <text x={300} y={444} textAnchor="middle" fontSize={11} style={{ userSelect: 'none', pointerEvents: 'none' }}>
+                          💻
+                        </text>
+                        <rect
+                          x={300 - 80}
+                          y={440 - 42}
+                          width={160}
+                          height={22}
+                          rx={6}
+                          fill="rgba(15, 23, 42, 0.92)"
+                          stroke={nearLabTerminal ? '#FFFFFF' : '#38BDF8'}
+                          strokeWidth={nearLabTerminal ? 2 : 1}
+                          style={{ filter: 'drop-shadow(0 4px 10px rgba(0,0,0,0.6))' }}
+                        />
+                        <text
+                          x={300}
+                          y={440 - 27}
+                          textAnchor="middle"
+                          fill="#FFFFFF"
+                          fontSize={9.5}
+                          fontWeight="900"
+                          fontFamily="var(--font-ui)"
+                        >
+                          {nearLabTerminal ? '[ E ] 💻 Buka Terminal Digital' : '💻 Terminal Literasi Digital'}
+                        </text>
+                      </g>
+                    )}
+                  </g>
+                )
+              })() : currentZone === 'facility' ? (
+                FACILITY_DOORS.map(fac => {
+                  const isNear = nearFacility?.id === fac.id
+                  return (
+                    <g
+                      key={fac.id}
+                      id={`facility-door-${fac.id}`}
+                      style={{ cursor: 'pointer' }}
+                      onClick={e => {
+                        e.stopPropagation()
+                        if (fac.roomId) {
+                          enterFacilityRoom(fac)
+                        } else {
+                          setActiveFacility(fac)
+                          gameAudio.playDoorOpen()
+                        }
+                      }}
+                    >
+                        {/* Interactive Pulse Radar Glow */}
+                        <motion.circle
+                          cx={fac.x}
+                          cy={fac.y}
+                          r={22}
+                          fill={`${fac.color}22`}
+                          animate={isNear
+                            ? { scale: [1, 1.45, 1], fill: [`${fac.color}33`, `${fac.color}77`, `${fac.color}33`] }
+                            : { scale: [0.95, 1.15, 0.95] }
+                          }
+                          transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+                        />
+
+                        {/* Hotspot Icon Badge */}
+                        <circle
+                          cx={fac.x}
+                          cy={fac.y}
+                          r={14}
+                          fill="rgba(15, 23, 42, 0.92)"
+                          stroke={isNear ? '#FFFFFF' : fac.color}
+                          strokeWidth={isNear ? 2.5 : 1.5}
+                          style={{ filter: `drop-shadow(0 0 8px ${fac.color}66)` }}
+                        />
+                        <text
+                          x={fac.x}
+                          y={fac.y + 1}
+                          textAnchor="middle"
+                          dominantBaseline="middle"
+                          fontSize={12}
+                          style={{ userSelect: 'none', pointerEvents: 'none' }}
+                        >
+                          {fac.icon}
+                        </text>
+
+                        {/* Hotspot Title Card */}
+                        <rect
+                          x={fac.x - 65}
+                          y={fac.y - 38}
+                          width={130}
+                          height={22}
+                          rx={6}
+                          fill="rgba(15, 23, 42, 0.95)"
+                          stroke={isNear ? '#FFFFFF' : `${fac.color}99`}
+                          strokeWidth={isNear ? 1.5 : 1}
+                          style={{ filter: 'drop-shadow(0 4px 10px rgba(0,0,0,0.7))' }}
+                        />
+                        <text
+                          x={fac.x}
+                          y={fac.y - 24}
+                          textAnchor="middle"
+                          fill={fac.color}
+                          fontSize={10}
+                          fontWeight="bold"
+                          fontFamily="var(--font-ui)"
+                        >
+                          {fac.label}
+                        </text>
+                      </g>
+                    )
+                  })
+                ) : ((cinematicStage === 'sanction_received' || demoMode) ? doors.map(door => {
                   const isRG = door.id === 'RG'
                   const isRGUnlocked = isRG && (collected.size >= TOTAL_N || savedClasses.size >= 4)
                   const isSaved = !isRG && savedClasses.has(door.id)
@@ -2793,6 +3865,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                   return (
                     <g
                       key={door.id}
+                      id={`class-door-${door.id}`}
                       style={{ cursor: isSaved ? 'default' : 'pointer' }}
                       onClick={e => {
                         e.stopPropagation()
@@ -2887,6 +3960,131 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                   )
                 }) : null)}
 
+                {/* Zone Transition Gateway Marker (Rendered in outdoor courtyard in both zones) */}
+                {!insideRoom && currentZone !== 'gate' && (
+                  <g
+                    key={`gateway-${currentZone}`}
+                    style={{ cursor: 'pointer' }}
+                    onClick={currentZone === 'main' ? goToFacilityZone : goToMainZone}
+                  >
+                    {/* Ground pulsing elliptical carpet */}
+                    <motion.ellipse
+                      cx={625}
+                      cy={628}
+                      rx={125}
+                      ry={16}
+                      fill={currentZone === 'main' ? 'rgba(56, 189, 248, 0.16)' : 'rgba(16, 185, 129, 0.16)'}
+                      stroke={currentZone === 'main' ? '#38BDF8' : '#10B981'}
+                      strokeWidth={1.5}
+                      strokeDasharray="6,4"
+                      animate={{ opacity: [0.6, 1, 0.6] }}
+                      transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                    />
+                    <rect
+                      x={625 - 145}
+                      y={608}
+                      width={290}
+                      height={26}
+                      rx={13}
+                      fill="rgba(11, 23, 38, 0.94)"
+                      stroke={currentZone === 'main' ? '#38BDF8' : '#10B981'}
+                      strokeWidth={1.5}
+                      style={{ filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.75))' }}
+                    />
+                    <text
+                      x={625}
+                      y={624}
+                      textAnchor="middle"
+                      fill={currentZone === 'main' ? '#38BDF8' : '#10B981'}
+                      fontSize={10}
+                      fontWeight="900"
+                      fontFamily="var(--font-ui)"
+                      style={{ userSelect: 'none', pointerEvents: 'none', letterSpacing: '0.4px' }}
+                    >
+                      {currentZone === 'main' ? '🚶‍♂️ ▼ KE AREA FASILITAS (Kantin, Lab, Perpus)' : '🚶‍♂️ ▲ KE HALAMAN UTAMA (Kelas & Ruang Guru)'}
+                    </text>
+                  </g>
+                )}
+
+                {/* Gate Entry Gateway Marker & Pos Satpam Hotspot (When in Gate Zone) */}
+                {!insideRoom && currentZone === 'gate' && (
+                  <>
+                    <g
+                      key="gateway-gate"
+                      style={{ cursor: 'pointer' }}
+                      onClick={enterSchoolFromGate}
+                    >
+                      <motion.ellipse
+                        cx={617}
+                        cy={370}
+                        rx={85}
+                        ry={16}
+                        fill="rgba(16, 185, 129, 0.2)"
+                        stroke="#10B981"
+                        strokeWidth={1.5}
+                        strokeDasharray="6,4"
+                        animate={{ opacity: [0.6, 1, 0.6] }}
+                        transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+                      />
+                      <rect
+                        x={617 - 120}
+                        y={370 - 32}
+                        width={240}
+                        height={24}
+                        rx={12}
+                        fill="rgba(11, 23, 38, 0.94)"
+                        stroke="#10B981"
+                        strokeWidth={1.5}
+                        style={{ filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.75))' }}
+                      />
+                      <text
+                        x={617}
+                        y={370 - 16}
+                        textAnchor="middle"
+                        fill="#34D399"
+                        fontSize={10}
+                        fontWeight="900"
+                        fontFamily="var(--font-ui)"
+                        style={{ userSelect: 'none', pointerEvents: 'none', letterSpacing: '0.4px' }}
+                      >
+                        ▲ MASUK PINTU GERBANG SEKOLAH
+                      </text>
+                    </g>
+
+                    <g
+                      key="pos-satpam-hotspot"
+                      style={{ cursor: 'pointer' }}
+                      onClick={() => {
+                        gameAudio.playDoorOpen()
+                        setShowSatpamModal(true)
+                      }}
+                    >
+                      <rect
+                        x={890}
+                        y={435}
+                        width={125}
+                        height={22}
+                        rx={11}
+                        fill="rgba(15, 23, 42, 0.92)"
+                        stroke="#F59E0B"
+                        strokeWidth={1.5}
+                        style={{ filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.6))' }}
+                      />
+                      <text
+                        x={952}
+                        y={450}
+                        textAnchor="middle"
+                        fill="#FCD34D"
+                        fontSize={9.5}
+                        fontWeight="900"
+                        fontFamily="var(--font-ui)"
+                      >
+                        👮 Pos Satpam (Pak Joko)
+                      </text>
+                    </g>
+                  </>
+                )}
+
                 {/* Dynamic Perspective Depth Scaling Calculation */}
                 {(() => {
                   const depthRatio = Math.max(0, Math.min(1, (charPos.y - 410) / (650 - 410)))
@@ -2898,8 +4096,8 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
 
                   return (
                     <>
-                      {/* Pak Sutrisno NPC (Only in Hallway / Lapangan BEFORE sanction_received) */}
-                      {!insideRoom && cinematicStage !== 'sanction_received' && (() => {
+                      {/* Pak Sutrisno NPC (Only in Hallway / Lapangan BEFORE sanction_received AND in main zone) */}
+                      {!insideRoom && currentZone === 'main' && cinematicStage !== 'sanction_received' && (() => {
                         const pakX = PAK_SUTRISNO_POS.x
                         const pakY = PAK_SUTRISNO_POS.y
                         const pakDepth = Math.max(0, Math.min(1, (pakY - 410) / (650 - 410)))
@@ -3205,7 +4403,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                       })()}
 
                       {/* Glowing Waypoint Arrow pointing to Ruang Guru when all 24 data points collected */}
-                      {(collected.size >= TOTAL_N || savedClasses.size >= 4) && !insideRoom && (
+                      {(collected.size >= TOTAL_N || savedClasses.size >= 4) && !insideRoom && currentZone === 'main' && (
                         <g key="waypoint-arrow-rg" style={{ pointerEvents: 'none' }}>
                           <motion.circle
                             cx={625}
@@ -3253,6 +4451,168 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                         </g>
                       )}
 
+                      {/* ── Cat Quest: Mother Cat (Mimi) in Main Hallway ── */}
+                      {!insideRoom && currentZone === 'main' && catQuestStage !== 'untriggered' && (
+                        <g
+                          key="mother-cat-group"
+                          id="mother-cat-group"
+                          style={{ cursor: 'pointer' }}
+                          onClick={() => {
+                            if (catQuestStage === 'completed') {
+                              gameAudio.playCatPurr()
+                            } else {
+                              gameAudio.playCatMeow()
+                            }
+                            setShowMotherCatModal(true)
+                          }}
+                        >
+                          <NPCCharacter
+                            key="mother-cat-npc"
+                            x={motherCatPos.x}
+                            y={motherCatPos.y}
+                            size={52}
+                            label=""
+                            spriteUrl="/Assets/CatPack/Idle.png"
+                            cols={10}
+                            rows={1}
+                            totalFrames={10}
+                            speedMs={140}
+                            pingPong={true}
+                            glowColor={catQuestStage === 'completed' ? '#10B981' : '#F59E0B'}
+                            onClick={() => {
+                              gameAudio.playCatMeow()
+                              setShowMotherCatModal(true)
+                            }}
+                          />
+                          {/* If quest completed, Kitten Mochi is reunited happily beside Mimi */}
+                          {catQuestStage === 'completed' && (
+                            <NPCCharacter
+                              key="reunited-kitten-npc"
+                              x={motherCatPos.x + 36}
+                              y={motherCatPos.y + 4}
+                              size={46}
+                              label=""
+                              spriteUrl="/Assets/CatPack/Box3.png"
+                              cols={4}
+                              rows={1}
+                              totalFrames={4}
+                              speedMs={180}
+                              pingPong={true}
+                              glowColor="#10B981"
+                              onClick={() => {
+                                gameAudio.playCatPurr()
+                                setShowMotherCatModal(true)
+                              }}
+                            />
+                          )}
+                          {/* Name Tag */}
+                          <g
+                            style={{ cursor: 'pointer' }}
+                            onClick={() => {
+                              gameAudio.playCatMeow()
+                              setShowMotherCatModal(true)
+                            }}
+                          >
+                            <rect
+                              x={motherCatPos.x - 45}
+                              y={motherCatPos.y - 48}
+                              width={90}
+                              height={20}
+                              rx={10}
+                              fill="rgba(15, 23, 42, 0.92)"
+                              stroke={catQuestStage === 'completed' ? '#10B981' : '#F59E0B'}
+                              strokeWidth={1.5}
+                              style={{ filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.6))' }}
+                            />
+                            <text
+                              x={motherCatPos.x}
+                              y={motherCatPos.y - 34}
+                              textAnchor="middle"
+                              fill="#FFFFFF"
+                              fontSize={9.5}
+                              fontWeight="900"
+                              fontFamily="var(--font-ui)"
+                            >
+                              {catQuestStage === 'completed' ? '🐾 Mimi & Mochi' : '🐱 Mimi'}
+                            </text>
+                          </g>
+                        </g>
+                      )}
+
+                      {/* ── Cat Quest: Kitten in Box (Mochi) in Spawn Spot ── */}
+                      {catQuestStage === 'quest_active' && (() => {
+                        const isKittenVisible =
+                          (kittenLocation.zone === 'Perpustakaan' && insideRoom?.id === 'Perpustakaan') ||
+                          (kittenLocation.zone === 'LabKomputer' && insideRoom?.id === 'LabKomputer') ||
+                          (kittenLocation.zone === 'facility_courtyard' && currentZone === 'facility' && !insideRoom) ||
+                          (kittenLocation.zone === 'hallway' && currentZone === 'main' && !insideRoom)
+
+                        if (!isKittenVisible) return null
+                        return (
+                          <g
+                            key="kitten-in-box-group"
+                            id="kitten-in-box-group"
+                            style={{ cursor: 'pointer' }}
+                            onClick={() => {
+                              gameAudio.playCatMeow()
+                              setShowKittenRescueModal(true)
+                            }}
+                          >
+                            <NPCCharacter
+                              key="kitten-box-npc"
+                              x={kittenLocation.x}
+                              y={kittenLocation.y}
+                              size={60}
+                              label=""
+                              spriteUrl="/Assets/CatPack/Box3.png"
+                              cols={4}
+                              rows={1}
+                              totalFrames={4}
+                              speedMs={180}
+                              pingPong={true}
+                              glowColor="#10B981"
+                              onClick={() => {
+                                gameAudio.playCatMeow()
+                                setShowKittenRescueModal(true)
+                              }}
+                            />
+                            {/* Animated Rescue Indicator */}
+                            <motion.g
+                              animate={{ y: [0, -4, 0] }}
+                              transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+                              style={{ cursor: 'pointer' }}
+                              onClick={() => {
+                                gameAudio.playCatMeow()
+                                setShowKittenRescueModal(true)
+                              }}
+                            >
+                              <rect
+                                x={kittenLocation.x - 60}
+                                y={kittenLocation.y - 54}
+                                width={120}
+                                height={22}
+                                rx={11}
+                                fill="rgba(15, 23, 42, 0.94)"
+                                stroke="#10B981"
+                                strokeWidth={1.5}
+                                style={{ filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.6))' }}
+                              />
+                              <text
+                                x={kittenLocation.x}
+                                y={kittenLocation.y - 39}
+                                textAnchor="middle"
+                                fill="#34D399"
+                                fontSize={9.5}
+                                fontWeight="900"
+                                fontFamily="var(--font-ui)"
+                              >
+                                📦 Mochi (Kucing dlm Kardus)
+                              </text>
+                            </motion.g>
+                          </g>
+                        )
+                      })()}
+
                       {/* Player Character */}
                       <PlayerCharacter
                         x={charPos.x}
@@ -3263,8 +4623,237 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
 
                       {/* Floating Interactive Prompt Buttons */}
                       <AnimatePresence>
+                        {/* 0A. Gate Player Monologue Speech Bubble */}
+                        {currentZone === 'gate' && cinematicStage === 'gate_intro' && gateBubbleStep < 2 && (() => {
+                          const pW = 270
+                          const pH = 68
+                          const pLeft = Math.max(camX + 10, Math.min(camX + VIEW_VW - pW - 10, charPos.x - pW / 2))
+                          const pY = btnY - pH - 8
+                          const bubbleText = gateBubbleStep === 0
+                            ? '"Waduh, gawat! Bel sekolah udah bunyi dari tadi, aku telat nih!"'
+                            : '"Harus cepat lari masuk sebelum gerbang dikunci!"'
+
+                          return (
+                            <motion.g
+                              key={`gate-intro-bubble-${gateBubbleStep}`}
+                              id="gate-intro-bubble"
+                              initial={{ opacity: 0, scale: 0.9, y: 5 }}
+                              animate={{ opacity: 1, scale: 1, y: 0 }}
+                              exit={{ opacity: 0, scale: 0.9, y: 5 }}
+                              style={{ cursor: 'pointer' }}
+                              onClick={() => setGateBubbleStep(p => p + 1)}
+                            >
+                              <foreignObject x={pLeft} y={pY} width={pW} height={pH} style={{ overflow: 'visible' }}>
+                                <div style={{
+                                  width: '100%',
+                                  height: '100%',
+                                  boxSizing: 'border-box',
+                                  padding: '8px 12px 6px 12px',
+                                  background: 'rgba(15, 35, 56, 0.96)',
+                                  border: '2px solid #38BDF8',
+                                  borderRadius: '14px',
+                                  boxShadow: '0 8px 24px rgba(0,0,0,0.7)',
+                                  display: 'flex',
+                                  flexDirection: 'column',
+                                  justifyContent: 'space-between',
+                                  userSelect: 'none',
+                                }}>
+                                  <div style={{ fontSize: '10.5px', fontWeight: 900, color: '#38BDF8', fontFamily: 'var(--font-ui)', letterSpacing: '0.3px' }}>
+                                    Stevunt
+                                  </div>
+                                  <div style={{
+                                    fontSize: '10.5px',
+                                    fontWeight: 800,
+                                    color: '#FFFFFF',
+                                    fontFamily: 'var(--font-ui)',
+                                    textAlign: 'center',
+                                    lineHeight: 1.35,
+                                  }}>
+                                    {bubbleText}
+                                  </div>
+                                  <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+                                    <span style={{ fontSize: '9px', fontWeight: 900, color: '#38BDF8', fontFamily: 'var(--font-ui)', letterSpacing: '0.3px' }}>
+                                      {gateBubbleStep === 0 ? '[ Klik / Spasi ▶ ]' : '[ 🏃 Ayo Masuk! ▶ ]'}
+                                    </span>
+                                  </div>
+                                </div>
+                              </foreignObject>
+                              <polygon
+                                points={`${charPos.x - 8},${pY + pH} ${charPos.x + 8},${pY + pH} ${charPos.x},${btnY + 22}`}
+                                fill="rgba(15, 35, 56, 0.96)"
+                                stroke="#38BDF8"
+                                strokeWidth={1}
+                              />
+                            </motion.g>
+                          )
+                        })()}
+
+                        {/* 0B. Gate Action / Interaction Prompt Button */}
+                        {currentZone === 'gate' && !insideRoom && (() => {
+                          const isNearSatpam = Math.hypot(charPos.x - 950, charPos.y - 480) < 95
+                          const isNearGateOpening = charPos.y <= 435 && charPos.x >= 490 && charPos.x <= 745
+
+                          const buttonW = isNearSatpam ? 220 : 230
+                          const buttonLeft = Math.max(camX + 10, Math.min(camX + VIEW_VW - buttonW - 10, charPos.x - buttonW / 2))
+                          const textX = buttonLeft + buttonW / 2
+
+                          const handleClick = () => {
+                            if (isNearSatpam) {
+                              gameAudio.playDoorOpen()
+                              setShowSatpamModal(true)
+                            } else {
+                              enterSchoolFromGate()
+                            }
+                          }
+
+                          return (
+                            <motion.g
+                              key={`btn-gate-${isNearSatpam ? 'satpam' : isNearGateOpening ? 'gate-enter' : 'gate-walk'}`}
+                              initial={{ opacity: 0, scale: 0.8, y: 5 }}
+                              animate={{ opacity: 1, scale: 1, y: 0 }}
+                              exit={{ opacity: 0, scale: 0.8, y: 5 }}
+                              onClick={handleClick}
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              style={{ cursor: 'pointer' }}
+                            >
+                              <rect
+                                x={buttonLeft - 10}
+                                y={btnY}
+                                width={buttonW + 20}
+                                height={28}
+                                rx={6}
+                                fill="#0B1726"
+                                stroke={isNearSatpam ? '#F59E0B' : '#10B981'}
+                                strokeWidth={2}
+                                style={{ filter: 'drop-shadow(0px 4px 12px rgba(0,0,0,0.85))' }}
+                              />
+                              <text
+                                x={textX}
+                                y={btnTextY + 2}
+                                textAnchor="middle"
+                                dominantBaseline="middle"
+                                fill={isNearSatpam ? '#FCD34D' : '#34D399'}
+                                fontSize={10.5}
+                                fontWeight="900"
+                                style={{ userSelect: 'none', pointerEvents: 'none', fontFamily: 'var(--font-ui)', letterSpacing: '0.4px' }}
+                              >
+                                {isNearSatpam
+                                  ? '[ E ] 👮 Bicara dgn Pak Joko (Satpam)'
+                                  : isNearGateOpening
+                                  ? '[ E ] 🏫 Masuk ke Halaman Sekolah ▲'
+                                  : '[ W / ⬆ ] Masuk Lewat Pintu Gerbang'}
+                              </text>
+                            </motion.g>
+                          )
+                        })()}
+
                         {/* 1. Inside Room Teacher Interaction Prompt */}
                         {insideRoom && (() => {
+                          if (insideRoom.id === 'Perpustakaan') {
+                            if (nearLibraryShelf && !showLibraryBookModal) {
+                              const buttonW = 210
+                              const buttonLeft = Math.max(camX + 10, Math.min(camX + VIEW_VW - buttonW - 10, charPos.x - buttonW / 2))
+                              const textX = buttonLeft + buttonW / 2
+                              return (
+                                <motion.g
+                                  key="btn-shelf-perpustakaan"
+                                  initial={{ opacity: 0, scale: 0.8, y: 5 }}
+                                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                                  exit={{ opacity: 0, scale: 0.8, y: 5 }}
+                                  onClick={() => setShowLibraryBookModal(true)}
+                                  whileHover={{ scale: 1.05 }}
+                                  whileTap={{ scale: 0.95 }}
+                                  style={{ cursor: 'pointer' }}
+                                >
+                                  <rect x={buttonLeft - 10} y={btnY} width={buttonW + 20} height={28} rx={6} fill="#0B1726" stroke="#10B981" strokeWidth={2} style={{ filter: 'drop-shadow(0px 4px 12px rgba(0,0,0,0.85))' }} />
+                                  <text x={textX} y={btnTextY + 2} textAnchor="middle" dominantBaseline="middle" fill="#FFFFFF" fontSize={10.5} fontWeight="900" style={{ userSelect: 'none', pointerEvents: 'none', fontFamily: 'var(--font-ui)', letterSpacing: '0.4px' }}>
+                                    [ E ] 📖 Baca Buku Statistika
+                                  </text>
+                                </motion.g>
+                              )
+                            }
+                            const distToTeacher = Math.hypot(charPos.x - 617, charPos.y - 415)
+                            if (distToTeacher < 160 && !activeFacility) {
+                              const buttonW = 210
+                              const buttonLeft = Math.max(camX + 10, Math.min(camX + VIEW_VW - buttonW - 10, charPos.x - buttonW / 2))
+                              const textX = buttonLeft + buttonW / 2
+                              return (
+                                <motion.g
+                                  key="btn-teacher-widya"
+                                  initial={{ opacity: 0, scale: 0.8, y: 5 }}
+                                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                                  exit={{ opacity: 0, scale: 0.8, y: 5 }}
+                                  onClick={() => {
+                                    const fac = FACILITY_DOORS.find(f => f.id === 'PERPUSTAKAAN')
+                                    if (fac) setActiveFacility(fac)
+                                  }}
+                                  whileHover={{ scale: 1.05 }}
+                                  whileTap={{ scale: 0.95 }}
+                                  style={{ cursor: 'pointer' }}
+                                >
+                                  <rect x={buttonLeft - 10} y={btnY} width={buttonW + 20} height={28} rx={6} fill="#0B1726" stroke="#10B981" strokeWidth={2} style={{ filter: 'drop-shadow(0px 4px 12px rgba(0,0,0,0.85))' }} />
+                                  <text x={textX} y={btnTextY + 2} textAnchor="middle" dominantBaseline="middle" fill="#FFFFFF" fontSize={10.5} fontWeight="900" style={{ userSelect: 'none', pointerEvents: 'none', fontFamily: 'var(--font-ui)', letterSpacing: '0.4px' }}>
+                                    [ E ] 💬 Diskusi dgn Bu Widya
+                                  </text>
+                                </motion.g>
+                              )
+                            }
+                            return null
+                          }
+
+                          if (insideRoom.id === 'LabKomputer') {
+                            if (nearLabTerminal && !showLabTerminalModal) {
+                              const buttonW = 210
+                              const buttonLeft = Math.max(camX + 10, Math.min(camX + VIEW_VW - buttonW - 10, charPos.x - buttonW / 2))
+                              const textX = buttonLeft + buttonW / 2
+                              return (
+                                <motion.g
+                                  key="btn-terminal-lab"
+                                  initial={{ opacity: 0, scale: 0.8, y: 5 }}
+                                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                                  exit={{ opacity: 0, scale: 0.8, y: 5 }}
+                                  onClick={() => setShowLabTerminalModal(true)}
+                                  whileHover={{ scale: 1.05 }}
+                                  whileTap={{ scale: 0.95 }}
+                                  style={{ cursor: 'pointer' }}
+                                >
+                                  <rect x={buttonLeft - 10} y={btnY} width={buttonW + 20} height={28} rx={6} fill="#0B1726" stroke="#38BDF8" strokeWidth={2} style={{ filter: 'drop-shadow(0px 4px 12px rgba(0,0,0,0.85))' }} />
+                                  <text x={textX} y={btnTextY + 2} textAnchor="middle" dominantBaseline="middle" fill="#FFFFFF" fontSize={10.5} fontWeight="900" style={{ userSelect: 'none', pointerEvents: 'none', fontFamily: 'var(--font-ui)', letterSpacing: '0.4px' }}>
+                                    [ E ] 💻 Buka Terminal Digital
+                                  </text>
+                                </motion.g>
+                              )
+                            }
+                            const distToTeacher = Math.hypot(charPos.x - 617, charPos.y - 415)
+                            if (distToTeacher < 160 && !activeFacility) {
+                              const buttonW = 210
+                              const buttonLeft = Math.max(camX + 10, Math.min(camX + VIEW_VW - buttonW - 10, charPos.x - buttonW / 2))
+                              const textX = buttonLeft + buttonW / 2
+                              return (
+                                <motion.g
+                                  key="btn-teacher-hendra"
+                                  initial={{ opacity: 0, scale: 0.8, y: 5 }}
+                                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                                  exit={{ opacity: 0, scale: 0.8, y: 5 }}
+                                  onClick={() => {
+                                    const fac = FACILITY_DOORS.find(f => f.id === 'LAB_KOMPUTER')
+                                    if (fac) setActiveFacility(fac)
+                                  }}
+                                  whileHover={{ scale: 1.05 }}
+                                  whileTap={{ scale: 0.95 }}
+                                  style={{ cursor: 'pointer' }}
+                                >
+                                  <rect x={buttonLeft - 10} y={btnY} width={buttonW + 20} height={28} rx={6} fill="#0B1726" stroke="#38BDF8" strokeWidth={2} style={{ filter: 'drop-shadow(0px 4px 12px rgba(0,0,0,0.85))' }} />
+                                  <text x={textX} y={btnTextY + 2} textAnchor="middle" dominantBaseline="middle" fill="#FFFFFF" fontSize={10.5} fontWeight="900" style={{ userSelect: 'none', pointerEvents: 'none', fontFamily: 'var(--font-ui)', letterSpacing: '0.4px' }}>
+                                    [ E ] 💬 Diskusi dgn Pak Hendra
+                                  </text>
+                                </motion.g>
+                              )
+                            }
+                            return null
+                          }
+
                           const teacherX = 580
                           const teacherY = 490
                           const distToTeacher = Math.hypot(charPos.x - teacherX, charPos.y - teacherY)
@@ -3313,7 +4902,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                         })()}
 
                         {/* 2. Hallway Door Interaction Prompt (Locked door -> Kuis; Unlocked door -> Masuk Kelas; Saved -> Completed) */}
-                        {!insideRoom && nearClass && !activeClass && !nearDoor && (cinematicStage === 'sanction_received' || demoMode) && (() => {
+                        {!insideRoom && currentZone === 'main' && nearClass && !activeClass && !nearDoor && (cinematicStage === 'sanction_received' || demoMode) && (() => {
                           const isRG = nearClass.id === 'RG'
                           const isRGUnlocked = isRG && (collected.size >= TOTAL_N || savedClasses.size >= 4)
                           const isSaved = !isRG && savedClasses.has(nearClass.id)
@@ -3372,6 +4961,196 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                                   : isSaved
                                     ? `✓ Data ${nearClass.label} Selesai`
                                     : `[ E ] 🚪 Masuk ke ${nearClass.label} ►`}
+                              </text>
+                            </motion.g>
+                          )
+                        })()}
+
+                        {/* 3. Facility Interaction Prompt (In Facility Zone) */}
+                        {!insideRoom && currentZone === 'facility' && nearFacility && !activeFacility && (() => {
+                          const buttonW = nearFacility.roomId ? 210 : 230
+                          const buttonLeft = Math.max(camX + 10, Math.min(camX + VIEW_VW - buttonW - 10, charPos.x - buttonW / 2))
+                          const textX = buttonLeft + buttonW / 2
+                          return (
+                            <motion.g
+                              key={`btn-facility-${nearFacility.id}`}
+                              initial={{ opacity: 0, scale: 0.8, y: 5 }}
+                              animate={{ opacity: 1, scale: 1, y: 0 }}
+                              exit={{ opacity: 0, scale: 0.8, y: 5 }}
+                              onClick={() => {
+                                if (nearFacility.roomId) {
+                                  enterFacilityRoom(nearFacility)
+                                } else {
+                                  setActiveFacility(nearFacility)
+                                  gameAudio.playDoorOpen()
+                                }
+                              }}
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              style={{ cursor: 'pointer' }}
+                            >
+                              <rect
+                                x={buttonLeft - 10}
+                                y={btnY}
+                                width={buttonW + 20}
+                                height={28}
+                                rx={6}
+                                fill="#0B1726"
+                                stroke={nearFacility.color}
+                                strokeWidth={2}
+                                style={{ filter: 'drop-shadow(0px 4px 12px rgba(0,0,0,0.85))' }}
+                              />
+                              <text
+                                x={textX}
+                                y={btnTextY + 2}
+                                textAnchor="middle"
+                                dominantBaseline="middle"
+                                fill="#FFFFFF"
+                                fontSize={10.5}
+                                fontWeight="900"
+                                style={{ userSelect: 'none', pointerEvents: 'none', fontFamily: 'var(--font-ui)', letterSpacing: '0.4px' }}
+                              >
+                                {nearFacility.roomId ? `[ E ] 🚪 Masuk ke ${nearFacility.label} ►` : `[ E ] 💬 Bicara di ${nearFacility.label} ►`}
+                              </text>
+                            </motion.g>
+                          )
+                        })()}
+
+                        {/* 4. Zone Transition Gateway Prompt */}
+                        {!insideRoom && zoneTransitionPrompt && !nearFacility && !nearClass && (() => {
+                          const isToFacility = zoneTransitionPrompt === 'to_facility'
+                          const buttonW = 260
+                          const buttonLeft = Math.max(camX + 10, Math.min(camX + VIEW_VW - buttonW - 10, charPos.x - buttonW / 2))
+                          const textX = buttonLeft + buttonW / 2
+                          return (
+                            <motion.g
+                              key="btn-zone-transition"
+                              initial={{ opacity: 0, scale: 0.8, y: 5 }}
+                              animate={{ opacity: 1, scale: 1, y: 0 }}
+                              exit={{ opacity: 0, scale: 0.8, y: 5 }}
+                              onClick={isToFacility ? goToFacilityZone : goToMainZone}
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              style={{ cursor: 'pointer' }}
+                            >
+                              <rect
+                                x={buttonLeft - 10}
+                                y={btnY}
+                                width={buttonW + 20}
+                                height={28}
+                                rx={6}
+                                fill="#0B1726"
+                                stroke={isToFacility ? '#38BDF8' : '#10B981'}
+                                strokeWidth={2}
+                                style={{ filter: 'drop-shadow(0px 4px 12px rgba(0,0,0,0.85))' }}
+                              />
+                              <text
+                                x={textX}
+                                y={btnTextY + 2}
+                                textAnchor="middle"
+                                dominantBaseline="middle"
+                                fill={isToFacility ? '#38BDF8' : '#10B981'}
+                                fontSize={10.5}
+                                fontWeight="900"
+                                style={{ userSelect: 'none', pointerEvents: 'none', fontFamily: 'var(--font-ui)', letterSpacing: '0.4px' }}
+                              >
+                                {isToFacility ? '[ E ] 🚶‍♂️ Ke Area Fasilitas (Kantin/Lab) ▼' : '[ E ] 🚶‍♂️ Ke Halaman Kelas & Ruang Guru ▲'}
+                              </text>
+                            </motion.g>
+                          )
+                        })()}
+
+                        {/* 5. Cat Quest: Mother Cat Prompt */}
+                        {nearMotherCat && !insideRoom && currentZone === 'main' && (() => {
+                          const buttonW = catQuestStage === 'completed' ? 220 : catQuestStage === 'kitten_rescued' ? 230 : 210
+                          const buttonLeft = Math.max(camX + 10, Math.min(camX + VIEW_VW - buttonW - 10, charPos.x - buttonW / 2))
+                          const textX = buttonLeft + buttonW / 2
+                          return (
+                            <motion.g
+                              key="btn-mother-cat-interact"
+                              initial={{ opacity: 0, scale: 0.8, y: 5 }}
+                              animate={{ opacity: 1, scale: 1, y: 0 }}
+                              exit={{ opacity: 0, scale: 0.8, y: 5 }}
+                              onClick={() => {
+                                gameAudio.playCatMeow()
+                                setShowMotherCatModal(true)
+                              }}
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              style={{ cursor: 'pointer' }}
+                            >
+                              <rect
+                                x={buttonLeft - 10}
+                                y={btnY}
+                                width={buttonW + 20}
+                                height={28}
+                                rx={6}
+                                fill="#0B1726"
+                                stroke={catQuestStage === 'completed' || catQuestStage === 'kitten_rescued' ? '#10B981' : '#F59E0B'}
+                                strokeWidth={2}
+                                style={{ filter: 'drop-shadow(0px 4px 12px rgba(0,0,0,0.85))' }}
+                              />
+                              <text
+                                x={textX}
+                                y={btnTextY + 2}
+                                textAnchor="middle"
+                                dominantBaseline="middle"
+                                fill="#FFFFFF"
+                                fontSize={10.5}
+                                fontWeight="900"
+                                style={{ userSelect: 'none', pointerEvents: 'none', fontFamily: 'var(--font-ui)', letterSpacing: '0.4px' }}
+                              >
+                                {catQuestStage === 'completed'
+                                  ? '🐾 [ E ] Bicara dgn Mimi & Mochi'
+                                  : catQuestStage === 'kitten_rescued'
+                                  ? '❤️ [ E ] Serahkan Mochi ke Mimi!'
+                                  : '🐱 [ E ] Meoow? (Bicara dgn Mimi)'}
+                              </text>
+                            </motion.g>
+                          )
+                        })()}
+
+                        {/* 6. Cat Quest: Kitten Rescue Prompt */}
+                        {nearKitten && catQuestStage === 'quest_active' && (() => {
+                          const buttonW = 250
+                          const buttonLeft = Math.max(camX + 10, Math.min(camX + VIEW_VW - buttonW - 10, charPos.x - buttonW / 2))
+                          const textX = buttonLeft + buttonW / 2
+                          return (
+                            <motion.g
+                              key="btn-kitten-box-rescue"
+                              initial={{ opacity: 0, scale: 0.8, y: 5 }}
+                              animate={{ opacity: 1, scale: 1, y: 0 }}
+                              exit={{ opacity: 0, scale: 0.8, y: 5 }}
+                              onClick={() => {
+                                gameAudio.playCatMeow()
+                                setShowKittenRescueModal(true)
+                              }}
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              style={{ cursor: 'pointer' }}
+                            >
+                              <rect
+                                x={buttonLeft - 10}
+                                y={btnY}
+                                width={buttonW + 20}
+                                height={28}
+                                rx={6}
+                                fill="#0B1726"
+                                stroke="#10B981"
+                                strokeWidth={2}
+                                style={{ filter: 'drop-shadow(0px 4px 12px rgba(0,0,0,0.85))' }}
+                              />
+                              <text
+                                x={textX}
+                                y={btnTextY + 2}
+                                textAnchor="middle"
+                                dominantBaseline="middle"
+                                fill="#34D399"
+                                fontSize={10.5}
+                                fontWeight="900"
+                                style={{ userSelect: 'none', pointerEvents: 'none', fontFamily: 'var(--font-ui)', letterSpacing: '0.4px' }}
+                              >
+                                📦 [ E ] Buka Kardus & Selamatkan Mochi!
                               </text>
                             </motion.g>
                           )
@@ -3481,6 +5260,81 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
             studentsData={currentClassStudents}
             onCollectData={handleCloseWaliKelas}
             onClose={() => setShowWaliKelasPopup(null)}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Facility Dialogue Modal (Kantin, Lab Komputer, Perpustakaan) */}
+      <AnimatePresence>
+        {activeFacility && (
+          <FacilityModal
+            facility={activeFacility}
+            onClose={() => setActiveFacility(null)}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Library Bookshelf Learning Modal (Pojok Baca Statistika SMP) */}
+      <AnimatePresence>
+        {showLibraryBookModal && (
+          <LibraryBookModal onClose={() => setShowLibraryBookModal(false)} />
+        )}
+      </AnimatePresence>
+
+      {/* Lab Terminal Learning Modal (Terminal Literasi & Analisis Digital) */}
+      <AnimatePresence>
+        {showLabTerminalModal && (
+          <LabTerminalModal onClose={() => setShowLabTerminalModal(false)} />
+        )}
+      </AnimatePresence>
+
+      {/* Cat Quest: Mother Cat Dialogue Modal */}
+      <AnimatePresence>
+        {showMotherCatModal && (
+          <MotherCatModal
+            stage={
+              catQuestStage === 'cat_spawned'
+                ? 'ask_help'
+                : catQuestStage === 'kitten_rescued' || catQuestStage === 'completed'
+                ? 'reward'
+                : 'reminder'
+            }
+            classLabel={motherCatPos.classLabel}
+            onAccept={() => {
+              setCatQuestStage('quest_active')
+            }}
+            onClose={() => {
+              if (catQuestStage === 'kitten_rescued') {
+                setCatQuestStage('completed')
+                gameAudio.playCatPurr()
+              }
+              setShowMotherCatModal(false)
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Cat Quest: Kitten Rescue Modal */}
+      <AnimatePresence>
+        {showKittenRescueModal && (
+          <KittenRescueModal
+            locationLabel={kittenLocation.label}
+            onRescue={() => {
+              setCatQuestStage('kitten_rescued')
+              setShowKittenRescueModal(false)
+              gameAudio.playCatPurr()
+            }}
+            onClose={() => setShowKittenRescueModal(false)}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Satpam (Pak Joko) Dialogue Modal */}
+      <AnimatePresence>
+        {showSatpamModal && (
+          <SatpamModal
+            onEnterSchool={enterSchoolFromGate}
+            onClose={() => setShowSatpamModal(false)}
           />
         )}
       </AnimatePresence>
@@ -3595,6 +5449,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                   </h3>
                 </div>
                 <button
+                  id="quest-log-close-btn"
                   onClick={() => setIsInventoryOpen(false)}
                   style={{
                     background: 'rgba(255, 255, 255, 0.08)',
@@ -3635,6 +5490,11 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                   badgeText = '🟢 SEDANG BERLANGSUNG'
                   questTitle = 'Kumpulkan 24 Data Screen Time Siswa'
                   questDesc = 'Kunjungi Wali-Wali Kelas di Ruang VII-A, VII-B, VIII-A, dan VIII-B. Bicara dengan guru di setiap kelas untuk mengumpulkan sampel data screen time.'
+                } else if (cinematicStage === 'gate_intro') {
+                  badgeColor = '#F59E0B'
+                  badgeText = '🏃 MASUK GERBANG'
+                  questTitle = 'Waduh, Telat Masuk Sekolah!'
+                  questDesc = 'Bel sekolah sudah berbunyi! Segera lari masuk melewati pintu gerbang sekolah sebelum dikunci oleh Pak Joko (Satpam).'
                 }
 
                 return (
@@ -3710,6 +5570,57 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                   </div>
                 )
               })()}
+
+              {/* Cat Quest Mini-Game Side Quest Log Card */}
+              {catQuestStage !== 'untriggered' && (
+                <div style={{
+                  background: catQuestStage === 'completed'
+                    ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(15, 23, 42, 0.6) 100%)'
+                    : 'linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(15, 23, 42, 0.6) 100%)',
+                  border: catQuestStage === 'completed'
+                    ? '1.5px solid rgba(16, 185, 129, 0.5)'
+                    : '1.5px solid rgba(245, 158, 11, 0.5)',
+                  borderRadius: 16,
+                  padding: '14px 16px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 10,
+                  boxShadow: '0 4px 16px rgba(0,0,0,0.3)',
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <span style={{
+                      fontSize: 10,
+                      fontWeight: 900,
+                      color: catQuestStage === 'completed' ? '#34D399' : '#FCD34D',
+                      background: catQuestStage === 'completed' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(245, 158, 11, 0.2)',
+                      border: catQuestStage === 'completed' ? '1px solid #10B981' : '1px solid #F59E0B',
+                      borderRadius: 20,
+                      padding: '2px 8px',
+                      letterSpacing: '0.6px',
+                    }}>
+                      {catQuestStage === 'completed' ? '🎉 MISI SELESAI' : '🐾 MISI SAMPINGAN'}
+                    </span>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: '#94A3B8' }}>
+                      Depan {motherCatPos.classLabel}
+                    </span>
+                  </div>
+
+                  <div>
+                    <h4 style={{ margin: 0, fontSize: 15, fontWeight: 900, color: '#FFFFFF' }}>
+                      {catQuestStage === 'cat_spawned' && '🐱 Kucing Mimi Mengeong Memanggilmu'}
+                      {catQuestStage === 'quest_active' && '📦 Cari Anak Kucing Mochi di Dalam Kardus'}
+                      {catQuestStage === 'kitten_rescued' && '❤️ Bawa Pulang Mochi ke Induknya (Mimi)'}
+                      {catQuestStage === 'completed' && '🏅 Sahabat Kucing SMP (Tuntas)'}
+                    </h4>
+                    <p style={{ margin: '4px 0 0 0', fontSize: 12, color: '#CBD5E1', lineHeight: 1.5 }}>
+                      {catQuestStage === 'cat_spawned' && `Bicara dengan Induk Kucing (Mimi) di lorong depan ${motherCatPos.classLabel}.`}
+                      {catQuestStage === 'quest_active' && `Mochi bersembunyi di dalam kardus! Petunjuk lokasi: ${kittenLocation.label}.`}
+                      {catQuestStage === 'kitten_rescued' && `Mochi sudah aman bersamamu! Kembalikan Mochi ke Mimi di depan ${motherCatPos.classLabel}.`}
+                      {catQuestStage === 'completed' && `Mimi dan Mochi kini hidup tenang bersama. Kamu mendapatkan lencana Sahabat Kucing SMP!`}
+                    </p>
+                  </div>
+                </div>
+              )}
 
 
 
@@ -3839,7 +5750,11 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
           title="MEMUAT INVESTIGASI LEVEL 1"
           subtitle="Peta Lorong Sekolah & Aset Misi"
           imagesToPreload={[
+            '/Assets/Building/Gerbang.jpg',
             '/Assets/Building/Kelas.webp',
+            '/Assets/Building/Fasilitas.webp',
+            '/Assets/Building/Perpustakaan/Perpustakaan.webp',
+            '/Assets/Building/Lab Komputer/Lab.webp',
             '/Assets/Building/Ruang VII-A/VII-A.webp',
             '/Assets/Building/Ruang VII-B/VII-B.webp',
             '/Assets/Building/Ruang VIII-A/VIII-A.webp',
@@ -3850,7 +5765,9 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
             '/Assets/Building/Ruang VIII-A/Bu Rina.webp',
             '/Assets/Building/Ruang VIII-B/Pak Setiawan.webp',
             '/Assets/Character/Stevunt-idle.png',
-            '/Assets/Character/pak Sutrisno-iso_idle_right-trimmed.png'
+            '/Assets/Character/pak Sutrisno-iso_idle_right-trimmed.png',
+            '/Assets/CatPack/Idle.png',
+            '/Assets/CatPack/Box3.png'
           ]}
           minDurationMs={1200}
           onComplete={() => setIsLoadingAssets(false)}

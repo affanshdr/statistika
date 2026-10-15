@@ -48,9 +48,13 @@ export default function Level1Main({
 
   const { STATS } = getLevel1Data(level1Dataset)
 
-  const [phase, setPhase] = useState<'exploration' | 'cutscene' | 'formula' | 'game'>(
-    demoMode ? (demoStep === 'interval' || demoStep === 'histogram' ? 'game' : 'formula') : 'exploration'
-  )
+  const [phase, setPhase] = useState<'exploration' | 'cutscene' | 'formula' | 'game'>(() => {
+    if (typeof window !== 'undefined') {
+      const p = new URLSearchParams(window.location.search)
+      if (p.get('phase') === 'exploration' || p.get('zone') === 'gate') return 'exploration'
+    }
+    return demoMode ? (demoStep === 'interval' || demoStep === 'histogram' ? 'game' : demoStep === 'exploration' ? 'exploration' : 'formula') : 'exploration'
+  })
   const [pregameStep, setPregameStep] = useState<'minmax' | 'panjangkelas'>('minmax')
 
   const [step, setStep] = useState<GameStep>(
@@ -139,6 +143,7 @@ export default function Level1Main({
           isFD={false}
           onComplete={() => setPhase('cutscene')}
           demoMode={demoMode}
+          demoStep={demoStep}
         />
       )}
 

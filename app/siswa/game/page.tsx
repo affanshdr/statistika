@@ -13,7 +13,7 @@ type Student = {
   classroom: { name: string }
 }
 
-export default function StatCasecodeTitlePage() {
+export default function CasecodeTitlePage() {
   const router = useRouter()
   const [student, setStudent] = useState<Student | null>(null)
   const [isStarting, setIsStarting] = useState(false)
@@ -218,7 +218,7 @@ export default function StatCasecodeTitlePage() {
             </span>
           </motion.div>
 
-          {/* DYNAMIC TITLE: STAT-CASECODE (Pixel-Art Styled) */}
+          {/* DYNAMIC TITLE: CASECODE (Pixel-Art Styled) */}
           <h1
             style={{
               margin: '0 0 10px 0',
@@ -237,7 +237,7 @@ export default function StatCasecodeTitlePage() {
               textTransform: 'uppercase',
             }}
           >
-            Stat-Casecode
+            Casecode
           </h1>
 
           {/* Subtitle / Tagline */}
@@ -389,7 +389,7 @@ export default function StatCasecodeTitlePage() {
           <span>•</span>
           <span>Kurikulum Merdeka</span>
           <span>•</span>
-          <span>Stat-Casecode v2.0</span>
+          <span>Casecode v2.0</span>
         </div>
       </div>
     </OrientationGuard>

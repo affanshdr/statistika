@@ -59,8 +59,49 @@ export function checkClassroomWalkable(x: number, y: number): boolean {
   return true
 }
 
+// Facility Courtyard Walkable Bounds logic (Kantin, Lab Komputer, Perpustakaan)
+export function checkFacilityWalkable(x: number, y: number): boolean {
+  if (x < 60 || x > WORLD_VW - 60) return false
+  if (y < 380 || y > 640) return false
+  return true
+}
+
+// School Front Gate Walkable Bounds logic (Street, Sidewalk & Open Gate Opening)
+export function checkGateWalkable(x: number, y: number): boolean {
+  if (x < 60 || x > WORLD_VW - 60) return false
+  if (y > 630 || y < 330) return false
+
+  // In the entrance driveway leading through the open gate:
+  if (x >= 490 && x <= 745) {
+    return y >= 330
+  }
+
+  // Outside the gate (sidewalk & street in front of fence/satpam):
+  return y >= 445
+}
+
 // Level 1 Map Config Registry
 export const LEVEL1_MAPS: Record<string, MapConfig> = {
+  gate: {
+    id: 'gate',
+    name: 'Depan Gerbang SMP',
+    type: 'hallway',
+    bgImage: '/Assets/Building/Gerbang.jpg',
+    camera: {
+      mode: 'follow',
+      vw: 380,
+      vh: 380,
+      preserveAspectRatio: 'none'
+    },
+    character: {
+      baseSize: 145,
+      depthFactor: 65,
+      speed: 3.5
+    },
+    spawn: { x: 615, y: 575 },
+    isWalkable: (x, y) => checkGateWalkable(x, y)
+  },
+
   hallway: {
     id: 'hallway',
     name: 'Lorong Sekolah',
@@ -79,6 +120,82 @@ export const LEVEL1_MAPS: Record<string, MapConfig> = {
     },
     spawn: { x: 625, y: 520 },
     isWalkable: (x, y) => checkHallwayWalkable(x, y)
+  },
+
+  facility_courtyard: {
+    id: 'facility_courtyard',
+    name: 'Halaman Fasilitas',
+    type: 'hallway',
+    bgImage: '/Assets/Building/Fasilitas.webp',
+    camera: {
+      mode: 'follow',
+      vw: 380,
+      vh: 380,
+      preserveAspectRatio: 'none'
+    },
+    character: {
+      baseSize: 145,
+      depthFactor: 65,
+      speed: 3.5
+    },
+    spawn: { x: 625, y: 550 },
+    isWalkable: (x, y) => checkFacilityWalkable(x, y)
+  },
+
+  Perpustakaan: {
+    id: 'Perpustakaan',
+    name: 'Perpustakaan Sekolah',
+    type: 'classroom',
+    bgImage: '/Assets/Building/Perpustakaan/Perpustakaan.webp',
+    camera: {
+      mode: 'fixed',
+      vw: WORLD_VW,
+      vh: WORLD_VH,
+      preserveAspectRatio: 'xMidYMid meet'
+    },
+    character: {
+      baseSize: 340,
+      depthFactor: 60,
+      speed: 3.8
+    },
+    spawn: { x: 1050, y: 510 },
+    teacher: {
+      name: 'Bu Widya (Pustakawati)',
+      x: 617,
+      y: 415,
+      size: 130,
+      hotspotW: 140,
+      hotspotH: 260
+    },
+    isWalkable: (x, y) => checkClassroomWalkable(x, y)
+  },
+
+  LabKomputer: {
+    id: 'LabKomputer',
+    name: 'Laboratorium Komputer',
+    type: 'classroom',
+    bgImage: '/Assets/Building/Lab Komputer/Lab.webp',
+    camera: {
+      mode: 'fixed',
+      vw: WORLD_VW,
+      vh: WORLD_VH,
+      preserveAspectRatio: 'xMidYMid meet'
+    },
+    character: {
+      baseSize: 340,
+      depthFactor: 60,
+      speed: 3.8
+    },
+    spawn: { x: 1050, y: 510 },
+    teacher: {
+      name: 'Pak Hendra (Guru Informatika)',
+      x: 617,
+      y: 415,
+      size: 130,
+      hotspotW: 140,
+      hotspotH: 260
+    },
+    isWalkable: (x, y) => checkClassroomWalkable(x, y)
   },
 
   A1: {
