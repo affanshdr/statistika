@@ -1555,7 +1555,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
   const [showPakReportModal, setShowPakReportModal] = useState(false)
   const smoothCamPos = useRef({ x: 180, y: 585 })
   const [unlocked, setUnlocked] = useState<Set<string>>(() => {
-    return demoMode ? new Set(['A', 'B', 'RG', 'A1', 'A2', 'B1', 'B2']) : new Set(['A', 'B', 'RG'])
+    return new Set(['A', 'B', 'RG', 'A1', 'A2', 'B1', 'B2'])
   })
   const [savedClasses, setSavedClasses] = useState<Set<string>>(() => new Set())
   const [justCompletedClassId, setJustCompletedClassId] = useState<string | null>(null)
@@ -1858,11 +1858,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
         if (savedClassesR.current.has(nearClassVal.id)) {
           return
         }
-        if (unlockedR.current.has(nearClassVal.id)) {
-          enterClassroom(nearClassVal)
-        } else {
-          setActiveClass(nearClassVal)
-        }
+        enterClassroom(nearClassVal)
       } else if ((e.key === 'Enter' || e.key === ' ' || e.key === 'e' || e.key === 'E') && insideRoomR.current) {
         const currentMap = LEVEL1_MAPS[insideRoomR.current.id]
         const teacherX = currentMap?.teacher?.x ?? 617
@@ -2810,11 +2806,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                           return
                         }
                         if (isSaved) return
-                        if (open) {
-                          enterClassroom(door)
-                        } else if (!activeClass && !activeDoor) {
-                          setActiveClass(door)
-                        }
+                        enterClassroom(door)
                       }}
                     >
                       {/* Interactive Pulse Radar Glow */}
@@ -3346,11 +3338,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                                   return
                                 }
                                 if (isSaved) return
-                                if (isUnlocked) {
-                                  enterClassroom(nearClass)
-                                } else {
-                                  setActiveClass(nearClass)
-                                }
+                                enterClassroom(nearClass)
                               }}
                               whileHover={{ scale: isSaved ? 1 : 1.05 }}
                               whileTap={{ scale: isSaved ? 1 : 0.95 }}
@@ -3363,7 +3351,7 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                                 height={28}
                                 rx={6}
                                 fill="#0B1726"
-                                stroke={isRG ? (isRGUnlocked ? '#10B981' : '#F59E0B') : isSaved ? '#10B981' : isUnlocked ? '#38BDF8' : '#F59E0B'}
+                                stroke={isRG ? (isRGUnlocked ? '#10B981' : '#F59E0B') : isSaved ? '#10B981' : '#38BDF8'}
                                 strokeWidth={2}
                                 style={{ filter: 'drop-shadow(0px 4px 12px rgba(0,0,0,0.85))' }}
                               />
@@ -3382,10 +3370,8 @@ export default function NPath({ onComplete, isFD = true, demoMode = false }: { o
                                     ? `[ E ] ✨ Masuk ke Ruang Guru ►`
                                     : `[ E ] 🔒 Ruang Guru Terkunci (${Math.max(collected.size, savedClasses.size * 6)}/${TOTAL_N})`
                                   : isSaved
-                                    ? `✓ Data ${nearClass.label} Saved`
-                                    : isUnlocked
-                                      ? `[ E ] 🚪 Masuk ${nearClass.label} ►`
-                                      : `[ E ] 📍 Periksa ${nearClass.label} ►`}
+                                    ? `✓ Data ${nearClass.label} Selesai`
+                                    : `[ E ] 🚪 Masuk ke ${nearClass.label} ►`}
                               </text>
                             </motion.g>
                           )
