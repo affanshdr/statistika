@@ -139,8 +139,8 @@ export default function DiRA({ message, onDismiss, showAvatar = true }: DiRAProp
               position: 'relative',
               zIndex: 2,
             }}>
-              <span style={{ fontSize: '13px' }}>👤</span>
-              <span>ASISTEN DIRA</span>
+              <span style={{ fontSize: '13px' }}>👨‍🏫</span>
+              <span>PAK SUTRISNO</span>
             </div>
 
             {/* Dialog text box */}
@@ -173,9 +173,9 @@ export default function DiRA({ message, onDismiss, showAvatar = true }: DiRAProp
                   initial={{ opacity: 0, y: 50 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ type: 'spring', stiffness: 100, damping: 15 }}
-                  src="/dira-avatar.webp"
-                  alt="Agent DIRA"
-                  style={{ height: '100%', objectFit: 'contain' }}
+                  src="/Assets/Character/pak-sutrisno-portrait.png"
+                  alt="Pak Sutrisno"
+                  style={{ height: '100%', objectFit: 'contain', imageRendering: 'pixelated' }}
                 />
                 {/* "Go!" speech bubble removed */}
               </div>

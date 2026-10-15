@@ -17,28 +17,28 @@ interface DiraPopupProps {
 // ── Pesan kontekstual per langkah ─────────────────────────────────────────────
 const DIRA_MESSAGES: Record<DiraPopupStep, { emoji: string; title: string; body: string; cta: string }> = {
   intro: {
-    emoji: '👋',
-    title: 'Halo! Aku DiRA!',
-    body: 'Jujurly, sebelum kita spill tabel frekuensinya, lo wajib banget nih ngitung 3 hal krusial dulu — Rentang, Banyak Kelas, sama Panjang Kelas. Tenang aja, gue temenin kok! 🧮',
-    cta: 'Gas, DiRA!',
+    emoji: '👨‍🏫',
+    title: 'Petunjuk Pak Sutrisno',
+    body: 'Stevunt, sebelum menyusun tabel frekuensi dan histogram di papan tulis, kita perlu menghitung 3 komponen penting terlebih dahulu: Rentang (R), Banyak Kelas (k), dan Panjang Kelas (p). Ayo kita kerjakan!',
+    cta: 'Siap, Pak!',
   },
   rentang: {
     emoji: '📏',
     title: 'Langkah 1: Rentang (R)',
-    body: 'Rumusnya simpel banget: Rentang = data terbesar − data terkecil. Cari dua nilai itu dari data screen time lo, terus seret atau tap ke kotak formula. Riil gampang no cap! 💡',
-    cta: 'Paham, gas!',
+    body: 'Rumusnya: Rentang (R) = data terbesar − data terkecil. Temukan dua nilai ekstrem tersebut dari 24 data screen time yang telah kamu kumpulkan, lalu masukkan ke dalam rumus!',
+    cta: 'Siap, Pak!',
   },
   'banyak-kelas': {
     emoji: '📊',
-    title: 'Langkah 2: Banyak Kelas (K)',
-    body: 'Pakai rumus Sturges: K = 1 + 3,3 × log n. Nah, n itu total semua data yang lo punya. Coba itung dulu berapa datanya biar valid! 🔢',
-    cta: 'Oke, gue coba!',
+    title: 'Langkah 2: Banyak Kelas (k)',
+    body: 'Gunakan Aturan Sturges: k = 1 + 3,3 × log n. Nilai n adalah total sampel data kita (n = 24). Hitung dengan teliti!',
+    cta: 'Saya hitung, Pak!',
   },
   'panjang-kelas': {
     emoji: '📐',
-    title: 'Langkah 3: Panjang Kelas (P)',
-    body: 'Satu langkah lagi menuju puncak! P = R ÷ K. Tinggal masukin nilai R sama K yang tadi udah lo dapet. Vibes-nya bentar lagi kelar nih! 🎯',
-    cta: 'Gas beresin!',
+    title: 'Langkah 3: Panjang Kelas (p)',
+    body: 'Langkah terakhir sebelum membuat interval: p = R ÷ k. Masukkan nilai Rentang (R) dan Banyak Kelas (k) yang sudah kamu peroleh tadi!',
+    cta: 'Laksanakan, Pak!',
   },
 }
 
@@ -274,8 +274,8 @@ export default function DiraPopup({ step, autoDismissMs = 7000, onDismiss }: Dir
               position: 'relative',
               zIndex: 2,
             }}>
-              <span>👤</span>
-              <span>ASISTEN DIRA</span>
+              <span style={{ fontSize: '13px' }}>👨‍🏫</span>
+              <span>PAK SUTRISNO</span>
               <span style={{
                 fontSize: '8px',
                 padding: '1px 6px',
@@ -346,9 +346,9 @@ export default function DiraPopup({ step, autoDismissMs = 7000, onDismiss }: Dir
                   initial={{ opacity: 0, y: 50 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ type: 'spring', stiffness: 100, damping: 15, delay: 0.1 }}
-                  src="/dira-avatar.webp"
-                  alt="Agent DIRA"
-                  style={{ height: '100%', objectFit: 'contain' }}
+                  src="/Assets/Character/pak-sutrisno-portrait.png"
+                  alt="Pak Sutrisno"
+                  style={{ height: '100%', objectFit: 'contain', imageRendering: 'pixelated' }}
                 />
                 {/* "Go!" speech bubble removed */}
               </div>

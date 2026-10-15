@@ -166,7 +166,7 @@ export default function MythBustedStamp({ onComplete }: MythBustedStampProps) {
               transition={{ delay: 2.2 }}
               style={{ fontSize: '12px', color: '#94A3B8', margin: 0 }}
             >
-              DiRA sedang menyiapkan pesannya...
+              Pak Sutrisno sedang menyiapkan evaluasinya...
             </motion.p>
           </motion.div>
         )}
@@ -184,7 +184,7 @@ export default function MythBustedStamp({ onComplete }: MythBustedStampProps) {
               alignItems: 'center',
             }}
           >
-            {/* DiRA avatar + header */}
+            {/* Pak Sutrisno avatar + header */}
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
@@ -195,12 +195,12 @@ export default function MythBustedStamp({ onComplete }: MythBustedStampProps) {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ type: 'spring', stiffness: 120, damping: 14, delay: 0.15 }}
-                src="/dira-avatar.webp"
-                alt="Agent DiRA"
-                style={{ height: '80px', objectFit: 'contain', filter: 'drop-shadow(0 0 16px rgba(14, 131, 136,0.4))' }}
+                src="/Assets/Character/pak-sutrisno-portrait.png"
+                alt="Pak Sutrisno"
+                style={{ height: '110px', objectFit: 'contain', imageRendering: 'pixelated', filter: 'drop-shadow(0 0 16px rgba(14, 131, 136,0.4))' }}
               />
               <div style={{ fontSize: '11px', color: '#00ADB5', fontWeight: 800, letterSpacing: '2px' }}>
-                PESAN DARI DIRA
+                EVALUASI DARI PAK SUTRISNO
               </div>
             </motion.div>
 
@@ -218,17 +218,16 @@ export default function MythBustedStamp({ onComplete }: MythBustedStampProps) {
               }}
             >
               <p style={{ margin: '0 0 8px', fontSize: '14px', fontWeight: 800, color: '#00ADB5' }}>
-                🎉 &quot;Luar biasa, Detektif!
+                🎉 &quot;Kerja luar biasa, Stevunt!
               </p>
-              <p style={{ margin: '0 0 8px', fontSize: '13px', color: '#94A3B8', lineHeight: 1.6 }}>
-                Kamu baru saja menyelamatkan linimasa dari hoaks! Analisismu membuktikan bahwa mata kita sering ditipu oleh angka rata-rata yang dimanipulasi oleh data ekstrem (outlier).
+              <p style={{ margin: '0 0 8px', fontSize: '13px', color: '#CBD5E1', lineHeight: 1.6 }}>
+                Kamu telah berhasil membuktikan secara objektif bahwa postingan viral tersebut keliru! Data empiris kita menunjukkan mayoritas siswa menggunakan gawai secara wajar, dan angka tinggi hanya disebabkan oleh segelintir data pencilan (outlier).
               </p>
-              <p style={{ margin: '0 0 8px', fontSize: '13px', color: '#94A3B8', lineHeight: 1.6 }}>
-                Tapi, tahukah kamu apa <strong style={{ color: '#FFFFFF' }}>nama ilmiah</strong> dari bentuk grafik yang kamu buat tadi? Dan bagaimana outlier bisa{' '}
-                <strong style={{ color: '#FFFFFF' }}>merusak nilai rata-rata (mean)</strong> secara matematis?
+              <p style={{ margin: '0 0 8px', fontSize: '13px', color: '#CBD5E1', lineHeight: 1.6 }}>
+                Dengan menuntaskan tugas kedisiplinan dan investigasi statistika ini dengan sangat cemerlang, <strong style={{ color: '#10B981' }}>sanksimu resmi dicabut</strong> dan kamu diperbolehkan kembali mengikuti kegiatan belajar!
               </p>
               <p style={{ margin: 0, fontSize: '13px', color: '#94A3B8', lineHeight: 1.6 }}>
-                Ayo lihat rangkuman hasil investigasi dan lencana yang berhasil kamu peroleh!&quot;
+                Ayo kita lihat rangkuman hasil investigasi dan lencana prestasi yang berhasil kamu raih!&quot;
               </p>
             </motion.div>
 

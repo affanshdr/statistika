@@ -254,15 +254,15 @@ function AgentSidebar({ message, isMobile }: { message: string; isMobile?: boole
           }}
         >
           <img
-            src="/dira-avatar.webp"
-            alt="Dira"
-            style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
+            src="/Assets/Character/pak-sutrisno-avatar.png"
+            alt="Pak Sutrisno"
+            style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%', imageRendering: 'pixelated' }}
           />
         </motion.div>
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginTop: '-4px' }}>
-          <span style={{ fontSize: '10px', color: 'var(--accent)', fontWeight: 800, letterSpacing: '1.2px' }}>
-            DIRA
+          <span style={{ fontSize: '10px', color: '#38BDF8', fontWeight: 800, letterSpacing: '1.2px' }}>
+            PAK SUTRISNO
           </span>
         </div>
         <p style={{ margin: 0, color: 'var(--text-primary)', fontWeight: 700 }}>
@@ -446,13 +446,13 @@ function MazeJoystick({ onDir }: { onDir: (x: number, y: number) => void }) {
 }
 
 // ─── Intro typewriter ─────────────────────────────────────────────────────────
-const INTRO_TEXT = 'Jujurly, sebelum kita spill tabel frekuensinya, lo wajib banget nih ngitung 3 hal krusial dulu — Rentang, Banyak Kelas, sama Panjang Kelas. Gas kita beresin satu-satu, no cap! 🧮'
+const INTRO_TEXT = 'Bagus, Stevunt! 24 data screen time siswa sudah kita kumpulkan. Sekarang, sebelum kita menyusun tabel distribusi frekuensi dan histogram di papan tulis, kamu wajib menentukan 3 komponen dasar terlebih dahulu: Rentang (R), Banyak Kelas (k), dan Panjang Kelas (p). Mari kita hitung bersama! 🧮'
 
 const INTRO_HIGHLIGHTS: Record<string, string> = {
-  'Rentang': 'var(--accent)',
-  'Banyak Kelas': 'var(--accent)',
-  'Panjang Kelas': 'var(--accent)',
-  '3 hal penting': 'var(--accent)',
+  'Rentang (R)': 'var(--accent)',
+  'Banyak Kelas (k)': 'var(--accent)',
+  'Panjang Kelas (p)': 'var(--accent)',
+  '3 komponen dasar': 'var(--accent)',
 }
 
 function IntroTypewriter({ onDone }: { onDone: () => void }) {
@@ -1180,7 +1180,7 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                       textTransform: 'uppercase',
                       marginBottom: '4px',
                     }}>
-                      Petunjuk Asisten Dira
+                      Petunjuk Pak Sutrisno
                     </div>
                     <h3 style={{ margin: '0 0 6px 0', fontSize: 'clamp(15px, 2.8vh, 20px)', fontWeight: 900, color: 'var(--text-primary)' }}>
                       Mencari Nilai Rentang (R) 📏
@@ -1315,9 +1315,9 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                         overflow: 'hidden',
                       }}>
                         <img
-                          src="/dira-avatar.webp"
-                          alt="Dira"
-                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                          src="/Assets/Character/pak-sutrisno-avatar.png"
+                          alt="Pak Sutrisno"
+                          style={{ width: '100%', height: '100%', objectFit: 'cover', imageRendering: 'pixelated' }}
                         />
                       </div>
                       <div style={{
@@ -1328,9 +1328,9 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                         fontWeight: 600,
                       }}>
                         <p style={{ margin: '0 0 6px 0', color: 'var(--accent)', fontWeight: 800, fontSize: 'clamp(9px, 1.5vh, 11px)', letterSpacing: '0.5px' }}>
-                          TIPS DARI DIRA
+                          PETUNJUK PAK SUTRISNO
                         </p>
-                        "Biar nggak fomo dan salpok, coba deh lo scan datanya dari kiri ke kanan biar cepet dapet nilai tertinggi sama terendah! Vibenya dapet banget."
+                        "Agar lebih teliti, kamu dapat menyisir data angka dari yang terkecil sampai terbesar untuk menemukan nilai minimum dan maksimum dengan tepat!"
                       </div>
                     </div>
                   </div>
@@ -1363,16 +1363,16 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                     overflow: 'hidden',
                   }}>
                     <img
-                      src="/dira-avatar.webp"
-                      alt="Dira"
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      src="/Assets/Character/pak-sutrisno-avatar.png"
+                      alt="Pak Sutrisno"
+                      style={{ width: '100%', height: '100%', objectFit: 'cover', imageRendering: 'pixelated' }}
                     />
                   </div>
                   <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 900, color: 'var(--text-primary)' }}>
                     Nilai Tidak Sesuai!
                   </h3>
                   <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.78)', lineHeight: 1.6 }}>
-                    Waduh riil no cap! Nilai <strong style={{ color: '#ef4444', fontSize: '15px' }}>{wrongSelectedValue}</strong> yang lo pick bukan nilai <strong style={{ color: '#ef4444' }}>{wrongAssignType || 'terkecil atau terbesar'}</strong> dari data yang ada di labirin. Coba lebih teliti lagi, jangan salpok ya! 🔍
+                    Perhatikan kembali dengan cermat! Angka <strong style={{ color: '#ef4444', fontSize: '15px' }}>{wrongSelectedValue}</strong> yang kamu pilih bukanlah nilai <strong style={{ color: '#ef4444' }}>{wrongAssignType || 'terkecil atau terbesar'}</strong> dari kumpulan data ini. Teliti kembali datanya ya! 🔍
                   </p>
                   <button
                     className="game-btn game-btn-primary"
@@ -1477,8 +1477,8 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                   display: 'flex', alignItems: 'center', gap: '6px',
                   boxShadow: '0 -4px 10px rgba(0,0,0,0.15)',
                 }}>
-                  <span>👤</span>
-                  <span>ASISTEN DIRA</span>
+                  <span style={{ fontSize: '13px' }}>👨‍🏫</span>
+                  <span>PAK SUTRISNO (GURU MATEMATIKA)</span>
                 </div>
 
                 {/* Dialog text box */}
@@ -1507,9 +1507,9 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                       initial={{ opacity: 0, y: 50 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ type: 'spring', stiffness: 100, damping: 15, delay: 0.3 }}
-                      src="/dira-avatar.webp"
-                      alt="Agent DIRA"
-                      style={{ height: '100%', objectFit: 'contain' }}
+                      src="/Assets/Character/pak-sutrisno-portrait.png"
+                      alt="Pak Sutrisno"
+                      style={{ height: '100%', objectFit: 'contain', imageRendering: 'pixelated' }}
                     />
                     {/* "Go!" speech bubble removed */}
                   </div>

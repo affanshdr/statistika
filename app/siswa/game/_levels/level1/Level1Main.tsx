@@ -141,7 +141,10 @@ export default function Level1Main({
       {phase === 'exploration' && (
         <NPath
           isFD={false}
-          onComplete={() => setPhase('cutscene')}
+          onComplete={() => {
+            setPhase('formula')
+            setPregameStep('minmax')
+          }}
           demoMode={demoMode}
           demoStep={demoStep}
         />

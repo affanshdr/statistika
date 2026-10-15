@@ -104,7 +104,7 @@ export default function IntervalKelasPhase({
     setTimeout(() => {
       setAnimationFinished(true)
       setDiraExplMessage(
-        'Karena datanya bilangan bulat (diskrit), kita perlu memberi jarak 0.5 di setiap batas kelas agar saat digambar nanti, batang histogram-nya saling menempel (kontinu) tanpa celah kosong! 😉'
+        'Karena data screen time kita berupa bilangan bulat (diskrit), kita perlu memberi jarak tepi 0.5 di setiap batas kelas agar saat digambar nanti, seluruh batang histogram saling berimpit (kontinu) tanpa celah kosong!'
       )
       setShowDiraExpl(true)
     }, 900)

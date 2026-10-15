@@ -34,7 +34,7 @@ export default function VerificationScreen({ onCorrect, onWrong, guidedMode }: V
   const [isMobile, setIsMobile] = useState(false)
   const [showDira, setShowDira] = useState(true)
   const [diraMsg, setDiraMsg] = useState(
-    'Nah, lo udah liat kan datanya? Sekarang coba inget postingan viral tadi. Menurut data valid hasil analisis lo, klaim itu riil (benar) atau hoaks (misleading)? Spill jawabannya dong!'
+    'Nah, Stevunt, kamu sudah melihat bentuk histogram dan distribusinya. Sekarang bandingkan dengan postingan viral medsos tadi. Berdasarkan analisis datamu, apakah klaim tersebut Benar atau Hoaks / Misleading? Tetapkan kesimpulanmu!'
   )
 
   useEffect(() => {
@@ -55,8 +55,8 @@ export default function VerificationScreen({ onCorrect, onWrong, guidedMode }: V
       setIsWrong(true)
       setDiraMsg(
         guidedMode
-          ? `Hmm, coba deh lo liat mean = ${STATS.mean} jam. Masa iya itu di atas 8 jam? Gak riil banget kan? 🤔`
-          : 'Coba liat lagi mean yang lo dapet. Apa mayoritas siswa emang beneran habisin >8 jam? Gak kan?'
+          ? `Perhatikan kembali nilai rata-rata (mean) = ${STATS.mean} jam/hari. Nilai tersebut jelas di bawah 8 jam. Jadi klaim postingan viral bahwa rata-rata >8 jam tidak terbukti!`
+          : 'Perhatikan kembali nilai mean yang kamu dapatkan. Apakah mayoritas siswa memang menghabiskan >8 jam? Coba telaah kembali dengan kritis!'
       )
       setShowDira(true)
     }
