@@ -4,8 +4,10 @@ import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useGameStore } from '@/lib/store/gameStore'
+import { gameAudio } from '@/lib/utils/gameAudio'
 import DetektivBooklet from './game/_levels/level2/components/DetektivBooklet'
 import OrientationGuard from './game/_components/OrientationGuard'
+import AboutGameModal from '@/components/AboutGameModal'
 
 type Student = {
   id: string
@@ -21,35 +23,33 @@ type Student = {
 const LEVELS = [
   {
     id: 1,
+    code: 'CASE #01',
+    category: 'Pemusatan Data',
     icon: '📊',
-    thumbnail: '/thumbnails/level1.png',
-    title: 'Level 1 (The Viral Myth)',
-    desc: '',
-    tags: ['Distribusi Frekuensi', 'Histogram', 'Analisis Kritis'],
+    thumbnail: '/Assets/Building/Kelas.webp',
+    npcAvatar: '/Assets/Character/pak-sutrisno-avatar.png',
+    npcName: 'Pak Sutrisno',
+    title: 'Kasus 1: Misteri Jam Layar',
+    desc: 'Wawancarai 24 siswa di berbagai kelas & fasilitas sekolah bersama Pak Sutrisno untuk membuktikan klaim jam layar.',
+    tags: ['Mean', 'Median', 'Modus'],
     locked: false,
-    xpMax: 0,
-    locationName: '',
+    xpMax: 100,
+    locationName: 'Gedung & Kelas SMP',
   },
   {
     id: 2,
+    code: 'CASE #02',
+    category: 'Penyebaran Data',
     icon: '🎯',
-    thumbnail: '/thumbnails/level2.png',
-    title: 'Level 2 (Misi Pengukuran Lemparan)',
-    desc: 'Kumpulkan 15 data lemparan siswa bersama Pak Bambang di lapangan sekolah. Kuasai Jangkauan (Range), Kuartil (Q1, Q2, Q3), dan Jangkauan Kuartil (IQR).',
-    tags: ['Jangkauan (Range)', 'Kuartil (Q1-Q3)', 'IQR'],
+    thumbnail: '/Assets/Building/field/lapangan_saja.png',
+    npcAvatar: '/Assets/Building/Ruang VII-B/Pak Bambang.webp',
+    npcName: 'Pak Bambang',
+    title: 'Kasus 2: Pengukuran Lemparan',
+    desc: 'Kumpulkan 15 data lemparan bola siswa di lapangan bersama Pak Bambang untuk menganalisis sebaran jarak lemparan.',
+    tags: ['Jangkauan', 'Kuartil (Q1-Q3)', 'Simpangan Kuartil'],
     locked: false,
-    xpMax: 0,
-    locationName: 'Lapangan Sekolah',
-  },
-  {
-    id: 3,
-    icon: '🌡️',
-    title: 'Kasus: Anomali Cuaca',
-    desc: 'Segera hadir di stasiun meteorologi. Analisis tren & data deret waktu.',
-    tags: [],
-    locked: true,
-    xpMax: 0,
-    locationName: 'Stasiun BMKG',
+    xpMax: 100,
+    locationName: 'Lapangan Olahraga SMP',
   },
 ]
 
@@ -60,25 +60,46 @@ export default function SiswaPage() {
   const [isMobile, setIsMobile] = useState(false)
   const [showExitConfirm, setShowExitConfirm] = useState(false)
   const [showGreeting, setShowGreeting] = useState(false)
+  const [isMuted, setIsMuted] = useState(() => gameAudio.getMuted())
 
   // Corkboard and Detective elements tracking
   const boardRef = useRef<HTMLDivElement>(null)
   const cardRef1 = useRef<HTMLDivElement>(null)
   const cardRef2 = useRef<HTMLDivElement>(null)
-  const cardRef3 = useRef<HTMLDivElement>(null)
-  const cardRefs = [cardRef1, cardRef2, cardRef3]
+  const cardRefs = [cardRef1, cardRef2]
   const [cardPositions, setCardPositions] = useState<{ x: number; y: number }[]>([])
   const [hoveredCard, setHoveredCard] = useState<number | null>(null)
 
   // Navigation & Study Modals State
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [showBookletModal, setShowBookletModal] = useState(false)
+  const [showAboutModal, setShowAboutModal] = useState(false)
   const [showGatingModal, setShowGatingModal] = useState(false)
   const [gatingLevelId, setGatingLevelId] = useState<number | null>(null)
   const [gatingStep, setGatingStep] = useState<1 | 2>(1)
 
   // Game store variables
-  const { startLevel, resetLevel, completedLevels, completedPostTests = [] } = useGameStore()
+  const { startLevel, resetLevel, completedLevels, completedPostTests = [], levelStars: storeStars } = useGameStore()
+  const [localStars, setLocalStars] = useState<Record<number, number>>({})
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('stat_casecode_level_stars')
+      if (saved) {
+        setLocalStars(JSON.parse(saved))
+      }
+    } catch (e) {
+      console.error(e)
+    }
+  }, [])
+
+  const effectiveStars: Record<number, number> = { ...(localStars || {}), ...(storeStars || {}) }
+
+  useEffect(() => {
+    const unsub = gameAudio.subscribeMute(setIsMuted)
+    gameAudio.playBGM('menu')
+    return () => unsub()
+  }, [])
 
   useEffect(() => {
     const data = localStorage.getItem('student')
@@ -87,7 +108,7 @@ export default function SiswaPage() {
         id: 'detektif-guest',
         name: 'Detektif',
         nisn: '-',
-        classroom: { name: 'Kelas XII' }
+        classroom: { name: 'Kelas VII-A' }
       })
     } else {
       const s = JSON.parse(data) as Student
@@ -125,12 +146,11 @@ export default function SiswaPage() {
         const el = ref.current
         if (!el) return { x: 0, y: 0 }
         const rect = el.getBoundingClientRect()
-        // The camera frame is the left child of the card row layout, taking fixed width (140px on mobile, 170px on desktop)
-        const frameWidth = window.innerWidth < 768 ? 140 : 170;
         return {
-          x: rect.left + frameWidth / 2 - boardRect.left,
-          // Push pin top coordinate relative to the board container
-          y: rect.top - boardRect.top + (window.innerWidth < 768 ? -2 : -6),
+          // Center of the card where the push-pin is anchored
+          x: rect.left + rect.width / 2 - boardRect.left,
+          // Push-pin needle point coordinate relative to the board container
+          y: rect.top - boardRect.top + (window.innerWidth < 768 ? -3 : -5),
         }
       })
       setCardPositions(positions)
@@ -140,13 +160,13 @@ export default function SiswaPage() {
     window.addEventListener('resize', updatePositions)
 
     // Fallback timer to guarantee correct calculation after images/marquee/layouts render
-    const timer = setTimeout(updatePositions, 500)
+    const timer = setTimeout(updatePositions, 350)
 
     return () => {
       window.removeEventListener('resize', updatePositions)
       clearTimeout(timer)
     }
-  }, [student])
+  }, [student, isMobile])
 
   const getSaggingPath = (p1: { x: number; y: number }, p2: { x: number; y: number }, sag = 45) => {
     const midX = (p1.x + p2.x) / 2
@@ -185,6 +205,7 @@ export default function SiswaPage() {
   }
 
   const handlePlayLevel = async (levelId: number) => {
+    gameAudio.playClick()
     proceedToGame(levelId)
   }
 
@@ -199,6 +220,7 @@ export default function SiswaPage() {
   }
 
   const handleCloseGreeting = () => {
+    gameAudio.playClick()
     setShowGreeting(false)
   }
 
@@ -296,60 +318,85 @@ export default function SiswaPage() {
               display: 'flex',
               alignItems: 'center',
               gap: isMobile ? '6px' : '10px',
-              background: 'rgba(15, 32, 48, 0.82)',
+              background: 'linear-gradient(135deg, rgba(28, 18, 13, 0.92) 0%, rgba(44, 27, 18, 0.94) 100%)',
               backdropFilter: 'blur(12px)',
-              border: '1px solid rgba(14, 131, 136, 0.25)',
-              borderRadius: '12px',
+              border: '1.5px solid rgba(212, 175, 55, 0.45)',
+              borderRadius: '14px',
               padding: isMobile ? '6px 10px' : '8px 16px',
-              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)',
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(254, 240, 138, 0.2), 0 0 14px rgba(212, 175, 55, 0.15)',
             }}>
-              {/* Avatar Profile */}
+              {/* Avatar Profile (Detective Gold Badge) */}
               <div style={{
                 width: isMobile ? '28px' : '34px',
                 height: isMobile ? '28px' : '34px',
                 borderRadius: '50%',
-                background: 'linear-gradient(135deg, #0E8388 0%, #00ADB5 100%)',
+                background: 'linear-gradient(135deg, #B45309 0%, #D97706 50%, #F59E0B 100%)',
+                border: '1.5px solid #FDE68A',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 fontSize: isMobile ? '11px' : '14px',
-                fontWeight: 800,
+                fontWeight: 900,
                 color: '#FFFFFF',
-                boxShadow: '0 0 10px rgba(14, 131, 136, 0.3)',
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.4), 0 0 10px rgba(245, 158, 11, 0.35)',
                 cursor: 'pointer',
               }}
                 onClick={() => setShowGreeting(true)}
-                title="Halo!"
+                title="Halo Detektif!"
               >
                 {student.name.charAt(0).toUpperCase()}
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-                <span style={{ fontSize: isMobile ? '10px' : '11px', fontWeight: 800, color: '#F8FAFC', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: isMobile ? '80px' : '120px' }}>
+                <span style={{ fontSize: isMobile ? '10px' : '11.5px', fontWeight: 800, color: '#FEF3C7', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: isMobile ? '80px' : '120px', letterSpacing: '0.2px' }}>
                   {student.name.split(' ')[0]}
                 </span>
-                <span style={{ fontSize: '9px', color: '#94A3B8', whiteSpace: 'nowrap' }}>
-                  {student.classroom?.name}
+                <span style={{ fontSize: '9px', fontWeight: 700, color: '#FDE68A', opacity: 0.85, whiteSpace: 'nowrap' }}>
+                  {student.classroom?.name || 'Detektif SMP'}
                 </span>
               </div>
 
-
+              {/* Audio Mute/Unmute button */}
+              <button
+                onClick={() => gameAudio.toggleMute()}
+                title={isMuted ? 'Nyalakan Musik & Suara' : 'Matikan Musik & Suara'}
+                style={{
+                  background: isMuted ? 'rgba(239, 68, 68, 0.18)' : 'rgba(217, 119, 6, 0.18)',
+                  border: `1px solid ${isMuted ? 'rgba(239, 68, 68, 0.45)' : 'rgba(245, 158, 11, 0.45)'}`,
+                  borderRadius: '8px',
+                  color: isMuted ? '#FCA5A5' : '#FDE68A',
+                  padding: '4px 8px',
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'all 0.2s',
+                }}
+              >
+                <span>{isMuted ? '🔇' : '🔊'}</span>
+              </button>
 
               {/* Hamburger button */}
               <button
-                onClick={() => setIsSidebarOpen(true)}
+                onClick={() => {
+                  gameAudio.playClick()
+                  setIsSidebarOpen(true)
+                }}
                 style={{
-                  background: 'rgba(255, 255, 255, 0.05)',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
-                  borderRadius: '6px',
-                  color: '#FFF',
-                  padding: '4px 8px',
-                  fontSize: '10px',
+                  background: 'rgba(255, 248, 235, 0.08)',
+                  border: '1px solid rgba(212, 175, 55, 0.35)',
+                  borderRadius: '8px',
+                  color: '#FEF3C7',
+                  padding: '4px 9px',
+                  fontSize: '10.5px',
                   fontWeight: 700,
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '4px',
+                  transition: 'all 0.2s',
                 }}
               >
                 <span>☰</span> {!isMobile && "Menu"}
@@ -357,16 +404,21 @@ export default function SiswaPage() {
 
               {/* Exit button */}
               <button
-                onClick={() => setShowExitConfirm(true)}
+                onClick={() => {
+                  gameAudio.playClick()
+                  setShowExitConfirm(true)
+                }}
+                title="Keluar / Ganti Siswa"
                 style={{
-                  background: 'rgba(220, 38, 38, 0.1)',
-                  border: '1px solid rgba(220, 38, 38, 0.25)',
-                  borderRadius: '6px',
-                  color: '#EF4444',
+                  background: 'rgba(220, 38, 38, 0.16)',
+                  border: '1px solid rgba(220, 38, 38, 0.35)',
+                  borderRadius: '8px',
+                  color: '#F87171',
                   padding: '4px 8px',
-                  fontSize: '10px',
+                  fontSize: '11px',
                   fontWeight: 700,
                   cursor: 'pointer',
+                  transition: 'all 0.2s',
                 }}
               >
                 ✕
@@ -380,31 +432,39 @@ export default function SiswaPage() {
             top: isMobile ? '12px' : '20px',
             right: isMobile ? '12px' : '20px',
             zIndex: 100,
-            background: 'rgba(15, 32, 48, 0.82)',
+            background: 'linear-gradient(135deg, rgba(28, 18, 13, 0.92) 0%, rgba(44, 27, 18, 0.94) 100%)',
             backdropFilter: 'blur(12px)',
-            border: '1px solid rgba(14, 131, 136, 0.25)',
-            borderRadius: '12px',
-            padding: isMobile ? '6px 12px' : '8px 16px',
+            border: '1.5px solid rgba(212, 175, 55, 0.45)',
+            borderRadius: '14px',
+            padding: isMobile ? '6px 12px' : '8px 18px',
             textAlign: 'right',
-            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(254, 240, 138, 0.2), 0 0 14px rgba(212, 175, 55, 0.15)',
           }}>
             <div style={{
-              fontSize: isMobile ? '7px' : '8px',
-              color: '#00ADB5',
-              fontWeight: 800,
-              letterSpacing: '1.5px',
+              fontSize: isMobile ? '7.5px' : '9px',
+              color: '#FDE68A',
+              fontWeight: 900,
+              letterSpacing: '1.8px',
               textTransform: 'uppercase',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'flex-end',
+              gap: '4px',
             }}>
-              Misi Investigasi
+              <span>🔍</span>
+              <span>Papan Kasus Sekolah</span>
             </div>
             <h1 style={{
-              fontSize: isMobile ? '13px' : '18px',
+              fontFamily: "'Pixelify Sans', 'Outfit', sans-serif",
+              fontSize: isMobile ? '15px' : '20px',
               fontWeight: 900,
               color: '#FFFFFF',
-              margin: '2px 0 0',
-              letterSpacing: '-0.2px',
+              margin: '1px 0 0',
+              letterSpacing: '1.5px',
+              textTransform: 'uppercase',
+              textShadow: '2px 2px 0 #92400E, 3px 3px 0 #451A03, 0 0 14px rgba(245, 158, 11, 0.4)',
             }}>
-              Skeptikos
+              Casecode
             </h1>
           </div>
 
@@ -414,9 +474,9 @@ export default function SiswaPage() {
             style={{
               width: isMobile ? '98%' : '96%',
               maxWidth: '1200px',
-              height: isMobile ? '360px' : '520px',
+              height: isMobile ? '390px' : '545px',
               position: 'relative',
-              borderRadius: '8px',
+              borderRadius: '10px',
 
               // Beveled wooden frame borders
               border: isMobile ? '8px solid #5a3825' : '14px solid #5a3825',
@@ -428,7 +488,7 @@ export default function SiswaPage() {
               alignItems: 'center',
               justifyContent: 'center',
               overflow: 'hidden',
-              marginTop: isMobile ? '20px' : '30px',
+              marginTop: isMobile ? '20px' : '28px',
             }}
           >
             {/* SVG Corkboard Texture Fill & Vignette Spotlight Overlay */}
@@ -436,6 +496,36 @@ export default function SiswaPage() {
               <rect width="100%" height="100%" fill="url(#corkTexture)" />
               <rect width="100%" height="100%" fill="url(#boardSpotlight)" />
             </svg>
+
+            {/* Top Center Corkboard Label Plaque */}
+            <div style={{
+              position: 'absolute',
+              top: isMobile ? '8px' : '14px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              zIndex: 6,
+              background: 'linear-gradient(180deg, #3E2415 0%, #27150B 100%)',
+              border: '1.5px solid #B48C50',
+              borderRadius: '999px',
+              padding: isMobile ? '3px 12px' : '5px 18px',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.15)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              pointerEvents: 'none',
+              whiteSpace: 'nowrap',
+            }}>
+              <span style={{ fontSize: isMobile ? '10px' : '12px' }}>🕵️‍♂️</span>
+              <span style={{
+                fontSize: isMobile ? '8.5px' : '10.5px',
+                fontWeight: 800,
+                letterSpacing: '1.8px',
+                color: '#FDE68A',
+                textTransform: 'uppercase',
+              }}>
+                Papan Bukti & Kasus Statistika SMP
+              </span>
+            </div>
 
             {/* Warm spotlight highlight simulating a yellow desk lamp focused on the top-left */}
             <div style={{
@@ -447,8 +537,7 @@ export default function SiswaPage() {
               mixBlendMode: 'screen',
             }} />
 
-            {/* Red string connector layer - Disabled for now */}
-            {/*
+            {/* Red string detective connector layer */}
             {cardPositions.length >= 2 && (
               <svg className="red-string-layer" style={{
                 position: 'absolute',
@@ -456,59 +545,44 @@ export default function SiswaPage() {
                 width: '100%',
                 height: '100%',
                 pointerEvents: 'none',
-                zIndex: 5, // Rendered on top layer
+                zIndex: 4,
               }}>
-                {cardPositions[0] && cardPositions[1] && (
+                {cardPositions[0] && cardPositions[1] && cardPositions[0].x > 0 && cardPositions[1].x > 0 && (
                   <>
                     <path
-                      d={getSaggingPath(cardPositions[0], cardPositions[1], isMobile ? 25 : 50)}
-                      stroke="#B91C1C"
-                      strokeWidth="2"
+                      d={getSaggingPath(cardPositions[0], cardPositions[1], isMobile ? 22 : 42)}
+                      stroke="#DC2626"
+                      strokeWidth={isMobile ? "2" : "2.5"}
+                      strokeDasharray="none"
                       strokeLinecap="round"
                       fill="none"
-                      opacity="0.85"
-                      style={{ filter: 'drop-shadow(0px 2px 2px rgba(0,0,0,0.4))' }}
+                      opacity="0.88"
+                      style={{ filter: 'drop-shadow(0px 3px 3px rgba(0,0,0,0.45))' }}
                     />
-                    <circle cx={cardPositions[0].x} cy={cardPositions[0].y} r="4" fill="#7F1D1D" />
-                    <circle cx={cardPositions[1].x} cy={cardPositions[1].y} r="4" fill="#7F1D1D" />
-                  </>
-                )}
-                {cardPositions[1] && cardPositions[2] && (
-                  <>
-                    <path
-                      d={getSaggingPath(cardPositions[1], cardPositions[2], isMobile ? 25 : 50)}
-                      stroke="#B91C1C"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      fill="none"
-                      opacity="0.85"
-                      style={{ filter: 'drop-shadow(0px 2px 2px rgba(0,0,0,0.4))' }}
-                    />
-                    <circle cx={cardPositions[1].x} cy={cardPositions[1].y} r="4" fill="#7F1D1D" />
-                    <circle cx={cardPositions[2].x} cy={cardPositions[2].y} r="4" fill="#7F1D1D" />
+                    <circle cx={cardPositions[0].x} cy={cardPositions[0].y} r="3.5" fill="#7F1D1D" />
+                    <circle cx={cardPositions[1].x} cy={cardPositions[1].y} r="3.5" fill="#7F1D1D" />
                   </>
                 )}
               </svg>
             )}
-            */}
 
             {/* Level Cards Container */}
             <div className="cards-scroll-container" style={{
               width: '100%',
               overflowX: 'auto',
               overflowY: 'hidden',
-              padding: isMobile ? '24px 0' : '64px 0',
+              padding: isMobile ? '28px 0 16px' : '54px 0 36px',
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'center',
-              zIndex: 2,
+              zIndex: 5,
               flex: 1,
               minHeight: 0,
             }}>
               <div style={{
                 display: 'flex',
                 flexDirection: 'row',
-                gap: isMobile ? '24px' : '48px',
+                gap: isMobile ? '22px' : '56px',
                 padding: isMobile ? '8px 12px' : '12px 32px',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -518,17 +592,14 @@ export default function SiswaPage() {
                   const isCompleted = completedLevels.includes(level.id)
                   const isUnlocked = !level.locked
                   const isHovered = hoveredCard === level.id
-                  const rotation = level.id === 1 ? -2.5 : level.id === 2 ? 2 : -1
+                  const rotation = level.id === 1 ? -2.2 : level.id === 2 ? 1.8 : -1
 
                   // Custom vertical scattering offset to simulate pinned notes on corkboard
-                  const verticalOffset = level.id === 1 ? -28 : level.id === 2 ? 28 : -14;
-                  const mobileVerticalOffset = level.id === 1 ? -10 : level.id === 2 ? 10 : -5;
+                  const verticalOffset = level.id === 1 ? -16 : level.id === 2 ? 18 : -10;
+                  const mobileVerticalOffset = level.id === 1 ? -6 : level.id === 2 ? 8 : -4;
                   const currentOffset = isMobile ? mobileVerticalOffset : verticalOffset;
-                  // Base translation is static to anchor both frame and text labels consistently
                   const cardTransform = `translateY(${currentOffset}px)`;
-                  const accentColor = '#0e8388';
-                  const lockedColor = '#64748B';
-                  const frameAccent = isUnlocked ? accentColor : lockedColor;
+                  const categoryAccent = level.id === 1 ? '#0284C7' : '#D97706';
 
                   return (
                     <div
@@ -539,8 +610,8 @@ export default function SiswaPage() {
                       onMouseEnter={() => isUnlocked && setHoveredCard(level.id)}
                       onMouseLeave={() => setHoveredCard(null)}
                       style={{
-                        width: isMobile ? '180px' : '240px',
-                        height: isMobile ? '275px' : '355px',
+                        width: isMobile ? '210px' : '284px',
+                        height: isMobile ? '305px' : '405px',
                         margin: '0',
                         position: 'relative',
                         transform: isMobile
@@ -558,24 +629,20 @@ export default function SiswaPage() {
                       <div style={{
                         position: 'absolute',
                         inset: 0,
-                        background: isUnlocked ? '#FFFFFF' : '#F1F5F9', // Solid white background
-                        border: '1px solid rgba(0, 0, 0, 0.08)',
-                        borderRadius: '4px',
+                        background: isUnlocked ? '#FFFDF9' : '#F1F5F9',
+                        border: '1px solid rgba(140, 98, 57, 0.22)',
+                        borderRadius: '6px',
                         boxShadow: isHovered
-                          ? '0 12px 28px rgba(0,0,0,0.18)'
-                          : '0 4px 12px rgba(0,0,0,0.1)',
+                          ? '0 16px 32px rgba(0,0,0,0.32)'
+                          : '0 8px 18px rgba(0,0,0,0.22)',
                         transition: 'box-shadow 0.3s',
-                        filter: 'url(#tornEdge) url(#paperGrain)', // Apply torn edge & paper grain only to the background paper
+                        filter: 'url(#tornEdge) url(#paperGrain)',
                         zIndex: 1,
                       }}>
-                        {/* Viewfinder Corner Brackets (Warped/torn together with the paper) */}
-                        {/* Top-Left Corner */}
+                        {/* Viewfinder Corner Brackets */}
                         <div style={{ position: 'absolute', top: '-2px', left: '-2px', width: '12px', height: '12px', borderTop: `2.5px solid ${isUnlocked ? '#5C4033' : '#8C7A6B'}`, borderLeft: `2.5px solid ${isUnlocked ? '#5C4033' : '#8C7A6B'}`, borderTopLeftRadius: '3px', pointerEvents: 'none', zIndex: 2 }} />
-                        {/* Top-Right Corner */}
                         <div style={{ position: 'absolute', top: '-2px', right: '-2px', width: '12px', height: '12px', borderTop: `2.5px solid ${isUnlocked ? '#5C4033' : '#8C7A6B'}`, borderRight: `2.5px solid ${isUnlocked ? '#5C4033' : '#8C7A6B'}`, borderTopRightRadius: '3px', pointerEvents: 'none', zIndex: 2 }} />
-                        {/* Bottom-Left Corner */}
                         <div style={{ position: 'absolute', bottom: '-2px', left: '-2px', width: '12px', height: '12px', borderBottom: `2.5px solid ${isUnlocked ? '#5C4033' : '#8C7A6B'}`, borderLeft: `2.5px solid ${isUnlocked ? '#5C4033' : '#8C7A6B'}`, borderBottomLeftRadius: '3px', pointerEvents: 'none', zIndex: 2 }} />
-                        {/* Bottom-Right Corner */}
                         <div style={{ position: 'absolute', bottom: '-2px', right: '-2px', width: '12px', height: '12px', borderBottom: `2.5px solid ${isUnlocked ? '#5C4033' : '#8C7A6B'}`, borderRight: `2.5px solid ${isUnlocked ? '#5C4033' : '#8C7A6B'}`, borderBottomRightRadius: '3px', pointerEvents: 'none', zIndex: 2 }} />
                       </div>
 
@@ -603,37 +670,49 @@ export default function SiswaPage() {
                       <div style={{
                         position: 'absolute',
                         inset: 0,
-                        padding: isMobile ? '10px' : '14px',
+                        padding: isMobile ? '10px 11px 11px' : '14px 16px 15px',
                         display: 'flex',
                         flexDirection: 'column',
                         justifyContent: 'space-between',
                         zIndex: 5,
                       }}>
-                        {/* Lock Status indicator */}
+                        {/* Top Case File Header Bar */}
                         <div style={{
-                          position: 'absolute',
-                          top: isMobile ? '10px' : '14px',
-                          right: isMobile ? '10px' : '14px',
-                          zIndex: 12,
-                          height: '14px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          width: '100%',
+                          marginTop: '2px',
                         }}>
-                          {!isUnlocked && (
-                            <span style={{
-                              fontSize: isMobile ? '8.5px' : '10.5px',
-                              fontWeight: 800,
-                              color: '#EF4444',
-                              background: 'rgba(239, 68, 68, 0.1)',
-                              border: '1px solid rgba(239, 68, 68, 0.3)',
-                              padding: '2px 5px',
-                              borderRadius: '3px',
-                              textTransform: 'uppercase',
-                            }}>
-                              🔒 LOCK
-                            </span>
-                          )}
+                          <span style={{
+                            fontSize: isMobile ? '8px' : '9.5px',
+                            fontWeight: 900,
+                            fontFamily: 'monospace',
+                            color: '#FFFFFF',
+                            background: isUnlocked ? '#362014' : '#64748B',
+                            padding: '2px 7px',
+                            borderRadius: '4px',
+                            letterSpacing: '0.8px',
+                          }}>
+                            {level.code}
+                          </span>
+
+                          <span style={{
+                            fontSize: isMobile ? '8px' : '9.5px',
+                            fontWeight: 800,
+                            color: isUnlocked ? categoryAccent : '#64748B',
+                            background: isUnlocked ? `${categoryAccent}14` : 'rgba(100,116,139,0.1)',
+                            border: `1px solid ${isUnlocked ? `${categoryAccent}40` : 'rgba(100,116,139,0.25)'}`,
+                            padding: '2px 7px',
+                            borderRadius: '4px',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.5px',
+                          }}>
+                            {!isUnlocked ? '🔒 TERKUNCI' : level.category}
+                          </span>
                         </div>
 
-                        {/* Photo Viewport */}
+                        {/* Photo Viewport (Polaroid Frame) */}
                         <div style={{
                           display: 'flex',
                           justifyContent: 'center',
@@ -641,50 +720,136 @@ export default function SiswaPage() {
                           width: '100%',
                           marginTop: '4px',
                         }}>
-                          {level.thumbnail ? (
+                          <div style={{
+                            width: '100%',
+                            height: isMobile ? '88px' : '126px',
+                            borderRadius: '5px',
+                            overflow: 'hidden',
+                            border: '2px solid #E2D5C1',
+                            background: '#0F172A',
+                            zIndex: 2,
+                            position: 'relative',
+                            boxShadow: 'inset 0 0 10px rgba(0,0,0,0.25), 0 2px 6px rgba(0,0,0,0.12)',
+                          }}>
+                            <img
+                              src={level.thumbnail}
+                              alt={level.title}
+                              style={{
+                                width: '100%',
+                                height: '100%',
+                                objectFit: 'cover',
+                                filter: isUnlocked ? 'contrast(1.04)' : 'grayscale(100%) opacity(0.45)',
+                                transition: 'transform 0.35s ease',
+                                transform: isHovered ? 'scale(1.05)' : 'scale(1)',
+                              }}
+                            />
+
+                            {/* Subtle dark gradient at bottom of photo for location & mentor badge */}
                             <div style={{
-                              width: '100%',
-                              height: isMobile ? (isCompleted ? '60px' : '80px') : (isCompleted ? '95px' : '120px'),
-                              borderRadius: '4px',
-                              overflow: 'hidden',
-                              border: `1px solid rgba(0, 0, 0, 0.15)`,
-                              background: '#F1F5F9',
-                              zIndex: 2,
-                              position: 'relative',
-                              boxShadow: '0 2px 5px rgba(0,0,0,0.15)',
-                            }}>
-                              <img
-                                src={level.thumbnail}
-                                alt={level.title}
-                                style={{
-                                  width: '100%',
-                                  height: '100%',
-                                  objectFit: 'cover',
-                                  filter: isUnlocked ? 'none' : 'grayscale(100%) opacity(0.4)',
-                                }}
-                              />
-                            </div>
-                          ) : (
+                              position: 'absolute',
+                              inset: 'auto 0 0 0',
+                              height: '50%',
+                              background: 'linear-gradient(to top, rgba(15, 23, 42, 0.85) 0%, rgba(15, 23, 42, 0) 100%)',
+                              pointerEvents: 'none',
+                            }} />
+
+                            {/* Location & Mentor Overlay inside Photo */}
                             <div style={{
-                              width: '100%',
-                              height: isMobile ? (isCompleted ? '60px' : '80px') : (isCompleted ? '95px' : '120px'),
-                              borderRadius: '4px',
-                              background: isUnlocked
-                                ? 'rgba(0, 0, 0, 0.04)'
-                                : 'rgba(148, 163, 184, 0.1)',
-                              border: `1.5px solid ${isUnlocked ? '#5C4033' : '#8C7A6B'}`,
+                              position: 'absolute',
+                              bottom: '5px',
+                              left: '6px',
+                              right: '6px',
                               display: 'flex',
                               alignItems: 'center',
-                              justifyContent: 'center',
-                              fontSize: isMobile ? '24px' : '36px',
-                              zIndex: 2,
+                              justifyContent: 'space-between',
+                              gap: '4px',
+                              pointerEvents: 'none',
                             }}>
-                              {isUnlocked ? level.icon : '🔒'}
+                              <span style={{
+                                fontSize: isMobile ? '8px' : '9.5px',
+                                color: '#F8FAFC',
+                                fontWeight: 700,
+                                textShadow: '0 1px 3px rgba(0,0,0,0.9)',
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                              }}>
+                                📍 {level.locationName}
+                              </span>
+                              <span style={{
+                                fontSize: isMobile ? '7.5px' : '9px',
+                                color: '#FDE68A',
+                                background: 'rgba(15, 23, 42, 0.75)',
+                                border: '1px solid rgba(253, 230, 138, 0.35)',
+                                borderRadius: '999px',
+                                padding: '1px 6px',
+                                fontWeight: 700,
+                                whiteSpace: 'nowrap',
+                              }}>
+                                {level.npcName}
+                              </span>
                             </div>
-                          )}
+
+                            {/* Star Rating Badge on Photo (Top-Left) */}
+                            {(effectiveStars[level.id] || 0) > 0 && (
+                              <div
+                                data-testid={`card-stars-photo-${level.id}`}
+                                style={{
+                                  position: 'absolute',
+                                  top: '6px',
+                                  left: '6px',
+                                  background: 'rgba(15, 23, 42, 0.88)',
+                                  border: '1.5px solid rgba(245, 158, 11, 0.65)',
+                                  borderRadius: '4px',
+                                  padding: '2px 6px',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '2px',
+                                  boxShadow: '0 2px 8px rgba(0,0,0,0.45)',
+                                  zIndex: 3,
+                                }}
+                              >
+                                {[1, 2, 3].map((s) => (
+                                  <span
+                                    key={s}
+                                    style={{
+                                      fontSize: isMobile ? '10px' : '12px',
+                                      color: s <= (effectiveStars[level.id] || 0) ? '#F59E0B' : 'rgba(255,255,255,0.22)',
+                                      lineHeight: 1,
+                                      filter: s <= (effectiveStars[level.id] || 0) ? 'drop-shadow(0 1px 2px rgba(245, 158, 11, 0.6))' : 'none',
+                                    }}
+                                  >
+                                    ★
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+
+                            {/* Completed Case Stamp */}
+                            {isCompleted && (
+                              <div style={{
+                                position: 'absolute',
+                                top: '6px',
+                                right: '6px',
+                                background: 'rgba(5, 150, 105, 0.92)',
+                                border: '1.5px solid #A7F3D0',
+                                color: '#FFFFFF',
+                                fontSize: isMobile ? '7.5px' : '9px',
+                                fontWeight: 900,
+                                padding: '2px 6px',
+                                borderRadius: '4px',
+                                letterSpacing: '0.8px',
+                                transform: 'rotate(-4deg)',
+                                boxShadow: '0 2px 8px rgba(0,0,0,0.4)',
+                                textTransform: 'uppercase',
+                              }}>
+                                ✓ Terpecahkan
+                              </div>
+                            )}
+                          </div>
                         </div>
 
-                        {/* Polaroid Caption Area */}
+                        {/* Polaroid Caption & Brief Mission Summary */}
                         <div style={{
                           display: 'flex',
                           flexDirection: 'column',
@@ -693,44 +858,38 @@ export default function SiswaPage() {
                           width: '100%',
                           margin: '2px 0',
                         }}>
-                          <span style={{
-                            fontSize: isMobile ? '9px' : '11px',
-                            fontWeight: 900,
-                            fontFamily: 'monospace',
-                            color: isUnlocked ? '#5C4033' : '#8C7A6B',
-                            letterSpacing: '1px',
-                            textAlign: 'center',
-                            textTransform: 'uppercase',
-                          }}>
-                            GALLERY 0{level.id}
-                          </span>
-
                           <h3 style={{
                             fontFamily: 'var(--font-caveat), cursive',
-                            fontSize: isMobile ? '18px' : '23px',
+                            fontSize: isMobile ? '17.5px' : '22px',
                             fontWeight: 700,
                             color: isUnlocked ? '#1E293B' : '#64748B',
-                            margin: '2px 0',
+                            margin: '0 0 3px 0',
                             lineHeight: '1.15',
                             textAlign: 'center',
                           }}>
                             {level.title}
                           </h3>
 
-                          {level.locationName && (
-                            <span style={{
+                          {level.desc && (
+                            <p style={{
+                              margin: 0,
                               fontSize: isMobile ? '9px' : '11px',
-                              color: isUnlocked ? '#4B5563' : '#8290A6',
+                              color: isUnlocked ? '#475569' : '#94A3B8',
                               fontWeight: 600,
+                              lineHeight: 1.35,
                               textAlign: 'center',
+                              display: '-webkit-box',
+                              WebkitLineClamp: isMobile ? 2 : 3,
+                              WebkitBoxOrient: 'vertical',
+                              overflow: 'hidden',
                             }}>
-                              📍 {level.locationName}
-                            </span>
+                              {level.desc}
+                            </p>
                           )}
                         </div>
 
-                        {/* Case Badges */}
-                        {!isCompleted && isUnlocked && level.tags.length > 0 && (
+                        {/* Case Curriculum Tags */}
+                        {isUnlocked && level.tags.length > 0 && (
                           <div style={{
                             display: 'flex',
                             gap: '4px',
@@ -738,17 +897,17 @@ export default function SiswaPage() {
                             justifyContent: 'center',
                             margin: '2px 0',
                           }}>
-                            {level.tags.slice(0, 2).map(tag => (
+                            {level.tags.map(tag => (
                               <span
                                 key={tag}
                                 style={{
-                                  fontSize: isMobile ? '9px' : '10.5px',
-                                  background: 'rgba(14, 131, 136, 0.04)',
-                                  border: '1px solid rgba(14, 131, 136, 0.25)',
-                                  borderRadius: '3px',
-                                  padding: '2.5px 5px',
-                                  color: '#0A7E8C',
-                                  fontWeight: 700,
+                                  fontSize: isMobile ? '8px' : '9.5px',
+                                  background: level.id === 1 ? 'rgba(2, 132, 199, 0.08)' : 'rgba(217, 119, 6, 0.08)',
+                                  border: `1px solid ${level.id === 1 ? 'rgba(2, 132, 199, 0.3)' : 'rgba(217, 119, 6, 0.3)'}`,
+                                  borderRadius: '4px',
+                                  padding: '2px 6px',
+                                  color: level.id === 1 ? '#0369A1' : '#B45309',
+                                  fontWeight: 800,
                                   whiteSpace: 'nowrap',
                                 }}
                               >
@@ -758,66 +917,114 @@ export default function SiswaPage() {
                           </div>
                         )}
 
+                        {/* Earned Star Rating Pill (If completed & has stars) */}
+                        {(effectiveStars[level.id] || 0) > 0 && (
+                          <div
+                            data-testid={`level-${level.id}-stars`}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              gap: '4px',
+                              margin: '3px 0',
+                              padding: '2px 8px',
+                              background: 'linear-gradient(135deg, rgba(254, 243, 199, 0.95) 0%, rgba(253, 230, 138, 0.85) 100%)',
+                              border: '1px solid rgba(217, 119, 6, 0.45)',
+                              borderRadius: '20px',
+                              boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
+                            }}
+                          >
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+                              {[1, 2, 3].map((s) => (
+                                <span
+                                  key={s}
+                                  style={{
+                                    fontSize: isMobile ? '12px' : '15px',
+                                    color: s <= (effectiveStars[level.id] || 0) ? '#D97706' : '#D1D5DB',
+                                    filter: s <= (effectiveStars[level.id] || 0) ? 'drop-shadow(0 1px 2px rgba(217, 119, 6, 0.5))' : 'none',
+                                    lineHeight: 1,
+                                  }}
+                                >
+                                  ★
+                                </span>
+                              ))}
+                            </div>
+                            <span style={{
+                              fontSize: isMobile ? '8.5px' : '10px',
+                              fontWeight: 900,
+                              color: '#92400E',
+                              marginLeft: '2px',
+                              letterSpacing: '0.3px',
+                            }}>
+                              {effectiveStars[level.id] === 3
+                                ? '⭐⭐⭐ Detektif Elit'
+                                : effectiveStars[level.id] === 2
+                                ? '⭐⭐ Detektif Terlatih'
+                                : '⭐ Detektif Pemula'}
+                            </span>
+                          </div>
+                        )}
+
                         {/* Action Button */}
                         <div style={{ width: '100%', marginTop: '2px' }}>
                           {isUnlocked ? (
                             isCompleted ? (
-                                <div style={{ display: 'flex', gap: '4px', width: '100%' }}>
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation()
-                                      handlePlayLevel(level.id)
-                                    }}
-                                    style={{
-                                      flex: 1,
-                                      padding: '8px 2px',
-                                      borderRadius: '4px',
-                                      border: 'none',
-                                      background: '#B84A39',
-                                      color: '#FFFFFF',
-                                      fontSize: isMobile ? '9.5px' : '11px',
-                                      fontWeight: 800,
-                                      cursor: 'pointer',
-                                      boxShadow: '0 2px 6px rgba(184, 74, 57, 0.25)',
-                                      transition: 'all 0.2s',
-                                      display: 'flex',
-                                      alignItems: 'center',
-                                      justifyContent: 'center',
-                                      gap: '2px',
-                                    }}
-                                    onMouseEnter={e => e.currentTarget.style.filter = 'brightness(1.15)'}
-                                    onMouseLeave={e => e.currentTarget.style.filter = 'none'}
-                                  >
-                                    <span>▶ Main</span>
-                                  </button>
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation()
-                                      router.push(`/siswa/game/results/${level.id}`)
-                                    }}
-                                    style={{
-                                      flex: 1,
-                                      padding: '8px 2px',
-                                      borderRadius: '4px',
-                                      border: '1px solid rgba(14, 131, 136, 0.4)',
-                                      background: '#0E8388',
-                                      color: '#FFFFFF',
-                                      fontSize: isMobile ? '9.5px' : '11px',
-                                      fontWeight: 800,
-                                      cursor: 'pointer',
-                                      boxShadow: '0 2px 6px rgba(14, 131, 136, 0.25)',
-                                      transition: 'all 0.2s',
-                                      display: 'flex',
-                                      alignItems: 'center',
-                                      justifyContent: 'center',
-                                      gap: '2px',
-                                    }}
-                                    onMouseEnter={e => e.currentTarget.style.filter = 'brightness(1.15)'}
-                                    onMouseLeave={e => e.currentTarget.style.filter = 'none'}
-                                  >
-                                    <span>📊 Hasil</span>
-                                  </button>
-                                </div>
+                              <div style={{ display: 'flex', gap: '5px', width: '100%' }}>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    handlePlayLevel(level.id)
+                                  }}
+                                  style={{
+                                    flex: 1,
+                                    padding: isMobile ? '6px 4px' : '8px 4px',
+                                    borderRadius: '5px',
+                                    border: 'none',
+                                    background: '#B84A39',
+                                    color: '#FFFFFF',
+                                    fontSize: isMobile ? '9.5px' : '11px',
+                                    fontWeight: 800,
+                                    cursor: 'pointer',
+                                    boxShadow: '0 2px 6px rgba(184, 74, 57, 0.25)',
+                                    transition: 'all 0.2s',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    gap: '3px',
+                                  }}
+                                  onMouseEnter={e => e.currentTarget.style.filter = 'brightness(1.15)'}
+                                  onMouseLeave={e => e.currentTarget.style.filter = 'none'}
+                                >
+                                  <span>▶ Ulangi</span>
+                                </button>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    router.push(`/siswa/game/results/${level.id}`)
+                                  }}
+                                  style={{
+                                    flex: 1,
+                                    padding: isMobile ? '6px 4px' : '8px 4px',
+                                    borderRadius: '5px',
+                                    border: '1px solid rgba(14, 131, 136, 0.4)',
+                                    background: '#0E8388',
+                                    color: '#FFFFFF',
+                                    fontSize: isMobile ? '9.5px' : '11px',
+                                    fontWeight: 800,
+                                    cursor: 'pointer',
+                                    boxShadow: '0 2px 6px rgba(14, 131, 136, 0.25)',
+                                    transition: 'all 0.2s',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    gap: '3px',
+                                  }}
+                                  onMouseEnter={e => e.currentTarget.style.filter = 'brightness(1.15)'}
+                                  onMouseLeave={e => e.currentTarget.style.filter = 'none'}
+                                >
+                                  <span>📊 Hasil</span>
+                                </button>
+                              </div>
                             ) : (
                               <button
                                 onClick={(e) => {
@@ -826,20 +1033,20 @@ export default function SiswaPage() {
                                 }}
                                 style={{
                                   width: '100%',
-                                  padding: '8px',
-                                  borderRadius: '4px',
+                                  padding: isMobile ? '7px' : '9px',
+                                  borderRadius: '5px',
                                   border: 'none',
                                   background: '#B84A39',
                                   color: '#FFFFFF',
                                   fontSize: isMobile ? '10px' : '12px',
                                   fontWeight: 800,
                                   cursor: 'pointer',
-                                  boxShadow: '0 2px 8px rgba(184, 74, 57, 0.3)',
+                                  boxShadow: '0 3px 10px rgba(184, 74, 57, 0.32)',
                                   transition: 'all 0.2s',
                                   display: 'flex',
                                   alignItems: 'center',
                                   justifyContent: 'center',
-                                  gap: '3px',
+                                  gap: '5px',
                                 }}
                                 onMouseEnter={e => {
                                   e.currentTarget.style.filter = 'brightness(1.15)';
@@ -850,7 +1057,7 @@ export default function SiswaPage() {
                                   e.currentTarget.style.background = '#B84A39';
                                 }}
                               >
-                                <span>Investigasi</span>
+                                <span>🔍 Mulai Investigasi</span>
                                 <span>→</span>
                               </button>
                             )
@@ -858,10 +1065,10 @@ export default function SiswaPage() {
                             <div style={{
                               width: '100%',
                               padding: '8px',
-                              borderRadius: '4px',
-                              background: 'rgba(148, 163, 184, 0.05)',
-                              border: '1px solid rgba(148, 163, 184, 0.15)',
-                              color: 'rgba(0, 0, 0, 0.3)',
+                              borderRadius: '5px',
+                              background: 'rgba(148, 163, 184, 0.08)',
+                              border: '1px solid rgba(148, 163, 184, 0.2)',
+                              color: 'rgba(0, 0, 0, 0.35)',
                               fontSize: isMobile ? '10px' : '12px',
                               fontWeight: 700,
                               textAlign: 'center',
@@ -870,7 +1077,7 @@ export default function SiswaPage() {
                               justifyContent: 'center',
                               gap: '3px',
                             }}>
-                              <span>🔒 Locked</span>
+                              <span>🔒 Terkunci</span>
                             </div>
                           )}
                         </div>
@@ -1255,6 +1462,35 @@ export default function SiswaPage() {
                     </div>
                   </button>
 
+                  {/* Tentang Game & Kurikulum */}
+                  <button
+                    onClick={() => {
+                      setIsSidebarOpen(false)
+                      setShowAboutModal(true)
+                    }}
+                    className="sidebar-btn"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '16px',
+                      padding: '16px',
+                      borderRadius: '16px',
+                      background: 'rgba(14, 131, 136, 0.03)',
+                      border: '1px solid rgba(255,255,255,0.06)',
+                      color: '#F8FAFC',
+                      textAlign: 'left',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                      outline: 'none',
+                    }}
+                  >
+                    <span style={{ fontSize: '24px' }}>ℹ️</span>
+                    <div>
+                      <div style={{ fontWeight: 800, fontSize: '14px' }}>Tentang</div>
+                      <div style={{ fontSize: '11px', color: '#94A3B8', marginTop: '2px' }}>Peta Konsep & Informasi Materi</div>
+                    </div>
+                  </button>
+
 
 
 
@@ -1292,7 +1528,7 @@ export default function SiswaPage() {
 
                 {/* Sidebar Footer */}
                 <div style={{ fontSize: '11px', color: '#94A3B8', textAlign: 'center', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '16px' }}>
-                  Skeptikos v1.0.0
+                  Casecode v2.0 • SMP Negeri Edition
                 </div>
               </motion.div>
             </>
@@ -1485,6 +1721,12 @@ export default function SiswaPage() {
             </motion.div>
           </div>
         )}
+
+        {/* Tentang Game & Kurikulum Modal */}
+        <AboutGameModal
+          isOpen={showAboutModal}
+          onClose={() => setShowAboutModal(false)}
+        />
 
         {/* Scrollbar & Card Hover Styles */}
         <style>{`

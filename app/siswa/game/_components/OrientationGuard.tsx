@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 /**
@@ -27,7 +27,7 @@ export default function OrientationGuard({
   lockScreen?: boolean
 }) {
   const [isPortraitMobile, setIsPortraitMobile] = useState(false)
-  const [lockAttempted, setLockAttempted] = useState(false)
+  const lockAttempted = useRef(false)
 
   // Only true for actual touch devices — avoids false positives on small desktop windows
   const isMobileDevice = () => {
@@ -48,8 +48,8 @@ export default function OrientationGuard({
   const tryOrientationLock = useCallback(async () => {
     if (!lockScreen) return
     if (!isMobileDevice()) return
-    if (lockAttempted) return
-    setLockAttempted(true)
+    if (lockAttempted.current) return
+    lockAttempted.current = true
 
     try {
       // Request fullscreen on the root element
@@ -68,17 +68,18 @@ export default function OrientationGuard({
     } catch {
       // Silently fail — Layer 2 overlay will handle iOS / denied cases
     }
-  }, [lockScreen, lockAttempted])
+  }, [lockScreen])
 
   useEffect(() => {
     if (typeof window === 'undefined') return
 
     const checkOrientation = () => {
       if (!isMobileDevice()) {
-        setIsPortraitMobile(false)
+        setIsPortraitMobile(prev => (prev ? false : prev))
         return
       }
-      setIsPortraitMobile(isPortrait())
+      const portrait = isPortrait()
+      setIsPortraitMobile(prev => (prev === portrait ? prev : portrait))
     }
 
     // Initial check
@@ -114,7 +115,9 @@ export default function OrientationGuard({
               position: 'fixed',
               inset: 0,
               zIndex: 9999,
-              background: 'linear-gradient(135deg, #0B1E2C 0%, #0F2338 100%)',
+              background: 'linear-gradient(145deg, #2D1A12 0%, #1A0D08 100%)',
+              border: '6px solid #F59E0B',
+              boxShadow: 'inset 0 0 50px rgba(0, 0, 0, 0.65)',
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
@@ -124,6 +127,12 @@ export default function OrientationGuard({
               textAlign: 'center',
             }}
           >
+            {/* Corner Viewfinder Brackets */}
+            <div style={{ position: 'absolute', top: '16px', left: '16px', width: '24px', height: '24px', borderTop: '4px solid #F59E0B', borderLeft: '4px solid #F59E0B', pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', top: '16px', right: '16px', width: '24px', height: '24px', borderTop: '4px solid #F59E0B', borderRight: '4px solid #F59E0B', pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', bottom: '16px', left: '16px', width: '24px', height: '24px', borderBottom: '4px solid #F59E0B', borderLeft: '4px solid #F59E0B', pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', bottom: '16px', right: '16px', width: '24px', height: '24px', borderBottom: '4px solid #F59E0B', borderRight: '4px solid #F59E0B', pointerEvents: 'none' }} />
+
             {/* Animated Phone Rotation Icon */}
             <motion.div
               animate={{ rotate: [0, 90, 90, 0] }}
@@ -141,44 +150,46 @@ export default function OrientationGuard({
 
             {/* Arrow animation */}
             <motion.div
-              animate={{ x: [0, 12, 0], opacity: [0.5, 1, 0.5] }}
+              animate={{ x: [0, 12, 0], opacity: [0.6, 1, 0.6] }}
               transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
-              style={{ fontSize: '28px', color: '#00ADB5' }}
+              style={{ fontSize: '28px', color: '#FBBF24' }}
             >
               ↻
             </motion.div>
 
-            <div style={{ color: '#F8FAFC' }}>
+            <div>
               <div
                 style={{
                   fontSize: '11px',
-                  fontWeight: 800,
+                  fontWeight: 900,
                   letterSpacing: '3px',
-                  color: '#00ADB5',
+                  color: '#FBBF24',
                   marginBottom: '12px',
                   textTransform: 'uppercase',
                 }}
               >
-                Detektif, siap-siap!
+                Papan Petunjuk Detektif
               </div>
               <h2
                 style={{
                   fontSize: '22px',
                   fontWeight: 900,
+                  color: '#FDE047',
                   margin: '0 0 10px',
                   lineHeight: 1.3,
                 }}
               >
                 Putar HP-mu ke Posisi<br />
-                <span style={{ color: '#00ADB5' }}>Mendatar (Landscape)</span>
+                <span style={{ color: '#38BDF8' }}>Mendatar (Landscape)</span>
               </h2>
               <p
                 style={{
-                  fontSize: '13px',
-                  color: '#94A3B8',
+                  fontSize: '13.5px',
+                  fontWeight: 600,
+                  color: '#FEF3C7',
                   lineHeight: 1.6,
                   margin: 0,
-                  maxWidth: '260px',
+                  maxWidth: '280px',
                   marginInline: 'auto',
                 }}
               >
@@ -190,9 +201,9 @@ export default function OrientationGuard({
             <motion.div
               animate={{
                 boxShadow: [
-                  '0 0 0 0 rgba(14, 131, 136, 0)',
-                  '0 0 0 12px rgba(14, 131, 136, 0.15)',
-                  '0 0 0 0 rgba(14, 131, 136, 0)',
+                  '0 0 0 0 rgba(140, 98, 57, 0)',
+                  '0 0 0 14px rgba(140, 98, 57, 0.25)',
+                  '0 0 0 0 rgba(140, 98, 57, 0)',
                 ],
               }}
               transition={{ duration: 2, repeat: Infinity }}
@@ -200,7 +211,8 @@ export default function OrientationGuard({
                 width: '64px',
                 height: '64px',
                 borderRadius: '50%',
-                border: '2px solid rgba(14, 131, 136, 0.4)',
+                border: '2.5px solid #8C6239',
+                background: '#FFFDF7',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',

@@ -4,6 +4,8 @@ import React, { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import OrientationGuard from './siswa/game/_components/OrientationGuard'
+import AboutGameModal from '@/components/AboutGameModal'
+import { gameAudio } from '@/lib/utils/gameAudio'
 import './siswa/game/game.css'
 
 type Student = {
@@ -18,11 +20,19 @@ export default function RootHomePage() {
   const [studentName, setStudentName] = useState('')
   const [isStarting, setIsStarting] = useState(false)
   const [isNameModalOpen, setIsNameModalOpen] = useState(false)
+  const [isAboutModalOpen, setIsAboutModalOpen] = useState(false)
   const [loadProgress, setLoadProgress] = useState(0)
   const [loadStatus, setLoadStatus] = useState('Menginisialisasi Sistem...')
   const [initialLoadingProgress, setInitialLoadingProgress] = useState(0)
   const [isInitialLoading, setIsInitialLoading] = useState(true)
+  const [isMuted, setIsMuted] = useState(() => gameAudio.getMuted())
   const inputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    const unsub = gameAudio.subscribeMute(setIsMuted)
+    gameAudio.playBGM('menu')
+    return () => unsub()
+  }, [])
 
   useEffect(() => {
     // Check if student data exists in localStorage
@@ -71,6 +81,7 @@ export default function RootHomePage() {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Enter' && !isNameModalOpen && !isStarting) {
+        gameAudio.playClick()
         setIsNameModalOpen(true)
       }
     }
@@ -79,6 +90,7 @@ export default function RootHomePage() {
   }, [isNameModalOpen, isStarting])
 
   const handleOpenPlayModal = () => {
+    gameAudio.playClick()
     setIsNameModalOpen(true)
   }
 
@@ -86,6 +98,7 @@ export default function RootHomePage() {
     if (e) e.preventDefault()
     const finalName = studentName.trim()
     if (!finalName) return
+    gameAudio.playUnlockJingle()
     setIsStarting(true)
     setLoadProgress(0)
     setLoadStatus('Menginisialisasi Profil Siswa...')
@@ -100,8 +113,8 @@ export default function RootHomePage() {
     // Preload dashboard, classroom background & character assets so /siswa and game load instantly without delay
     const assetsToPreload = [
       '/backgr.webp',
-      '/thumbnails/level1.png',
-      '/thumbnails/level2.png',
+      '/Assets/Building/Kelas.webp',
+      '/Assets/Building/field/lapangan_saja.png',
       '/avatarbaru.webp',
       '/dira-avatar.webp',
       '/teen_silhouette.png',
@@ -249,6 +262,37 @@ export default function RootHomePage() {
           }}
         />
 
+        {/* Floating Audio Toggle Button (Top-Right) */}
+        <button
+          onClick={() => gameAudio.toggleMute()}
+          title={isMuted ? 'Nyalakan Musik & Suara' : 'Matikan Musik & Suara'}
+          style={{
+            position: 'absolute',
+            top: '20px',
+            right: '20px',
+            zIndex: 30,
+            background: isMuted ? 'rgba(239, 68, 68, 0.22)' : 'rgba(11, 23, 38, 0.85)',
+            backdropFilter: 'blur(8px)',
+            border: `2px solid ${isMuted ? '#EF4444' : '#00ADB5'}`,
+            borderRadius: '999px',
+            color: isMuted ? '#FCA5A5' : '#38BDF8',
+            padding: '8px 14px',
+            fontSize: '13px',
+            fontWeight: 800,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            boxShadow: '0 4px 16px rgba(0, 0, 0, 0.45)',
+            transition: 'all 0.2s',
+          }}
+        >
+          <span>{isMuted ? '🔇' : '🔊'}</span>
+          <span style={{ fontSize: '11px', letterSpacing: '0.5px' }}>
+            {isMuted ? 'Suara Mati' : 'Backsound'}
+          </span>
+        </button>
+
         {/* ── MAIN TITLE & PLAY BUTTON CONTAINER ── */}
         <motion.div
           initial={{ opacity: 0, y: 25, scale: 0.96 }}
@@ -265,38 +309,6 @@ export default function RootHomePage() {
             marginTop: '-20px',
           }}
         >
-          {/* School Life Badge */}
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 }}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '8px',
-              background: 'rgba(11, 23, 38, 0.85)',
-              backdropFilter: 'blur(8px)',
-              border: '2px solid #00ADB5',
-              borderRadius: '999px',
-              padding: '6px 20px',
-              marginBottom: '14px',
-              boxShadow: '0 4px 16px rgba(0, 173, 181, 0.35)',
-            }}
-          >
-            <span style={{ fontSize: '13px' }}>🏫</span>
-            <span
-              style={{
-                fontSize: '11px',
-                fontWeight: 800,
-                letterSpacing: '2.5px',
-                color: '#38BDF8',
-                textTransform: 'uppercase',
-              }}
-            >
-              SMP NEGERI • GAME EDUKASI STATISTIKA
-            </span>
-          </motion.div>
-
           {/* DYNAMIC PIXEL TITLE: CASECODE */}
           <h1
             style={{
@@ -368,6 +380,43 @@ export default function RootHomePage() {
             }}
           >
             <span style={{ fontSize: '20px' }}>▶</span> MAIN
+          </motion.button>
+
+          {/* About / Tentang Button */}
+          <motion.button
+            whileHover={{ scale: 1.05, y: -2 }}
+            whileTap={{ scale: 0.95, y: 2 }}
+            onClick={() => setIsAboutModalOpen(true)}
+            style={{
+              marginTop: '12px',
+              width: '100%',
+              maxWidth: '280px',
+              padding: '16px 36px',
+              fontSize: '22px',
+              fontFamily: "'Pixelify Sans', 'Press Start 2P', monospace, sans-serif",
+              fontWeight: 700,
+              letterSpacing: '3px',
+              color: '#FFFFFF',
+              background: 'linear-gradient(180deg, #0284C7 0%, #0369A1 50%, #075985 100%)',
+              border: '3px solid #38BDF8',
+              borderRadius: '16px',
+              cursor: 'pointer',
+              boxShadow: '0 6px 0 #082F49, 0 14px 28px rgba(0,0,0,0.6)',
+              textShadow: '2px 2px 0 #082F49',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '12px',
+              transition: 'filter 0.2s',
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.filter = 'brightness(1.15)'
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.filter = 'brightness(1)'
+            }}
+          >
+            TENTANG
           </motion.button>
 
           {/* Quick Key Hint */}
@@ -639,6 +688,12 @@ export default function RootHomePage() {
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* ── ABOUT GAME & CURRICULUM MODAL ── */}
+        <AboutGameModal
+          isOpen={isAboutModalOpen}
+          onClose={() => setIsAboutModalOpen(false)}
+        />
       </main>
     </OrientationGuard>
   )

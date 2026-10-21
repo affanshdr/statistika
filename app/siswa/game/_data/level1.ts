@@ -16,11 +16,11 @@ export const LEVEL1_DATASET_PRESETS = [
   [1, 2, 3, 3, 3, 3, 3, 3, 4, 4, 5, 5, 6, 6, 6, 6, 7, 7, 8, 8, 12, 15, 18, 18],
   // Varian 4: Sum = 138, Mean = 5.75
   [1, 1, 2, 2, 2, 2, 2, 3, 4, 4, 4, 4, 4, 4, 5, 5, 7, 7, 8, 8, 11, 14, 16, 18],
-  // Varian 5: Sum = 150, Mean = 6.25
-  [1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 6, 7, 8, 8, 9, 11, 15, 18, 18],
-  // Varian 6: Sum = 144, Mean = 6.0 (Variasi B)
-  [1, 1, 2, 2, 2, 2, 3, 3, 4, 4, 4, 5, 5, 5, 5, 6, 7, 7, 8, 8, 11, 13, 18, 18],
-  // Varian 7: Sum = 148, Mean = 6.17 (Baseline Klasik)
+  // Varian 5: Sum = 150, Mean = 6.25, Modus = 4 (muncul 5x)
+  [1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 4, 4, 5, 5, 5, 5, 7, 8, 8, 9, 11, 15, 18, 18],
+  // Varian 6: Sum = 144, Mean = 6.0 (Variasi B), Modus = 5 (muncul 5x)
+  [1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 5, 5, 7, 7, 8, 8, 11, 13, 18, 18],
+  // Varian 7: Sum = 148, Mean = 6.17 (Baseline Klasik), Modus = 3 (muncul 4x)
   [1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 7, 7, 8, 9, 11, 14, 16, 18],
 ]
 
@@ -43,14 +43,14 @@ export function generateRandomLevel1Data(): number[] {
   // Pilih salah satu varian acak yang telah terverifikasi
   const randomPreset = LEVEL1_DATASET_PRESETS[Math.floor(Math.random() * LEVEL1_DATASET_PRESETS.length)]
   const copy = [...randomPreset]
-  
-  // Acak urutan tampilan di dalam masing-masing kelas (VII-A: 5, VII-B: 7, VIII-A: 4, VIII-B: 8)
-  const a1 = copy.slice(0, 5).sort(() => Math.random() - 0.5)
-  const a2 = copy.slice(5, 12).sort(() => Math.random() - 0.5)
-  const b1 = copy.slice(12, 16).sort(() => Math.random() - 0.5)
-  const b2 = copy.slice(16, 24).sort(() => Math.random() - 0.5)
-  
-  return [...a1, ...a2, ...b1, ...b2]
+
+  // Fisher-Yates shuffle seluruh 24 data agar urutan awal benar-benar acak
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[copy[i], copy[j]] = [copy[j], copy[i]]
+  }
+
+  return copy
 }
 
 export function getLevel1Data(customDataset?: number[] | null) {

@@ -242,16 +242,16 @@ export default function BallThrowBowAim({
           width={120}
           height={26}
           rx={13}
-          fill="rgba(15, 23, 42, 0.92)"
-          stroke="#FBBF24"
+          fill="#FDF8EC"
+          stroke="#8C6239"
           strokeWidth={1.5}
-          filter="drop-shadow(0 4px 10px rgba(0,0,0,0.6))"
+          style={{ filter: 'drop-shadow(0 3px 6px rgba(0,0,0,0.25))' }}
         />
         <text
           x={0}
           y={-21}
           textAnchor="middle"
-          fill="#FFFFFF"
+          fill="#362014"
           fontSize={12}
           fontWeight="900"
           fontFamily="var(--font-ui, sans-serif)"
@@ -297,30 +297,37 @@ export default function BallThrowBowAim({
         style={{ overflow: 'visible', pointerEvents: 'auto' }}
       >
         <div style={{
-          background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.94) 0%, rgba(10, 15, 26, 0.96) 100%)',
-          borderRadius: '16px',
-          border: '1.5px solid #00ADB5',
-          padding: '12px 16px',
-          boxShadow: '0 8px 24px rgba(0, 0, 0, 0.7), 0 0 16px rgba(0, 173, 181, 0.25)',
+          background: 'linear-gradient(135deg, #FDF8EC 0%, #F5E8C7 100%)',
+          borderRadius: '18px',
+          border: '2.5px solid #8C6239',
+          padding: '14px 18px',
+          boxShadow: '0 12px 30px rgba(0, 0, 0, 0.45), inset 0 0 20px rgba(180, 140, 80, 0.2)',
           display: 'flex',
           flexDirection: 'column',
           gap: '8px',
-          color: '#F8FAFC',
+          color: '#362014',
+          position: 'relative',
           fontFamily: 'var(--font-ui, sans-serif)',
         }}>
+          {/* Viewfinder Corner Brackets */}
+          <div style={{ position: 'absolute', top: '6px', left: '6px', width: '10px', height: '10px', borderTop: '2px solid #8C6239', borderLeft: '2px solid #8C6239', pointerEvents: 'none' }} />
+          <div style={{ position: 'absolute', top: '6px', right: '6px', width: '10px', height: '10px', borderTop: '2px solid #8C6239', borderRight: '2px solid #8C6239', pointerEvents: 'none' }} />
+          <div style={{ position: 'absolute', bottom: '6px', left: '6px', width: '10px', height: '10px', borderBottom: '2px solid #8C6239', borderLeft: '2px solid #8C6239', pointerEvents: 'none' }} />
+          <div style={{ position: 'absolute', bottom: '6px', right: '6px', width: '10px', height: '10px', borderBottom: '2px solid #8C6239', borderRight: '2px solid #8C6239', pointerEvents: 'none' }} />
+
           {/* Header */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '12px', fontWeight: 900, color: '#38BDF8', letterSpacing: '0.5px' }}>
+            <span style={{ fontSize: '12px', fontWeight: 900, color: '#9A3412', letterSpacing: '0.5px' }}>
               🎯 {studentLabel} ({studentName})
             </span>
-            <span style={{ fontSize: '13px', fontWeight: 900, color: '#FBBF24', fontFamily: 'monospace' }}>
+            <span style={{ fontSize: '13px', fontWeight: 900, color: '#362014', fontFamily: 'monospace' }}>
               {estimatedDistance.toFixed(1)} m
             </span>
           </div>
 
           {/* Power Bar / Tension Slider */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '11px', fontWeight: 700, color: '#94A3B8', width: '42px' }}>Kekuatan</span>
+            <span style={{ fontSize: '11px', fontWeight: 800, color: '#6B4226', width: '48px' }}>Kekuatan</span>
             <input
               type="range"
               min={15}
@@ -330,19 +337,19 @@ export default function BallThrowBowAim({
               disabled={disabled}
               style={{
                 flex: 1,
-                accentColor: '#F59E0B',
+                accentColor: '#D97706',
                 cursor: 'pointer',
                 height: '6px',
               }}
             />
-            <span style={{ fontSize: '11px', fontWeight: 800, color: '#FBBF24', width: '32px', textAlign: 'right' }}>
+            <span style={{ fontSize: '11px', fontWeight: 900, color: '#B45309', width: '32px', textAlign: 'right' }}>
               {power}%
             </span>
           </div>
 
           {/* Angle / Direction Slider */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '11px', fontWeight: 700, color: '#94A3B8', width: '42px' }}>Sudut</span>
+            <span style={{ fontSize: '11px', fontWeight: 800, color: '#6B4226', width: '48px' }}>Sudut</span>
             <input
               type="range"
               min={-35}
@@ -352,12 +359,12 @@ export default function BallThrowBowAim({
               disabled={disabled}
               style={{
                 flex: 1,
-                accentColor: '#38BDF8',
+                accentColor: '#0E8388',
                 cursor: 'pointer',
                 height: '6px',
               }}
             />
-            <span style={{ fontSize: '11px', fontWeight: 800, color: '#38BDF8', width: '32px', textAlign: 'right' }}>
+            <span style={{ fontSize: '11px', fontWeight: 900, color: '#0369A1', width: '32px', textAlign: 'right' }}>
               {angleDeg > 0 ? `+${angleDeg}°` : `${angleDeg}°`}
             </span>
           </div>
@@ -367,21 +374,21 @@ export default function BallThrowBowAim({
             onClick={handleDirectThrow}
             disabled={disabled}
             style={{
-              marginTop: '2px',
+              marginTop: '4px',
               padding: '8px 14px',
-              background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
-              border: '1.5px solid #FDE68A',
+              background: 'linear-gradient(135deg, #0E8388 0%, #0284C7 100%)',
+              border: '1.5px solid rgba(255, 255, 255, 0.4)',
               borderRadius: '10px',
               color: '#FFFFFF',
               fontWeight: 900,
               fontSize: '13px',
-              letterSpacing: '1px',
+              letterSpacing: '0.5px',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               gap: '8px',
-              boxShadow: '0 4px 12px rgba(245, 158, 11, 0.45)',
+              boxShadow: '0 4px 14px rgba(14, 131, 136, 0.4)',
               transition: 'transform 0.1s',
             }}
             onMouseDown={e => (e.currentTarget.style.transform = 'scale(0.96)')}

@@ -31,6 +31,8 @@ export default function QuizModal({ door, isFD, onCorrect, onClose }: QuizModalP
   const [placedChoice, setPlacedChoice] = useState<number | string | null>(null)
   const [isCorrect, setIsCorrect] = useState(false)
   const [isWrong, setIsWrong] = useState(false)
+  const [isLocked, setIsLocked] = useState(false)
+  const [cooldownRemaining, setCooldownRemaining] = useState(0)
 
   useEffect(() => {
     if (door.choices) {
@@ -41,24 +43,46 @@ export default function QuizModal({ door, isFD, onCorrect, onClose }: QuizModalP
     setPlacedChoice(null)
     setIsCorrect(false)
     setIsWrong(false)
+    setIsLocked(false)
+    setCooldownRemaining(0)
     setWrongCount(0)
   }, [door])
 
   const handlePlaceAnswer = (val: number | string) => {
+    if (isLocked || isCorrect) return
     if (val === door.quizA) {
       setPlacedChoice(val)
       setIsCorrect(true)
       setIsWrong(false)
+      setIsLocked(false)
     } else {
       setPlacedChoice(val)
       setIsWrong(true)
       setIsCorrect(false)
+      setIsLocked(true)
       setShake(k => k + 1)
       setWrongCount(prev => prev + 1)
-      setTimeout(() => {
-        setPlacedChoice(null)
-        setIsWrong(false)
-      }, 800)
+
+      // Anti-spam 2-second cooldown penalty
+      setCooldownRemaining(2)
+      const timer = setInterval(() => {
+        setCooldownRemaining(prev => {
+          if (prev <= 1) {
+            clearInterval(timer)
+            setIsLocked(false)
+            setPlacedChoice(null)
+            setIsWrong(false)
+            // Reshuffle choices
+            if (door.choices) {
+              setChoices([...door.choices].sort(() => Math.random() - 0.5))
+            } else {
+              setChoices(generateAnswerPool(Number(door.quizA)))
+            }
+            return 0
+          }
+          return prev - 1
+        })
+      }, 1000)
     }
   }
 
@@ -71,51 +95,74 @@ export default function QuizModal({ door, isFD, onCorrect, onClose }: QuizModalP
   const isTextQuestion = typeof door.quizA === 'string'
 
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 500, background: 'rgba(8, 16, 26, 0.88)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+    <div style={{ position: 'fixed', inset: 0, zIndex: 500, background: 'rgba(20, 10, 5, 0.65)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
       <div style={{ display: 'flex', width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center' }}>
         <motion.div
           initial={{ opacity: 0, scale: 0.88, y: 18 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.88, y: 18 }}
           transition={{ type: 'spring', stiffness: 340, damping: 26 }}
-          className="astu-dialogue-card"
           style={{
             maxWidth: 440,
             width: '100%',
             maxHeight: 'calc(100vh - 40px)',
             overflowY: 'auto',
-            padding: '24px 22px',
+            position: 'relative',
+            background: 'linear-gradient(145deg, #2D1A12 0%, #170E08 100%)',
+            border: '2.5px solid #F59E0B',
+            borderRadius: '24px',
+            boxShadow: '0 20px 50px rgba(0, 0, 0, 0.65), inset 0 0 25px rgba(180, 140, 80, 0.25)',
+            padding: '26px 22px',
             display: 'flex',
             flexDirection: 'column',
-            gap: 16
+            gap: 16,
+            color: '#FEF3C7',
           }}
         >
-          {/* ASTU Retro Speaker Badge */}
+          {/* Decorative Viewfinder Brackets */}
+          <div style={{ position: 'absolute', top: '10px', left: '10px', width: '14px', height: '14px', borderTop: '3px solid #F59E0B', borderLeft: '3px solid #F59E0B', borderRadius: '3px 0 0 0' }} />
+          <div style={{ position: 'absolute', top: '10px', right: '10px', width: '14px', height: '14px', borderTop: '3px solid #F59E0B', borderRight: '3px solid #F59E0B', borderRadius: '0 3px 0 0' }} />
+          <div style={{ position: 'absolute', bottom: '10px', left: '10px', width: '14px', height: '14px', borderBottom: '3px solid #F59E0B', borderLeft: '3px solid #F59E0B', borderRadius: '0 0 0 3px' }} />
+          <div style={{ position: 'absolute', bottom: '10px', right: '10px', width: '14px', height: '14px', borderBottom: '3px solid #F59E0B', borderRight: '3px solid #F59E0B', borderRadius: '0 0 3px 0' }} />
+
+          {/* Header Badge */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-              <span className="astu-name-badge">
+              <span style={{
+                background: 'rgba(255, 255, 255, 0.06)',
+                border: '1.5px solid #F59E0B',
+                borderRadius: '999px',
+                padding: '3px 12px',
+                fontSize: '12px',
+                fontWeight: 900,
+                color: '#FEF3C7',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.06)',
+              }}>
                 <span>📍</span> {door.label}
               </span>
             </div>
-            <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--astu-gold-bright)', fontFamily: 'var(--font-data)', whiteSpace: 'nowrap' }}>
+            <span style={{ fontSize: 11, fontWeight: 900, color: '#FBBF24', letterSpacing: '1px', textTransform: 'uppercase' }}>
               AKSES TERKUNCI
             </span>
           </div>
 
-          <p style={{ margin: 0, fontSize: 14, fontWeight: 600, color: 'var(--text-secondary)', lineHeight: 1.55 }}>
+          <p style={{ margin: 0, fontSize: 14, fontWeight: 600, color: '#FEF3C7', lineHeight: 1.55 }}>
             Di dalam pintu ini tersimpan sampel data investigasi. Jawab tantangan berikut untuk membuka kunci:
           </p>
 
           {/* Question Box */}
           <div style={{
-            background: 'rgba(245, 158, 11, 0.08)',
-            border: '1.5px solid rgba(245, 158, 11, 0.4)',
-            borderRadius: 12,
+            background: 'rgba(255, 255, 255, 0.06)',
+            border: '1.5px solid #F59E0B',
+            borderRadius: 14,
             padding: '16px 14px',
             textAlign: 'center',
-            boxShadow: 'inset 0 0 15px rgba(245, 158, 11, 0.05)'
+            boxShadow: 'inset 0 2px 5px rgba(0, 0, 0, 0.2), 0 2px 6px rgba(0,0,0,0.2)'
           }}>
-            <div style={{ fontSize: door.quizQ.length > 50 ? 14 : 15, fontWeight: 900, color: '#FFFFFF', lineHeight: 1.5 }}>
+            <div style={{ fontSize: door.quizQ.length > 50 ? 14 : 15.5, fontWeight: 900, color: '#FFFFFF', lineHeight: 1.5, textShadow: '0 1px 3px rgba(0,0,0,0.8)' }}>
               &quot;{door.quizQ}&quot;
             </div>
           </div>
@@ -127,41 +174,101 @@ export default function QuizModal({ door, isFD, onCorrect, onClose }: QuizModalP
               return (
                 <button
                   key={idx}
+                  disabled={isCorrect || isLocked}
                   onClick={() => handlePlaceAnswer(c)}
                   style={{
                     padding: '12px 10px',
                     borderRadius: 10,
                     background: selected
-                      ? (isCorrect ? 'linear-gradient(135deg, #10B981, #059669)' : 'linear-gradient(135deg, #EF4444, #DC2626)')
-                      : 'rgba(20, 42, 66, 0.85)',
+                      ? (isCorrect ? 'linear-gradient(135deg, #059669, #047857)' : 'linear-gradient(135deg, #DC2626, #B91C1C)')
+                      : 'rgba(255, 255, 255, 0.08)',
                     border: selected
-                      ? (isCorrect ? '2px solid #6EE7B7' : '2px solid #FCA5A5')
-                      : '1.5px solid rgba(0, 173, 181, 0.35)',
-                    color: '#FFFFFF',
-                    fontWeight: 800,
-                    fontSize: 13.5,
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease',
-                    boxShadow: selected ? '0 4px 14px rgba(0,0,0,0.5)' : 'none',
+                      ? (isCorrect ? '2px solid #10B981' : '2px solid #EF4444')
+                      : '1.5px solid #F59E0B',
+                    color: selected ? '#FFFFFF' : '#FEF3C7',
+                    fontWeight: 900,
+                    fontSize: 14,
+                    cursor: (isCorrect || isLocked) ? 'not-allowed' : 'pointer',
+                    opacity: isLocked ? 0.6 : 1,
+                    transition: 'all 0.15s ease',
+                    boxShadow: selected ? '0 4px 14px rgba(0,0,0,0.3)' : '0 2px 5px rgba(0,0,0,0.2)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: 6
                   }}
                 >
-                  <span style={{ color: 'var(--astu-gold-bright)', fontSize: 11 }}>►</span>
+                  <span style={{ color: selected ? '#FFFFFF' : '#FBBF24', fontSize: 11 }}>►</span>
                   <span>{c}</span>
                 </button>
               )
             })}
           </div>
 
+          {/* Cooldown Timer Bar when Locked (Anti-Spam) */}
+          <AnimatePresence>
+            {isLocked && (
+              <motion.div
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  background: 'rgba(239, 68, 68, 0.25)',
+                  border: '1.5px solid #EF4444',
+                  borderRadius: '8px',
+                  padding: '8px 12px',
+                  color: '#FECACA',
+                  fontSize: '12px',
+                  fontWeight: 800,
+                  textAlign: 'center'
+                }}
+              >
+                <span>⏳ Waktu berpikir: <strong style={{ color: '#FCD34D' }}>{cooldownRemaining}s</strong></span>
+                <span style={{ color: '#FEF3C7', opacity: 0.9 }}>• Hitung kembali dengan teliti!</span>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           {/* Action Footer */}
           <div style={{ display: 'flex', gap: 12, marginTop: 6 }}>
-            <button className="astu-menu-btn" style={{ flex: 1 }} onClick={onClose}>
+            <button
+              onClick={onClose}
+              style={{
+                flex: 1,
+                padding: '12px 14px',
+                borderRadius: 12,
+                border: '1.5px solid #F59E0B',
+                background: '#3D2419',
+                color: '#FEF3C7',
+                fontSize: 13,
+                fontWeight: 800,
+                cursor: 'pointer',
+              }}
+            >
               ✕ Batal
             </button>
-            <button className="astu-menu-btn astu-menu-btn-gold" style={{ flex: 1.5, opacity: isCorrect ? 1 : 0.5, cursor: isCorrect ? 'pointer' : 'not-allowed' }} disabled={!isCorrect} onClick={submit}>
+            <button
+              disabled={!isCorrect}
+              onClick={submit}
+              style={{
+                flex: 1.5,
+                padding: '12px 16px',
+                borderRadius: 12,
+                border: isCorrect ? '1.5px solid #34D399' : '1.5px solid rgba(245, 158, 11, 0.25)',
+                background: isCorrect
+                  ? 'linear-gradient(135deg, #059669 0%, #0284C7 100%)'
+                  : 'rgba(255, 255, 255, 0.05)',
+                color: isCorrect ? '#FFFFFF' : '#A8A29E',
+                fontSize: 13.5,
+                fontWeight: 900,
+                cursor: isCorrect ? 'pointer' : 'not-allowed',
+                boxShadow: isCorrect ? '0 6px 20px rgba(5, 150, 105, 0.4)' : 'none',
+              }}
+            >
               🚪 Masuk Ruangan ►
             </button>
           </div>

@@ -5,15 +5,13 @@ export const WORLD_VH = 650
 
 // Ground boundary line nodes for the outdoor hallway
 export const RED_LINE_POINTS = [
-  { x: 70, y: 500 },
-  { x: 135, y: 460 },
-  { x: 250, y: 375 },
-  { x: 420, y: 335 },
-  { x: 625, y: 335 },
-  { x: 820, y: 335 },
-  { x: 985, y: 375 },
-  { x: 1100, y: 460 },
-  { x: 1165, y: 500 },
+  { x: 50, y: 335 },
+  { x: 166, y: 335 },
+  { x: 390, y: 335 },
+  { x: 618, y: 335 },
+  { x: 839, y: 335 },
+  { x: 1064, y: 335 },
+  { x: 1185, y: 335 },
 ] as const
 
 // Position coordinates for Pak Sutrisno NPC in the hallway / lapangan
@@ -59,10 +57,71 @@ export function checkClassroomWalkable(x: number, y: number): boolean {
   return true
 }
 
+export function checkRuangGuruWalkable(x: number, y: number): boolean {
+  // Left wall / doorway and right plant limits
+  if (x < 100 || x > 860) return false
+  // Left entryway near door (x: 100-240)
+  if (x < 240) {
+    if (y < 530 || y > 625) return false
+    return true
+  }
+  // Foreground open walkable floor in front of desks and rolling chairs
+  if (y < 575 || y > 625) return false
+  return true
+}
+
 // Facility Courtyard Walkable Bounds logic (Kantin, Lab Komputer, Perpustakaan)
 export function checkFacilityWalkable(x: number, y: number): boolean {
   if (x < 60 || x > WORLD_VW - 60) return false
   if (y < 380 || y > 640) return false
+  return true
+}
+
+// Lab Komputer Walkable & Obstacle Bounds logic (Central Aisle & Open Lower Floor, Blocking Desks)
+export function checkLabKomputerWalkable(x: number, y: number): boolean {
+  // Outer boundaries
+  if (x < 60 || x > 1150) return false
+  if (y > 630) return false
+
+  // Doorway spawn area (bottom right) vs right wall
+  if (y < 510 && x > 1020) return false
+
+  // 1. Left computer desks cluster (tables, PCs, chairs)
+  if (x >= 60 && x <= 530 && y <= 510) return false
+
+  // 2. Right computer desks cluster (tables, PCs, chairs)
+  if (x >= 715 && x <= 1020 && y <= 510) return false
+
+  // 3. Front wall / whiteboard in central aisle
+  if (y < 405) return false
+
+  return true
+}
+
+// Perpustakaan Walkable & Obstacle Bounds logic (Central Aisle & Open Lower Floor, Blocking Reading Table & Bookshelves)
+export function checkPerpustakaanWalkable(x: number, y: number): boolean {
+  // Outer boundaries
+  if (x < 60 || x > 1150) return false
+  if (y > 630) return false
+
+  // Entrance door area vs right wall
+  if (y < 510 && x > 1070) return false
+
+  // 1. Left reading table with wooden chairs (x: 200 - 620)
+  if (x >= 200 && x <= 620 && y <= 490) return false
+
+  // 2. Left window wall base / radiator
+  if (x < 200 && y <= 480) return false
+
+  // 3. Librarian desk counter with PC (x: 750 - 915)
+  if (x >= 750 && x <= 915 && y <= 490) return false
+
+  // 4. Right tall bookshelves (x: 915 - 1070)
+  if (x >= 915 && x <= 1070 && y <= 500) return false
+
+  // 5. Back wall / shelf in central aisle
+  if (y < 415) return false
+
   return true
 }
 
@@ -154,20 +213,12 @@ export const LEVEL1_MAPS: Record<string, MapConfig> = {
       preserveAspectRatio: 'xMidYMid meet'
     },
     character: {
-      baseSize: 340,
+      baseSize: 375,
       depthFactor: 60,
       speed: 3.8
     },
-    spawn: { x: 1050, y: 510 },
-    teacher: {
-      name: 'Bu Widya (Pustakawati)',
-      x: 617,
-      y: 415,
-      size: 130,
-      hotspotW: 140,
-      hotspotH: 260
-    },
-    isWalkable: (x, y) => checkClassroomWalkable(x, y)
+    spawn: { x: 940, y: 540 },
+    isWalkable: (x, y) => checkPerpustakaanWalkable(x, y)
   },
 
   LabKomputer: {
@@ -182,20 +233,12 @@ export const LEVEL1_MAPS: Record<string, MapConfig> = {
       preserveAspectRatio: 'xMidYMid meet'
     },
     character: {
-      baseSize: 340,
+      baseSize: 375,
       depthFactor: 60,
       speed: 3.8
     },
-    spawn: { x: 1050, y: 510 },
-    teacher: {
-      name: 'Pak Hendra (Guru Informatika)',
-      x: 617,
-      y: 415,
-      size: 130,
-      hotspotW: 140,
-      hotspotH: 260
-    },
-    isWalkable: (x, y) => checkClassroomWalkable(x, y)
+    spawn: { x: 940, y: 550 },
+    isWalkable: (x, y) => checkLabKomputerWalkable(x, y)
   },
 
   A1: {
@@ -212,14 +255,14 @@ export const LEVEL1_MAPS: Record<string, MapConfig> = {
     character: {
       baseSize: 340,
       depthFactor: 60,
-      speed: 3.8 // Precise movement inside classroom
+      speed: 3.8
     },
-    spawn: { x: 1050, y: 510 },
+    spawn: { x: 940, y: 540 },
     teacher: {
       name: 'Bu Sari (Wali Kelas VII-A)',
-      x: 617,
-      y: 415,
-      size: 250,
+      x: 620,
+      y: 380,
+      size: 280,
       spriteUrl: '/Assets/Building/Ruang VII-A/Bu Sari.webp',
       cols: 5,
       rows: 5,
@@ -249,12 +292,12 @@ export const LEVEL1_MAPS: Record<string, MapConfig> = {
       depthFactor: 60,
       speed: 3.8
     },
-    spawn: { x: 1050, y: 510 },
+    spawn: { x: 920, y: 540 },
     teacher: {
       name: 'Pak Bambang (Wali Kelas VII-B)',
-      x: 617,
-      y: 415,
-      size: 130,
+      x: 680,
+      y: 350,
+      size: 120,
       aspectRatio: 2.068,
       spriteUrl: '/Assets/Building/Ruang VII-B/Pak Bambang.png',
       cols: 1,
@@ -282,12 +325,13 @@ export const LEVEL1_MAPS: Record<string, MapConfig> = {
       depthFactor: 60,
       speed: 3.8
     },
-    spawn: { x: 1050, y: 510 },
+    spawn: { x: 260, y: 595 },
     teacher: {
       name: 'Pak Sutrisno (Guru BK & Kedisiplinan)',
-      x: 580,
-      y: 415,
-      size: 240,
+      x: 520,
+      y: 595,
+      size: 260,
+      flipX: true,
       spriteUrl: '/Assets/Character/pak Sutrisno-iso_idle_right-trimmed.png',
       cols: 5,
       rows: 4,
@@ -297,7 +341,7 @@ export const LEVEL1_MAPS: Record<string, MapConfig> = {
       hotspotW: 140,
       hotspotH: 260
     },
-    isWalkable: (x, y) => checkClassroomWalkable(x, y)
+    isWalkable: (x, y) => checkRuangGuruWalkable(x, y)
   },
 
   B1: {
@@ -316,12 +360,12 @@ export const LEVEL1_MAPS: Record<string, MapConfig> = {
       depthFactor: 60,
       speed: 3.8
     },
-    spawn: { x: 1050, y: 510 },
+    spawn: { x: 930, y: 540 },
     teacher: {
       name: 'Bu Rina (Wali Kelas VIII-A)',
-      x: 617,
-      y: 415,
-      size: 130,
+      x: 620,
+      y: 348,
+      size: 120,
       aspectRatio: 2.068,
       spriteUrl: '/Assets/Building/Ruang VIII-A/Bu Rina.webp',
       cols: 1,
@@ -349,12 +393,12 @@ export const LEVEL1_MAPS: Record<string, MapConfig> = {
       depthFactor: 60,
       speed: 3.8
     },
-    spawn: { x: 1050, y: 510 },
+    spawn: { x: 930, y: 540 },
     teacher: {
       name: 'Pak Setiawan (Wali Kelas VIII-B)',
-      x: 617,
-      y: 415,
-      size: 130,
+      x: 615,
+      y: 345,
+      size: 120,
       aspectRatio: 2.068,
       spriteUrl: '/Assets/Building/Ruang VIII-B/Pak Setiawan.webp',
       cols: 1,
@@ -382,7 +426,7 @@ export const LEVEL1_MAPS: Record<string, MapConfig> = {
       depthFactor: 60,
       speed: 3.8
     },
-    spawn: { x: 1050, y: 510 },
+    spawn: { x: 930, y: 540 },
     teacher: {
       name: 'Pak Joko (Wali Kelas IX)',
       x: 617,

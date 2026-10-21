@@ -18,6 +18,7 @@ export interface GameStore {
   xp: number
   lives: number
   badges: string[]
+  levelStars: Record<number, number>
 
   // Team matching
   teamId: string | null
@@ -43,6 +44,7 @@ export interface GameStore {
   completeLevel: (levelId: number) => void
   completePostTest: (levelId: number) => void
   unlockBadge: (badgeId: string) => void
+  setLevelStars: (levelId: number, stars: number) => void
   setVerdict: (verdict: string) => void
   incrementMistake: () => void
   resetLevel: () => void
@@ -60,6 +62,7 @@ export const useGameStore = create<GameStore>()(
       xp: 0,
       lives: 3,
       badges: [],
+      levelStars: {},
       level1Dataset: null,
       currentStep: 0,
       answers: {},
@@ -117,6 +120,19 @@ export const useGameStore = create<GameStore>()(
             : [...state.badges, badgeId],
         })),
 
+      setLevelStars: (levelId, stars) =>
+        set((state) => {
+          const updated = { ...state.levelStars, [levelId]: stars }
+          if (typeof window !== 'undefined') {
+            try {
+              localStorage.setItem('stat_casecode_level_stars', JSON.stringify(updated))
+            } catch (e) {
+              console.error(e)
+            }
+          }
+          return { levelStars: updated }
+        }),
+
       setVerdict: (verdict) => set({ verdictAnswer: verdict }),
 
       incrementMistake: () =>
@@ -129,7 +145,7 @@ export const useGameStore = create<GameStore>()(
           lives: 3,
           timeRemaining: 600,
           isCompleted: false,
-          sessionStartTime: null,
+          sessionStartTime: Date.now(),
           xpBreakdown: [],
           mistakeCount: 0,
           verdictAnswer: null,
@@ -159,6 +175,7 @@ export const useGameStore = create<GameStore>()(
         teamId: state.teamId,
         xp: state.xp,
         badges: state.badges,
+        levelStars: state.levelStars,
         currentLevel: state.currentLevel,
         completedLevels: state.completedLevels,
         completedPostTests: state.completedPostTests,

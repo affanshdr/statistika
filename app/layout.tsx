@@ -20,8 +20,8 @@ const caveat = Caveat({
 });
 
 export const metadata: Metadata = {
-  title: "Skeptikos — Platform Game Edukasi Statistika",
-  description: "Platform game edukasi statistika adaptif untuk SMA. Jadi detektif data, ungkap klaim viral menggunakan histogram, distribusi frekuensi, dan analisis kritis berbasis gaya kognitif FI/FD.",
+  title: "Casecode — Game Edukasi Statistika SMP",
+  description: "Media pembelajaran interaktif statistika SMP berbasis investigasi kasus lingkungan sekolah. Pecahkan misteri data menggunakan ukuran pemusatan dan penyebaran data.",
 };
 
 export const viewport: Viewport = {

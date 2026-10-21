@@ -99,26 +99,18 @@ export default function GamePreloader({
           position: 'fixed',
           inset: 0,
           zIndex: 9999,
-          background: 'radial-gradient(circle at center, #0B1E2C 0%, #04070A 100%)',
+          background: 'rgba(20, 10, 5, 0.65)',
+          backdropFilter: 'blur(10px)',
+          WebkitBackdropFilter: 'blur(10px)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
           padding: '24px',
-          color: '#F8FAFC',
+          color: '#362014',
           userSelect: 'none',
         }}
       >
-        {/* Animated Cyber Grid Overlay Background */}
-        <div style={{
-          position: 'absolute',
-          inset: 0,
-          backgroundImage: 'radial-gradient(rgba(0, 173, 181, 0.12) 1px, transparent 1px)',
-          backgroundSize: '24px 24px',
-          pointerEvents: 'none',
-          opacity: 0.7,
-        }} />
-
         {/* Center Card Container */}
         <motion.div
           initial={{ scale: 0.92, y: 15 }}
@@ -126,10 +118,9 @@ export default function GamePreloader({
           style={{
             maxWidth: 500,
             width: '100%',
-            background: 'rgba(15, 35, 56, 0.92)',
-            backdropFilter: 'blur(16px)',
-            border: '1.5px solid rgba(0, 173, 181, 0.4)',
-            boxShadow: '0 12px 40px rgba(0, 0, 0, 0.7), 0 0 30px rgba(0, 173, 181, 0.25)',
+            background: 'linear-gradient(145deg, #2D1A12 0%, #1A0D08 100%)',
+            border: '2.5px solid #F59E0B',
+            boxShadow: '0 20px 50px rgba(0, 0, 0, 0.8), inset 0 0 25px rgba(251, 191, 36, 0.25)',
             borderRadius: 24,
             padding: '32px 28px',
             display: 'flex',
@@ -141,6 +132,12 @@ export default function GamePreloader({
             zIndex: 10,
           }}
         >
+          {/* Viewfinder Corner Brackets */}
+          <div style={{ position: 'absolute', top: '10px', left: '10px', width: '16px', height: '16px', borderTop: '3px solid #F59E0B', borderLeft: '3px solid #F59E0B', borderRadius: '3px 0 0 0', pointerEvents: 'none' }} />
+          <div style={{ position: 'absolute', top: '10px', right: '10px', width: '16px', height: '16px', borderTop: '3px solid #F59E0B', borderRight: '3px solid #F59E0B', borderRadius: '0 3px 0 0', pointerEvents: 'none' }} />
+          <div style={{ position: 'absolute', bottom: '10px', left: '10px', width: '16px', height: '16px', borderBottom: '3px solid #F59E0B', borderLeft: '3px solid #F59E0B', borderRadius: '0 0 0 3px', pointerEvents: 'none' }} />
+          <div style={{ position: 'absolute', bottom: '10px', right: '10px', width: '16px', height: '16px', borderBottom: '3px solid #F59E0B', borderRight: '3px solid #F59E0B', borderRadius: '0 0 3px 0', pointerEvents: 'none' }} />
+
           {/* Animated Icon Header */}
           <motion.div
             animate={{ scale: [1, 1.08, 1], rotate: [0, 3, -3, 0] }}
@@ -149,9 +146,9 @@ export default function GamePreloader({
               width: 64,
               height: 64,
               borderRadius: '50%',
-              background: 'linear-gradient(135deg, rgba(0, 173, 181, 0.2) 0%, rgba(56, 189, 248, 0.2) 100%)',
-              border: '2px solid #00ADB5',
-              boxShadow: '0 0 20px rgba(0, 173, 181, 0.4)',
+              background: 'linear-gradient(135deg, #3D2419 0%, #2D1A12 100%)',
+              border: '2.5px solid #F59E0B',
+              boxShadow: '0 4px 15px rgba(0, 0, 0, 0.4)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -163,10 +160,10 @@ export default function GamePreloader({
 
           {/* Title & Subtitle */}
           <div>
-            <div style={{ fontSize: 10.5, fontWeight: 900, color: '#00ADB5', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: 4 }}>
+            <div style={{ fontSize: 10.5, fontWeight: 900, color: '#FBBF24', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: 4 }}>
               {title}
             </div>
-            <h2 style={{ margin: 0, fontSize: 19, fontWeight: 900, color: '#FFFFFF', letterSpacing: '0.3px' }}>
+            <h2 style={{ margin: 0, fontSize: 19, fontWeight: 900, color: '#FDE047', letterSpacing: '0.3px' }}>
               {subtitle}
             </h2>
           </div>
@@ -174,27 +171,27 @@ export default function GamePreloader({
           {/* Loading Progress Bar Container */}
           <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 8 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 11.5, fontWeight: 800 }}>
-              <span style={{ color: '#94A3B8' }}>{statusText}</span>
-              <span style={{ color: '#38BDF8', fontFamily: 'monospace', fontWeight: 900 }}>{progress}%</span>
+              <span style={{ color: '#FEF3C7' }}>{statusText}</span>
+              <span style={{ color: '#FBBF24', fontFamily: 'monospace', fontWeight: 900 }}>{progress}%</span>
             </div>
 
             {/* Progress Track */}
             <div style={{
               width: '100%',
               height: 12,
-              background: 'rgba(4, 7, 10, 0.75)',
-              border: '1px solid rgba(0, 173, 181, 0.3)',
+              background: '#1A0D08',
+              border: '1.5px solid #F59E0B',
               borderRadius: 8,
               padding: 2,
               overflow: 'hidden',
-              boxShadow: 'inset 0 2px 6px rgba(0, 0, 0, 0.6)',
+              boxShadow: 'inset 0 1px 3px rgba(0, 0, 0, 0.5)',
             }}>
               <motion.div
                 style={{
                   height: '100%',
                   borderRadius: 6,
-                  background: 'linear-gradient(90deg, #00ADB5 0%, #38BDF8 50%, #34D399 100%)',
-                  boxShadow: '0 0 12px rgba(0, 173, 181, 0.7)',
+                  background: 'linear-gradient(90deg, #F59E0B 0%, #FBBF24 100%)',
+                  boxShadow: '0 0 10px rgba(245, 158, 11, 0.5)',
                   width: `${progress}%`,
                 }}
                 transition={{ ease: 'easeOut', duration: 0.1 }}
@@ -205,15 +202,16 @@ export default function GamePreloader({
           {/* Trivia / Tips Box */}
           <div style={{
             width: '100%',
-            background: 'rgba(4, 7, 10, 0.55)',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
+            background: 'rgba(255, 255, 255, 0.06)',
+            border: '1.5px solid #F59E0B',
             borderRadius: 14,
             padding: '12px 14px',
             fontSize: 12,
-            color: '#CBD5E1',
+            color: '#FEF3C7',
             lineHeight: 1.55,
             textAlign: 'center',
             fontWeight: 600,
+            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
           }}>
             {triviaText}
           </div>

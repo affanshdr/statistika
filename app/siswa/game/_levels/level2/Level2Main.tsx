@@ -891,16 +891,16 @@ export default function Level2Main({
         <button
           onClick={() => setCameraZoom(prev => (prev === 'fit' ? 'focus' : 'fit'))}
           style={{
-            background: 'rgba(11, 30, 44, 0.9)',
+            background: 'linear-gradient(135deg, #FDF8EC 0%, #F5E8C7 100%)',
             backdropFilter: 'blur(12px)',
-            border: '1.5px solid rgba(245, 158, 11, 0.5)',
+            border: '1.5px solid #8C6239',
             borderRadius: '12px',
-            color: '#FCD34D',
+            color: '#362014',
             cursor: 'pointer',
             padding: '6px 14px',
             fontSize: '12px',
-            fontWeight: 800,
-            boxShadow: '0 4px 16px rgba(0, 0, 0, 0.5)',
+            fontWeight: 900,
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.25)',
             transition: 'all 0.2s',
           }}
         >
@@ -948,8 +948,8 @@ export default function Level2Main({
             />
             {/* Range midpoint badge */}
             <g transform={`translate(${(minFlagCoord.x + maxFlagCoord.x) / 2}, ${(minFlagCoord.y + maxFlagCoord.y) / 2 - 16})`}>
-              <rect x={-65} y={-14} width={130} height={26} rx={13} fill="rgba(15, 23, 42, 0.94)" stroke="#EF4444" strokeWidth={2} />
-              <text x={0} y={4} textAnchor="middle" fill="#FFFFFF" fontSize={12} fontWeight="900" fontFamily="var(--font-ui)">
+              <rect x={-65} y={-14} width={130} height={26} rx={13} fill="#FDF8EC" stroke="#8C6239" strokeWidth={2} style={{ filter: 'drop-shadow(0 3px 6px rgba(0,0,0,0.25))' }} />
+              <text x={0} y={4} textAnchor="middle" fill="#362014" fontSize={12} fontWeight="900" fontFamily="var(--font-ui)">
                 📏 R: {stats ? formatDistance(stats.range) : ''} m
               </text>
             </g>
@@ -1037,18 +1037,18 @@ export default function Level2Main({
               width={210}
               height={44}
               rx={12}
-              fill="rgba(15, 23, 42, 0.96)"
-              stroke="#F59E0B"
+              fill="#FDF8EC"
+              stroke="#8C6239"
               strokeWidth={2}
-              filter="drop-shadow(0 6px 16px rgba(245, 158, 11, 0.5))"
+              filter="drop-shadow(0 4px 12px rgba(0, 0, 0, 0.35))"
             />
             <polygon
               points={`${PAK_BAMBANG_POS.x - 10},${PAK_BAMBANG_POS.y - 166} ${PAK_BAMBANG_POS.x + 10},${PAK_BAMBANG_POS.y - 166} ${PAK_BAMBANG_POS.x},${PAK_BAMBANG_POS.y - 156}`}
-              fill="rgba(15, 23, 42, 0.96)"
-              stroke="#F59E0B"
+              fill="#FDF8EC"
+              stroke="#8C6239"
               strokeWidth={1}
             />
-            <text x={PAK_BAMBANG_POS.x} y={PAK_BAMBANG_POS.y - 183} textAnchor="middle" fill="#FCD34D" fontSize={13} fontWeight="900" fontFamily="var(--font-ui)">
+            <text x={PAK_BAMBANG_POS.x} y={PAK_BAMBANG_POS.y - 183} textAnchor="middle" fill="#362014" fontSize={13} fontWeight="900" fontFamily="var(--font-ui)">
               💬 Klik / [ E ] untuk Bicara
             </text>
           </g>
@@ -1146,16 +1146,16 @@ export default function Level2Main({
               transform: 'translateX(-50%)',
               zIndex: 600,
               padding: '10px 24px',
-              borderRadius: '14px',
-              border: '1.5px solid #F59E0B',
-              boxShadow: '0 8px 24px rgba(0,0,0,0.6), 0 0 15px rgba(245, 158, 11, 0.4)',
-              background: 'rgba(15, 23, 42, 0.95)',
+              borderRadius: '16px',
+              border: '2px solid #8C6239',
+              boxShadow: '0 10px 30px rgba(0,0,0,0.35)',
+              background: 'linear-gradient(135deg, #FDF8EC 0%, #F5E8C7 100%)',
               backdropFilter: 'blur(8px)',
               maxWidth: '520px',
               textAlign: 'center',
             }}
           >
-            <p style={{ margin: 0, fontSize: '13px', color: '#F8FAFC', fontWeight: 700 }}>{feedbackMsg}</p>
+            <p style={{ margin: 0, fontSize: '13px', color: '#362014', fontWeight: 800 }}>{feedbackMsg}</p>
           </motion.div>
         )}
       </AnimatePresence>
@@ -1175,35 +1175,42 @@ export default function Level2Main({
               zIndex: 500,
               width: '90%',
               maxWidth: '720px',
-              background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.96) 0%, rgba(10, 15, 26, 0.98) 100%)',
-              borderRadius: '20px',
-              border: '2px solid #F59E0B',
-              padding: '20px 24px',
-              boxShadow: '0 12px 36px rgba(0,0,0,0.8), 0 0 20px rgba(245, 158, 11, 0.3)',
-              color: '#FFFFFF',
+              background: 'linear-gradient(135deg, #FDF8EC 0%, #F5E8C7 100%)',
+              borderRadius: '24px',
+              border: '2.5px solid #8C6239',
+              padding: '22px 26px',
+              boxShadow: '0 20px 50px rgba(0,0,0,0.65), inset 0 0 25px rgba(180, 140, 80, 0.25)',
+              color: '#362014',
             }}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-              <span style={{ fontSize: '14px', fontWeight: 900, color: '#FCD34D' }}>
+            {/* Corner brackets */}
+            <div style={{ position: 'absolute', top: 8, left: 8, width: 14, height: 14, borderTop: '3px solid #8C6239', borderLeft: '3px solid #8C6239', pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', top: 8, right: 8, width: 14, height: 14, borderTop: '3px solid #8C6239', borderRight: '3px solid #8C6239', pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', bottom: 8, left: 8, width: 14, height: 14, borderBottom: '3px solid #8C6239', borderLeft: '3px solid #8C6239', pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', bottom: 8, right: 8, width: 14, height: 14, borderBottom: '3px solid #8C6239', borderRight: '3px solid #8C6239', pointerEvents: 'none' }} />
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+              <span style={{ fontSize: '13px', fontWeight: 900, color: '#9A3412', letterSpacing: '1px', textTransform: 'uppercase' }}>
                 {currentDialog.speakerName}
               </span>
               <button
                 onClick={handleDialogNext}
                 style={{
-                  background: '#F59E0B',
-                  border: 'none',
+                  background: 'linear-gradient(135deg, #0E8388 0%, #0284C7 100%)',
+                  border: '1.5px solid rgba(255, 255, 255, 0.4)',
                   borderRadius: '8px',
-                  color: '#000000',
+                  color: '#FFFFFF',
                   fontWeight: 900,
                   fontSize: '11px',
-                  padding: '4px 12px',
+                  padding: '5px 14px',
                   cursor: 'pointer',
+                  boxShadow: '0 2px 8px rgba(14, 131, 136, 0.3)',
                 }}
               >
                 Lanjut ▶
               </button>
             </div>
-            <p style={{ margin: 0, fontSize: '14.5px', lineHeight: 1.6, color: '#E2E8F0' }}>
+            <p style={{ margin: 0, fontSize: '14.5px', lineHeight: 1.65, color: '#362014', fontWeight: 650 }}>
               <Typewriter text={currentDialog.text} />
             </p>
           </motion.div>
@@ -1224,42 +1231,64 @@ export default function Level2Main({
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              background: 'rgba(0, 0, 0, 0.75)',
+              background: 'rgba(20, 10, 5, 0.65)',
               backdropFilter: 'blur(8px)',
               padding: '16px',
             }}
           >
             <div style={{
-              background: 'linear-gradient(135deg, #0F172A 0%, #1E293B 100%)',
+              position: 'relative',
+              background: 'linear-gradient(135deg, #FDF8EC 0%, #F5E8C7 100%)',
               borderRadius: '24px',
-              border: '2px solid #00ADB5',
-              padding: '28px 32px',
+              border: '2.5px solid #8C6239',
+              padding: '32px 36px',
               maxWidth: '560px',
               width: '100%',
-              boxShadow: '0 20px 50px rgba(0,0,0,0.8), 0 0 30px rgba(0, 173, 181, 0.3)',
-              color: '#FFFFFF',
+              boxShadow: '0 20px 50px rgba(0,0,0,0.65), inset 0 0 25px rgba(180, 140, 80, 0.25)',
+              color: '#362014',
               textAlign: 'center',
             }}>
-              <div style={{ fontSize: '48px', marginBottom: '10px' }}>🤖</div>
-              <h2 style={{ fontSize: '20px', fontWeight: 900, color: '#38BDF8', margin: '0 0 10px' }}>
-                Instruksi Misi dari DiRA
+              {/* Corner brackets */}
+              <div style={{ position: 'absolute', top: 10, left: 10, width: 14, height: 14, borderTop: '3px solid #8C6239', borderLeft: '3px solid #8C6239', pointerEvents: 'none' }} />
+              <div style={{ position: 'absolute', top: 10, right: 10, width: 14, height: 14, borderTop: '3px solid #8C6239', borderRight: '3px solid #8C6239', pointerEvents: 'none' }} />
+              <div style={{ position: 'absolute', bottom: 10, left: 10, width: 14, height: 14, borderBottom: '3px solid #8C6239', borderLeft: '3px solid #8C6239', pointerEvents: 'none' }} />
+              <div style={{ position: 'absolute', bottom: 10, right: 10, width: 14, height: 14, borderBottom: '3px solid #8C6239', borderRight: '3px solid #8C6239', pointerEvents: 'none' }} />
+
+              <div style={{ fontSize: '48px', marginBottom: '8px' }}>🤖</div>
+              <div style={{ fontSize: '11px', fontWeight: 900, letterSpacing: '2px', color: '#9A3412', textTransform: 'uppercase', marginBottom: '6px' }}>
+                INSTRUKSI MISI DARI DIRA
+              </div>
+              <h2 style={{ fontSize: '20px', fontWeight: 900, color: '#362014', margin: '0 0 14px' }}>
+                Uji Ketangkasan Lemparan Bola
               </h2>
-              <p style={{ fontSize: '14px', lineHeight: 1.65, color: '#CBD5E1', margin: '0 0 24px' }}>
+              <div style={{
+                background: '#FFFDF7',
+                border: '1.5px solid #B48C50',
+                borderRadius: '16px',
+                padding: '18px 20px',
+                fontSize: '14px',
+                lineHeight: 1.7,
+                color: '#362014',
+                fontWeight: 600,
+                textAlign: 'left',
+                margin: '0 0 24px',
+                boxShadow: 'inset 0 2px 5px rgba(140, 98, 57, 0.08)',
+              }}>
                 {DIRA_BRIEFING.text}
-              </p>
+              </div>
               <button
                 onClick={handleGatherStudents}
                 style={{
                   width: '100%',
                   padding: '14px',
-                  borderRadius: '12px',
-                  background: 'linear-gradient(135deg, #00ADB5 0%, #0284C7 100%)',
-                  border: 'none',
+                  borderRadius: '14px',
+                  background: 'linear-gradient(135deg, #0E8388 0%, #0284C7 100%)',
+                  border: '1.5px solid rgba(255, 255, 255, 0.4)',
                   color: '#FFFFFF',
                   fontWeight: 900,
                   fontSize: '15px',
                   cursor: 'pointer',
-                  boxShadow: '0 6px 20px rgba(0, 173, 181, 0.4)',
+                  boxShadow: '0 6px 20px rgba(14, 131, 136, 0.4)',
                 }}
               >
                 SIAP, KUMPULKAN SISWA DI LAPANGAN! ▶
@@ -1283,20 +1312,20 @@ export default function Level2Main({
         }}>
           {/* Zona Siswa Waiting List */}
           <div style={{
-            background: 'rgba(15, 23, 42, 0.94)',
-            borderRadius: '14px',
-            border: '1.5px solid #F59E0B',
-            padding: '12px',
-            boxShadow: '0 8px 24px rgba(0,0,0,0.6)',
-            color: '#FFFFFF',
+            background: 'linear-gradient(135deg, #FDF8EC 0%, #F5E8C7 100%)',
+            borderRadius: '16px',
+            border: '2px solid #8C6239',
+            padding: '14px',
+            boxShadow: '0 10px 30px rgba(0,0,0,0.25)',
+            color: '#362014',
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-              <span style={{ fontSize: '11px', fontWeight: 900, color: '#FCD34D', letterSpacing: '0.5px' }}>
+              <span style={{ fontSize: '11px', fontWeight: 900, color: '#9A3412', letterSpacing: '0.5px' }}>
                 🏫 ZONA SISWA ({session.measuredCount}/{TOTAL_STUDENTS})
               </span>
             </div>
 
-            <div style={{ maxHeight: '180px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            <div style={{ maxHeight: '180px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '5px' }}>
               {session.students.map(student => {
                 const isMeasured = student.measured
                 const isActive = student.studentId === activeStudentId
@@ -1309,18 +1338,18 @@ export default function Level2Main({
                       display: 'flex',
                       justifyContent: 'space-between',
                       alignItems: 'center',
-                      padding: '5px 8px',
-                      borderRadius: '6px',
-                      background: isActive ? 'rgba(245, 158, 11, 0.25)' : isMeasured ? 'rgba(16, 185, 129, 0.15)' : 'rgba(255, 255, 255, 0.06)',
-                      border: `1px solid ${isActive ? '#F59E0B' : isMeasured ? '#10B981' : 'transparent'}`,
-                      color: '#FFFFFF',
+                      padding: '6px 10px',
+                      borderRadius: '8px',
+                      background: isActive ? '#FEF3C7' : isMeasured ? '#ECFDF5' : '#FFFDF7',
+                      border: `1.5px solid ${isActive ? '#D97706' : isMeasured ? '#10B981' : '#B48C50'}`,
+                      color: '#362014',
                       fontSize: '11px',
-                      fontWeight: 700,
+                      fontWeight: 800,
                       cursor: isMeasured || activeStudentId !== null ? 'default' : 'pointer',
                     }}
                   >
                     <span>{student.studentLabel}</span>
-                    <span style={{ color: isMeasured ? '#10B981' : '#FCD34D' }}>
+                    <span style={{ color: isMeasured ? '#059669' : isActive ? '#D97706' : '#0284C7', fontWeight: 900 }}>
                       {isMeasured ? `${formatDistance(student.distance)}m ✓` : isActive ? 'Membidik 🏹' : 'Panggil ▶'}
                     </span>
                   </button>
@@ -1333,15 +1362,15 @@ export default function Level2Main({
               <button
                 onClick={handleSimulateRemaining}
                 style={{
-                  marginTop: '8px',
+                  marginTop: '10px',
                   width: '100%',
-                  padding: '6px',
-                  borderRadius: '6px',
-                  background: 'rgba(56, 189, 248, 0.15)',
-                  border: '1px solid #38BDF8',
-                  color: '#38BDF8',
+                  padding: '7px',
+                  borderRadius: '8px',
+                  background: '#FFFDF7',
+                  border: '1.5px solid #0E8388',
+                  color: '#0E8388',
                   fontSize: '10.5px',
-                  fontWeight: 800,
+                  fontWeight: 900,
                   cursor: 'pointer',
                 }}
               >
@@ -1360,18 +1389,18 @@ export default function Level2Main({
           top: '72px',
           right: '16px',
           zIndex: 100,
-          background: 'rgba(15, 23, 42, 0.95)',
-          borderRadius: '16px',
-          border: '2px solid #EF4444',
-          padding: '16px 20px',
+          background: 'linear-gradient(135deg, #FDF8EC 0%, #F5E8C7 100%)',
+          borderRadius: '20px',
+          border: '2.5px solid #8C6239',
+          padding: '18px 20px',
           maxWidth: '340px',
-          boxShadow: '0 12px 30px rgba(0,0,0,0.8), 0 0 20px rgba(239, 68, 68, 0.3)',
-          color: '#FFFFFF',
+          boxShadow: '0 15px 40px rgba(0,0,0,0.35), inset 0 0 20px rgba(180, 140, 80, 0.2)',
+          color: '#362014',
         }}>
-          <h3 style={{ margin: '0 0 6px', fontSize: '15px', fontWeight: 900, color: '#EF4444' }}>
+          <h3 style={{ margin: '0 0 6px', fontSize: '15px', fontWeight: 900, color: '#991B1B' }}>
             🎯 Misi 1: Jangkauan (Range)
           </h3>
-          <p style={{ margin: '0 0 12px', fontSize: '12px', color: '#94A3B8', lineHeight: 1.5 }}>
+          <p style={{ margin: '0 0 12px', fontSize: '12px', color: '#5C3D1E', lineHeight: 1.5 }}>
             {m1Phase === 'SELECT_FLAGS'
               ? 'Klik bendera jarak terdekat (Min) dan bendera jarak terjauh (Max) di lapangan untuk membentangkan pita merah!'
               : 'Hitung nilai Jangkauan: R = Nilai Terbesar − Nilai Terkecil'}
@@ -1379,11 +1408,11 @@ export default function Level2Main({
 
           {m1Phase === 'SELECT_FLAGS' ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <div style={{ fontSize: '12px', color: '#E2E8F0' }}>
-                🚩 Terdekat (Min): <span style={{ color: '#38BDF8', fontWeight: 800 }}>{selectedMinFlag ? `Siswa #${selectedMinFlag}` : 'Belum dipilih'}</span>
+              <div style={{ fontSize: '12px', color: '#362014', fontWeight: 700 }}>
+                🚩 Terdekat (Min): <span style={{ color: '#0284C7', fontWeight: 900 }}>{selectedMinFlag ? `Siswa #${selectedMinFlag}` : 'Belum dipilih'}</span>
               </div>
-              <div style={{ fontSize: '12px', color: '#E2E8F0' }}>
-                🚩 Terjauh (Max): <span style={{ color: '#EF4444', fontWeight: 800 }}>{selectedMaxFlag ? `Siswa #${selectedMaxFlag}` : 'Belum dipilih'}</span>
+              <div style={{ fontSize: '12px', color: '#362014', fontWeight: 700 }}>
+                🚩 Terjauh (Max): <span style={{ color: '#DC2626', fontWeight: 900 }}>{selectedMaxFlag ? `Siswa #${selectedMaxFlag}` : 'Belum dipilih'}</span>
               </div>
               <button
                 onClick={handleConfirmRibbon}
@@ -1392,12 +1421,13 @@ export default function Level2Main({
                   marginTop: '6px',
                   padding: '10px',
                   borderRadius: '10px',
-                  background: selectedMinFlag && selectedMaxFlag ? '#EF4444' : '#475569',
+                  background: selectedMinFlag && selectedMaxFlag ? 'linear-gradient(135deg, #DC2626 0%, #B91C1C 100%)' : '#D6D3D1',
                   border: 'none',
                   color: '#FFFFFF',
                   fontWeight: 900,
                   fontSize: '12.5px',
                   cursor: selectedMinFlag && selectedMaxFlag ? 'pointer' : 'not-allowed',
+                  boxShadow: selectedMinFlag && selectedMaxFlag ? '0 4px 12px rgba(220, 38, 38, 0.35)' : 'none',
                 }}
               >
                 PASANG PITA PEMBATAS ▶
@@ -1405,8 +1435,8 @@ export default function Level2Main({
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <div style={{ fontSize: '12px', color: '#CBD5E1' }}>
-                Maksimum: <b>{formatDistance(stats.max)} m</b> | Minimum: <b>{formatDistance(stats.min)} m</b>
+              <div style={{ fontSize: '12px', color: '#5C3D1E', fontWeight: 650 }}>
+                Maksimum: <b style={{ color: '#991B1B' }}>{formatDistance(stats.max)} m</b> | Minimum: <b style={{ color: '#0369A1' }}>{formatDistance(stats.min)} m</b>
               </div>
               <input
                 type="number"
@@ -1417,26 +1447,27 @@ export default function Level2Main({
                 style={{
                   padding: '10px 12px',
                   borderRadius: '8px',
-                  border: '1.5px solid #EF4444',
-                  background: '#0F172A',
-                  color: '#FFFFFF',
+                  border: '1.5px solid #8C6239',
+                  background: '#FFFDF7',
+                  color: '#362014',
                   fontSize: '14px',
                   fontWeight: 800,
                   outline: 'none',
                 }}
               />
-              {rangeError && <div style={{ fontSize: '11px', color: '#EF4444', fontWeight: 700 }}>{rangeError}</div>}
+              {rangeError && <div style={{ fontSize: '11px', color: '#DC2626', fontWeight: 800 }}>{rangeError}</div>}
               <button
                 onClick={handleSubmitRange}
                 style={{
                   padding: '10px',
                   borderRadius: '10px',
-                  background: '#EF4444',
-                  border: 'none',
+                  background: 'linear-gradient(135deg, #0E8388 0%, #0284C7 100%)',
+                  border: '1.5px solid rgba(255, 255, 255, 0.4)',
                   color: '#FFFFFF',
                   fontWeight: 900,
                   fontSize: '12.5px',
                   cursor: 'pointer',
+                  boxShadow: '0 4px 14px rgba(14, 131, 136, 0.35)',
                 }}
               >
                 VERIFIKASI JAWABAN ▶
@@ -1453,18 +1484,18 @@ export default function Level2Main({
           top: '72px',
           right: '16px',
           zIndex: 100,
-          background: 'rgba(15, 23, 42, 0.95)',
-          borderRadius: '16px',
-          border: '2px solid #8B5CF6',
-          padding: '16px 20px',
+          background: 'linear-gradient(135deg, #FDF8EC 0%, #F5E8C7 100%)',
+          borderRadius: '20px',
+          border: '2.5px solid #8C6239',
+          padding: '18px 20px',
           maxWidth: '360px',
-          boxShadow: '0 12px 30px rgba(0,0,0,0.8), 0 0 20px rgba(139, 92, 246, 0.3)',
-          color: '#FFFFFF',
+          boxShadow: '0 15px 40px rgba(0,0,0,0.35), inset 0 0 20px rgba(180, 140, 80, 0.2)',
+          color: '#362014',
         }}>
-          <h3 style={{ margin: '0 0 6px', fontSize: '15px', fontWeight: 900, color: '#C084FC' }}>
+          <h3 style={{ margin: '0 0 6px', fontSize: '15px', fontWeight: 900, color: '#6B21A8' }}>
             📊 Misi 2: Kuartil (Q1, Q2, Q3)
           </h3>
-          <p style={{ margin: '0 0 10px', fontSize: '12px', color: '#94A3B8' }}>
+          <p style={{ margin: '0 0 10px', fontSize: '12px', color: '#5C3D1E', lineHeight: 1.5 }}>
             {m2Phase === 'SORT_STUDENTS'
               ? 'Urutkan data 15 lemparan dari terdekat ke terjauh.'
               : m2Phase === 'PLACE_POSTS'
@@ -1479,13 +1510,13 @@ export default function Level2Main({
                   if (stats) setSortedSlots(stats.sortedStudents.map(s => s.studentId))
                 }}
                 style={{
-                  padding: '6px 10px',
-                  borderRadius: '6px',
-                  background: 'rgba(139, 92, 246, 0.2)',
-                  border: '1px solid #8B5CF6',
-                  color: '#C084FC',
+                  padding: '7px 10px',
+                  borderRadius: '8px',
+                  background: '#FFFDF7',
+                  border: '1.5px solid #7C3AED',
+                  color: '#7C3AED',
                   fontSize: '11px',
-                  fontWeight: 800,
+                  fontWeight: 900,
                   cursor: 'pointer',
                   marginBottom: '8px',
                   width: '100%',
@@ -1493,45 +1524,46 @@ export default function Level2Main({
               >
                 ⚡ Urutkan Cepat dari Nilai Terkecil
               </button>
-              {sortError && <div style={{ fontSize: '11px', color: '#EF4444', marginBottom: '6px' }}>{sortError}</div>}
+              {sortError && <div style={{ fontSize: '11px', color: '#DC2626', fontWeight: 800, marginBottom: '6px' }}>{sortError}</div>}
               <button
                 onClick={handleSortConfirm}
                 style={{
                   width: '100%',
                   padding: '10px',
                   borderRadius: '10px',
-                  background: '#8B5CF6',
+                  background: 'linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%)',
                   border: 'none',
                   color: '#FFFFFF',
                   fontWeight: 900,
                   fontSize: '12px',
                   cursor: 'pointer',
+                  boxShadow: '0 4px 14px rgba(124, 58, 237, 0.35)',
                 }}
               >
                 KONFIRMASI URUTAN DATA ▶
               </button>
             </div>
           ) : m2Phase === 'PLACE_POSTS' ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              <div style={{ fontSize: '12px' }}>
-                Q1: {q1Post ? `Urutan ke-${q1Post} ✓` : <button onClick={() => handlePlacePost(4, 'Q1')} style={{ marginLeft: '6px', padding: '3px 8px', borderRadius: '4px', background: '#10B981', border: 'none', color: '#fff', fontSize: '11px', cursor: 'pointer' }}>Pasang Q1 (Urutan 4)</button>}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div style={{ fontSize: '12px', color: '#362014', fontWeight: 700 }}>
+                Q1: {q1Post ? `Urutan ke-${q1Post} ✓` : <button onClick={() => handlePlacePost(4, 'Q1')} style={{ marginLeft: '6px', padding: '4px 10px', borderRadius: '6px', background: '#059669', border: 'none', color: '#fff', fontSize: '11px', fontWeight: 800, cursor: 'pointer' }}>Pasang Q1 (Urutan 4)</button>}
               </div>
-              <div style={{ fontSize: '12px' }}>
-                Q2: {q2Post ? `Urutan ke-${q2Post} ✓` : <button onClick={() => handlePlacePost(8, 'Q2')} style={{ marginLeft: '6px', padding: '3px 8px', borderRadius: '4px', background: '#8B5CF6', border: 'none', color: '#fff', fontSize: '11px', cursor: 'pointer' }}>Pasang Q2 (Urutan 8)</button>}
+              <div style={{ fontSize: '12px', color: '#362014', fontWeight: 700 }}>
+                Q2: {q2Post ? `Urutan ke-${q2Post} ✓` : <button onClick={() => handlePlacePost(8, 'Q2')} style={{ marginLeft: '6px', padding: '4px 10px', borderRadius: '6px', background: '#7C3AED', border: 'none', color: '#fff', fontSize: '11px', fontWeight: 800, cursor: 'pointer' }}>Pasang Q2 (Urutan 8)</button>}
               </div>
-              <div style={{ fontSize: '12px' }}>
-                Q3: {q3Post ? `Urutan ke-${q3Post} ✓` : <button onClick={() => handlePlacePost(12, 'Q3')} style={{ marginLeft: '6px', padding: '3px 8px', borderRadius: '4px', background: '#EC4899', border: 'none', color: '#fff', fontSize: '11px', cursor: 'pointer' }}>Pasang Q3 (Urutan 12)</button>}
+              <div style={{ fontSize: '12px', color: '#362014', fontWeight: 700 }}>
+                Q3: {q3Post ? `Urutan ke-${q3Post} ✓` : <button onClick={() => handlePlacePost(12, 'Q3')} style={{ marginLeft: '6px', padding: '4px 10px', borderRadius: '6px', background: '#DB2777', border: 'none', color: '#fff', fontSize: '11px', fontWeight: 800, cursor: 'pointer' }}>Pasang Q3 (Urutan 12)</button>}
               </div>
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <input
                 type="number"
                 step="0.01"
                 placeholder={`Nilai Q1 (urutan ke-4, ~${formatDistance(stats.q1)}m)`}
                 value={q1Answer}
                 onChange={e => setQ1Answer(e.target.value)}
-                style={{ padding: '8px', borderRadius: '6px', background: '#0F172A', border: '1px solid #10B981', color: '#fff', fontSize: '12px' }}
+                style={{ padding: '8px 10px', borderRadius: '8px', background: '#FFFDF7', border: '1.5px solid #059669', color: '#362014', fontSize: '13px', fontWeight: 700, outline: 'none' }}
               />
               <input
                 type="number"
@@ -1539,7 +1571,7 @@ export default function Level2Main({
                 placeholder={`Nilai Q2 (urutan ke-8, ~${formatDistance(stats.q2)}m)`}
                 value={q2Answer}
                 onChange={e => setQ2Answer(e.target.value)}
-                style={{ padding: '8px', borderRadius: '6px', background: '#0F172A', border: '1px solid #8B5CF6', color: '#fff', fontSize: '12px' }}
+                style={{ padding: '8px 10px', borderRadius: '8px', background: '#FFFDF7', border: '1.5px solid #7C3AED', color: '#362014', fontSize: '13px', fontWeight: 700, outline: 'none' }}
               />
               <input
                 type="number"
@@ -1547,21 +1579,22 @@ export default function Level2Main({
                 placeholder={`Nilai Q3 (urutan ke-12, ~${formatDistance(stats.q3)}m)`}
                 value={q3Answer}
                 onChange={e => setQ3Answer(e.target.value)}
-                style={{ padding: '8px', borderRadius: '6px', background: '#0F172A', border: '1px solid #EC4899', color: '#fff', fontSize: '12px' }}
+                style={{ padding: '8px 10px', borderRadius: '8px', background: '#FFFDF7', border: '1.5px solid #DB2777', color: '#362014', fontSize: '13px', fontWeight: 700, outline: 'none' }}
               />
-              {quartileError && <div style={{ fontSize: '11px', color: '#EF4444' }}>{quartileError}</div>}
+              {quartileError && <div style={{ fontSize: '11px', color: '#DC2626', fontWeight: 800 }}>{quartileError}</div>}
               <button
                 onClick={handleSubmitQuartiles}
                 style={{
                   marginTop: '4px',
                   padding: '10px',
                   borderRadius: '10px',
-                  background: '#8B5CF6',
+                  background: 'linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%)',
                   border: 'none',
                   color: '#FFFFFF',
                   fontWeight: 900,
                   fontSize: '12px',
                   cursor: 'pointer',
+                  boxShadow: '0 4px 14px rgba(124, 58, 237, 0.35)',
                 }}
               >
                 VERIFIKASI SEMUA KUARTIL ▶
@@ -1578,18 +1611,18 @@ export default function Level2Main({
           top: '72px',
           right: '16px',
           zIndex: 100,
-          background: 'rgba(15, 23, 42, 0.95)',
-          borderRadius: '16px',
-          border: '2px solid #10B981',
-          padding: '16px 20px',
+          background: 'linear-gradient(135deg, #FDF8EC 0%, #F5E8C7 100%)',
+          borderRadius: '20px',
+          border: '2.5px solid #8C6239',
+          padding: '18px 20px',
           maxWidth: '340px',
-          boxShadow: '0 12px 30px rgba(0,0,0,0.8), 0 0 20px rgba(16, 185, 129, 0.3)',
-          color: '#FFFFFF',
+          boxShadow: '0 15px 40px rgba(0,0,0,0.35), inset 0 0 20px rgba(180, 140, 80, 0.2)',
+          color: '#362014',
         }}>
-          <h3 style={{ margin: '0 0 6px', fontSize: '15px', fontWeight: 900, color: '#10B981' }}>
+          <h3 style={{ margin: '0 0 6px', fontSize: '15px', fontWeight: 900, color: '#065F46' }}>
             🌿 Misi 3: Jangkauan Kuartil (IQR)
           </h3>
-          <p style={{ margin: '0 0 10px', fontSize: '12px', color: '#94A3B8' }}>
+          <p style={{ margin: '0 0 10px', fontSize: '12px', color: '#5C3D1E', lineHeight: 1.5 }}>
             {m3Phase === 'PLACE_RIBBON'
               ? 'Pasang pita hijau dari tiang Q1 ke tiang Q3!'
               : 'Hitung nilai Jangkauan Kuartil: IQR = Q3 − Q1'}
@@ -1602,12 +1635,13 @@ export default function Level2Main({
                 style={{
                   padding: '10px',
                   borderRadius: '10px',
-                  background: '#10B981',
+                  background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
                   border: 'none',
                   color: '#FFFFFF',
                   fontWeight: 900,
                   fontSize: '12px',
                   cursor: 'pointer',
+                  boxShadow: '0 4px 14px rgba(5, 150, 105, 0.35)',
                 }}
               >
                 BENTANGKAN PITA HIJAU Q1 KE Q3 ▶
@@ -1615,8 +1649,8 @@ export default function Level2Main({
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <div style={{ fontSize: '12px', color: '#CBD5E1' }}>
-                Q3: <b>{formatDistance(stats.q3)} m</b> | Q1: <b>{formatDistance(stats.q1)} m</b>
+              <div style={{ fontSize: '12px', color: '#5C3D1E', fontWeight: 650 }}>
+                Q3: <b style={{ color: '#DB2777' }}>{formatDistance(stats.q3)} m</b> | Q1: <b style={{ color: '#059669' }}>{formatDistance(stats.q1)} m</b>
               </div>
               <input
                 type="number"
@@ -1627,26 +1661,27 @@ export default function Level2Main({
                 style={{
                   padding: '10px 12px',
                   borderRadius: '8px',
-                  border: '1.5px solid #10B981',
-                  background: '#0F172A',
-                  color: '#FFFFFF',
+                  border: '1.5px solid #059669',
+                  background: '#FFFDF7',
+                  color: '#362014',
                   fontSize: '14px',
                   fontWeight: 800,
                   outline: 'none',
                 }}
               />
-              {iqrError && <div style={{ fontSize: '11px', color: '#EF4444' }}>{iqrError}</div>}
+              {iqrError && <div style={{ fontSize: '11px', color: '#DC2626', fontWeight: 800 }}>{iqrError}</div>}
               <button
                 onClick={handleSubmitIQR}
                 style={{
                   padding: '10px',
                   borderRadius: '10px',
-                  background: '#10B981',
+                  background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
                   border: 'none',
                   color: '#FFFFFF',
                   fontWeight: 900,
                   fontSize: '12px',
                   cursor: 'pointer',
+                  boxShadow: '0 4px 14px rgba(5, 150, 105, 0.35)',
                 }}
               >
                 VERIFIKASI IQR ▶
@@ -1670,24 +1705,34 @@ export default function Level2Main({
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              background: 'rgba(0, 0, 0, 0.85)',
+              background: 'rgba(20, 10, 5, 0.65)',
               backdropFilter: 'blur(10px)',
               padding: '16px',
             }}
           >
             <div style={{
-              background: 'linear-gradient(135deg, #0F172A 0%, #1E293B 100%)',
+              position: 'relative',
+              background: 'linear-gradient(135deg, #FDF8EC 0%, #F5E8C7 100%)',
               borderRadius: '24px',
-              border: '2px solid #F59E0B',
-              padding: '28px 32px',
+              border: '2.5px solid #8C6239',
+              padding: '32px 36px',
               maxWidth: '620px',
               width: '100%',
-              boxShadow: '0 25px 60px rgba(0,0,0,0.9), 0 0 35px rgba(245, 158, 11, 0.4)',
-              color: '#FFFFFF',
+              boxShadow: '0 20px 50px rgba(0,0,0,0.65), inset 0 0 25px rgba(180, 140, 80, 0.25)',
+              color: '#362014',
               textAlign: 'center',
             }}>
+              {/* Corner brackets */}
+              <div style={{ position: 'absolute', top: 10, left: 10, width: 14, height: 14, borderTop: '3px solid #8C6239', borderLeft: '3px solid #8C6239', pointerEvents: 'none' }} />
+              <div style={{ position: 'absolute', top: 10, right: 10, width: 14, height: 14, borderTop: '3px solid #8C6239', borderRight: '3px solid #8C6239', pointerEvents: 'none' }} />
+              <div style={{ position: 'absolute', bottom: 10, left: 10, width: 14, height: 14, borderBottom: '3px solid #8C6239', borderLeft: '3px solid #8C6239', pointerEvents: 'none' }} />
+              <div style={{ position: 'absolute', bottom: 10, right: 10, width: 14, height: 14, borderBottom: '3px solid #8C6239', borderRight: '3px solid #8C6239', pointerEvents: 'none' }} />
+
               <div style={{ fontSize: '48px', marginBottom: '8px' }}>🏆 🌟</div>
-              <h2 style={{ fontSize: '22px', fontWeight: 900, color: '#FCD34D', margin: '0 0 6px' }}>
+              <div style={{ fontSize: '11px', fontWeight: 900, letterSpacing: '2px', color: '#9A3412', textTransform: 'uppercase', marginBottom: '4px' }}>
+                INVESTIGASI DATA BERHASIL
+              </div>
+              <h2 style={{ fontSize: '22px', fontWeight: 900, color: '#362014', margin: '0 0 6px' }}>
                 Laporan Investigasi Selesai!
               </h2>
               <div style={{ fontSize: '22px', margin: '0 0 14px' }}>
@@ -1695,24 +1740,27 @@ export default function Level2Main({
               </div>
 
               <div style={{
-                background: 'rgba(0,0,0,0.3)',
-                borderRadius: '14px',
-                padding: '16px',
-                margin: '0 0 20px',
+                background: '#FFFDF7',
+                border: '1.5px solid #B48C50',
+                borderRadius: '16px',
+                padding: '18px 20px',
+                margin: '0 0 22px',
                 display: 'grid',
                 gridTemplateColumns: '1fr 1fr',
-                gap: '10px',
+                gap: '12px',
                 textAlign: 'left',
-                fontSize: '12.5px',
+                fontSize: '13px',
+                color: '#362014',
+                boxShadow: 'inset 0 2px 5px rgba(140, 98, 57, 0.08)',
               }}>
                 <div>📍 Jarak Terjauh: <b>{formatDistance(stats.max)} m</b></div>
                 <div>📍 Jarak Terdekat: <b>{formatDistance(stats.min)} m</b></div>
-                <div>📏 Jangkauan (Range): <b style={{ color: '#EF4444' }}>{formatDistance(stats.range)} m</b></div>
-                <div>📊 Kuartil Bawah (Q1): <b style={{ color: '#10B981' }}>{formatDistance(stats.q1)} m</b></div>
-                <div>📊 Median (Q2): <b style={{ color: '#8B5CF6' }}>{formatDistance(stats.q2)} m</b></div>
-                <div>📊 Kuartil Atas (Q3): <b style={{ color: '#EC4899' }}>{formatDistance(stats.q3)} m</b></div>
-                <div style={{ gridColumn: 'span 2', paddingTop: '6px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
-                  🌿 Jangkauan Kuartil (IQR = Q3 − Q1): <b style={{ color: '#10B981', fontSize: '14px' }}>{formatDistance(stats.iqr)} m</b>
+                <div>📏 Jangkauan (Range): <b style={{ color: '#DC2626' }}>{formatDistance(stats.range)} m</b></div>
+                <div>📊 Kuartil Bawah (Q1): <b style={{ color: '#059669' }}>{formatDistance(stats.q1)} m</b></div>
+                <div>📊 Median (Q2): <b style={{ color: '#7C3AED' }}>{formatDistance(stats.q2)} m</b></div>
+                <div>📊 Kuartil Atas (Q3): <b style={{ color: '#DB2777' }}>{formatDistance(stats.q3)} m</b></div>
+                <div style={{ gridColumn: 'span 2', paddingTop: '8px', borderTop: '1px solid rgba(140, 98, 57, 0.2)' }}>
+                  🌿 Jangkauan Kuartil (IQR = Q3 − Q1): <b style={{ color: '#059669', fontSize: '14.5px' }}>{formatDistance(stats.iqr)} m</b>
                 </div>
               </div>
 
@@ -1725,14 +1773,14 @@ export default function Level2Main({
                   width: '100%',
                   padding: '14px',
                   borderRadius: '14px',
-                  background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
-                  border: 'none',
+                  background: 'linear-gradient(135deg, #0E8388 0%, #0284C7 100%)',
+                  border: '1.5px solid rgba(255, 255, 255, 0.4)',
                   color: '#FFFFFF',
                   fontWeight: 900,
                   fontSize: '15px',
                   letterSpacing: '0.5px',
                   cursor: 'pointer',
-                  boxShadow: '0 6px 20px rgba(245, 158, 11, 0.4)',
+                  boxShadow: '0 6px 20px rgba(14, 131, 136, 0.4)',
                 }}
               >
                 KEMBALI KE MARKAS DETEKTIF ▶
@@ -1784,20 +1832,21 @@ export default function Level2Main({
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 padding: 'clamp(12px, 2vh, 20px) clamp(16px, 3vw, 32px)',
-                background: 'linear-gradient(180deg, rgba(7, 19, 30, 0.9) 0%, transparent 100%)',
+                background: 'linear-gradient(180deg, rgba(20, 10, 5, 0.65) 0%, transparent 100%)',
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <span
                   style={{
-                    background: 'rgba(245, 158, 11, 0.2)',
-                    border: '1.5px solid #F59E0B',
+                    background: 'linear-gradient(135deg, #FDF8EC 0%, #F5E8C7 100%)',
+                    border: '1.5px solid #8C6239',
                     padding: '4px 12px',
                     borderRadius: '8px',
                     fontSize: '12.5px',
                     fontWeight: 900,
-                    color: '#FCD34D',
+                    color: '#362014',
                     letterSpacing: '0.5px',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
                   }}
                 >
                   🏫 RUANG KELAS VII-B
@@ -1805,8 +1854,9 @@ export default function Level2Main({
                 <span
                   style={{
                     fontSize: '13px',
-                    fontWeight: 700,
-                    color: '#E2E8F0',
+                    fontWeight: 800,
+                    color: '#FFFDF7',
+                    textShadow: '0 2px 4px rgba(0,0,0,0.6)',
                   }}
                 >
                   Pengantar Ukuran Penyebaran Data
@@ -1817,12 +1867,13 @@ export default function Level2Main({
                 <span
                   style={{
                     fontSize: '12px',
-                    fontWeight: 800,
-                    color: '#94A3B8',
-                    background: 'rgba(15, 23, 42, 0.8)',
+                    fontWeight: 900,
+                    color: '#362014',
+                    background: '#FDF8EC',
                     padding: '4px 10px',
                     borderRadius: '8px',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    border: '1.5px solid #8C6239',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
                   }}
                 >
                   💬 {classroomIndex + 1} / {CLASSROOM_DIALOGS.length}
@@ -1831,15 +1882,15 @@ export default function Level2Main({
                 <button
                   onClick={handleTransitionToField}
                   style={{
-                    background: 'rgba(15, 23, 42, 0.85)',
-                    border: '1.5px solid rgba(56, 189, 248, 0.5)',
+                    background: '#F5E8C7',
+                    border: '1.5px solid #8C6239',
                     borderRadius: '10px',
-                    color: '#38BDF8',
+                    color: '#6B4226',
                     cursor: 'pointer',
                     padding: '6px 14px',
                     fontSize: '12px',
-                    fontWeight: 800,
-                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.4)',
+                    fontWeight: 900,
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.25)',
                     transition: 'all 0.2s',
                   }}
                 >
@@ -1904,16 +1955,16 @@ export default function Level2Main({
                       display: 'flex',
                       flexDirection: 'column',
                       alignItems: 'center',
-                      background: 'rgba(15, 23, 42, 0.9)',
+                      background: 'linear-gradient(135deg, #FDF8EC 0%, #F5E8C7 100%)',
                       padding: '14px 24px',
                       borderRadius: '18px',
-                      border: '2px solid #38BDF8',
-                      boxShadow: '0 0 35px rgba(56, 189, 248, 0.55)',
+                      border: '2px solid #8C6239',
+                      boxShadow: '0 8px 30px rgba(0, 0, 0, 0.35)',
                       backdropFilter: 'blur(10px)',
                     }}
                   >
                     <div style={{ fontSize: '38px', marginBottom: '4px' }}>🤖</div>
-                    <span style={{ fontSize: '12px', fontWeight: 900, color: '#38BDF8', letterSpacing: '0.5px' }}>
+                    <span style={{ fontSize: '12px', fontWeight: 900, color: '#0E8388', letterSpacing: '0.5px' }}>
                       DiRA — ASISTEN ANALITIK AI
                     </span>
                   </motion.div>
@@ -1963,31 +2014,25 @@ export default function Level2Main({
             >
               <div
                 style={{
+                  position: 'relative',
                   width: '100%',
                   maxWidth: '840px',
-                  background:
-                    'linear-gradient(135deg, rgba(15, 23, 42, 0.96) 0%, rgba(10, 15, 26, 0.98) 100%)',
-                  borderRadius: '22px',
-                  border: `2px solid ${
-                    currentClassroomDialog.speaker === 'teacher'
-                      ? '#F59E0B'
-                      : currentClassroomDialog.speaker === 'dira'
-                      ? '#38BDF8'
-                      : '#00ADB5'
-                  }`,
-                  padding: '20px 24px',
-                  boxShadow: `0 16px 40px rgba(0,0,0,0.8), 0 0 25px ${
-                    currentClassroomDialog.speaker === 'teacher'
-                      ? 'rgba(245, 158, 11, 0.35)'
-                      : currentClassroomDialog.speaker === 'dira'
-                      ? 'rgba(56, 189, 248, 0.35)'
-                      : 'rgba(0, 173, 181, 0.35)'
-                  }`,
-                  color: '#FFFFFF',
+                  background: 'linear-gradient(135deg, #FDF8EC 0%, #F5E8C7 100%)',
+                  borderRadius: '24px',
+                  border: '2.5px solid #8C6239',
+                  padding: '22px 28px',
+                  boxShadow: '0 20px 50px rgba(0,0,0,0.65), inset 0 0 25px rgba(180, 140, 80, 0.25)',
+                  color: '#362014',
                   cursor: 'pointer',
                   userSelect: 'none',
                 }}
               >
+                {/* Corner brackets */}
+                <div style={{ position: 'absolute', top: 8, left: 8, width: 14, height: 14, borderTop: '3px solid #8C6239', borderLeft: '3px solid #8C6239', pointerEvents: 'none' }} />
+                <div style={{ position: 'absolute', top: 8, right: 8, width: 14, height: 14, borderTop: '3px solid #8C6239', borderRight: '3px solid #8C6239', pointerEvents: 'none' }} />
+                <div style={{ position: 'absolute', bottom: 8, left: 8, width: 14, height: 14, borderBottom: '3px solid #8C6239', borderLeft: '3px solid #8C6239', pointerEvents: 'none' }} />
+                <div style={{ position: 'absolute', bottom: 8, right: 8, width: 14, height: 14, borderBottom: '3px solid #8C6239', borderRight: '3px solid #8C6239', pointerEvents: 'none' }} />
+
                 {/* Header row in bubble */}
                 <div
                   style={{
@@ -2004,10 +2049,10 @@ export default function Level2Main({
                         fontWeight: 900,
                         color:
                           currentClassroomDialog.speaker === 'teacher'
-                            ? '#FCD34D'
+                            ? '#9A3412'
                             : currentClassroomDialog.speaker === 'dira'
-                            ? '#38BDF8'
-                            : '#5EEAD4',
+                            ? '#0369A1'
+                            : '#0E8388',
                       }}
                     >
                       {currentClassroomDialog.speaker === 'teacher'
@@ -2019,11 +2064,12 @@ export default function Level2Main({
                     <span
                       style={{
                         fontSize: '11px',
-                        color: '#94A3B8',
-                        background: 'rgba(255, 255, 255, 0.08)',
+                        color: '#6B4226',
+                        background: '#FFFDF7',
+                        border: '1px solid #B48C50',
                         padding: '2px 8px',
                         borderRadius: '6px',
-                        fontWeight: 700,
+                        fontWeight: 800,
                       }}
                     >
                       {currentClassroomDialog.speaker === 'teacher'
@@ -2034,7 +2080,7 @@ export default function Level2Main({
                     </span>
                   </div>
 
-                  <span style={{ fontSize: '11px', color: '#64748B', fontWeight: 600 }}>
+                  <span style={{ fontSize: '11px', color: '#8C6239', fontWeight: 700 }}>
                     Klik / Tekan [Spasi]
                   </span>
                 </div>
@@ -2045,7 +2091,8 @@ export default function Level2Main({
                     margin: '0 0 16px',
                     fontSize: '15px',
                     lineHeight: 1.65,
-                    color: '#F1F5F9',
+                    color: '#362014',
+                    fontWeight: 650,
                     minHeight: '48px',
                   }}
                 >
@@ -2061,20 +2108,15 @@ export default function Level2Main({
                         handleClassroomNext()
                       }}
                       style={{
-                        background:
-                          currentClassroomDialog.speaker === 'teacher'
-                            ? 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)'
-                            : currentClassroomDialog.speaker === 'dira'
-                            ? 'linear-gradient(135deg, #0284C7 0%, #0369A1 100%)'
-                            : 'linear-gradient(135deg, #00ADB5 0%, #007A80 100%)',
-                        border: 'none',
+                        background: 'linear-gradient(135deg, #0E8388 0%, #0284C7 100%)',
+                        border: '1.5px solid rgba(255, 255, 255, 0.4)',
                         borderRadius: '10px',
                         color: '#FFFFFF',
                         fontWeight: 900,
                         fontSize: '12.5px',
-                        padding: '8px 18px',
+                        padding: '8px 20px',
                         cursor: 'pointer',
-                        boxShadow: '0 4px 14px rgba(0,0,0,0.4)',
+                        boxShadow: '0 4px 14px rgba(14, 131, 136, 0.35)',
                         transition: 'transform 0.15s ease',
                       }}
                     >
@@ -2089,15 +2131,15 @@ export default function Level2Main({
                         handleTransitionToField()
                       }}
                       style={{
-                        background: 'linear-gradient(135deg, #F59E0B 0%, #EF4444 100%)',
-                        border: 'none',
+                        background: 'linear-gradient(135deg, #0E8388 0%, #0284C7 100%)',
+                        border: '1.5px solid rgba(255, 255, 255, 0.4)',
                         borderRadius: '12px',
                         color: '#FFFFFF',
                         fontWeight: 900,
                         fontSize: '14px',
                         padding: '10px 24px',
                         cursor: 'pointer',
-                        boxShadow: '0 6px 20px rgba(245, 158, 11, 0.6)',
+                        boxShadow: '0 6px 20px rgba(14, 131, 136, 0.45)',
                         letterSpacing: '0.5px',
                       }}
                     >
@@ -2128,44 +2170,69 @@ export default function Level2Main({
               flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
-              background: 'radial-gradient(ellipse at center, #0F172A 0%, #020617 100%)',
-              color: '#FFFFFF',
+              background: 'rgba(20, 10, 5, 0.75)',
+              backdropFilter: 'blur(10px)',
+              color: '#362014',
               textAlign: 'center',
               padding: '24px',
             }}
           >
             <motion.div
-              animate={{ y: [0, -10, 0] }}
-              transition={{ repeat: Infinity, duration: 1.4, ease: 'easeInOut' }}
-              style={{ fontSize: '56px', marginBottom: '16px' }}
-            >
-              🏃‍♂️ 💨 ⚽
-            </motion.div>
-            <h2
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
               style={{
-                fontSize: '24px',
-                fontWeight: 900,
-                color: '#FCD34D',
-                margin: '0 0 10px',
-                letterSpacing: '0.5px',
+                position: 'relative',
+                background: 'linear-gradient(135deg, #FDF8EC 0%, #F5E8C7 100%)',
+                border: '2.5px solid #8C6239',
+                borderRadius: '24px',
+                padding: '36px 40px',
+                maxWidth: '480px',
+                width: '90%',
+                boxShadow: '0 20px 50px rgba(0,0,0,0.65), inset 0 0 25px rgba(180, 140, 80, 0.25)',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
               }}
             >
-              Menuju Lapangan Sekolah...
-            </h2>
-            <p style={{ fontSize: '14px', color: '#94A3B8', maxWidth: '440px', lineHeight: 1.6, margin: 0 }}>
-              Pak Bambang dan 15 siswa kelas VII-B telah bersiap di pinggir lapangan untuk agenda pengukuran lemparan!
-            </p>
+              {/* Corner brackets */}
+              <div style={{ position: 'absolute', top: 10, left: 10, width: 14, height: 14, borderTop: '3px solid #8C6239', borderLeft: '3px solid #8C6239', pointerEvents: 'none' }} />
+              <div style={{ position: 'absolute', top: 10, right: 10, width: 14, height: 14, borderTop: '3px solid #8C6239', borderRight: '3px solid #8C6239', pointerEvents: 'none' }} />
+              <div style={{ position: 'absolute', bottom: 10, left: 10, width: 14, height: 14, borderBottom: '3px solid #8C6239', borderLeft: '3px solid #8C6239', pointerEvents: 'none' }} />
+              <div style={{ position: 'absolute', bottom: 10, right: 10, width: 14, height: 14, borderBottom: '3px solid #8C6239', borderRight: '3px solid #8C6239', pointerEvents: 'none' }} />
 
-            <div
-              style={{
-                marginTop: '28px',
-                width: '60px',
-                height: '4px',
-                borderRadius: '2px',
-                background: 'linear-gradient(90deg, #F59E0B, #10B981)',
-                animation: 'pulse 1.5s infinite',
-              }}
-            />
+              <motion.div
+                animate={{ y: [0, -10, 0] }}
+                transition={{ repeat: Infinity, duration: 1.4, ease: 'easeInOut' }}
+                style={{ fontSize: '56px', marginBottom: '14px' }}
+              >
+                🏃‍♂️ 💨 ⚽
+              </motion.div>
+              <h2
+                style={{
+                  fontSize: '22px',
+                  fontWeight: 900,
+                  color: '#362014',
+                  margin: '0 0 10px',
+                  letterSpacing: '0.5px',
+                }}
+              >
+                Menuju Lapangan Sekolah...
+              </h2>
+              <p style={{ fontSize: '14px', color: '#5C3D1E', maxWidth: '400px', lineHeight: 1.65, margin: 0 }}>
+                Pak Bambang dan 15 siswa kelas VII-B telah bersiap di pinggir lapangan untuk agenda pengukuran lemparan!
+              </p>
+
+              <div
+                style={{
+                  marginTop: '24px',
+                  width: '60px',
+                  height: '4px',
+                  borderRadius: '2px',
+                  background: 'linear-gradient(90deg, #8C6239, #0E8388)',
+                  animation: 'pulse 1.5s infinite',
+                }}
+              />
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>

@@ -1120,7 +1120,7 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
           <div style={{
             position: 'fixed',
             inset: 0,
-            background: 'rgba(11, 30, 44, 0.85)',
+            background: 'rgba(20, 10, 5, 0.65)',
             backdropFilter: 'blur(8px)',
             display: 'flex',
             alignItems: 'center',
@@ -1136,31 +1136,39 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
               style={isFD ? {
                 maxWidth: '700px',
                 width: '100%',
-                background: 'var(--game-card)',
-                border: '2px solid var(--accent)',
-                borderRadius: '20px',
-                padding: 'clamp(12px, 2vh, 20px) clamp(12px, 2vw, 24px)',
-                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 0 30px rgba(0, 173, 181, 0.15)',
+                background: 'linear-gradient(135deg, #FDF8EC 0%, #F5E8C7 100%)',
+                border: '2.5px solid #8C6239',
+                borderRadius: '24px',
+                padding: 'clamp(14px, 2.5vh, 24px) clamp(16px, 2.5vw, 28px)',
+                boxShadow: '0 20px 50px rgba(0, 0, 0, 0.65), inset 0 0 25px rgba(180, 140, 80, 0.25)',
                 display: 'flex',
                 flexDirection: 'column',
                 gap: 'clamp(10px, 1.8vh, 16px)',
                 position: 'relative',
+                color: '#362014',
               } : {
-                maxWidth: '360px',
+                maxWidth: '380px',
                 width: '90%',
-                background: 'var(--game-card)',
-                border: '2px solid #ef4444',
-                borderRadius: '22px',
+                background: 'linear-gradient(135deg, #FDF8EC 0%, #F5E8C7 100%)',
+                border: '2.5px solid #DC2626',
+                borderRadius: '24px',
                 padding: '24px 20px',
-                boxShadow: '0 25px 50px rgba(0,0,0,0.6), 0 0 30px rgba(239,68,68,0.15)',
+                boxShadow: '0 20px 50px rgba(0, 0, 0, 0.65), inset 0 0 25px rgba(220, 38, 38, 0.15)',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
                 gap: '16px',
                 position: 'relative',
                 textAlign: 'center',
+                color: '#362014',
               }}
             >
+              {/* Corner brackets */}
+              <div style={{ position: 'absolute', top: 8, left: 8, width: 14, height: 14, borderTop: isFD ? '3px solid #8C6239' : '3px solid #DC2626', borderLeft: isFD ? '3px solid #8C6239' : '3px solid #DC2626', pointerEvents: 'none' }} />
+              <div style={{ position: 'absolute', top: 8, right: 8, width: 14, height: 14, borderTop: isFD ? '3px solid #8C6239' : '3px solid #DC2626', borderRight: isFD ? '3px solid #8C6239' : '3px solid #DC2626', pointerEvents: 'none' }} />
+              <div style={{ position: 'absolute', bottom: 8, left: 8, width: 14, height: 14, borderBottom: isFD ? '3px solid #8C6239' : '3px solid #DC2626', borderLeft: isFD ? '3px solid #8C6239' : '3px solid #DC2626', pointerEvents: 'none' }} />
+              <div style={{ position: 'absolute', bottom: 8, right: 8, width: 14, height: 14, borderBottom: isFD ? '3px solid #8C6239' : '3px solid #DC2626', borderRight: isFD ? '3px solid #8C6239' : '3px solid #DC2626', pointerEvents: 'none' }} />
+
               {isFD ? (
                 <>
                   <style>{`
@@ -1171,23 +1179,23 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                   `}</style>
 
                   {/* Title & Formula Header */}
-                  <div style={{ textAlign: 'center', width: '100%', borderBottom: '1px solid rgba(255, 255, 255, 0.1)', paddingBottom: 'clamp(8px, 1.5vh, 14px)' }}>
+                  <div style={{ textAlign: 'center', width: '100%', borderBottom: '1.5px solid rgba(140, 98, 57, 0.2)', paddingBottom: 'clamp(8px, 1.5vh, 14px)' }}>
                     <div style={{
                       fontSize: 'clamp(9px, 1.6vh, 11px)',
-                      fontWeight: 800,
+                      fontWeight: 900,
                       letterSpacing: '2px',
-                      color: 'var(--accent)',
+                      color: '#9A3412',
                       textTransform: 'uppercase',
                       marginBottom: '4px',
                     }}>
                       Petunjuk Pak Sutrisno
                     </div>
-                    <h3 style={{ margin: '0 0 6px 0', fontSize: 'clamp(15px, 2.8vh, 20px)', fontWeight: 900, color: 'var(--text-primary)' }}>
+                    <h3 style={{ margin: '0 0 6px 0', fontSize: 'clamp(16px, 2.8vh, 22px)', fontWeight: 900, color: '#362014' }}>
                       Mencari Nilai Rentang (R) 📏
                     </h3>
-                    <p style={{ margin: 0, fontSize: 'clamp(11px, 2vh, 13px)', color: 'rgba(255,255,255,0.75)', lineHeight: 1.5 }}>
+                    <p style={{ margin: 0, fontSize: 'clamp(11px, 2vh, 13px)', color: '#5C3D1E', lineHeight: 1.5 }}>
                       Untuk mencari <strong>Rentang</strong>, rumusnya adalah:{' '}
-                      <span style={{ color: 'var(--accent)', fontWeight: 800, fontSize: 'clamp(11px, 2vh, 14px)', marginLeft: '4px' }}>
+                      <span style={{ color: '#0E8388', fontWeight: 900, fontSize: 'clamp(11px, 2vh, 14px)', marginLeft: '4px' }}>
                         R = data terbesar − data terkecil
                       </span>
                     </p>
@@ -1209,20 +1217,21 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                     }}>
                       {/* Row 1: Largest Value Example */}
                       <div style={{
-                        background: 'rgba(255, 255, 255, 0.02)',
-                        border: '1px solid rgba(255, 255, 255, 0.06)',
-                        borderRadius: '14px',
+                        background: '#FFFDF7',
+                        border: '1.5px solid #B48C50',
+                        borderRadius: '16px',
                         padding: 'clamp(10px, 1.8vh, 14px)',
                         display: 'flex',
                         flexDirection: 'column',
                         gap: 'clamp(6px, 1.2vh, 10px)',
                         textAlign: 'left',
+                        boxShadow: 'inset 0 2px 5px rgba(140, 98, 57, 0.08)',
                       }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <span style={{ fontSize: 'clamp(11px, 1.9vh, 13px)', fontWeight: 700, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                            <span style={{ color: 'var(--accent)' }}>📈</span> Contoh 1: Mencari Nilai Terbesar
+                          <span style={{ fontSize: 'clamp(11px, 1.9vh, 13px)', fontWeight: 800, color: '#362014', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                            <span style={{ color: '#0E8388' }}>📈</span> Contoh 1: Mencari Nilai Terbesar
                           </span>
-                          <span style={{ fontSize: 'clamp(9px, 1.6vh, 11px)', color: 'rgba(255, 255, 255, 0.5)' }}>(10 Angka)</span>
+                          <span style={{ fontSize: 'clamp(9px, 1.6vh, 11px)', color: '#8C6239', fontWeight: 600 }}>(10 Angka)</span>
                         </div>
                         <div style={{ display: 'flex', gap: 'clamp(4px, 0.8vw, 7px)', flexWrap: 'wrap' }}>
                           {[12, 8, 15, 6, 21, 14, 9, 17, 11, 13].map((num, idx) => {
@@ -1233,38 +1242,39 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                                 borderRadius: '50%',
                                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                                 fontSize: 'clamp(10px, 1.8vh, 13px)',
-                                fontWeight: isTarget ? 900 : 500,
-                                background: isTarget ? 'var(--accent)' : 'rgba(180,140,80,0.1)',
-                                color: isTarget ? '#000' : 'rgba(255,255,255,0.7)',
-                                border: isTarget ? '2px solid #fff' : '1px solid rgba(180,140,80,0.1)',
-                                boxShadow: isTarget ? '0 0 10px var(--accent)' : 'none',
+                                fontWeight: isTarget ? 900 : 700,
+                                background: isTarget ? '#0E8388' : '#F5E8C7',
+                                color: isTarget ? '#FFFFFF' : '#6B4226',
+                                border: isTarget ? '2px solid #005F63' : '1.5px solid #8C6239',
+                                boxShadow: isTarget ? '0 0 10px rgba(14, 131, 136, 0.5)' : 'none',
                               }}>
                                 {num}
                               </div>
                             );
                           })}
                         </div>
-                        <div style={{ fontSize: 'clamp(10px, 1.7vh, 12px)', color: 'rgba(255, 255, 255, 0.7)', lineHeight: 1.5 }}>
-                          Angka <span style={{ color: 'var(--accent)', fontWeight: 800 }}>21</span> ditebalkan karena merupakan angka <strong style={{ color: 'var(--accent)' }}>terbesar</strong> dari kumpulan data tersebut.
+                        <div style={{ fontSize: 'clamp(10px, 1.7vh, 12px)', color: '#5C3D1E', lineHeight: 1.5 }}>
+                          Angka <span style={{ color: '#0E8388', fontWeight: 900 }}>21</span> ditebalkan karena merupakan angka <strong style={{ color: '#0E8388' }}>terbesar</strong> dari kumpulan data tersebut.
                         </div>
                       </div>
 
                       {/* Row 2: Smallest Value Example */}
                       <div style={{
-                        background: 'rgba(255, 255, 255, 0.02)',
-                        border: '1px solid rgba(255, 255, 255, 0.06)',
-                        borderRadius: '14px',
+                        background: '#FFFDF7',
+                        border: '1.5px solid #B48C50',
+                        borderRadius: '16px',
                         padding: 'clamp(10px, 1.8vh, 14px)',
                         display: 'flex',
                         flexDirection: 'column',
                         gap: 'clamp(6px, 1.2vh, 10px)',
                         textAlign: 'left',
+                        boxShadow: 'inset 0 2px 5px rgba(140, 98, 57, 0.08)',
                       }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <span style={{ fontSize: 'clamp(11px, 1.9vh, 13px)', fontWeight: 700, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                          <span style={{ fontSize: 'clamp(11px, 1.9vh, 13px)', fontWeight: 800, color: '#362014', display: 'flex', alignItems: 'center', gap: '5px' }}>
                             <span style={{ color: '#D97706' }}>📉</span> Contoh 2: Mencari Nilai Terkecil
                           </span>
-                          <span style={{ fontSize: 'clamp(9px, 1.6vh, 11px)', color: 'rgba(255, 255, 255, 0.5)' }}>(10 Angka)</span>
+                          <span style={{ fontSize: 'clamp(9px, 1.6vh, 11px)', color: '#8C6239', fontWeight: 600 }}>(10 Angka)</span>
                         </div>
                         <div style={{ display: 'flex', gap: 'clamp(4px, 0.8vw, 7px)', flexWrap: 'wrap' }}>
                           {[18, 25, 11, 30, 14, 22, 9, 16, 27, 13].map((num, idx) => {
@@ -1275,19 +1285,19 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                                 borderRadius: '50%',
                                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                                 fontSize: 'clamp(10px, 1.8vh, 13px)',
-                                fontWeight: isTarget ? 900 : 500,
-                                background: isTarget ? '#D97706' : 'rgba(180,140,80,0.1)',
-                                color: isTarget ? '#000' : 'rgba(255,255,255,0.7)',
-                                border: isTarget ? '2px solid #fff' : '1px solid rgba(180,140,80,0.1)',
-                                boxShadow: isTarget ? '0 0 10px #D97706' : 'none',
+                                fontWeight: isTarget ? 900 : 700,
+                                background: isTarget ? '#D97706' : '#F5E8C7',
+                                color: isTarget ? '#FFFFFF' : '#6B4226',
+                                border: isTarget ? '2px solid #B45309' : '1.5px solid #8C6239',
+                                boxShadow: isTarget ? '0 0 10px rgba(217, 119, 6, 0.5)' : 'none',
                               }}>
                                 {num}
                               </div>
                             );
                           })}
                         </div>
-                        <div style={{ fontSize: 'clamp(10px, 1.7vh, 12px)', color: 'rgba(255, 255, 255, 0.7)', lineHeight: 1.5 }}>
-                          Angka <span style={{ color: '#D97706', fontWeight: 800 }}>9</span> ditebalkan karena merupakan angka <strong style={{ color: '#D97706' }}>terkecil</strong> dari kumpulan data tersebut.
+                        <div style={{ fontSize: 'clamp(10px, 1.7vh, 12px)', color: '#5C3D1E', lineHeight: 1.5 }}>
+                          Angka <span style={{ color: '#D97706', fontWeight: 900 }}>9</span> ditebalkan karena merupakan angka <strong style={{ color: '#D97706' }}>terkecil</strong> dari kumpulan data tersebut.
                         </div>
                       </div>
                     </div>
@@ -1300,17 +1310,17 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                       alignItems: 'center',
                       justifyContent: 'center',
                       gap: '12px',
-                      background: 'rgba(99, 102, 241, 0.05)',
-                      border: '1px solid rgba(99, 102, 241, 0.15)',
-                      borderRadius: '14px',
+                      background: '#FFFDF7',
+                      border: '1.5px solid #B48C50',
+                      borderRadius: '16px',
                       padding: '14px',
                       boxSizing: 'border-box',
                     }}>
                       <div style={{
                         width: '64px', height: '64px', borderRadius: '50%',
-                        border: '2px solid var(--accent)',
-                        boxShadow: 'var(--accent-glow)',
-                        background: 'var(--game-card)',
+                        border: '2.5px solid #8C6239',
+                        boxShadow: '0 4px 10px rgba(0,0,0,0.15)',
+                        background: '#FDF8EC',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                         overflow: 'hidden',
                       }}>
@@ -1324,10 +1334,10 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                         textAlign: 'center',
                         fontSize: 'clamp(10px, 1.8vh, 12px)',
                         lineHeight: 1.55,
-                        color: 'var(--text-primary)',
+                        color: '#362014',
                         fontWeight: 600,
                       }}>
-                        <p style={{ margin: '0 0 6px 0', color: 'var(--accent)', fontWeight: 800, fontSize: 'clamp(9px, 1.5vh, 11px)', letterSpacing: '0.5px' }}>
+                        <p style={{ margin: '0 0 6px 0', color: '#9A3412', fontWeight: 900, fontSize: 'clamp(9px, 1.5vh, 11px)', letterSpacing: '0.5px' }}>
                           PETUNJUK PAK SUTRISNO
                         </p>
                         "Agar lebih teliti, kamu dapat menyisir data angka dari yang terkecil sampai terbesar untuk menemukan nilai minimum dan maksimum dengan tepat!"
@@ -1337,14 +1347,18 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
 
                   {/* Action Button */}
                   <button
-                    className="game-btn game-btn-primary"
                     onClick={() => setShowFDIntroPopup(false)}
                     style={{
                       width: '100%',
-                      padding: 'clamp(8px, 1.5vh, 12px)',
+                      padding: 'clamp(10px, 1.8vh, 14px)',
                       fontSize: 'clamp(12px, 2vh, 14px)',
-                      fontWeight: 800,
-                      boxShadow: 'var(--accent-glow)',
+                      fontWeight: 900,
+                      background: 'linear-gradient(135deg, #0E8388 0%, #0284C7 100%)',
+                      border: '1.5px solid rgba(255, 255, 255, 0.4)',
+                      color: '#FFFFFF',
+                      borderRadius: '12px',
+                      boxShadow: '0 4px 14px rgba(14, 131, 136, 0.35)',
+                      cursor: 'pointer',
                     }}
                   >
                     Mengerti {!isMobile && '(Enter)'}
@@ -1356,9 +1370,9 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                   <div style={{ fontSize: '32px' }}>⚠️</div>
                   <div style={{
                     width: '60px', height: '60px', borderRadius: '50%',
-                    border: '2px solid #ef4444',
-                    boxShadow: '0 0 12px rgba(239, 68, 68, 0.4)',
-                    background: 'var(--game-card)',
+                    border: '2.5px solid #DC2626',
+                    boxShadow: '0 0 12px rgba(220, 38, 38, 0.3)',
+                    background: '#FFFDF7',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     overflow: 'hidden',
                   }}>
@@ -1368,14 +1382,13 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                       style={{ width: '100%', height: '100%', objectFit: 'cover', imageRendering: 'pixelated' }}
                     />
                   </div>
-                  <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 900, color: 'var(--text-primary)' }}>
+                  <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 900, color: '#991B1B' }}>
                     Nilai Tidak Sesuai!
                   </h3>
-                  <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.78)', lineHeight: 1.6 }}>
-                    Perhatikan kembali dengan cermat! Angka <strong style={{ color: '#ef4444', fontSize: '15px' }}>{wrongSelectedValue}</strong> yang kamu pilih bukanlah nilai <strong style={{ color: '#ef4444' }}>{wrongAssignType || 'terkecil atau terbesar'}</strong> dari kumpulan data ini. Teliti kembali datanya ya! 🔍
+                  <p style={{ margin: 0, fontSize: '13.5px', color: '#5C3D1E', lineHeight: 1.6 }}>
+                    Perhatikan kembali dengan cermat! Angka <strong style={{ color: '#DC2626', fontSize: '16px' }}>{wrongSelectedValue}</strong> yang kamu pilih bukanlah nilai <strong style={{ color: '#DC2626' }}>{wrongAssignType || 'terkecil atau terbesar'}</strong> dari kumpulan data ini. Teliti kembali datanya ya! 🔍
                   </p>
                   <button
-                    className="game-btn game-btn-primary"
                     onClick={() => {
                       setShowFDIntroPopup(false)
                       setWrongSelectedValue(null)
@@ -1383,12 +1396,15 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                     }}
                     style={{
                       width: '100%',
-                      padding: '10px',
+                      padding: '12px',
                       fontSize: '13px',
-                      fontWeight: 800,
-                      background: '#ef4444',
-                      border: 'none',
-                      boxShadow: '0 0 12px rgba(239, 68, 68, 0.4)',
+                      fontWeight: 900,
+                      background: 'linear-gradient(135deg, #DC2626 0%, #B91C1C 100%)',
+                      border: '1.5px solid rgba(255, 255, 255, 0.4)',
+                      borderRadius: '12px',
+                      color: '#FFFFFF',
+                      boxShadow: '0 4px 14px rgba(220, 38, 38, 0.35)',
+                      cursor: 'pointer',
                     }}
                   >
                     Mengerti {!isMobile && '(Enter)'}
@@ -1463,19 +1479,22 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                 {/* Name tag tab */}
                 <div style={{
                   alignSelf: 'flex-start',
-                  background: 'rgba(10, 20, 15, 0.95)',
-                  borderTop: '2px solid rgba(0, 173, 181, 0.3)',
-                  borderLeft: '2px solid rgba(0, 173, 181, 0.3)',
-                  borderRight: '2px solid rgba(0, 173, 181, 0.3)',
+                  background: 'linear-gradient(135deg, #8C6239 0%, #6E4720 100%)',
+                  borderTop: '2px solid #B48C50',
+                  borderLeft: '2px solid #B48C50',
+                  borderRight: '2px solid #B48C50',
                   borderBottom: 'none',
-                  borderRadius: '6px 14px 0 0',
-                  padding: '4px 16px',
-                  color: 'var(--accent)',
+                  borderRadius: '8px 16px 0 0',
+                  padding: '5px 18px',
+                  color: '#FFFDF7',
                   fontSize: 'clamp(11px, 1.8vh, 13px)',
                   fontWeight: 800,
                   letterSpacing: '1px',
                   display: 'flex', alignItems: 'center', gap: '6px',
                   boxShadow: '0 -4px 10px rgba(0,0,0,0.15)',
+                  marginBottom: '-2px',
+                  position: 'relative',
+                  zIndex: 2,
                 }}>
                   <span style={{ fontSize: '13px' }}>👨‍🏫</span>
                   <span>PAK SUTRISNO (GURU MATEMATIKA)</span>
@@ -1483,15 +1502,19 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
 
                 {/* Dialog text box */}
                 <div style={{
-                  background: 'rgba(10, 20, 18, 0.95)',
-                  border: '2px solid rgba(0, 173, 181, 0.4)',
-                  borderRadius: '0px 14px 14px 14px',
+                  background: 'linear-gradient(135deg, #FDF8EC 0%, #F5E8C7 100%)',
+                  border: '2.5px solid #8C6239',
+                  borderRadius: '0px 18px 18px 18px',
                   padding: 'clamp(14px, 2.5vh, 20px) clamp(16px, 3vw, 24px) clamp(12px, 2vh, 18px)',
-                  boxShadow: '0 10px 25px rgba(0, 173, 181, 0.1), inset 0 0 20px rgba(0, 173, 181, 0.03)',
+                  boxShadow: '0 20px 50px rgba(0, 0, 0, 0.45), inset 0 0 25px rgba(180, 140, 80, 0.2)',
                   display: 'flex', flexDirection: 'column', gap: '12px',
                   boxSizing: 'border-box', position: 'relative',
                   minHeight: 'clamp(95px, 18vh, 130px)',
                 }}>
+                  {/* Corner brackets */}
+                  <div style={{ position: 'absolute', top: 6, right: 6, width: 14, height: 14, borderTop: '3px solid #8C6239', borderRight: '3px solid #8C6239', pointerEvents: 'none' }} />
+                  <div style={{ position: 'absolute', bottom: 6, left: 6, width: 14, height: 14, borderBottom: '3px solid #8C6239', borderLeft: '3px solid #8C6239', pointerEvents: 'none' }} />
+                  <div style={{ position: 'absolute', bottom: 6, right: 6, width: 14, height: 14, borderBottom: '3px solid #8C6239', borderRight: '3px solid #8C6239', pointerEvents: 'none' }} />
 
                   {/* ── Agent Image (Cutscene style) ── */}
                   <div style={{
@@ -1509,17 +1532,16 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                       transition={{ type: 'spring', stiffness: 100, damping: 15, delay: 0.3 }}
                       src="/Assets/Character/pak-sutrisno-portrait.png"
                       alt="Pak Sutrisno"
-                      style={{ height: '100%', objectFit: 'contain', imageRendering: 'pixelated' }}
+                      style={{ height: '100%', objectFit: 'contain', imageRendering: 'pixelated', filter: 'drop-shadow(0 6px 12px rgba(0,0,0,0.3))' }}
                     />
-                    {/* "Go!" speech bubble removed */}
                   </div>
 
                   {/* Dialog text */}
                   <p style={{
                     margin: 0,
                     fontSize: 'clamp(12px, 2vh, 15px)',
-                    color: '#F8FAFC',
-                    fontWeight: 600,
+                    color: '#362014',
+                    fontWeight: 650,
                     lineHeight: 1.65,
                     paddingRight: 'clamp(80px, 15vw, 140px)',
                   }}>
@@ -1529,13 +1551,12 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                   {/* Footer */}
                   <div style={{
                     display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                    borderTop: '1px solid rgba(180,140,80,0.12)', paddingTop: '10px',
+                    borderTop: '1.5px solid rgba(140, 98, 57, 0.2)', paddingTop: '10px',
                   }}>
-                    <span style={{ fontSize: 'clamp(10px, 1.6vh, 12px)', color: '#94A3B8', fontWeight: 600 }}>
+                    <span style={{ fontSize: 'clamp(10px, 1.6vh, 12px)', color: '#8C6239', fontWeight: 700 }}>
                       Persiapan Statistik — Level 1
                     </span>
                     <motion.button
-                      className="game-btn game-btn-primary"
                       initial={{ opacity: 0, x: 10 }}
                       animate={{ opacity: introDone ? 1 : 0.4, x: 0 }}
                       transition={{ delay: 0.45 }}
@@ -1543,10 +1564,13 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                       style={{
                         fontSize: 'clamp(11px, 1.8vh, 13px)',
                         padding: 'clamp(6px, 1vh, 8px) clamp(16px, 2.5vw, 22px)',
-                        borderRadius: '7px', fontWeight: 800,
+                        borderRadius: '8px', fontWeight: 900,
                         display: 'flex', alignItems: 'center', gap: '6px',
                         minHeight: 'auto',
-                        boxShadow: introDone ? 'var(--accent-glow)' : 'none',
+                        background: 'linear-gradient(135deg, #0E8388 0%, #0284C7 100%)',
+                        border: '1.5px solid rgba(255, 255, 255, 0.4)',
+                        color: '#FFFFFF',
+                        boxShadow: introDone ? '0 4px 14px rgba(14, 131, 136, 0.35)' : 'none',
                         cursor: introDone ? 'pointer' : 'not-allowed',
                       }}
                     >
@@ -1575,18 +1599,38 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
               {/* ── Assign popup (terbesar / terkecil) ── */}
               <AnimatePresence>
                 {assignPopup !== null && (
-                  <div style={{ position: 'fixed', inset: 0, zIndex: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(11, 30, 44, 0.8)', backdropFilter: 'blur(6px)' }}>
+                  <div style={{ position: 'fixed', inset: 0, zIndex: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(20, 10, 5, 0.65)', backdropFilter: 'blur(6px)' }}>
                     <motion.div
                       initial={{ scale: 0.88, opacity: 0, y: 16 }}
                       animate={{ scale: 1, opacity: 1, y: 0 }}
                       exit={{ scale: 0.88, opacity: 0, y: 16 }}
                       transition={{ type: 'spring', damping: 22, stiffness: 350 }}
-                      style={{ background: 'rgba(10,10,22,0.98)', border: '2px solid var(--accent)', borderRadius: '22px', padding: '28px 24px', maxWidth: '320px', width: '90%', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '18px', boxShadow: '0 25px 50px rgba(0,0,0,0.6), 0 0 30px rgba(99,102,241,0.15)' }}
+                      style={{
+                        position: 'relative',
+                        background: 'linear-gradient(135deg, #FDF8EC 0%, #F5E8C7 100%)',
+                        border: '2.5px solid #8C6239',
+                        borderRadius: '24px',
+                        padding: '28px 24px',
+                        maxWidth: '340px',
+                        width: '90%',
+                        textAlign: 'center',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '18px',
+                        boxShadow: '0 20px 50px rgba(0,0,0,0.65), inset 0 0 25px rgba(180, 140, 80, 0.25)',
+                        color: '#362014',
+                      }}
                     >
+                      {/* Corner brackets */}
+                      <div style={{ position: 'absolute', top: 8, left: 8, width: 14, height: 14, borderTop: '3px solid #8C6239', borderLeft: '3px solid #8C6239', pointerEvents: 'none' }} />
+                      <div style={{ position: 'absolute', top: 8, right: 8, width: 14, height: 14, borderTop: '3px solid #8C6239', borderRight: '3px solid #8C6239', pointerEvents: 'none' }} />
+                      <div style={{ position: 'absolute', bottom: 8, left: 8, width: 14, height: 14, borderBottom: '3px solid #8C6239', borderLeft: '3px solid #8C6239', pointerEvents: 'none' }} />
+                      <div style={{ position: 'absolute', bottom: 8, right: 8, width: 14, height: 14, borderBottom: '3px solid #8C6239', borderRight: '3px solid #8C6239', pointerEvents: 'none' }} />
+
                       <div style={{ fontSize: '32px' }}>🎯</div>
-                      <div style={{ fontSize: '15px', fontWeight: 700, color: '#F8FAFC' }}>
+                      <div style={{ fontSize: '15px', fontWeight: 800, color: '#362014' }}>
                         Jadikan nilai{' '}
-                        <span style={{ color: 'var(--accent)', fontSize: '24px', fontWeight: 900, fontFamily: 'var(--font-data)' }}>{assignPopup}</span>{' '}
+                        <span style={{ color: '#0E8388', fontSize: '26px', fontWeight: 900, fontFamily: 'var(--font-data)' }}>{assignPopup}</span>{' '}
                         sebagai...
                       </div>
                       <div style={{ display: 'flex', gap: '10px' }}>
@@ -1594,17 +1638,17 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                           onClick={() => handleAssign('terbesar')}
                           style={{
                             flex: 1,
-                            padding: '10px 6px',
+                            padding: '12px 6px',
                             fontSize: '12px',
-                            fontWeight: 800,
+                            fontWeight: 900,
                             borderRadius: '12px',
                             minHeight: 'auto',
                             transition: 'all 0.2s',
                             cursor: 'pointer',
-                            background: popupSelection === 'terbesar' ? ACC : `${ACC}1a`,
-                            border: popupSelection === 'terbesar' ? `2.5px solid #fff` : `1.5px solid ${ACC}44`,
-                            color: popupSelection === 'terbesar' ? '#000' : '#a5b4fc',
-                            boxShadow: popupSelection === 'terbesar' ? `0 0 15px ${ACC}` : 'none',
+                            background: popupSelection === 'terbesar' ? 'linear-gradient(135deg, #0E8388 0%, #0284C7 100%)' : '#FFFDF7',
+                            border: popupSelection === 'terbesar' ? '2px solid #005F63' : '1.5px solid #8C6239',
+                            color: popupSelection === 'terbesar' ? '#FFFFFF' : '#362014',
+                            boxShadow: popupSelection === 'terbesar' ? '0 4px 14px rgba(14, 131, 136, 0.4)' : 'none',
                           }}
                         >
                           📈 Nilai Terbesar
@@ -1613,17 +1657,17 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                           onClick={() => handleAssign('terkecil')}
                           style={{
                             flex: 1,
-                            padding: '10px 6px',
+                            padding: '12px 6px',
                             fontSize: '12px',
-                            fontWeight: 800,
+                            fontWeight: 900,
                             borderRadius: '12px',
                             minHeight: 'auto',
                             transition: 'all 0.2s',
                             cursor: 'pointer',
-                            background: popupSelection === 'terkecil' ? GREEN : `${GREEN}1a`,
-                            border: popupSelection === 'terkecil' ? `2.5px solid #fff` : `1.5px solid ${GREEN}44`,
-                            color: popupSelection === 'terkecil' ? '#000' : GREEN,
-                            boxShadow: popupSelection === 'terkecil' ? `0 0 15px ${GREEN}` : 'none',
+                            background: popupSelection === 'terkecil' ? 'linear-gradient(135deg, #D97706 0%, #B45309 100%)' : '#FFFDF7',
+                            border: popupSelection === 'terkecil' ? '2px solid #78350F' : '1.5px solid #8C6239',
+                            color: popupSelection === 'terkecil' ? '#FFFFFF' : '#362014',
+                            boxShadow: popupSelection === 'terkecil' ? '0 4px 14px rgba(217, 119, 6, 0.4)' : 'none',
                           }}
                         >
                           📉 Nilai Terkecil
@@ -1631,7 +1675,7 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                       </div>
                       <button
                         onClick={() => setAssignPopup(null)}
-                        style={{ fontSize: '12px', color: 'rgba(255,255,255,0.38)', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}
+                        style={{ fontSize: '12px', color: '#8C6239', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 700 }}
                       >
                         ← Lanjut eksplorasi dulu {!isMobile && '(Esc)'}
                       </button>
@@ -1654,34 +1698,34 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                     position: 'absolute',
                     top: '8px',
                     right: '8px',
-                    background: 'rgba(6, 7, 9, 0.9)',
-                    border: '1.5px solid rgba(0, 173, 181, 0.25)',
+                    background: 'linear-gradient(135deg, #FDF8EC 0%, #F5E8C7 100%)',
+                    border: '1.5px solid #8C6239',
                     borderRadius: '10px',
                     padding: '8px 10px',
                     fontSize: '9.5px',
-                    color: '#E2E8F0',
+                    color: '#362014',
                     display: 'flex',
                     flexDirection: 'column',
                     gap: '5px',
                     zIndex: 25,
-                    boxShadow: '0 4px 20px rgba(0,0,0,0.65), 0 0 10px rgba(0, 173, 181, 0.1)',
+                    boxShadow: '0 4px 15px rgba(0,0,0,0.35)',
                     pointerEvents: 'none',
                     fontFamily: 'monospace',
-                    fontWeight: 600,
+                    fontWeight: 700,
                   }}>
-                    <div style={{ fontWeight: 800, color: '#00ADB5', fontSize: '9px', letterSpacing: '0.5px', borderBottom: '1px solid rgba(0,173,181,0.2)', paddingBottom: '3px', marginBottom: '2px', textTransform: 'uppercase' }}>
+                    <div style={{ fontWeight: 900, color: '#9A3412', fontSize: '9px', letterSpacing: '0.5px', borderBottom: '1px solid #8C6239', paddingBottom: '3px', marginBottom: '2px', textTransform: 'uppercase' }}>
                       📋 LEGENDA NODE
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <span style={{ display: 'inline-block', width: '7px', height: '7px', borderRadius: '50%', border: '1px solid rgba(255,255,255,0.4)', background: 'rgba(180,140,80,0.05)' }}></span>
+                      <span style={{ display: 'inline-block', width: '7px', height: '7px', borderRadius: '50%', border: '1px solid #8C6239', background: '#FFFDF7' }}></span>
                       <span>Belum Dipilih</span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <span style={{ display: 'inline-flex', width: '7.5px', height: '7.5px', borderRadius: '50%', background: '#00ADB5', alignItems: 'center', justifyContent: 'center', color: '#060709', fontSize: '5.5px', fontWeight: 'bold' }}>✓</span>
+                      <span style={{ display: 'inline-flex', width: '7.5px', height: '7.5px', borderRadius: '50%', background: '#0E8388', alignItems: 'center', justifyContent: 'center', color: '#FFFFFF', fontSize: '5.5px', fontWeight: 'bold' }}>✓</span>
                       <span>Nilai Terkecil (Min)</span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <span style={{ display: 'inline-flex', width: '7.5px', height: '7.5px', borderRadius: '50%', background: '#6366F1', alignItems: 'center', justifyContent: 'center', color: '#060709', fontSize: '5.5px', fontWeight: 'bold' }}>✓</span>
+                      <span style={{ display: 'inline-flex', width: '7.5px', height: '7.5px', borderRadius: '50%', background: '#D97706', alignItems: 'center', justifyContent: 'center', color: '#FFFFFF', fontSize: '5.5px', fontWeight: 'bold' }}>✓</span>
                       <span>Nilai Terbesar (Max)</span>
                     </div>
                   </div>
@@ -1916,15 +1960,16 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                       display: 'flex',
                       flexDirection: 'column',
                       gap: '8px',
-                      background: 'rgba(11, 30, 44, 0.4)',
-                      border: '1px solid rgba(180,140,80,0.15)',
+                      background: '#FFFDF7',
+                      border: '1.5px solid #B48C50',
                       borderRadius: '16px',
                       padding: '12px 10px',
                       maxHeight: '230px',
                       boxSizing: 'border-box',
-                      marginBottom: '4px'
+                      marginBottom: '4px',
+                      boxShadow: 'inset 0 1px 4px rgba(180, 140, 80, 0.15)',
                     }}>
-                      <div style={{ fontSize: '10px', fontWeight: 800, color: '#00ADB5', letterSpacing: '1px', textTransform: 'uppercase' }}>
+                      <div style={{ fontSize: '10px', fontWeight: 900, color: '#9A3412', letterSpacing: '1px', textTransform: 'uppercase' }}>
                         📊 DATA TERKUMPUL ({STATS.n})
                       </div>
                       <div style={{
@@ -1942,14 +1987,14 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                               width: '26px',
                               height: '26px',
                               borderRadius: '50%',
-                              background: 'rgba(0, 173, 181, 0.08)',
-                              border: '1px solid rgba(0, 173, 181, 0.35)',
+                              background: '#F5E8C7',
+                              border: '1px solid #8C6239',
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
                               fontSize: '10px',
-                              fontWeight: 800,
-                              color: '#FFFFFF',
+                              fontWeight: 900,
+                              color: '#362014',
                               fontFamily: 'var(--font-data)',
                               transition: 'all 0.2s ease',
                             }}
@@ -1962,14 +2007,14 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                   )}
 
                   {!isMobile && (
-                    <div style={{ fontSize: '12px', fontWeight: 800, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '1.5px' }}>
+                    <div style={{ fontSize: '12px', fontWeight: 900, color: '#8C6239', textTransform: 'uppercase', letterSpacing: '1.5px' }}>
                       📐 RUMUS RENTANG
                     </div>
                   )}
 
                   <div style={{
-                    background: isMobile ? 'transparent' : `${ACC}0c`,
-                    border: isMobile ? 'none' : `1px solid ${ACC}2a`,
+                    background: isMobile ? 'transparent' : '#FFFDF7',
+                    border: isMobile ? 'none' : '1.5px solid #8C6239',
                     borderRadius: '14px',
                     padding: isMobile ? '0px' : '12px 10px',
                     width: isMobile ? 'auto' : '100%',
@@ -1978,17 +2023,18 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                     flexDirection: isMobile ? 'row' : 'column',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    gap: isMobile ? '12px' : '10px'
+                    gap: isMobile ? '12px' : '10px',
+                    boxShadow: isMobile ? 'none' : 'inset 0 1px 4px rgba(180, 140, 80, 0.15)',
                   }}>
                     {!isMobile && (
-                      <div style={{ fontSize: '13px', fontWeight: 800, color: '#a5b4fc', textAlign: 'center' }}>
+                      <div style={{ fontSize: '13px', fontWeight: 900, color: '#362014', textAlign: 'center' }}>
                         R = terbesar − terkecil
                       </div>
                     )}
 
                     {/* Terbesar slot */}
                     <div style={{ display: 'flex', flexDirection: isMobile ? 'row' : 'column', alignItems: 'center', gap: '6px' }}>
-                      <div style={{ fontSize: '10px', fontWeight: 800, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.8px', whiteSpace: 'nowrap' }}>
+                      <div style={{ fontSize: '10px', fontWeight: 800, color: '#6B4226', letterSpacing: '0.8px', whiteSpace: 'nowrap' }}>
                         {isMobile ? 'MAX:' : 'NILAI TERBESAR'}
                       </div>
                       <motion.div
@@ -1997,10 +2043,10 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                         style={{
                           width: isMobile ? '48px' : '100%', height: isMobile ? '32px' : '42px', borderRadius: '10px',
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          background: mazeMax !== null ? `${ACC}1f` : 'rgba(217,119,6,0.06)',
-                          border: mazeMax !== null ? `2.5px solid ${ACC}66` : '2px dashed rgba(255,255,255,0.14)',
+                          background: mazeMax !== null ? '#FEF3C7' : '#F5E8C7',
+                          border: mazeMax !== null ? '2.5px solid #D97706' : '2px dashed #8C6239',
                           fontSize: isMobile ? '16px' : 'clamp(18px, 3vh, 24px)', fontWeight: 900,
-                          color: mazeMax !== null ? '#fff' : 'rgba(255,255,255,0.22)',
+                          color: mazeMax !== null ? '#B45309' : '#8C6239',
                           fontFamily: 'var(--font-data)',
                         }}
                       >
@@ -2008,11 +2054,11 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                       </motion.div>
                     </div>
 
-                    {!isMobile && <div style={{ textAlign: 'center', fontSize: '16px', color: '#78716C', fontFamily: 'var(--font-data)', lineHeight: 1 }}>−</div>}
+                    {!isMobile && <div style={{ textAlign: 'center', fontSize: '16px', color: '#6B4226', fontFamily: 'var(--font-data)', lineHeight: 1, fontWeight: 900 }}>−</div>}
 
                     {/* Terkecil slot */}
                     <div style={{ display: 'flex', flexDirection: isMobile ? 'row' : 'column', alignItems: 'center', gap: '6px' }}>
-                      <div style={{ fontSize: '10px', fontWeight: 800, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.8px', whiteSpace: 'nowrap' }}>
+                      <div style={{ fontSize: '10px', fontWeight: 800, color: '#6B4226', letterSpacing: '0.8px', whiteSpace: 'nowrap' }}>
                         {isMobile ? 'MIN:' : 'NILAI TERKECIL'}
                       </div>
                       <motion.div
@@ -2021,10 +2067,10 @@ export default function PregameFormula({ onComplete, teamId, studentId, teamMemb
                         style={{
                           width: isMobile ? '48px' : '100%', height: isMobile ? '32px' : '42px', borderRadius: '10px',
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          background: mazeMin !== null ? `${GREEN}18` : 'rgba(217,119,6,0.06)',
-                          border: mazeMin !== null ? `2px solid ${GREEN}55` : '2px dashed rgba(255,255,255,0.14)',
+                          background: mazeMin !== null ? '#ECFDF5' : '#F5E8C7',
+                          border: mazeMin !== null ? '2px solid #059669' : '2px dashed #8C6239',
                           fontSize: isMobile ? '16px' : 'clamp(18px, 3vh, 24px)', fontWeight: 900,
-                          color: mazeMin !== null ? GREEN : 'rgba(255,255,255,0.22)',
+                          color: mazeMin !== null ? '#047857' : '#8C6239',
                           fontFamily: 'var(--font-data)',
                         }}
                       >

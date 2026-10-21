@@ -20,68 +20,108 @@ import { screenTimeData } from '@/app/siswa/game/_data/level1'
 
 export function getClassDoors(customDataset?: number[] | null): QuizDoor[] {
   const data = customDataset && customDataset.length === 24 ? customDataset : screenTimeData
+
+  // 1. Kelas VII-A (5 Siswa): Jangkauan Data (Range = Max - Min)
   const a1Data = data.slice(0, 5)
   const minA1 = Math.min(...a1Data)
   const maxA1 = Math.max(...a1Data)
   const rangeA1 = maxA1 - minA1
-
-  // Dynamic choices around rangeA1
-  const choiceSet = new Set<number>([rangeA1])
+  const choiceSetA1 = new Set<number>([rangeA1])
   for (const offset of [-2, -1, 1, 2, 3]) {
     const val = rangeA1 + offset
-    if (val > 0) choiceSet.add(val)
+    if (val > 0) choiceSetA1.add(val)
   }
-  const choicesA1 = Array.from(choiceSet).slice(0, 4).sort((a, b) => a - b)
+  const choicesA1 = Array.from(choiceSetA1).slice(0, 4).sort((a, b) => a - b)
+
+  // 2. Kelas VII-B (7 Siswa): Frekuensi Data Kriteria (f dengan waktu > 4 jam)
+  const a2Data = data.slice(5, 12)
+  const cutoffA2 = 4
+  let countA2 = a2Data.filter(v => v > cutoffA2).length
+  if (countA2 < 2 || countA2 > 5) {
+    countA2 = a2Data.filter(v => v > 3).length
+  }
+  const choiceSetA2 = new Set<number>([countA2])
+  for (const offset of [-2, -1, 1, 2, 3]) {
+    const val = countA2 + offset
+    if (val >= 1 && val <= 7) choiceSetA2.add(val)
+  }
+  const choicesA2 = Array.from(choiceSetA2).slice(0, 4).sort((a, b) => a - b)
+
+  // 4. Kelas VIII-A (4 Siswa): Jumlah Seluruh Nilai Data (Sigma / Σx)
+  const b1Data = data.slice(12, 16)
+  const sumB1 = b1Data.reduce((a, b) => a + b, 0)
+  const choiceSetB1 = new Set<number>([sumB1])
+  for (const offset of [-3, -2, 2, 3, 4]) {
+    const val = sumB1 + offset
+    if (val > 0) choiceSetB1.add(val)
+  }
+  const choicesB1 = Array.from(choiceSetB1).slice(0, 4).sort((a, b) => a - b)
+
+  // 5. Kelas VIII-B (8 Siswa): Selisih Pencilan (Outlier) Ekstrem
+  const b2Data = data.slice(16, 24)
+  const sortedB2 = [...b2Data].sort((a, b) => b - a)
+  const outlierB2 = sortedB2[0]
+  const secondB2 = sortedB2[1]
+  const diffB2 = outlierB2 - secondB2
+  const choiceSetB2 = new Set<number>([diffB2])
+  for (const offset of [-3, -2, 2, 3, 4]) {
+    const val = diffB2 + offset
+    if (val > 0) choiceSetB2.add(val)
+  }
+  const choicesB2 = Array.from(choiceSetB2).slice(0, 4).sort((a, b) => a - b)
 
   return [
-    // Pintu 1 (Sayap Kiri Depan) - Kelas VII-A
+    // Pintu 1 - Kelas VII-A
     {
-      id: 'A1', roomId: 'A', label: 'Kelas VII-A', x: 135, y: 475, color: '#818cf8',
+      id: 'A1', roomId: 'A', label: 'Kelas VII-A', x: 166, y: 355, color: '#818cf8',
       image: '/Assets/Building/Ruang VII-A/VII-A.webp',
-      quizQ: `Data screen time 5 siswa: ${a1Data.join(', ')} jam. Berapa rentang datanya?`,
+      quizQ: `Data screen time 5 siswa: ${a1Data.join(', ')} jam. Berapa rentang (selisih max − min) datanya?`,
       quizA: rangeA1,
       choices: choicesA1,
-      fdContext: '💡 Ingat: rentang = nilai terbesar − nilai terkecil',
-      hint: `Kurangkan nilai terbesar (${maxA1}) dengan nilai terkecil (${minA1}) untuk mendapatkan rentang.`, count: 5
+      fdContext: '💡 Rentang (Range) = Nilai Terbesar − Nilai Terkecil',
+      hint: `Kurangkan nilai terbesar (${maxA1}) dengan nilai terkecil (${minA1}).`, count: 5
     },
 
-    // Pintu 2 (Sayap Kiri Dalam) - Kelas VII-B
+    // Pintu 2 - Kelas VII-B
     {
-      id: 'A2', roomId: 'A', label: 'Kelas VII-B', x: 250, y: 385, color: '#6366f1',
+      id: 'A2', roomId: 'A', label: 'Kelas VII-B', x: 390, y: 355, color: '#6366f1',
       image: '/Assets/Building/Ruang VII-B/VII-B.webp',
-      quizQ: 'Tepi bawah kelas interval 4–6 adalah?',
-      quizA: 3.5, choices: [3, 3.5, 4, 4.5],
-      fdContext: '💡 Ingat: tepi bawah = batas bawah − 0.5',
-      hint: 'Kurangi batas bawah kelas (4) dengan 0.5.', count: 7
+      quizQ: `Data 7 siswa Kelas VII-B: ${a2Data.join(', ')} jam. Berapa banyak siswa yang waktu layarnya > 4 jam?`,
+      quizA: countA2,
+      choices: choicesA2,
+      fdContext: '💡 Frekuensi (f) = Banyaknya kemunculan data yang memenuhi kriteria',
+      hint: 'Hitung berapa banyak angka pada data di atas yang nilainya lebih besar dari 4.', count: 7
     },
 
     // Pintu 3 (Gedung Tengah / Pintu Utama) - Ruang Guru (Pak Sutrisno)
     {
-      id: 'RG', roomId: 'RG', label: 'Ruang Guru', x: 625, y: 345, color: '#F59E0B',
+      id: 'RG', roomId: 'RG', label: 'Ruang Guru', x: 618, y: 355, color: '#F59E0B',
       image: '/Assets/Building/Ruang Guru/Ruang Guru.webp',
       quizQ: 'Ruang Guru dan Kantor Kedisiplinan Pak Sutrisno.',
       quizA: 0,
       hint: 'Kumpulkan data dari 4 kelas terlebih dahulu untuk menemui Pak Sutrisno!', count: 0
     },
 
-    // Pintu 4 (Sayap Kanan Dalam) - Kelas VIII-A
+    // Pintu 4 - Kelas VIII-A
     {
-      id: 'B1', roomId: 'B', label: 'Kelas VIII-A', x: 985, y: 385, color: '#00ADB5',
+      id: 'B1', roomId: 'B', label: 'Kelas VIII-A', x: 839, y: 355, color: '#00ADB5',
       image: '/Assets/Building/Ruang VIII-A/VIII-A.webp',
-      quizQ: 'Kamu menerima berita viral yang belum terverifikasi. Tindakan paling etis adalah?',
-      quizA: 'Verifikasi dulu', choices: ['Langsung share', 'Verifikasi dulu', 'Screenshot & sebar', 'Abaikan saja'],
-      fdContext: '💡 Pikirkan dampaknya terhadap orang lain',
-      hint: 'Cari tindakan yang memastikan kebenaran informasi sebelum membagikannya.', count: 4
+      quizQ: `Data 4 siswa Kelas VIII-A: ${b1Data.join(', ')} jam. Berapa total jam seluruh siswa (${b1Data.join(' + ')} = ?)?`,
+      quizA: sumB1,
+      choices: choicesB1,
+      fdContext: '💡 Sigma (Σx) = Jumlah penjumlahan seluruh nilai data',
+      hint: `Jumlahkan keempat angka jam waktu layar: ${b1Data.join(' + ')}.`, count: 4
     },
 
-    // Pintu 5 (Sayap Kanan Depan) - Kelas VIII-B
+    // Pintu 5 - Kelas VIII-B
     {
-      id: 'B2', roomId: 'B', label: 'Kelas VIII-B', x: 1100, y: 475, color: '#0e8388',
+      id: 'B2', roomId: 'B', label: 'Kelas VIII-B', x: 1064, y: 355, color: '#0e8388',
       image: '/Assets/Building/Ruang VIII-B/VIII-B.webp',
-      quizQ: 'Seseorang memposting foto orang lain tanpa izin untuk konten viral. Ini termasuk pelanggaran?',
-      quizA: 'Kedua-duanya', choices: ['Privasi', 'Hak cipta', 'Kedua-duanya', 'Bukan pelanggaran'],
-      fdContext: '💡 Pikirkan mengenai kepemilikan dan privasi hak orang lain',
-      hint: 'Memposting foto orang lain melanggar ranah pribadi sekaligus kepemilikan ciptaan.', count: 8
+      quizQ: `Di Kelas VIII-B ada data pencilan (${outlierB2} jam) dibanding angka tertinggi kedua (${secondB2} jam). Berapa selisihnya?`,
+      quizA: diffB2,
+      choices: choicesB2,
+      fdContext: '💡 Pencilan (Outlier) = Nilai yang menyimpang jauh dari kelompok data',
+      hint: `Kurangkan nilai pencilan tertinggi (${outlierB2}) dengan angka tertinggi berikutnya (${secondB2}).`, count: 8
     },
   ]
 }

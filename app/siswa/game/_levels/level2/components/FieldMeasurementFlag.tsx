@@ -101,16 +101,16 @@ export default function FieldMeasurementFlag({
           width={84}
           height={22}
           rx={6}
-          fill="rgba(15, 23, 42, 0.94)"
-          stroke={isSelected ? '#FBBF24' : flagColor}
-          strokeWidth={isSelected ? 2 : 1}
-          filter="drop-shadow(0 4px 8px rgba(0,0,0,0.6))"
+          fill="#FDF8EC"
+          stroke={isSelected ? '#B45309' : '#8C6239'}
+          strokeWidth={isSelected ? 2 : 1.5}
+          style={{ filter: 'drop-shadow(0 3px 6px rgba(0,0,0,0.25))' }}
         />
         <text
           x={0}
           y={1}
           textAnchor="middle"
-          fill="#FFFFFF"
+          fill="#362014"
           fontSize={10.5}
           fontWeight="900"
           fontFamily="var(--font-ui, sans-serif)"

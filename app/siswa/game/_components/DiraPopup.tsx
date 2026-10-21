@@ -44,19 +44,21 @@ const DIRA_MESSAGES: Record<DiraPopupStep, { emoji: string; title: string; body:
 
 // ── Keyword Highlights mapping ──────────────────────────────────────────────────
 const HIGHLIGHTS: Record<string, string> = {
-  'Rentang = data terbesar − data terkecil': 'var(--accent)',
-  'K = 1 + 3,3 × log n': 'var(--accent)',
-  'P = R ÷ K': 'var(--accent)',
-  'Rentang': 'var(--accent)',
-  'Banyak Kelas': 'var(--accent)',
-  'Panjang Kelas': 'var(--accent)',
-  'data terbesar': 'var(--accent)',
-  'data terkecil': 'var(--accent)',
-  'screen time': 'var(--accent)',
-  'rumus Sturges': 'var(--accent)',
-  'n': 'var(--accent)',
-  'R': 'var(--accent)',
-  'K': 'var(--accent)',
+  'Rentang = data terbesar − data terkecil': '#9A3412',
+  'k = 1 + 3,3 × log n': '#9A3412',
+  'p = R ÷ k': '#9A3412',
+  'Rentang': '#9A3412',
+  'Banyak Kelas': '#9A3412',
+  'Panjang Kelas': '#9A3412',
+  'data terbesar': '#0E8388',
+  'data terkecil': '#0E8388',
+  'screen time': '#0E8388',
+  'rumus Sturges': '#9A3412',
+  'n': '#9A3412',
+  'R': '#9A3412',
+  'k': '#9A3412',
+  'K': '#9A3412',
+  'P': '#9A3412',
 }
 
 // ── Typewriter component ────────────────────────────────────────────────────────
@@ -229,7 +231,7 @@ export default function DiraPopup({ step, autoDismissMs = 7000, onDismiss }: Dir
               position: 'fixed',
               inset: 0,
               zIndex: 500,
-              background: 'rgba(0,0,0,0.65)',
+              background: 'rgba(20, 10, 5, 0.65)',
               backdropFilter: 'blur(4px)',
               WebkitBackdropFilter: 'blur(4px)',
             }}
@@ -255,14 +257,14 @@ export default function DiraPopup({ step, autoDismissMs = 7000, onDismiss }: Dir
             {/* Name tag tab */}
             <div style={{
               alignSelf: 'flex-start',
-              background: 'rgba(10, 20, 15, 0.95)',
-              borderTop: '2px solid rgba(14, 131, 136, 0.3)',
-              borderLeft: '2px solid rgba(14, 131, 136, 0.3)',
-              borderRight: '2px solid rgba(14, 131, 136, 0.3)',
+              background: 'linear-gradient(135deg, #8C6239 0%, #6E4720 100%)',
+              borderTop: '2px solid #B48C50',
+              borderLeft: '2px solid #B48C50',
+              borderRight: '2px solid #B48C50',
               borderBottom: 'none',
-              borderRadius: '6px 14px 0 0',
-              padding: '4px 16px',
-              color: 'var(--accent)',
+              borderRadius: '8px 16px 0 0',
+              padding: '5px 18px',
+              color: '#FFFDF7',
               fontSize: isMobile ? '11px' : '13px',
               fontWeight: 800,
               letterSpacing: '1px',
@@ -277,26 +279,26 @@ export default function DiraPopup({ step, autoDismissMs = 7000, onDismiss }: Dir
               <span style={{ fontSize: '13px' }}>👨‍🏫</span>
               <span>PAK SUTRISNO</span>
               <span style={{
-                fontSize: '8px',
-                padding: '1px 6px',
+                fontSize: '9px',
+                padding: '2px 8px',
                 borderRadius: '50px',
-                background: 'rgba(14, 131, 136, 0.1)',
-                border: '1px solid rgba(14, 131, 136, 0.3)',
-                color: '#00ADB5',
-                fontWeight: 700,
+                background: '#FEF3C7',
+                border: '1px solid #D97706',
+                color: '#9A3412',
+                fontWeight: 800,
                 marginLeft: '8px',
               }}>
                 Langkah {step === 'banyak-kelas' ? 1 : step === 'rentang' ? 2 : 3} dari 3
               </span>
             </div>
 
-            {/* Dialog text box */}
+            {/* Dialog text box - Light parchment board */}
             <div style={{
-              background: 'rgba(10, 20, 18, 0.95)',
-              border: '2px solid rgba(14, 131, 136, 0.4)',
-              borderRadius: '0px 14px 14px 14px',
+              background: 'linear-gradient(135deg, #FDF8EC 0%, #F5E8C7 100%)',
+              border: '2.5px solid #8C6239',
+              borderRadius: '0px 18px 18px 18px',
               padding: 'clamp(14px, 2.5vh, 20px) clamp(16px, 3vw, 24px) clamp(12px, 2vh, 18px)',
-              boxShadow: '0 10px 25px rgba(14, 131, 136, 0.15), inset 0 0 20px rgba(14, 131, 136, 0.03)',
+              boxShadow: '0 20px 50px rgba(0, 0, 0, 0.45), inset 0 0 25px rgba(180, 140, 80, 0.2)',
               display: 'flex',
               flexDirection: 'column',
               gap: '12px',
@@ -304,16 +306,21 @@ export default function DiraPopup({ step, autoDismissMs = 7000, onDismiss }: Dir
               position: 'relative',
               minHeight: 'clamp(95px, 18vh, 130px)',
             }}>
+              {/* Corner brackets */}
+              <div style={{ position: 'absolute', top: 6, right: 6, width: 14, height: 14, borderTop: '3px solid #8C6239', borderRight: '3px solid #8C6239', pointerEvents: 'none' }} />
+              <div style={{ position: 'absolute', bottom: 6, left: 6, width: 14, height: 14, borderBottom: '3px solid #8C6239', borderLeft: '3px solid #8C6239', pointerEvents: 'none' }} />
+              <div style={{ position: 'absolute', bottom: 6, right: 6, width: 14, height: 14, borderBottom: '3px solid #8C6239', borderRight: '3px solid #8C6239', pointerEvents: 'none' }} />
+
               {/* Progress bar (auto-dismiss countdown) */}
               {autoDismissMs > 0 && typewriterDone && (
                 <div style={{
-                  height: '3px',
-                  background: 'rgba(14, 131, 136, 0.12)',
+                  height: '4px',
+                  background: 'rgba(140, 98, 57, 0.15)',
                   position: 'absolute',
                   top: 0,
                   left: 0,
                   right: 0,
-                  borderRadius: '0px 14px 0 0',
+                  borderRadius: '0px 16px 0 0',
                   overflow: 'hidden',
                 }}>
                   <motion.div
@@ -322,7 +329,7 @@ export default function DiraPopup({ step, autoDismissMs = 7000, onDismiss }: Dir
                       left: 0,
                       top: 0,
                       height: '100%',
-                      background: 'rgba(14, 131, 136, 0.5)',
+                      background: 'linear-gradient(90deg, #D97706, #B45309)',
                       width: `${100 - progress}%`,
                       transition: 'width 0.05s linear',
                     }}
@@ -348,17 +355,16 @@ export default function DiraPopup({ step, autoDismissMs = 7000, onDismiss }: Dir
                   transition={{ type: 'spring', stiffness: 100, damping: 15, delay: 0.1 }}
                   src="/Assets/Character/pak-sutrisno-portrait.png"
                   alt="Pak Sutrisno"
-                  style={{ height: '100%', objectFit: 'contain', imageRendering: 'pixelated' }}
+                  style={{ height: '100%', objectFit: 'contain', imageRendering: 'pixelated', filter: 'drop-shadow(0 6px 12px rgba(0,0,0,0.3))' }}
                 />
-                {/* "Go!" speech bubble removed */}
               </div>
 
               {/* Dialog text */}
               <p style={{
                 margin: 0,
                 fontSize: isMobile ? '13px' : '15px',
-                color: '#F8FAFC',
-                fontWeight: 600,
+                color: '#362014',
+                fontWeight: 650,
                 lineHeight: 1.65,
                 paddingRight: isMobile ? '110px' : '160px',
               }}>
@@ -371,33 +377,33 @@ export default function DiraPopup({ step, autoDismissMs = 7000, onDismiss }: Dir
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                borderTop: '1px solid rgba(14, 131, 136, 0.12)',
+                borderTop: '1.5px solid rgba(140, 98, 57, 0.2)',
                 paddingTop: '10px',
                 marginTop: '12px',
               }}>
-                <span style={{ fontSize: isMobile ? '10px' : '12px', color: '#94A3B8', fontWeight: 600 }}>
+                <span style={{ fontSize: isMobile ? '10px' : '12px', color: '#78350F', fontWeight: 700 }}>
                   Persiapan Statistik — {msg.title}
                 </span>
                 <motion.button
-                  className="game-btn game-btn-primary"
+                  className="game-btn"
                   initial={{ opacity: 0, x: 10 }}
-                  animate={{ opacity: typewriterDone ? 1 : 0.4, x: 0 }}
+                  animate={{ opacity: typewriterDone ? 1 : 0.5, x: 0 }}
                   transition={{ delay: 0.1 }}
                   onClick={() => typewriterDone && dismiss()}
                   style={{
                     fontSize: isMobile ? '12px' : '13px',
                     padding: isMobile ? '6px 16px' : '8px 22px',
-                    borderRadius: '7px',
+                    borderRadius: '8px',
                     fontWeight: 800,
                     display: 'flex',
                     alignItems: 'center',
                     gap: '6px',
                     minHeight: 'auto',
-                    boxShadow: typewriterDone ? 'var(--accent-glow)' : 'none',
+                    boxShadow: typewriterDone ? '0 4px 14px rgba(14, 131, 136, 0.35)' : 'none',
                     cursor: typewriterDone ? 'pointer' : 'not-allowed',
-                    border: 'none',
-                    background: typewriterDone ? 'var(--accent)' : 'rgba(14, 131, 136, 0.1)',
-                    color: typewriterDone ? '#FFFFFF' : '#94A3B8',
+                    border: typewriterDone ? '1.5px solid rgba(255, 255, 255, 0.4)' : '1px solid #B48C50',
+                    background: typewriterDone ? 'linear-gradient(135deg, #0E8388 0%, #0284C7 100%)' : 'rgba(140, 98, 57, 0.15)',
+                    color: typewriterDone ? '#FFFFFF' : '#8C6239',
                   }}
                 >
                   {msg.cta} →

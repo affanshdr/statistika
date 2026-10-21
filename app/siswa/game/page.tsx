@@ -47,7 +47,7 @@ export default function CasecodeTitlePage() {
   }
 
   const handleLobbyClick = () => {
-    router.push('/siswa/game/lobby')
+    router.push('/siswa')
   }
 
   return (
@@ -186,38 +186,6 @@ export default function CasecodeTitlePage() {
             marginTop: '-10px',
           }}
         >
-          {/* Badge */}
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 }}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '8px',
-              background: 'rgba(11, 23, 38, 0.85)',
-              backdropFilter: 'blur(8px)',
-              border: '2px solid #00ADB5',
-              borderRadius: '999px',
-              padding: '6px 20px',
-              marginBottom: '14px',
-              boxShadow: '0 4px 16px rgba(0, 173, 181, 0.35)',
-            }}
-          >
-            <span style={{ fontSize: '13px' }}>🏫</span>
-            <span
-              style={{
-                fontSize: '11px',
-                fontWeight: 800,
-                letterSpacing: '2.5px',
-                color: '#38BDF8',
-                textTransform: 'uppercase',
-              }}
-            >
-              SMP NEGERI • GAME EDUKASI STATISTIKA
-            </span>
-          </motion.div>
-
           {/* DYNAMIC TITLE: CASECODE (Pixel-Art Styled) */}
           <h1
             style={{

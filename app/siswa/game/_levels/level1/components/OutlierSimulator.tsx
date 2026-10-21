@@ -49,36 +49,37 @@ export default function OutlierSimulator({ dataset, onExplored }: OutlierSimulat
 
   return (
     <div style={{
-      background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%)',
-      border: '1.5px solid rgba(56, 189, 248, 0.35)',
-      borderRadius: 16,
-      padding: '16px 18px',
-      boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5), inset 0 0 16px rgba(56, 189, 248, 0.06)',
+      background: 'linear-gradient(135deg, #FDF8EC 0%, #F5E8C7 100%)',
+      border: '2.5px solid #8C6239',
+      borderRadius: 20,
+      padding: '18px 20px',
+      boxShadow: '0 12px 36px rgba(0, 0, 0, 0.25), inset 0 0 20px rgba(180, 140, 80, 0.2)',
       display: 'flex',
       flexDirection: 'column',
       gap: 14,
+      color: '#362014',
     }}>
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: 10 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1.5px solid rgba(140, 98, 57, 0.25)', paddingBottom: 10 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontSize: 18 }}>🔬</span>
+          <span style={{ fontSize: 20 }}>🔬</span>
           <div>
-            <div style={{ fontSize: 13, fontWeight: 900, color: '#38BDF8', letterSpacing: '0.4px' }}>
+            <div style={{ fontSize: 13, fontWeight: 900, color: '#9A3412', letterSpacing: '0.4px', textTransform: 'uppercase' }}>
               SIMULATOR INTERAKTIF: EFEK PENCILAN (OUTLIER)
             </div>
-            <div style={{ fontSize: 10.5, color: '#94A3B8' }}>
+            <div style={{ fontSize: 11, color: '#5C3D1E', fontWeight: 600 }}>
               Bandingkan sensitivitas Rata-rata (Mean) vs Ketahanan (Resistensi) Median
             </div>
           </div>
         </div>
 
         <span style={{
-          background: excludeOutliers ? 'rgba(245, 158, 11, 0.18)' : 'rgba(56, 189, 248, 0.18)',
-          border: `1px solid ${excludeOutliers ? '#F59E0B' : '#38BDF8'}`,
-          color: excludeOutliers ? '#FCD34D' : '#7DD3FC',
-          fontSize: 10,
+          background: '#FEF3C7',
+          border: '1.5px solid #8C6239',
+          color: '#9A3412',
+          fontSize: 10.5,
           fontWeight: 800,
-          padding: '3px 10px',
+          padding: '4px 12px',
           borderRadius: 20
         }}>
           {excludeOutliers ? `Tanpa Outlier (n = ${currentN})` : `Semua Data (n = ${currentN})`}
@@ -92,9 +93,9 @@ export default function OutlierSimulator({ dataset, onExplored }: OutlierSimulat
           style={{
             padding: '10px 14px',
             borderRadius: 12,
-            border: !excludeOutliers ? '2px solid #38BDF8' : '1px solid rgba(255,255,255,0.12)',
-            background: !excludeOutliers ? 'rgba(56, 189, 248, 0.2)' : 'rgba(255,255,255,0.04)',
-            color: !excludeOutliers ? '#FFFFFF' : '#94A3B8',
+            border: !excludeOutliers ? '2px solid #0E8388' : '1.5px solid #B48C50',
+            background: !excludeOutliers ? 'linear-gradient(135deg, #0E8388 0%, #0284C7 100%)' : '#FFFDF7',
+            color: !excludeOutliers ? '#FFFFFF' : '#6B4226',
             fontSize: 12,
             fontWeight: 800,
             cursor: 'pointer',
@@ -103,6 +104,7 @@ export default function OutlierSimulator({ dataset, onExplored }: OutlierSimulat
             justifyContent: 'center',
             gap: 6,
             transition: 'all 0.2s',
+            boxShadow: !excludeOutliers ? '0 4px 12px rgba(14, 131, 136, 0.35)' : 'none',
           }}
         >
           <span>📊</span>
@@ -114,9 +116,9 @@ export default function OutlierSimulator({ dataset, onExplored }: OutlierSimulat
           style={{
             padding: '10px 14px',
             borderRadius: 12,
-            border: excludeOutliers ? '2px solid #F59E0B' : '1px solid rgba(255,255,255,0.12)',
-            background: excludeOutliers ? 'rgba(245, 158, 11, 0.2)' : 'rgba(255,255,255,0.04)',
-            color: excludeOutliers ? '#FDE68A' : '#94A3B8',
+            border: excludeOutliers ? '2px solid #D97706' : '1.5px solid #B48C50',
+            background: excludeOutliers ? 'linear-gradient(135deg, #D97706 0%, #B45309 100%)' : '#FFFDF7',
+            color: excludeOutliers ? '#FFFFFF' : '#6B4226',
             fontSize: 12,
             fontWeight: 800,
             cursor: 'pointer',
@@ -125,6 +127,7 @@ export default function OutlierSimulator({ dataset, onExplored }: OutlierSimulat
             justifyContent: 'center',
             gap: 6,
             transition: 'all 0.2s',
+            boxShadow: excludeOutliers ? '0 4px 12px rgba(217, 119, 6, 0.35)' : 'none',
           }}
         >
           <span>✂️</span>
@@ -133,8 +136,8 @@ export default function OutlierSimulator({ dataset, onExplored }: OutlierSimulat
       </div>
 
       {/* Outlier Data Badge Visualization */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', background: 'rgba(0,0,0,0.3)', padding: '8px 12px', borderRadius: 10 }}>
-        <span style={{ fontSize: 11, color: '#94A3B8', fontWeight: 600 }}>Data Terdeteksi Outlier:</span>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', background: '#FFFDF7', border: '1px solid #B48C50', padding: '8px 12px', borderRadius: 10 }}>
+        <span style={{ fontSize: 11, color: '#5C3D1E', fontWeight: 700 }}>Data Terdeteksi Outlier:</span>
         {outliers.map((val, idx) => (
           <span
             key={idx}
@@ -143,11 +146,11 @@ export default function OutlierSimulator({ dataset, onExplored }: OutlierSimulat
               borderRadius: 6,
               fontSize: 11,
               fontWeight: 800,
-              background: excludeOutliers ? 'rgba(239, 68, 68, 0.15)' : 'rgba(239, 68, 68, 0.35)',
-              border: '1px solid #EF4444',
-              color: '#FCA5A5',
+              background: excludeOutliers ? '#FEE2E2' : '#FCA5A5',
+              border: '1px solid #DC2626',
+              color: '#991B1B',
               textDecoration: excludeOutliers ? 'line-through' : 'none',
-              opacity: excludeOutliers ? 0.45 : 1,
+              opacity: excludeOutliers ? 0.5 : 1,
               transition: 'all 0.2s'
             }}
           >
@@ -155,7 +158,7 @@ export default function OutlierSimulator({ dataset, onExplored }: OutlierSimulat
           </span>
         ))}
         {excludeOutliers && (
-          <span style={{ fontSize: 10.5, color: '#F59E0B', fontStyle: 'italic', marginLeft: 4 }}>
+          <span style={{ fontSize: 10.5, color: '#9A3412', fontStyle: 'italic', fontWeight: 700, marginLeft: 4 }}>
             (Dinonaktifkan sementara dari perhitungan)
           </span>
         )}
@@ -168,28 +171,29 @@ export default function OutlierSimulator({ dataset, onExplored }: OutlierSimulat
           animate={{ scale: [1, 1.02, 1] }}
           transition={{ duration: 0.3 }}
           style={{
-            background: 'rgba(56, 189, 248, 0.08)',
-            border: '1.5px solid rgba(56, 189, 248, 0.4)',
+            background: '#FFFDF7',
+            border: '1.5px solid #B48C50',
             borderRadius: 14,
             padding: '12px 14px',
             display: 'flex',
             flexDirection: 'column',
-            gap: 4
+            gap: 4,
+            boxShadow: '0 2px 8px rgba(140, 98, 57, 0.08)'
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: 11, fontWeight: 800, color: '#38BDF8', letterSpacing: '0.4px' }}>
+            <span style={{ fontSize: 11, fontWeight: 900, color: '#9A3412', letterSpacing: '0.4px' }}>
               RATA-RATA (MEAN)
             </span>
-            <span style={{ fontSize: 10, color: '#F87171', fontWeight: 800 }}>⚡ SENSITIF</span>
+            <span style={{ fontSize: 10, color: '#DC2626', fontWeight: 900 }}>⚡ SENSITIF</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginTop: 2 }}>
-            <span style={{ fontSize: 26, fontWeight: 900, color: '#FFFFFF', fontFamily: 'monospace' }}>
+            <span style={{ fontSize: 26, fontWeight: 900, color: '#362014', fontFamily: 'monospace' }}>
               {currentMean}
             </span>
-            <span style={{ fontSize: 12, color: '#94A3B8' }}>jam/hari</span>
+            <span style={{ fontSize: 12, color: '#6B4226', fontWeight: 700 }}>jam/hari</span>
           </div>
-          <div style={{ fontSize: 10.5, color: excludeOutliers ? '#10B981' : '#94A3B8', marginTop: 2 }}>
+          <div style={{ fontSize: 10.5, color: excludeOutliers ? '#059669' : '#5C3D1E', marginTop: 2, fontWeight: 700 }}>
             {excludeOutliers
               ? `📉 Anjlok sebesar ${(meanAll - meanClean).toFixed(2)} jam tanpa outlier!`
               : `📈 Terkerek naik akibat data ekstrem ${outliers.join(', ')} jam`}
@@ -201,28 +205,29 @@ export default function OutlierSimulator({ dataset, onExplored }: OutlierSimulat
           animate={{ scale: [1, 1.02, 1] }}
           transition={{ duration: 0.3 }}
           style={{
-            background: 'rgba(16, 185, 129, 0.08)',
-            border: '1.5px solid rgba(16, 185, 129, 0.4)',
+            background: '#FFFDF7',
+            border: '1.5px solid #B48C50',
             borderRadius: 14,
             padding: '12px 14px',
             display: 'flex',
             flexDirection: 'column',
-            gap: 4
+            gap: 4,
+            boxShadow: '0 2px 8px rgba(140, 98, 57, 0.08)'
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: 11, fontWeight: 800, color: '#10B981', letterSpacing: '0.4px' }}>
+            <span style={{ fontSize: 11, fontWeight: 900, color: '#059669', letterSpacing: '0.4px' }}>
               NILAI TENGAH (MEDIAN)
             </span>
-            <span style={{ fontSize: 10, color: '#34D399', fontWeight: 800 }}>🛡️ RESISTEN</span>
+            <span style={{ fontSize: 10, color: '#059669', fontWeight: 900 }}>🛡️ RESISTEN</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginTop: 2 }}>
-            <span style={{ fontSize: 26, fontWeight: 900, color: '#FFFFFF', fontFamily: 'monospace' }}>
+            <span style={{ fontSize: 26, fontWeight: 900, color: '#362014', fontFamily: 'monospace' }}>
               {currentMedian}
             </span>
-            <span style={{ fontSize: 12, color: '#94A3B8' }}>jam/hari</span>
+            <span style={{ fontSize: 12, color: '#6B4226', fontWeight: 700 }}>jam/hari</span>
           </div>
-          <div style={{ fontSize: 10.5, color: '#34D399', marginTop: 2 }}>
+          <div style={{ fontSize: 10.5, color: '#059669', marginTop: 2, fontWeight: 700 }}>
             {Math.abs(medianAll - medianClean) < 0.1
               ? `✅ Tetap stabil di ${medianClean} jam (kebal dari pencilan)!`
               : `Perubahan sangat minim: hanya ${(medianAll - medianClean).toFixed(1)} jam`}
@@ -232,12 +237,12 @@ export default function OutlierSimulator({ dataset, onExplored }: OutlierSimulat
 
       {/* Pedagogical Insight Box */}
       <div style={{
-        background: 'rgba(245, 158, 11, 0.1)',
-        border: '1px solid rgba(245, 158, 11, 0.3)',
+        background: '#FEF3C7',
+        border: '1.5px solid #D97706',
         borderRadius: 12,
         padding: '10px 14px',
         fontSize: 11.5,
-        color: '#FDE68A',
+        color: '#78350F',
         lineHeight: 1.55
       }}>
         💡 <strong>Kunci Literasi Data (HOTS Evaluasi):</strong><br />

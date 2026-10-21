@@ -34,6 +34,9 @@ export interface MapConfig {
     pingPong?: boolean
     speedMs?: number
     showGlow?: boolean
+    flipX?: boolean
+    /** Distance (world units) from the teacher's feet to the speech bubble tip. Auto-computed from size when omitted. */
+    bubbleOffset?: number
   }
   isWalkable: (x: number, y: number, unlocked: Set<string>) => boolean
 }

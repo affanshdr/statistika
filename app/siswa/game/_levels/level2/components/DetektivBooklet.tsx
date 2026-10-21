@@ -35,14 +35,9 @@ const LEVEL_META: Record<number, { title: string; icon: string; hint: string }> 
     icon: '🎯',
     hint: 'Selesaikan Level 1 untuk membuka materi ini',
   },
-  3: {
-    title: 'Kasus: Anomali Cuaca',
-    icon: '🌡️',
-    hint: 'Selesaikan Level 2 untuk membuka materi ini',
-  },
 }
 
-const ALL_LEVEL_IDS = [1, 2, 3]
+const ALL_LEVEL_IDS = [1, 2]
 
 export default function DetektivBooklet({ mode, onComplete, unlockedLevelIds }: DetektivBookletProps) {
   const isFD = mode === 'FD'
@@ -101,19 +96,20 @@ export default function DetektivBooklet({ mode, onComplete, unlockedLevelIds }: 
           📖
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: '10px', color: accentColor, fontWeight: 800, letterSpacing: '1.5px' }}>
+          <div style={{ fontSize: '10px', color: '#9A3412', fontWeight: 900, letterSpacing: '1.5px', textTransform: 'uppercase' }}>
             BUKU SAKU DETEKTIF
           </div>
-          <h2 style={{ margin: 0, fontSize: '15px', fontWeight: 800, color: 'var(--text-primary)' }}>
+          <h2 style={{ margin: 0, fontSize: '16px', fontWeight: 900, color: '#362014' }}>
             {page?.caption ?? (lockedMeta ? lockedMeta.title : 'Buku Saku')}
           </h2>
         </div>
         {/* Page counter */}
         <div style={{
           flexShrink: 0, padding: '4px 12px', borderRadius: '20px',
-          background: 'rgba(14, 131, 136, 0.1)', border: '1px solid rgba(14, 131, 136, 0.1)',
-          fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)',
+          background: '#FFFDF7', border: '1.5px solid #8C6239',
+          fontSize: '12px', fontWeight: 800, color: '#362014',
           fontFamily: 'monospace',
+          boxShadow: '0 2px 4px rgba(0,0,0,0.06)',
         }}>
           {currentIndex + 1} / {totalPages}
         </div>
@@ -292,24 +288,25 @@ export default function DetektivBooklet({ mode, onComplete, unlockedLevelIds }: 
       <div style={{
         display: 'flex', gap: '10px', alignItems: 'center',
         marginTop: '16px', paddingTop: '14px',
-        borderTop: '1px solid rgba(14, 131, 136, 0.1)',
+        borderTop: '1.5px solid rgba(140, 98, 57, 0.2)',
       }}>
         {/* Prev */}
         <button
           onClick={() => navigate(-1)}
           disabled={currentIndex === 0}
           style={{
-            padding: '10px 16px', borderRadius: '12px',
-            border: '1px solid rgba(14, 131, 136, 0.1)',
-            background: currentIndex === 0 ? 'rgba(14, 131, 136, 0.03)' : 'rgba(14, 131, 136, 0.12)',
-            color: currentIndex === 0 ? 'var(--text-muted)' : 'rgba(255,255,255,0.7)',
-            fontSize: '13px', fontWeight: 700,
+            padding: '10px 16px', borderRadius: '10px',
+            border: '1.5px solid #8C6239',
+            background: currentIndex === 0 ? 'rgba(140, 98, 57, 0.08)' : '#FFFDF7',
+            color: currentIndex === 0 ? '#B48C50' : '#362014',
+            fontSize: '13px', fontWeight: 800,
             cursor: currentIndex === 0 ? 'not-allowed' : 'pointer',
             display: 'flex', alignItems: 'center', gap: '6px',
             transition: 'all 0.2s', flexShrink: 0,
+            boxShadow: currentIndex === 0 ? 'none' : '0 2px 4px rgba(0,0,0,0.06)',
           }}
-          onMouseEnter={e => { if (currentIndex > 0) e.currentTarget.style.background = 'rgba(14, 131, 136, 0.1)' }}
-          onMouseLeave={e => { if (currentIndex > 0) e.currentTarget.style.background = 'rgba(14, 131, 136, 0.12)' }}
+          onMouseEnter={e => { if (currentIndex > 0) e.currentTarget.style.background = '#F5E8C7' }}
+          onMouseLeave={e => { if (currentIndex > 0) e.currentTarget.style.background = '#FFFDF7' }}
         >
           ← Kembali
         </button>
@@ -323,7 +320,7 @@ export default function DetektivBooklet({ mode, onComplete, unlockedLevelIds }: 
               style={{
                 width: currentIndex === i ? '22px' : '8px',
                 height: '8px', borderRadius: '4px', border: 'none',
-                background: currentIndex === i ? accentColor : '#A8A29E',
+                background: currentIndex === i ? '#0E8388' : '#D1C2A5',
                 cursor: 'pointer', padding: 0, transition: 'all 0.25s', flexShrink: 0,
               }}
             />
@@ -337,13 +334,14 @@ export default function DetektivBooklet({ mode, onComplete, unlockedLevelIds }: 
             animate={{ scale: 1 }}
             onClick={onComplete}
             style={{
-              padding: '10px 18px', borderRadius: '12px', border: 'none',
-              background: `linear-gradient(90deg, ${accentColor}, ${accentColor === '#00ADB5' ? '#0E8388' : '#8B5CF6'})`,
-              color: '#fff',
+              padding: '10px 18px', borderRadius: '10px',
+              border: '1.5px solid rgba(255, 255, 255, 0.4)',
+              background: 'linear-gradient(135deg, #0E8388 0%, #0284C7 100%)',
+              color: '#FFFFFF',
               fontSize: '13px', fontWeight: 800, cursor: 'pointer',
               display: 'flex', alignItems: 'center', gap: '6px',
               flexShrink: 0,
-              boxShadow: `0 4px 18px ${accentColor}40`,
+              boxShadow: '0 4px 14px rgba(14, 131, 136, 0.35)',
             }}
           >
             ✅ Selesai Baca
@@ -352,14 +350,16 @@ export default function DetektivBooklet({ mode, onComplete, unlockedLevelIds }: 
           <button
             onClick={() => navigate(1)}
             style={{
-              padding: '10px 18px', borderRadius: '12px', border: 'none',
-              background: `${accentColor}cc`,
-              color: '#fff',
+              padding: '10px 18px', borderRadius: '10px',
+              border: '1.5px solid rgba(255, 255, 255, 0.4)',
+              background: 'linear-gradient(135deg, #0E8388 0%, #0284C7 100%)',
+              color: '#FFFFFF',
               fontSize: '13px', fontWeight: 800, cursor: 'pointer',
               display: 'flex', alignItems: 'center', gap: '6px',
               flexShrink: 0, transition: 'all 0.2s',
+              boxShadow: '0 4px 14px rgba(14, 131, 136, 0.35)',
             }}
-            onMouseEnter={e => e.currentTarget.style.filter = 'brightness(1.1)'}
+            onMouseEnter={e => e.currentTarget.style.filter = 'brightness(1.08)'}
             onMouseLeave={e => e.currentTarget.style.filter = 'none'}
           >
             Lanjut →

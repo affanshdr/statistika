@@ -16,7 +16,7 @@ import puppeteer from 'puppeteer';
     }
   });
 
-  const url = 'http://localhost:3000/siswa/game/level/1?demoMode=true&demoStep=exploration';
+  const url = 'http://localhost:3000/siswa/game/level/1?demoMode=true&demoStep=exploration&catClass=A1';
   console.log('Navigating to:', url);
   await page.goto(url, { waitUntil: 'networkidle2' });
   await new Promise(r => setTimeout(r, 2000));
@@ -52,9 +52,11 @@ import puppeteer from 'puppeteer';
   let clickedCollect = false;
   for (let attempt = 0; attempt < 6; attempt++) {
     clickedCollect = await page.evaluate(() => {
+      const passBtn = document.querySelector('[data-testid="btn-dev-pass-wali-quiz"]');
+      if (passBtn) passBtn.click();
       const allButtons = Array.from(document.querySelectorAll('button'));
       const collectBtn = allButtons.find(b => b.innerText.includes('Simpan Data') || b.innerText.includes('Kumpulkan'));
-      if (collectBtn) {
+      if (collectBtn && !collectBtn.disabled) {
         collectBtn.click();
         return true;
       }

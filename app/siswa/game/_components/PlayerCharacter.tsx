@@ -9,6 +9,7 @@ interface PlayerCharacterProps {
   size?: number
   label?: string
   glowColor?: string
+  facing?: FacingDirection
 }
 
 export type FacingDirection = 'right' | 'left' | 'up' | 'down'
@@ -20,14 +21,15 @@ export default function PlayerCharacter({
   size = 28,
   label = '',
   glowColor = '#00ADB5',
+  facing: propFacing,
 }: PlayerCharacterProps) {
   const [frame, setFrame] = useState(0)
   const lastFacingRef = useRef<FacingDirection>('down')
 
   const isMoving = Math.abs(dir.x) > 0.05 || Math.abs(dir.y) > 0.05
 
-  // Determine current facing direction based on movement vector
-  let facing: FacingDirection = lastFacingRef.current
+  // Determine current facing direction based on movement vector or forced prop
+  let facing: FacingDirection = propFacing || lastFacingRef.current
   if (Math.abs(dir.y) > Math.abs(dir.x) * 0.7) {
     if (dir.y < -0.2) facing = 'up'
     else if (dir.y > 0.2) facing = 'down'
@@ -35,7 +37,9 @@ export default function PlayerCharacter({
     if (dir.x < -0.1) facing = 'left'
     else if (dir.x > 0.1) facing = 'right'
   }
-  lastFacingRef.current = facing
+  if (!propFacing) {
+    lastFacingRef.current = facing
+  }
 
   // Cycle animation frames: faster cycle when walking (55ms), subtle idle cycle when stationary (120ms)
   useEffect(() => {

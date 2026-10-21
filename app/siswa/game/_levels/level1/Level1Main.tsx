@@ -44,6 +44,8 @@ export default function Level1Main({
     sessionStartTime,
     xp,
     level1Dataset,
+    setVerdict,
+    setLevelStars,
   } = useGameStore()
 
   const { STATS } = getLevel1Data(level1Dataset)
@@ -125,25 +127,24 @@ export default function Level1Main({
     completeLevel(1)
   }
 
-  useEffect(() => {
-    if (isCompleted && sessionActiveRef.current) {
-      const timer = setTimeout(() => router.push('/siswa/game/results/1'), 1200)
-      return () => clearTimeout(timer)
-    }
-  }, [isCompleted, router])
-
   const STEP_LABELS = ['Batas Kelas', 'Histogram', 'Analisis', 'Verifikasi', 'Selesai']
   const displayStep = step
 
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative', height: '100%' }}>
-      {/* Phase 1: Exploration (NPath) - Collect 24 Student Data */}
+      {/* Phase 1: Exploration & Papan Bukti Analisis (NPath) - Collect 24 Student Data & Complete Corkboard */}
       {phase === 'exploration' && (
         <NPath
           isFD={false}
-          onComplete={() => {
-            setPhase('formula')
-            setPregameStep('minmax')
+          onComplete={(starsEarned: number = 3) => {
+            setVerdict('MISLEADING')
+            addXP(80, 'Menyelesaikan Analisis Ukuran Pemusatan Data', 1)
+            awardBadge(BADGES.CRITICAL)
+            awardBadge(BADGES.MYTHBUST)
+            if (mistakeCount === 0) awardBadge(BADGES.PERFECT)
+            setLevelStars(1, starsEarned)
+            completeLevel(1)
+            router.push('/siswa')
           }}
           demoMode={demoMode}
           demoStep={demoStep}

@@ -103,8 +103,9 @@ export default function GameHeader({ isBlurred = false, onSkip }: GameHeaderProp
         <div style={{
           position: 'fixed',
           inset: 0,
-          background: 'rgba(11, 30, 44, 0.85)',
+          background: 'rgba(20, 10, 5, 0.65)',
           backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -112,23 +113,33 @@ export default function GameHeader({ isBlurred = false, onSkip }: GameHeaderProp
           padding: '20px',
         }}>
           <div style={{
-            maxWidth: '380px',
+            maxWidth: '390px',
             width: '100%',
-            background: '#0F2338',
-            border: '1px solid rgba(14, 131, 136, 0.25)',
-            boxShadow: '0 20px 40px rgba(0, 0, 0, 0.5), var(--accent-glow)',
+            background: 'linear-gradient(145deg, #2D1A12 0%, #1A0D08 100%)',
+            border: '2.5px solid #F59E0B',
+            boxShadow: '0 20px 50px rgba(0, 0, 0, 0.8), inset 0 0 25px rgba(251, 191, 36, 0.25)',
             borderRadius: '24px',
-            padding: '28px',
+            padding: '28px 24px',
             textAlign: 'center',
-            color: '#F8FAFC',
+            color: '#FEF3C7',
+            position: 'relative',
             fontFamily: 'var(--font-sans), sans-serif',
           }}>
+            {/* Viewfinder Corner Brackets */}
+            <div style={{ position: 'absolute', top: '8px', left: '8px', width: '12px', height: '12px', borderTop: '3px solid #F59E0B', borderLeft: '3px solid #F59E0B', borderRadius: '2px 0 0 0', pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', top: '8px', right: '8px', width: '12px', height: '12px', borderTop: '3px solid #F59E0B', borderRight: '3px solid #F59E0B', borderRadius: '0 2px 0 0', pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', bottom: '8px', left: '8px', width: '12px', height: '12px', borderBottom: '3px solid #F59E0B', borderLeft: '3px solid #F59E0B', borderRadius: '0 0 0 2px', pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', bottom: '8px', right: '8px', width: '12px', height: '12px', borderBottom: '3px solid #F59E0B', borderRight: '3px solid #F59E0B', borderRadius: '0 0 2px 0', pointerEvents: 'none' }} />
+
             <div style={{ fontSize: '40px', marginBottom: '12px' }}>⚠️</div>
             <div>
-              <h3 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: 800, color: 'var(--danger)', fontFamily: 'var(--font-heading), sans-serif' }}>
+              <div style={{ fontSize: '11px', fontWeight: 900, color: '#FBBF24', letterSpacing: '1.5px', textTransform: 'uppercase', marginBottom: '4px' }}>
+                KONFIRMASI NAVIGASI
+              </div>
+              <h3 style={{ margin: '0 0 10px 0', fontSize: '19px', fontWeight: 900, color: '#FDE047' }}>
                 Keluar dari Level?
               </h3>
-              <p style={{ margin: 0, fontSize: '13.5px', color: '#94A3B8', lineHeight: 1.55 }}>
+              <p style={{ margin: 0, fontSize: '13.5px', color: '#FEF3C7', lineHeight: 1.55 }}>
                 Apakah kamu yakin ingin kembali ke halaman pilih level? Progres pengerjaan level ini akan di-reset dari awal.
               </p>
             </div>
@@ -139,23 +150,13 @@ export default function GameHeader({ isBlurred = false, onSkip }: GameHeaderProp
                   flex: 1,
                   padding: '12px',
                   borderRadius: '12px',
-                  border: '1px solid rgba(14, 131, 136, 0.25)',
-                  background: 'transparent',
-                  color: '#94A3B8',
+                  border: '1.5px solid #F59E0B',
+                  background: '#F5E8C7',
+                  color: '#6B4226',
                   fontSize: '13px',
-                  fontWeight: 700,
+                  fontWeight: 800,
                   cursor: 'pointer',
                   transition: 'all 0.2s'
-                }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.background = 'rgba(14, 131, 136, 0.1)'
-                  e.currentTarget.style.borderColor = 'var(--game-border-accent)'
-                  e.currentTarget.style.color = '#FFFFFF'
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.background = 'transparent'
-                  e.currentTarget.style.borderColor = 'rgba(14, 131, 136, 0.25)'
-                  e.currentTarget.style.color = '#94A3B8'
                 }}
               >
                 Batal
@@ -169,17 +170,15 @@ export default function GameHeader({ isBlurred = false, onSkip }: GameHeaderProp
                   flex: 1,
                   padding: '12px',
                   borderRadius: '12px',
-                  border: 'none',
-                  background: '#ef4444',
+                  border: '1.5px solid #991B1B',
+                  background: 'linear-gradient(135deg, #DC2626 0%, #B91C1C 100%)',
                   color: '#FFFFFF',
                   fontSize: '13px',
-                  fontWeight: 700,
+                  fontWeight: 900,
                   cursor: 'pointer',
-                  boxShadow: '0 4px 15px rgba(239, 68, 68, 0.3)',
+                  boxShadow: '0 4px 15px rgba(220, 38, 38, 0.4)',
                   transition: 'all 0.2s'
                 }}
-                onMouseEnter={e => { e.currentTarget.style.filter = 'brightness(1.1)' }}
-                onMouseLeave={e => { e.currentTarget.style.filter = 'none' }}
               >
                 Ya, Keluar
               </button>

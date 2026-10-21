@@ -637,7 +637,7 @@ export default function Cutscene({ onComplete, onPhaseChange, teamId, studentId,
             left: 0,
             right: 0,
             bottom: 0,
-            background: 'rgba(0, 0, 0, 0.65)',
+            background: 'rgba(20, 10, 5, 0.65)',
             backdropFilter: 'blur(4px)',
             display: 'flex',
             alignItems: 'center',
@@ -666,32 +666,36 @@ export default function Cutscene({ onComplete, onPhaseChange, teamId, studentId,
               {/* Tag Name */}
               <div style={{
                 alignSelf: 'flex-start',
-                background: 'rgba(10, 20, 15, 0.95)',
-                borderTop: '2px solid rgba(0, 173, 181, 0.3)',
-                borderLeft: '2px solid rgba(0, 173, 181, 0.3)',
-                borderRight: '2px solid rgba(0, 173, 181, 0.3)',
+                background: 'linear-gradient(135deg, #8C6239 0%, #6E4720 100%)',
+                borderTop: '2px solid #B48C50',
+                borderLeft: '2px solid #B48C50',
+                borderRight: '2px solid #B48C50',
                 borderBottom: 'none',
-                borderRadius: '6px 14px 0 0',
-                padding: '4px 16px',
-                color: 'var(--accent)',
+                borderRadius: '8px 16px 0 0',
+                padding: '5px 18px',
+                color: '#FFFDF7',
                 fontSize: isMobile ? '11px' : '13px',
                 fontWeight: 800,
+                letterSpacing: '1px',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '6px',
                 boxShadow: '0 -4px 10px rgba(0,0,0,0.15)',
+                marginBottom: '-2px',
+                position: 'relative',
+                zIndex: 2,
               }}>
-                <span style={{ fontSize: '13px' }}>🏃‍♂️</span>
-                <span>📊 SAMPEL DATA TERKUMPUL — VERIFIKASI BERITA</span>
+                <span style={{ fontSize: '13px' }}>📊</span>
+                <span>SAMPEL DATA TERKUMPUL — VERIFIKASI BERITA</span>
               </div>
 
               {/* Dialog Text Box */}
               <div style={{
-                background: 'rgba(10, 20, 18, 0.95)',
-                border: '2px solid rgba(0, 173, 181, 0.4)',
-                borderRadius: '0px 14px 14px 14px',
+                background: 'linear-gradient(145deg, #2D1A12 0%, #170E08 100%)',
+                border: '2.5px solid #F59E0B',
+                borderRadius: '0px 18px 18px 18px',
                 padding: isMobile ? '14px 18px' : '20px 24px',
-                boxShadow: '0 10px 25px rgba(0, 173, 181, 0.1), inset 0 0 20px rgba(0, 173, 181, 0.03)',
+                boxShadow: '0 20px 50px rgba(0, 0, 0, 0.45), inset 0 0 25px rgba(180, 140, 80, 0.2)',
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'space-between',
@@ -699,12 +703,17 @@ export default function Cutscene({ onComplete, onPhaseChange, teamId, studentId,
                 boxSizing: 'border-box',
                 position: 'relative',
               }}>
+                {/* Corner brackets */}
+                <div style={{ position: 'absolute', top: 6, right: 6, width: 14, height: 14, borderTop: '3px solid #F59E0B', borderRight: '3px solid #F59E0B', pointerEvents: 'none' }} />
+                <div style={{ position: 'absolute', bottom: 6, left: 6, width: 14, height: 14, borderBottom: '3px solid #F59E0B', borderLeft: '3px solid #F59E0B', pointerEvents: 'none' }} />
+                <div style={{ position: 'absolute', bottom: 6, right: 6, width: 14, height: 14, borderBottom: '3px solid #F59E0B', borderRight: '3px solid #F59E0B', pointerEvents: 'none' }} />
+
                 <p style={{
                   margin: 0,
                   fontSize: isMobile ? '13px' : '15px',
-                  color: '#FFFFFF',
-                  fontWeight: 600,
-                  lineHeight: 1.6,
+                  color: '#FEF3C7',
+                  fontWeight: 650,
+                  lineHeight: 1.65,
                   fontFamily: 'var(--font-ui)',
                 }}>
                   <TypewriterText
@@ -718,19 +727,21 @@ export default function Cutscene({ onComplete, onPhaseChange, teamId, studentId,
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center',
-                  marginTop: '12px',
-                  borderTop: '1px solid rgba(0, 173, 181, 0.15)',
-                  paddingTop: '8px',
+                  marginTop: '14px',
+                  borderTop: '1.5px solid rgba(140, 98, 57, 0.2)',
+                  paddingTop: '10px',
                 }}>
                   <button
-                    className="game-btn game-btn-secondary"
                     style={{
                       fontSize: isMobile ? '10px' : '11px',
-                      padding: '6px 12px',
-                      borderRadius: '6px',
+                      padding: '6px 14px',
+                      borderRadius: '8px',
                       fontWeight: 800,
                       cursor: 'pointer',
                       minHeight: 'auto',
+                      background: '#F5E8C7',
+                      border: '1.5px solid #F59E0B',
+                      color: '#6B4226',
                     }}
                     onClick={() => {
                       setMentorTypingDone(false)
@@ -741,12 +752,11 @@ export default function Cutscene({ onComplete, onPhaseChange, teamId, studentId,
                   </button>
 
                   <button
-                    className="game-btn game-btn-primary"
                     disabled={!mentorTypingDone}
                     style={{
                       fontSize: isMobile ? '11px' : '12px',
                       padding: isMobile ? '6px 16px' : '8px 24px',
-                      borderRadius: '6px',
+                      borderRadius: '8px',
                       fontWeight: 800,
                       display: 'flex',
                       alignItems: 'center',
@@ -754,7 +764,10 @@ export default function Cutscene({ onComplete, onPhaseChange, teamId, studentId,
                       cursor: mentorTypingDone ? 'pointer' : 'not-allowed',
                       minHeight: 'auto',
                       opacity: mentorTypingDone ? 1 : 0.5,
-                      boxShadow: mentorTypingDone ? 'var(--accent-glow)' : 'none',
+                      background: 'linear-gradient(135deg, #0E8388 0%, #0284C7 100%)',
+                      border: '1.5px solid rgba(255, 255, 255, 0.4)',
+                      color: '#FFFFFF',
+                      boxShadow: mentorTypingDone ? '0 4px 14px rgba(14, 131, 136, 0.35)' : 'none',
                     }}
                     onClick={() => {
                       if (!mentorTypingDone) return

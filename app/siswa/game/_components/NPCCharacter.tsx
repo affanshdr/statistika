@@ -138,9 +138,10 @@ export default function NPCCharacter({
             width={96}
             height={18}
             rx={9}
-            fill="rgba(15, 23, 42, 0.9)"
-            stroke={glowColor}
+            fill="#FDF8EC"
+            stroke="#8C6239"
             strokeWidth={1.5}
+            style={{ filter: 'drop-shadow(0 2px 5px rgba(0,0,0,0.25))' }}
           />
           <text
             x={x}
@@ -148,7 +149,7 @@ export default function NPCCharacter({
             textAnchor="middle"
             fontSize={10}
             fontWeight="900"
-            fill="#FFFFFF"
+            fill="#362014"
             fontFamily="var(--font-ui, sans-serif)"
           >
             {label}
