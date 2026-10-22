@@ -7,6 +7,7 @@ interface NPCCharacterProps {
   y: number
   size?: number
   aspectRatio?: number
+  anchorRatioY?: number
   label?: string
   spriteUrl: string
   glowColor?: string
@@ -26,6 +27,7 @@ export default function NPCCharacter({
   y,
   size = 145,
   aspectRatio,
+  anchorRatioY,
   label = 'Pak Sutrisno',
   spriteUrl = '/Assets/Character/pak Sutrisno-iso_idle_right-trimmed.png',
   glowColor = '#38BDF8',
@@ -79,7 +81,7 @@ export default function NPCCharacter({
   const width = size
   const height = size * (aspectRatio ?? (cols === 1 && rows === 1 ? 2.0 : 1))
   const posX = x - width / 2
-  const posY = y - height * 0.85
+  const posY = y - height * (anchorRatioY ?? 0.85)
 
   return (
     <g style={{ cursor: onClick ? 'pointer' : 'default' }} onClick={onClick}>

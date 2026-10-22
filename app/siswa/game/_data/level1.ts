@@ -1,8 +1,8 @@
 export const LEVEL1_CONFIG = {
   id: 1,
-  title: 'Level 1 (The Viral Myth)',
-  subtitle: '',
-  description: 'Sebuah postingan viral mengklaim remaja Indonesia rata-rata >8 jam/hari di media sosial. Tugasmu: selidiki kebenarannya menggunakan statistika.',
+  title: 'Kasus 1: Misteri Jam Layar',
+  subtitle: 'Penyelidikan Ukuran Pemusatan Data',
+  description: 'Wawancarai 24 siswa di berbagai kelas & fasilitas sekolah bersama Pak Sutrisno untuk membuktikan klaim jam layar.',
 }
 
 // Raw dataset presets: 24 siswa (Kelas VII-A: 5, VII-B: 7, VIII-A: 4, VIII-B: 8)

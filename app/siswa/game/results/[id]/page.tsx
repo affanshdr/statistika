@@ -4,6 +4,7 @@ import { use, useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useGameStore } from '@/lib/store/gameStore'
+import { savePlayerProgressToCloud } from '@/lib/utils/playerSync'
 import * as Level1Data from '../../_data/level1'
 import * as Level2Data from '../../_data/level2'
 import '../../game.css'
@@ -56,29 +57,15 @@ export default function ResultsPage({
       ? Math.floor((Date.now() - store.sessionStartTime) / 1000)
       : 0
 
-    fetch('/api/game/sessions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        studentId: student.id,
-        levelId: levelId,
-        xpEarned: store.xp,
-        livesRemaining: store.lives,
-        timeTaken: elapsed,
-        verdictAnswer: store.verdictAnswer ?? '',
-        isCorrect,
-      }),
-    }).catch(console.error)
-
-    fetch('/api/game/leaderboard', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        studentId: student.id,
-        username: student.name,
-        xpToAdd: store.xp,
-        newBadges: store.badges,
-      }),
+    savePlayerProgressToCloud({
+      levelId,
+      stars: isCorrect ? 3 : 1,
+      xpEarned: store.xp,
+      durationSeconds: elapsed,
+      livesRemaining: store.lives,
+      mistakeCount: store.mistakeCount,
+      verdictAnswer: store.verdictAnswer ?? '',
+      isCorrect,
     }).catch(console.error)
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -193,7 +180,7 @@ export default function ResultsPage({
             {isCorrect ? '🏆' : '📋'}
           </motion.div>
           <h1 style={{ fontSize: '28px', fontWeight: 900, margin: '0 0 6px', color: '#FFFDF7', letterSpacing: '-0.5px' }}>
-            {isCorrect ? 'Investigasi Selesai!' : 'Level Selesai'}
+            {isCorrect ? 'Investigasi Selesai!' : 'Kasus Selesai'}
           </h1>
           <p style={{ color: '#D1B89D', fontSize: '14.5px', margin: '0 0 4px', fontWeight: 600 }}>
             {config.title}
@@ -346,13 +333,13 @@ export default function ResultsPage({
                 ) : (
                   <>
                     <p style={{ margin: '0 0 10px', fontSize: '13px', lineHeight: 1.75, color: '#334155' }}>
-                      Dalam investigasi ini, kamu mengumpulkan data kasus cyberbullying dari <strong>30 korban</strong> di berbagai lokasi sekolah untuk memahami penyebaran masalah perundungan siber.
+                      Dalam investigasi ini, kamu mengumpulkan data jarak lemparan bola dari <strong>15 siswa</strong> di lapangan olahraga bersama Pak Bambang untuk menganalisis sebaran kemampuan atletik sekolah.
                     </p>
                     <p style={{ margin: '0 0 10px', fontSize: '13px', lineHeight: 1.75, color: '#334155' }}>
-                      Setelah menghitung nilai Mean, Median, dan Modus, disimpulkan bahwa cyberbullying di sekolah adalah <strong style={{ color: '#B45309' }}>MASALAH SERIUS (SERIOUS PROBLEM)</strong> yang memerlukan perhatian segera.
+                      Setelah mengolah data pada <strong>Papan Analisis Ukuran Penyebaran Data</strong> dan menghitung Jangkauan (Range), Kuartil (Q1, Q2, Q3), serta Jangkauan Interkuartil (IQR), sebaran lemparan siswa dapat dipetakan secara akurat.
                     </p>
                     <p style={{ margin: 0, fontSize: '13px', lineHeight: 1.75, color: '#334155' }}>
-                      Penyelidikan ini memberikan bimbingan pentingnya etika media sosial serta literasi digital untuk menghentikan mata rantai perundungan di lingkungan sekolah.
+                      Temuan statistik ini membuktikan pentingnya analisis sebaran data agar program bimbingan olahraga Pak Bambang dapat disesuaikan secara proporsional bagi seluruh siswa!
                     </p>
                   </>
                 )}

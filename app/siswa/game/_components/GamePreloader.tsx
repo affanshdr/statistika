@@ -22,7 +22,7 @@ interface GamePreloaderProps {
 
 export default function GamePreloader({
   title = 'MEMUAT INVESTIGASI',
-  subtitle = 'Level 1: The Viral Myth',
+  subtitle = 'Kasus 1: Misteri Jam Layar',
   imagesToPreload = [],
   minDurationMs = 1400,
   onComplete
@@ -116,17 +116,19 @@ export default function GamePreloader({
           initial={{ scale: 0.92, y: 15 }}
           animate={{ scale: 1, y: 0 }}
           style={{
-            maxWidth: 500,
+            maxWidth: 'min(500px, 92vw)',
+            maxHeight: '94vh',
+            overflowY: 'auto',
             width: '100%',
             background: 'linear-gradient(145deg, #2D1A12 0%, #1A0D08 100%)',
             border: '2.5px solid #F59E0B',
             boxShadow: '0 20px 50px rgba(0, 0, 0, 0.8), inset 0 0 25px rgba(251, 191, 36, 0.25)',
             borderRadius: 24,
-            padding: '32px 28px',
+            padding: 'clamp(20px, 3vh, 32px) clamp(16px, 3.5vw, 28px)',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            gap: 20,
+            gap: 'clamp(12px, 2vh, 20px)',
             textAlign: 'center',
             position: 'relative',
             zIndex: 10,
@@ -143,8 +145,8 @@ export default function GamePreloader({
             animate={{ scale: [1, 1.08, 1], rotate: [0, 3, -3, 0] }}
             transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
             style={{
-              width: 64,
-              height: 64,
+              width: 'clamp(48px, 7vh, 64px)',
+              height: 'clamp(48px, 7vh, 64px)',
               borderRadius: '50%',
               background: 'linear-gradient(135deg, #3D2419 0%, #2D1A12 100%)',
               border: '2.5px solid #F59E0B',
@@ -152,7 +154,7 @@ export default function GamePreloader({
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: 28,
+              fontSize: 'clamp(22px, 3.5vh, 28px)',
             }}
           >
             🕵️‍♂️
@@ -163,7 +165,7 @@ export default function GamePreloader({
             <div style={{ fontSize: 10.5, fontWeight: 900, color: '#FBBF24', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: 4 }}>
               {title}
             </div>
-            <h2 style={{ margin: 0, fontSize: 19, fontWeight: 900, color: '#FDE047', letterSpacing: '0.3px' }}>
+            <h2 style={{ margin: 0, fontSize: 'clamp(15px, 2.2vh, 19px)', fontWeight: 900, color: '#FDE047', letterSpacing: '0.3px' }}>
               {subtitle}
             </h2>
           </div>
@@ -205,10 +207,10 @@ export default function GamePreloader({
             background: 'rgba(255, 255, 255, 0.06)',
             border: '1.5px solid #F59E0B',
             borderRadius: 14,
-            padding: '12px 14px',
-            fontSize: 12,
+            padding: 'clamp(8px, 1.5vh, 12px) 14px',
+            fontSize: 'clamp(11px, 1.6vh, 12px)',
             color: '#FEF3C7',
-            lineHeight: 1.55,
+            lineHeight: 1.5,
             textAlign: 'center',
             fontWeight: 600,
             boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',

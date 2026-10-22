@@ -1,6 +1,6 @@
 export const LEVEL2_CONFIG = {
   id: 2,
-  title: 'Level 2 (Misi Pengukuran Lemparan)',
+  title: 'Kasus 2: Pengukuran Lemparan',
   subtitle: 'Jangkauan, Kuartil, dan IQR',
   description: 'Kumpulkan data jarak lemparan 15 siswa di lapangan sekolah, lalu selesaikan misi statistika: menghitung Jangkauan, menentukan Kuartil (Q1, Q2, Q3), dan menghitung Jangkauan Kuartil (IQR).',
 }

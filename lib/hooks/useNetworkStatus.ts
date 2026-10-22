@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { flushOfflineSyncQueue } from '@/lib/utils/playerSync'
 
 export type NetworkStatus = 'online' | 'offline' | 'reconnected'
 
@@ -18,7 +19,10 @@ export function useNetworkStatus() {
     const handleOnline = () => {
       // Brief "reconnected" flash, then back to online
       setStatus('reconnected')
-      const t = setTimeout(() => setStatus('online'), 3500)
+      // Auto-flush pending offline saves
+      flushOfflineSyncQueue().catch(console.error)
+
+      const t = setTimeout(() => setStatus('online'), 4000)
       return () => clearTimeout(t)
     }
 

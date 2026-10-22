@@ -45,6 +45,8 @@ export interface GameStore {
   completePostTest: (levelId: number) => void
   unlockBadge: (badgeId: string) => void
   setLevelStars: (levelId: number, stars: number) => void
+  syncFromProgress: (progress: { totalXp?: number; levelStars?: Record<string, number>; unlockedLevels?: number[]; badges?: string[] }) => void
+  resetPlayerSession: (progress?: { totalXp?: number; levelStars?: Record<string, number>; unlockedLevels?: number[]; badges?: string[] }) => void
   setVerdict: (verdict: string) => void
   incrementMistake: () => void
   resetLevel: () => void
@@ -122,15 +124,61 @@ export const useGameStore = create<GameStore>()(
 
       setLevelStars: (levelId, stars) =>
         set((state) => {
-          const updated = { ...state.levelStars, [levelId]: stars }
-          if (typeof window !== 'undefined') {
-            try {
-              localStorage.setItem('stat_casecode_level_stars', JSON.stringify(updated))
-            } catch (e) {
-              console.error(e)
-            }
+          const prev = state.levelStars[levelId] || 0
+          const updatedStars = { ...state.levelStars, [levelId]: Math.max(prev, stars) }
+          const updatedCompleted = state.completedLevels.includes(levelId)
+            ? state.completedLevels
+            : [...state.completedLevels, levelId]
+          return {
+            levelStars: updatedStars,
+            completedLevels: updatedCompleted,
           }
-          return { levelStars: updated }
+        }),
+
+      syncFromProgress: (progress) =>
+        set(() => {
+          const newStars: Record<number, number> = {}
+          if (progress?.levelStars) {
+            Object.entries(progress.levelStars).forEach(([k, v]) => {
+              const numK = Number(k)
+              const numV = Number(v)
+              if (numV > 0) newStars[numK] = numV
+            })
+          }
+          const completed = Object.keys(newStars).map(Number).filter((lvl) => newStars[lvl] > 0)
+          return {
+            xp: progress?.totalXp ?? 0,
+            levelStars: newStars,
+            badges: progress?.badges || [],
+            completedLevels: completed,
+          }
+        }),
+
+      resetPlayerSession: (progress) =>
+        set(() => {
+          const newStars: Record<number, number> = {}
+          if (progress?.levelStars) {
+            Object.entries(progress.levelStars).forEach(([k, v]) => {
+              const numK = Number(k)
+              const numV = Number(v)
+              if (numV > 0) newStars[numK] = numV
+            })
+          }
+          const completed = Object.keys(newStars).map(Number).filter((lvl) => newStars[lvl] > 0)
+          return {
+            xp: progress?.totalXp ?? 0,
+            levelStars: newStars,
+            badges: progress?.badges || [],
+            completedLevels: completed,
+            completedPostTests: [],
+            currentStep: 0,
+            answers: {},
+            lives: 3,
+            timeRemaining: 600,
+            isCompleted: false,
+            verdictAnswer: null,
+            mistakeCount: 0,
+          }
         }),
 
       setVerdict: (verdict) => set({ verdictAnswer: verdict }),

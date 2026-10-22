@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import OrientationGuard from './siswa/game/_components/OrientationGuard'
 import AboutGameModal from '@/components/AboutGameModal'
 import { gameAudio } from '@/lib/utils/gameAudio'
+import { useGameStore } from '@/lib/store/gameStore'
 import './siswa/game/game.css'
 
 type Student = {
@@ -17,7 +18,28 @@ type Student = {
 
 export default function RootHomePage() {
   const router = useRouter()
-  const [studentName, setStudentName] = useState('')
+  const [username, setUsername] = useState(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const savedPlayer = localStorage.getItem('player')
+        if (savedPlayer) {
+          const parsed = JSON.parse(savedPlayer)
+          if (parsed?.username) return parsed.username
+        }
+        const savedStudent = localStorage.getItem('student')
+        if (savedStudent) {
+          const parsed = JSON.parse(savedStudent)
+          if (parsed?.name && parsed.name !== 'Detektif') return parsed.name
+        }
+      } catch (e) {
+        console.error(e)
+      }
+    }
+    return ''
+  })
+  const [pin, setPin] = useState('')
+  const [showPin, setShowPin] = useState(true)
+  const [authError, setAuthError] = useState('')
   const [isStarting, setIsStarting] = useState(false)
   const [isNameModalOpen, setIsNameModalOpen] = useState(false)
   const [isAboutModalOpen, setIsAboutModalOpen] = useState(false)
@@ -35,18 +57,6 @@ export default function RootHomePage() {
   }, [])
 
   useEffect(() => {
-    // Check if student data exists in localStorage
-    const data = localStorage.getItem('student')
-    if (data) {
-      try {
-        const parsed = JSON.parse(data) as Student
-        if (parsed?.name && parsed.name !== 'Detektif') {
-          setStudentName(parsed.name)
-        }
-      } catch (e) {
-        console.error(e)
-      }
-    }
 
     // Prefetch routes in background to avoid navigation delay
     router.prefetch('/siswa')
@@ -82,6 +92,8 @@ export default function RootHomePage() {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Enter' && !isNameModalOpen && !isStarting) {
         gameAudio.playClick()
+        setPin('')
+        setAuthError('')
         setIsNameModalOpen(true)
       }
     }
@@ -91,24 +103,31 @@ export default function RootHomePage() {
 
   const handleOpenPlayModal = () => {
     gameAudio.playClick()
+    setPin('')
+    setAuthError('')
     setIsNameModalOpen(true)
   }
 
   const handleStartGame = async (e?: React.FormEvent) => {
     if (e) e.preventDefault()
-    const finalName = studentName.trim()
-    if (!finalName) return
-    gameAudio.playUnlockJingle()
-    setIsStarting(true)
-    setLoadProgress(0)
-    setLoadStatus('Menginisialisasi Profil Siswa...')
-
-    let studentData: Student = {
-      id: 'siswa-guest',
-      name: finalName,
-      nisn: '-',
-      classroom: { name: 'Kelas VII-A' }
+    const cleanUsername = username.trim()
+    if (!cleanUsername) {
+      setAuthError('Username wajib diisi!')
+      return
     }
+    if (cleanUsername.length < 3) {
+      setAuthError('Username minimal 3 karakter!')
+      return
+    }
+    if (pin.length !== 4) {
+      setAuthError('PIN harus berupa 4 digit angka!')
+      return
+    }
+
+    setAuthError('')
+    setIsStarting(true)
+    setLoadProgress(15)
+    setLoadStatus('Menghubungkan ke Cloud Server...')
 
     // Preload dashboard, classroom background & character assets so /siswa and game load instantly without delay
     const assetsToPreload = [
@@ -139,64 +158,75 @@ export default function RootHomePage() {
       img.src = src
     })
 
-    // Perform database sync in parallel
-    const dbPromise = (async () => {
-      try {
-        const classRes = await fetch('/api/classrooms')
-        if (classRes.ok) {
-          const classrooms = await classRes.json()
-          const defaultClass = classrooms[0]
-          if (defaultClass?.id) {
-            const studentRes = await fetch('/api/students', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ name: finalName, classroomId: defaultClass.id }),
-            })
-            if (studentRes.ok) {
-              const dbStudent = await studentRes.json()
-              if (dbStudent?.id) {
-                studentData = dbStudent
-              }
-            }
-          }
+    try {
+      const res = await fetch('/api/auth/play', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: cleanUsername,
+          pin,
+          displayName: cleanUsername,
+        }),
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        setIsStarting(false)
+        setAuthError(data.error || 'Gagal masuk ke permainan')
+        gameAudio.playClick()
+        return
+      }
+
+      gameAudio.playUnlockJingle()
+      localStorage.removeItem('stat_casecode_level_stars')
+      localStorage.setItem('player', JSON.stringify(data.player))
+      if (data.progress) {
+        localStorage.setItem('player_progress', JSON.stringify(data.progress))
+      }
+      // Reset & hydrate store with the active player's exact cloud data
+      useGameStore.getState().resetPlayerSession(data.progress)
+
+      // Backward compatibility for existing UI components
+      localStorage.setItem('student', JSON.stringify({
+        id: data.player.id,
+        name: data.player.displayName,
+        username: data.player.username,
+        nisn: '-',
+        classroom: { name: 'Pemain Mandiri' }
+      }))
+
+      // Smooth progress bar animation over minDuration (e.g. 1200ms)
+      const startTime = performance.now()
+      const minDuration = 1200
+
+      const progressInterval = setInterval(() => {
+        const elapsed = performance.now() - startTime
+        const timePercent = Math.min(100, Math.floor((elapsed / minDuration) * 100))
+        const assetPercent = Math.floor((loadedCount / assetsToPreload.length) * 100)
+        const combinedPercent = Math.min(100, Math.max(timePercent, Math.floor((timePercent + assetPercent) / 2)))
+
+        setLoadProgress(combinedPercent)
+
+        if (combinedPercent < 40) {
+          setLoadStatus(data.isNew ? 'Membuat Profil Pemain Baru...' : 'Memuat Progres Pemain...')
+        } else if (combinedPercent < 75) {
+          setLoadStatus('Menyiapkan Arena Game...')
+        } else {
+          setLoadStatus(`Selamat Datang, ${data.player.displayName}!`)
         }
-      } catch (err) {
-        console.warn('DB Sync fallback to local guest session:', err)
-      }
-    })()
 
-    // Smooth progress bar animation over minDuration (e.g. 1200ms)
-    const startTime = performance.now()
-    const minDuration = 1200
-
-    const progressInterval = setInterval(() => {
-      const elapsed = performance.now() - startTime
-      const timePercent = Math.min(100, Math.floor((elapsed / minDuration) * 100))
-      const assetPercent = Math.floor((loadedCount / assetsToPreload.length) * 100)
-      const combinedPercent = Math.min(100, Math.max(timePercent, Math.floor((timePercent + assetPercent) / 2)))
-
-      setLoadProgress(combinedPercent)
-
-      if (combinedPercent < 25) {
-        setLoadStatus('Menginisialisasi Profil Siswa...')
-      } else if (combinedPercent < 50) {
-        setLoadStatus('Menghubungkan Server & Data Kelas...')
-      } else if (combinedPercent < 80) {
-        setLoadStatus('Memuat Pak Bambang, Stevunt & Karakter 2D...')
-      } else if (combinedPercent < 95) {
-        setLoadStatus('Memuat Ruang Kelas & Papan Tantangan...')
-      } else {
-        setLoadStatus('Menyiapkan Arena Petualangan Sekolah...')
-      }
-
-      if (elapsed >= minDuration && combinedPercent >= 100) {
-        clearInterval(progressInterval)
-        dbPromise.finally(() => {
-          localStorage.setItem('student', JSON.stringify(studentData))
+        if (elapsed >= minDuration && combinedPercent >= 100) {
+          clearInterval(progressInterval)
           router.push('/siswa')
-        })
-      }
-    }, 25)
+        }
+      }, 25)
+
+    } catch (err) {
+      console.error(err)
+      setIsStarting(false)
+      setAuthError('Gagal terhubung ke server. Periksa koneksi internet Anda.')
+    }
   }
 
   return (
@@ -222,6 +252,26 @@ export default function RootHomePage() {
           userSelect: 'none',
         }}
       >
+        {/* Animated Background Video */}
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          poster="/Assets/Building/Splash Screen/Splash Screen.webp"
+          style={{
+            position: 'absolute',
+            inset: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            zIndex: 0,
+            pointerEvents: 'none',
+          }}
+        >
+          <source src="/Assets/Building/Splash Screen/splash_video_loop.mp4" type="video/mp4" />
+        </video>
+
         {/* Top Slim Loading Bar during Initial Page Load */}
         <AnimatePresence>
           {isInitialLoading && (
@@ -550,11 +600,11 @@ export default function RootHomePage() {
                     fontFamily: "'Outfit', sans-serif",
                   }}
                 >
-                  Identitas Siswa
+                  Profil Pemain
                 </h3>
                 <p
                   style={{
-                    margin: '0 0 22px 0',
+                    margin: '0 0 20px 0',
                     fontSize: '13px',
                     color: '#524336',
                     textAlign: 'center',
@@ -562,12 +612,13 @@ export default function RootHomePage() {
                     fontWeight: 600,
                   }}
                 >
-                  Masukkan nama panggilanmu untuk memulai petualangan statistika di sekolah.
+                  Masukkan username &amp; 4-digit PIN rahasia untuk memulai petualangan dan menyimpan progresmu.
                 </p>
 
                 {/* Form Input */}
-                <form onSubmit={handleStartGame} style={{ width: '100%' }}>
-                  <div style={{ marginBottom: '22px' }}>
+                <form onSubmit={handleStartGame} style={{ width: '100%' }} autoComplete="off">
+                  {/* Input Username */}
+                  <div style={{ marginBottom: '16px' }}>
                     <label
                       style={{
                         display: 'block',
@@ -575,31 +626,39 @@ export default function RootHomePage() {
                         fontWeight: 900,
                         color: '#9A3412',
                         letterSpacing: '1.5px',
-                        marginBottom: '8px',
+                        marginBottom: '6px',
                         textTransform: 'uppercase',
-                        textAlign: 'center',
+                        textAlign: 'left',
                       }}
                     >
-                      NAMA LENGKAP / PANGGILAN
+                      USERNAME / NAMA
                     </label>
                     <input
                       ref={inputRef}
                       type="text"
-                      placeholder="Contoh: Stevunt"
-                      value={studentName}
-                      onChange={e => setStudentName(e.target.value)}
+                      placeholder="Contoh: Alif99"
+                      value={username}
+                      autoComplete="off"
+                      autoCorrect="off"
+                      autoCapitalize="off"
+                      spellCheck={false}
+                      onChange={e => {
+                        setUsername(e.target.value)
+                        if (authError) setAuthError('')
+                      }}
                       disabled={isStarting}
+                      maxLength={20}
                       required
                       style={{
                         width: '100%',
                         boxSizing: 'border-box',
-                        padding: '14px 18px',
-                        borderRadius: '16px',
+                        padding: '13px 16px',
+                        borderRadius: '14px',
                         background: '#FFFDF7',
                         border: '2px solid #B48C50',
                         color: '#2C1A10',
                         fontSize: '15px',
-                        textAlign: 'center',
+                        textAlign: 'left',
                         outline: 'none',
                         fontWeight: 800,
                         transition: 'all 0.2s',
@@ -616,6 +675,116 @@ export default function RootHomePage() {
                       }}
                     />
                   </div>
+
+                  {/* Input PIN (Hanya Angka & Mobile Numpad) */}
+                  <div style={{ marginBottom: '18px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                      <label
+                        style={{
+                          fontSize: '11px',
+                          fontWeight: 900,
+                          color: '#9A3412',
+                          letterSpacing: '1.5px',
+                          textTransform: 'uppercase',
+                        }}
+                      >
+                        PIN RAHASIA (4 DIGIT)
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => setShowPin(!showPin)}
+                        style={{
+                          background: 'rgba(140, 98, 57, 0.1)',
+                          border: '1px solid rgba(140, 98, 57, 0.25)',
+                          borderRadius: '8px',
+                          color: '#78350F',
+                          fontSize: '11px',
+                          fontWeight: 800,
+                          cursor: 'pointer',
+                          padding: '3px 8px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px',
+                          transition: 'all 0.2s',
+                        }}
+                        title={showPin ? 'Klik untuk menyembunyikan angka' : 'Klik untuk melihat angka'}
+                      >
+                        <span>{showPin ? '👁️ Terlihat' : '🔒 Tertutup'}</span>
+                      </button>
+                    </div>
+                    <input
+                      type={showPin ? 'text' : 'password'}
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      maxLength={4}
+                      placeholder={showPin ? '1234' : '••••'}
+                      autoComplete="new-password"
+                      autoCorrect="off"
+                      autoCapitalize="off"
+                      spellCheck={false}
+                      value={pin}
+                      onChange={e => {
+                        setPin(e.target.value.replace(/\D/g, '').slice(0, 4))
+                        if (authError) setAuthError('')
+                      }}
+                      onKeyDown={e => {
+                        if (!['Backspace', 'ArrowLeft', 'ArrowRight', 'Delete', 'Tab'].includes(e.key) && !/^[0-9]$/.test(e.key)) {
+                          e.preventDefault()
+                        }
+                      }}
+                      disabled={isStarting}
+                      required
+                      style={{
+                        width: '100%',
+                        boxSizing: 'border-box',
+                        padding: '12px 16px',
+                        borderRadius: '14px',
+                        background: '#FFFDF7',
+                        border: '2px solid #B48C50',
+                        color: '#2C1A10',
+                        fontSize: showPin ? '22px' : '26px',
+                        letterSpacing: '0.45em',
+                        fontFamily: 'monospace',
+                        textAlign: 'center',
+                        outline: 'none',
+                        fontWeight: 900,
+                        transition: 'all 0.2s',
+                        boxShadow: 'inset 0 2px 5px rgba(140, 98, 57, 0.15), 0 2px 6px rgba(0,0,0,0.04)',
+                        opacity: isStarting ? 0.7 : 1,
+                      }}
+                      onFocus={e => {
+                        e.currentTarget.style.borderColor = '#0E8388'
+                        e.currentTarget.style.boxShadow = '0 0 16px rgba(14, 131, 136, 0.35)'
+                      }}
+                      onBlur={e => {
+                        e.currentTarget.style.borderColor = '#B48C50'
+                        e.currentTarget.style.boxShadow = 'inset 0 2px 5px rgba(140, 98, 57, 0.15), 0 2px 6px rgba(0,0,0,0.04)'
+                      }}
+                    />
+                    <p style={{ margin: '6px 0 0 0', fontSize: '11px', color: '#6B4226', textAlign: 'center', fontWeight: 600 }}>
+                      💡 Masukkan 4 angka yang kamu ingat untuk login &amp; simpan progresmu.
+                    </p>
+                  </div>
+
+                  {/* Auth Error Message */}
+                  {authError && (
+                    <div
+                      style={{
+                        marginBottom: '16px',
+                        padding: '10px 14px',
+                        background: 'rgba(239, 68, 68, 0.12)',
+                        border: '1.5px solid #EF4444',
+                        borderRadius: '12px',
+                        color: '#B91C1C',
+                        fontSize: '12px',
+                        fontWeight: 800,
+                        textAlign: 'center',
+                        lineHeight: 1.4,
+                      }}
+                    >
+                      ⚠️ {authError}
+                    </div>
+                  )}
 
                   {/* Confirm & Loading Bar Section */}
                   {isStarting ? (
@@ -651,13 +820,12 @@ export default function RootHomePage() {
                         />
                       </div>
                     </div>
-
                   ) : (
                     <motion.button
-                      whileHover={studentName.trim() ? { scale: 1.02, boxShadow: '0 8px 25px rgba(14, 131, 136, 0.45)' } : {}}
-                      whileTap={studentName.trim() ? { scale: 0.97 } : {}}
+                      whileHover={username.trim().length >= 3 && pin.length === 4 ? { scale: 1.02, boxShadow: '0 8px 25px rgba(14, 131, 136, 0.45)' } : {}}
+                      whileTap={username.trim().length >= 3 && pin.length === 4 ? { scale: 0.97 } : {}}
                       type="submit"
-                      disabled={!studentName.trim()}
+                      disabled={username.trim().length < 3 || pin.length !== 4}
                       style={{
                         width: '100%',
                         padding: '15px 24px',
@@ -665,14 +833,14 @@ export default function RootHomePage() {
                         fontWeight: 900,
                         letterSpacing: '2px',
                         color: '#FFFFFF',
-                        background: studentName.trim()
+                        background: (username.trim().length >= 3 && pin.length === 4)
                           ? 'linear-gradient(135deg, #0E8388 0%, #0284C7 100%)'
                           : 'linear-gradient(135deg, #94A3B8 0%, #64748B 100%)',
                         border: '1.5px solid rgba(255, 255, 255, 0.4)',
                         borderRadius: '16px',
-                        cursor: !studentName.trim() ? 'not-allowed' : 'pointer',
-                        opacity: !studentName.trim() ? 0.7 : 1,
-                        boxShadow: studentName.trim() ? '0 6px 20px rgba(14, 131, 136, 0.35)' : 'none',
+                        cursor: (username.trim().length < 3 || pin.length !== 4) ? 'not-allowed' : 'pointer',
+                        opacity: (username.trim().length < 3 || pin.length !== 4) ? 0.6 : 1,
+                        boxShadow: (username.trim().length >= 3 && pin.length === 4) ? '0 6px 20px rgba(14, 131, 136, 0.35)' : 'none',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',

@@ -5,8 +5,10 @@ import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useGameStore } from '@/lib/store/gameStore'
 import { gameAudio } from '@/lib/utils/gameAudio'
+import { syncPlayerProgressFromCloud, getActivePlayer } from '@/lib/utils/playerSync'
 import DetektivBooklet from './game/_levels/level2/components/DetektivBooklet'
 import OrientationGuard from './game/_components/OrientationGuard'
+import GamePreloader from './game/_components/GamePreloader'
 import AboutGameModal from '@/components/AboutGameModal'
 
 type Student = {
@@ -71,7 +73,6 @@ export default function SiswaPage() {
   const [hoveredCard, setHoveredCard] = useState<number | null>(null)
 
   // Navigation & Study Modals State
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [showBookletModal, setShowBookletModal] = useState(false)
   const [showAboutModal, setShowAboutModal] = useState(false)
   const [showGatingModal, setShowGatingModal] = useState(false)
@@ -79,21 +80,9 @@ export default function SiswaPage() {
   const [gatingStep, setGatingStep] = useState<1 | 2>(1)
 
   // Game store variables
-  const { startLevel, resetLevel, completedLevels, completedPostTests = [], levelStars: storeStars } = useGameStore()
-  const [localStars, setLocalStars] = useState<Record<number, number>>({})
+  const { startLevel, resetLevel, completedLevels, completedPostTests = [], levelStars: storeStars, syncFromProgress, resetPlayerSession } = useGameStore()
 
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem('stat_casecode_level_stars')
-      if (saved) {
-        setLocalStars(JSON.parse(saved))
-      }
-    } catch (e) {
-      console.error(e)
-    }
-  }, [])
-
-  const effectiveStars: Record<number, number> = { ...(localStars || {}), ...(storeStars || {}) }
+  const effectiveStars: Record<number, number> = storeStars || {}
 
   useEffect(() => {
     const unsub = gameAudio.subscribeMute(setIsMuted)
@@ -102,25 +91,55 @@ export default function SiswaPage() {
   }, [])
 
   useEffect(() => {
-    const data = localStorage.getItem('student')
-    if (!data) {
+    // 1. Ambil data profil pemain aktif (Username & Display Name)
+    const activePlayer = getActivePlayer()
+    if (activePlayer) {
       setStudent({
-        id: 'detektif-guest',
-        name: 'Detektif',
+        id: activePlayer.id,
+        name: activePlayer.displayName || activePlayer.username,
         nisn: '-',
-        classroom: { name: 'Kelas VII-A' }
+        classroom: { name: `@${activePlayer.username}` }
       })
     } else {
-      const s = JSON.parse(data) as Student
-      setStudent(s)
+      const data = localStorage.getItem('student')
+      if (!data) {
+        setStudent({
+          id: 'detektif-guest',
+          name: 'Pemain',
+          nisn: '-',
+          classroom: { name: 'Pemain Mandiri' }
+        })
+      } else {
+        const s = JSON.parse(data) as Student
+        setStudent(s)
+      }
     }
+
+    // 2. Sinkronkan progres bintang & XP dari database Supabase
+    syncPlayerProgressFromCloud().then((cloudProgress: any) => {
+      if (cloudProgress) {
+        resetPlayerSession(cloudProgress)
+      } else {
+        const rawLocal = localStorage.getItem('player_progress')
+        if (rawLocal) {
+          try {
+            resetPlayerSession(JSON.parse(rawLocal))
+          } catch (e) {
+            console.error('Error parsing player_progress:', e)
+            resetPlayerSession()
+          }
+        } else {
+          resetPlayerSession()
+        }
+      }
+    })
 
     const alreadyShown = sessionStorage.getItem('greeting_shown')
     if (!alreadyShown) {
       setShowGreeting(true)
       sessionStorage.setItem('greeting_shown', '1')
     }
-  }, [router])
+  }, [router, resetPlayerSession])
 
 
   // Detect mobile/portrait orientation
@@ -174,37 +193,91 @@ export default function SiswaPage() {
     return `M ${p1.x} ${p1.y} Q ${midX} ${midY} ${p2.x} ${p2.y}`
   }
 
-  // Prevent background scroll when sidebar drawer is open
+  const [loadingLevel, setLoadingLevel] = useState<{
+    id: number
+    title: string
+    code: string
+    imagesToPreload: string[]
+  } | null>(null)
+
   useEffect(() => {
-    if (isSidebarOpen) {
-      const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth
-      document.body.style.overflow = 'hidden'
-      if (scrollbarWidth > 0) {
-        document.body.style.paddingRight = `${scrollbarWidth}px`
-      }
-    } else {
-      document.body.style.overflow = ''
-      document.body.style.paddingRight = ''
-    }
-    return () => {
-      document.body.style.overflow = ''
-      document.body.style.paddingRight = ''
-    }
-  }, [isSidebarOpen])
+    setLoadingLevel(null)
+  }, [])
 
   if (!student) return (
-    <main style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0B1E2C' }}>
-      <p style={{ color: '#F8FAFC' }}>Loading...</p>
+    <main style={{
+      minHeight: '100vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      flexDirection: 'column',
+      gap: '16px',
+      background: 'radial-gradient(ellipse at center, #26160E 0%, #120A06 100%)',
+      color: '#FDE047',
+      fontFamily: 'var(--font-sans), sans-serif'
+    }}>
+      <motion.div
+        animate={{ scale: [1, 1.08, 1], rotate: [0, 5, -5, 0] }}
+        transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+        style={{
+          width: 64,
+          height: 64,
+          borderRadius: '50%',
+          background: 'linear-gradient(135deg, #3D2419 0%, #2D1A12 100%)',
+          border: '2px solid #F59E0B',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: 28,
+          boxShadow: '0 8px 24px rgba(0,0,0,0.6), inset 0 0 12px rgba(245,158,11,0.25)'
+        }}
+      >
+        🕵️‍♂️
+      </motion.div>
+      <div style={{ textAlign: 'center' }}>
+        <p style={{ margin: 0, fontSize: '11px', fontWeight: 900, color: '#FBBF24', letterSpacing: '2px', textTransform: 'uppercase' }}>
+          MEMVERIFIKASI DETEKTIF...
+        </p>
+        <p style={{ margin: '4px 0 0 0', fontSize: '13.5px', fontWeight: 800, color: '#FEF3C7' }}>
+          Menyiapkan Papan Kasus...
+        </p>
+      </div>
     </main>
   )
 
   const proceedToGame = (levelId: number) => {
+    const levelInfo = LEVELS.find(l => l.id === levelId)
+    const imagesToPreload = levelId === 1
+      ? [
+          '/Assets/Building/Gerbang.jpg',
+          '/Assets/Building/Kelas.webp',
+          '/Assets/Building/Fasilitas.webp',
+          '/Assets/Character/pak-sutrisno-avatar.png',
+          '/Assets/Character/pak-joko-satpam.png',
+        ]
+      : [
+          '/Assets/Building/field/lapangan_saja.png',
+          '/Assets/Building/Ruang VII-B/Pak Bambang.webp',
+        ]
+
+    setLoadingLevel({
+      id: levelId,
+      title: levelInfo?.title || `Kasus ${levelId}`,
+      code: levelInfo?.code || `CASE #0${levelId}`,
+      imagesToPreload,
+    })
+
     resetLevel()
     startLevel(levelId)
-    router.push(`/siswa/game/level/${levelId}`)
+    try {
+      router.prefetch(`/siswa/game/level/${levelId}`)
+    } catch {
+      // prefetch fallback
+    }
   }
 
   const handlePlayLevel = async (levelId: number) => {
+    if (loadingLevel) return
     gameAudio.playClick()
     proceedToGame(levelId)
   }
@@ -376,30 +449,6 @@ export default function SiswaPage() {
                 }}
               >
                 <span>{isMuted ? '🔇' : '🔊'}</span>
-              </button>
-
-              {/* Hamburger button */}
-              <button
-                onClick={() => {
-                  gameAudio.playClick()
-                  setIsSidebarOpen(true)
-                }}
-                style={{
-                  background: 'rgba(255, 248, 235, 0.08)',
-                  border: '1px solid rgba(212, 175, 55, 0.35)',
-                  borderRadius: '8px',
-                  color: '#FEF3C7',
-                  padding: '4px 9px',
-                  fontSize: '10.5px',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  transition: 'all 0.2s',
-                }}
-              >
-                <span>☰</span> {!isMobile && "Menu"}
               </button>
 
               {/* Exit button */}
@@ -790,41 +839,6 @@ export default function SiswaPage() {
                               </span>
                             </div>
 
-                            {/* Star Rating Badge on Photo (Top-Left) */}
-                            {(effectiveStars[level.id] || 0) > 0 && (
-                              <div
-                                data-testid={`card-stars-photo-${level.id}`}
-                                style={{
-                                  position: 'absolute',
-                                  top: '6px',
-                                  left: '6px',
-                                  background: 'rgba(15, 23, 42, 0.88)',
-                                  border: '1.5px solid rgba(245, 158, 11, 0.65)',
-                                  borderRadius: '4px',
-                                  padding: '2px 6px',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  gap: '2px',
-                                  boxShadow: '0 2px 8px rgba(0,0,0,0.45)',
-                                  zIndex: 3,
-                                }}
-                              >
-                                {[1, 2, 3].map((s) => (
-                                  <span
-                                    key={s}
-                                    style={{
-                                      fontSize: isMobile ? '10px' : '12px',
-                                      color: s <= (effectiveStars[level.id] || 0) ? '#F59E0B' : 'rgba(255,255,255,0.22)',
-                                      lineHeight: 1,
-                                      filter: s <= (effectiveStars[level.id] || 0) ? 'drop-shadow(0 1px 2px rgba(245, 158, 11, 0.6))' : 'none',
-                                    }}
-                                  >
-                                    ★
-                                  </span>
-                                ))}
-                              </div>
-                            )}
-
                             {/* Completed Case Stamp */}
                             {isCompleted && (
                               <div style={{
@@ -917,150 +931,80 @@ export default function SiswaPage() {
                           </div>
                         )}
 
-                        {/* Earned Star Rating Pill (If completed & has stars) */}
-                        {(effectiveStars[level.id] || 0) > 0 && (
-                          <div
-                            data-testid={`level-${level.id}-stars`}
-                            style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              gap: '4px',
-                              margin: '3px 0',
-                              padding: '2px 8px',
-                              background: 'linear-gradient(135deg, rgba(254, 243, 199, 0.95) 0%, rgba(253, 230, 138, 0.85) 100%)',
-                              border: '1px solid rgba(217, 119, 6, 0.45)',
-                              borderRadius: '20px',
-                              boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
-                            }}
-                          >
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
-                              {[1, 2, 3].map((s) => (
-                                <span
-                                  key={s}
-                                  style={{
-                                    fontSize: isMobile ? '12px' : '15px',
-                                    color: s <= (effectiveStars[level.id] || 0) ? '#D97706' : '#D1D5DB',
-                                    filter: s <= (effectiveStars[level.id] || 0) ? 'drop-shadow(0 1px 2px rgba(217, 119, 6, 0.5))' : 'none',
-                                    lineHeight: 1,
-                                  }}
-                                >
-                                  ★
-                                </span>
-                              ))}
-                            </div>
-                            <span style={{
-                              fontSize: isMobile ? '8.5px' : '10px',
-                              fontWeight: 900,
-                              color: '#92400E',
-                              marginLeft: '2px',
-                              letterSpacing: '0.3px',
-                            }}>
-                              {effectiveStars[level.id] === 3
-                                ? '⭐⭐⭐ Detektif Elit'
-                                : effectiveStars[level.id] === 2
-                                ? '⭐⭐ Detektif Terlatih'
-                                : '⭐ Detektif Pemula'}
-                            </span>
-                          </div>
-                        )}
+                        {/* Star Rating (1 clean container: 3 grey stars when unplayed/unearned, yellow/gold when earned) */}
+                        <div
+                          data-testid={`level-${level.id}-stars`}
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: isMobile ? '3px' : '4px',
+                            margin: '3px 0',
+                            padding: isMobile ? '2px 8px' : '3px 10px',
+                            background: (effectiveStars[level.id] || 0) > 0
+                              ? 'linear-gradient(135deg, rgba(254, 243, 199, 0.95) 0%, rgba(253, 230, 138, 0.85) 100%)'
+                              : 'rgba(0, 0, 0, 0.04)',
+                            border: `1px solid ${(effectiveStars[level.id] || 0) > 0 ? 'rgba(217, 119, 6, 0.45)' : 'rgba(0, 0, 0, 0.08)'}`,
+                            borderRadius: '20px',
+                            boxShadow: (effectiveStars[level.id] || 0) > 0 ? '0 1px 4px rgba(217, 119, 6, 0.15)' : 'none',
+                          }}
+                        >
+                          {[1, 2, 3].map((s) => {
+                            const earned = (effectiveStars[level.id] || 0) >= s
+                            return (
+                              <span
+                                key={s}
+                                style={{
+                                  fontSize: isMobile ? '12px' : '15px',
+                                  color: earned ? '#F59E0B' : '#D1D5DB',
+                                  filter: earned ? 'drop-shadow(0 1px 2px rgba(245, 158, 11, 0.5))' : 'none',
+                                  lineHeight: 1,
+                                  transition: 'color 0.2s ease',
+                                }}
+                              >
+                                ★
+                              </span>
+                            )
+                          })}
+                        </div>
 
                         {/* Action Button */}
                         <div style={{ width: '100%', marginTop: '2px' }}>
                           {isUnlocked ? (
-                            isCompleted ? (
-                              <div style={{ display: 'flex', gap: '5px', width: '100%' }}>
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    handlePlayLevel(level.id)
-                                  }}
-                                  style={{
-                                    flex: 1,
-                                    padding: isMobile ? '6px 4px' : '8px 4px',
-                                    borderRadius: '5px',
-                                    border: 'none',
-                                    background: '#B84A39',
-                                    color: '#FFFFFF',
-                                    fontSize: isMobile ? '9.5px' : '11px',
-                                    fontWeight: 800,
-                                    cursor: 'pointer',
-                                    boxShadow: '0 2px 6px rgba(184, 74, 57, 0.25)',
-                                    transition: 'all 0.2s',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    gap: '3px',
-                                  }}
-                                  onMouseEnter={e => e.currentTarget.style.filter = 'brightness(1.15)'}
-                                  onMouseLeave={e => e.currentTarget.style.filter = 'none'}
-                                >
-                                  <span>▶ Ulangi</span>
-                                </button>
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    router.push(`/siswa/game/results/${level.id}`)
-                                  }}
-                                  style={{
-                                    flex: 1,
-                                    padding: isMobile ? '6px 4px' : '8px 4px',
-                                    borderRadius: '5px',
-                                    border: '1px solid rgba(14, 131, 136, 0.4)',
-                                    background: '#0E8388',
-                                    color: '#FFFFFF',
-                                    fontSize: isMobile ? '9.5px' : '11px',
-                                    fontWeight: 800,
-                                    cursor: 'pointer',
-                                    boxShadow: '0 2px 6px rgba(14, 131, 136, 0.25)',
-                                    transition: 'all 0.2s',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    gap: '3px',
-                                  }}
-                                  onMouseEnter={e => e.currentTarget.style.filter = 'brightness(1.15)'}
-                                  onMouseLeave={e => e.currentTarget.style.filter = 'none'}
-                                >
-                                  <span>📊 Hasil</span>
-                                </button>
-                              </div>
-                            ) : (
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  handlePlayLevel(level.id)
-                                }}
-                                style={{
-                                  width: '100%',
-                                  padding: isMobile ? '7px' : '9px',
-                                  borderRadius: '5px',
-                                  border: 'none',
-                                  background: '#B84A39',
-                                  color: '#FFFFFF',
-                                  fontSize: isMobile ? '10px' : '12px',
-                                  fontWeight: 800,
-                                  cursor: 'pointer',
-                                  boxShadow: '0 3px 10px rgba(184, 74, 57, 0.32)',
-                                  transition: 'all 0.2s',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  gap: '5px',
-                                }}
-                                onMouseEnter={e => {
-                                  e.currentTarget.style.filter = 'brightness(1.15)';
-                                  e.currentTarget.style.background = '#A23E2F';
-                                }}
-                                onMouseLeave={e => {
-                                  e.currentTarget.style.filter = 'none';
-                                  e.currentTarget.style.background = '#B84A39';
-                                }}
-                              >
-                                <span>🔍 Mulai Investigasi</span>
-                                <span>→</span>
-                              </button>
-                            )
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handlePlayLevel(level.id)
+                              }}
+                              style={{
+                                width: '100%',
+                                padding: isMobile ? '7px' : '9px',
+                                borderRadius: '5px',
+                                border: 'none',
+                                background: '#B84A39',
+                                color: '#FFFFFF',
+                                fontSize: isMobile ? '10px' : '12px',
+                                fontWeight: 800,
+                                cursor: 'pointer',
+                                boxShadow: '0 3px 10px rgba(184, 74, 57, 0.32)',
+                                transition: 'all 0.2s',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '5px',
+                              }}
+                              onMouseEnter={e => {
+                                e.currentTarget.style.filter = 'brightness(1.15)';
+                                e.currentTarget.style.background = '#A23E2F';
+                              }}
+                              onMouseLeave={e => {
+                                e.currentTarget.style.filter = 'none';
+                                e.currentTarget.style.background = '#B84A39';
+                              }}
+                            >
+                              <span>🔍 Mulai Investigasi</span>
+                              <span>→</span>
+                            </button>
                           ) : (
                             <div style={{
                               width: '100%',
@@ -1160,7 +1104,12 @@ export default function SiswaPage() {
                 </button>
                 <button
                   onClick={() => {
+                    localStorage.removeItem('player')
                     localStorage.removeItem('student')
+                    localStorage.removeItem('player_progress')
+                    localStorage.removeItem('stat_casecode_level_stars')
+                    localStorage.removeItem('ar-cognistats-game')
+                    resetPlayerSession()
                     sessionStorage.removeItem('greeting_shown')
                     router.push('/')
                   }}
@@ -1304,238 +1253,6 @@ export default function SiswaPage() {
             </motion.div>
           </motion.div>
         )}
-
-        {/* Sidebar Drawer */}
-        <AnimatePresence>
-          {isSidebarOpen && (
-            <>
-              {/* Backdrop overlay */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                onClick={() => setIsSidebarOpen(false)}
-                style={{
-                  position: 'fixed',
-                  inset: 0,
-                  background: 'rgba(11, 30, 44, 0.7)',
-                  backdropFilter: 'blur(8px)',
-                  zIndex: 150,
-                }}
-              />
-              {/* Sidebar panel */}
-              <motion.div
-                initial={{ x: '100%' }}
-                animate={{ x: 0 }}
-                exit={{ x: '100%' }}
-                transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                style={{
-                  position: 'fixed',
-                  top: 0,
-                  right: 0,
-                  bottom: 0,
-                  width: '320px',
-                  height: '100dvh',
-                  maxHeight: '100dvh',
-                  background: 'rgba(15, 35, 56, 0.95)',
-                  backdropFilter: 'blur(20px)',
-                  borderLeft: '1px solid rgba(14, 131, 136, 0.25)',
-                  boxShadow: '-10px 0 30px rgba(0,0,0,0.5)',
-                  padding: '24px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '24px',
-                  zIndex: 160,
-                  overflowY: 'auto',
-                }}
-              >
-                {/* Sidebar Header */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '16px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ fontSize: '20px' }}>☰</span>
-                    <span style={{ fontWeight: 800, fontSize: '16px', color: '#F8FAFC' }}>Menu Navigasi</span>
-                  </div>
-                  <button
-                    onClick={() => setIsSidebarOpen(false)}
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      color: '#A8A29E',
-                      fontSize: '20px',
-                      cursor: 'pointer',
-                      padding: '4px',
-                      lineHeight: 1,
-                    }}
-                    onMouseEnter={e => e.currentTarget.style.color = '#ff6b6b'}
-                    onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.4)'}
-                  >
-                    ✕
-                  </button>
-                </div>
-
-                {/* Sidebar Items */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', flex: 1 }}>
-                  {/* Tanya DiRA */}
-                  <button
-                    onClick={() => {
-                      setIsSidebarOpen(false)
-                      router.push('/siswa/chat')
-                    }}
-                    className="sidebar-btn"
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '16px',
-                      padding: '16px',
-                      borderRadius: '16px',
-                      background: 'rgba(14, 131, 136, 0.03)',
-                      border: '1px solid rgba(255,255,255,0.06)',
-                      color: '#F8FAFC',
-                      textAlign: 'left',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s',
-                      outline: 'none',
-                    }}
-                  >
-                    <span style={{ fontSize: '24px' }}>💬</span>
-                    <div>
-                      <div style={{ fontWeight: 800, fontSize: '14px' }}>Tanya DiRA</div>
-                      <div style={{ fontSize: '11px', color: '#94A3B8', marginTop: '2px' }}>Chatbot AI Asisten Belajar</div>
-                    </div>
-                  </button>
-
-                  {/* Buku Saku */}
-                  <button
-                    onClick={() => {
-                      setIsSidebarOpen(false)
-                      setShowBookletModal(true)
-                    }}
-                    className="sidebar-btn"
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '16px',
-                      padding: '16px',
-                      borderRadius: '16px',
-                      background: 'rgba(14, 131, 136, 0.03)',
-                      border: '1px solid rgba(255,255,255,0.06)',
-                      color: '#F8FAFC',
-                      textAlign: 'left',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s',
-                      outline: 'none',
-                    }}
-                  >
-                    <span style={{ fontSize: '24px' }}>📖</span>
-                    <div>
-                      <div style={{ fontWeight: 800, fontSize: '14px' }}>Buku Saku Detektif</div>
-                      <div style={{ fontSize: '11px', color: '#94A3B8', marginTop: '2px' }}>Ringkasan Materi & Teori</div>
-                    </div>
-                  </button>
-
-                  {/* Video Pembelajaran */}
-                  <button
-                    onClick={() => {
-                      setIsSidebarOpen(false)
-                      router.push('/siswa/video')
-                    }}
-                    className="sidebar-btn"
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '16px',
-                      padding: '16px',
-                      borderRadius: '16px',
-                      background: 'rgba(14, 131, 136, 0.03)',
-                      border: '1px solid rgba(255,255,255,0.06)',
-                      color: '#F8FAFC',
-                      textAlign: 'left',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s',
-                      outline: 'none',
-                    }}
-                  >
-                    <span style={{ fontSize: '24px' }}>🎥</span>
-                    <div>
-                      <div style={{ fontWeight: 800, fontSize: '14px' }}>Video Pembelajaran</div>
-                      <div style={{ fontSize: '11px', color: '#94A3B8', marginTop: '2px' }}>Penjelasan Audio-Visual</div>
-                    </div>
-                  </button>
-
-                  {/* Tentang Game & Kurikulum */}
-                  <button
-                    onClick={() => {
-                      setIsSidebarOpen(false)
-                      setShowAboutModal(true)
-                    }}
-                    className="sidebar-btn"
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '16px',
-                      padding: '16px',
-                      borderRadius: '16px',
-                      background: 'rgba(14, 131, 136, 0.03)',
-                      border: '1px solid rgba(255,255,255,0.06)',
-                      color: '#F8FAFC',
-                      textAlign: 'left',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s',
-                      outline: 'none',
-                    }}
-                  >
-                    <span style={{ fontSize: '24px' }}>ℹ️</span>
-                    <div>
-                      <div style={{ fontWeight: 800, fontSize: '14px' }}>Tentang</div>
-                      <div style={{ fontSize: '11px', color: '#94A3B8', marginTop: '2px' }}>Peta Konsep & Informasi Materi</div>
-                    </div>
-                  </button>
-
-
-
-
-
-                  {isMobile && (
-                    <button
-                      onClick={() => {
-                        setIsSidebarOpen(false)
-                        setShowExitConfirm(true)
-                      }}
-                      className="sidebar-btn"
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '16px',
-                        padding: '16px',
-                        borderRadius: '16px',
-                        background: 'rgba(220, 38, 38, 0.05)',
-                        border: '1px solid rgba(220, 38, 38, 0.2)',
-                        color: '#DC2626',
-                        textAlign: 'left',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s',
-                        outline: 'none',
-                      }}
-                    >
-                      <span style={{ fontSize: '24px' }}>🚪</span>
-                      <div>
-                        <div style={{ fontWeight: 800, fontSize: '14px' }}>Keluar Sesi</div>
-                        <div style={{ fontSize: '11px', color: '#EF4444', opacity: 0.8, marginTop: '2px' }}>Akhiri Sesi Investigasi</div>
-                      </div>
-                    </button>
-                  )}
-                </div>
-
-                {/* Sidebar Footer */}
-                <div style={{ fontSize: '11px', color: '#94A3B8', textAlign: 'center', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '16px' }}>
-                  Casecode v2.0 • SMP Negeri Edition
-                </div>
-              </motion.div>
-            </>
-          )}
-        </AnimatePresence>
-
-
 
         {/* Modal Buku Saku */}
         {showBookletModal && (
@@ -1722,6 +1439,19 @@ export default function SiswaPage() {
           </div>
         )}
 
+        {/* Detective Loading Bar Transition Screen */}
+        {loadingLevel && (
+          <GamePreloader
+            title={`MEMBUKA BERKAS ${loadingLevel.code}`}
+            subtitle={loadingLevel.title}
+            imagesToPreload={loadingLevel.imagesToPreload}
+            minDurationMs={1200}
+            onComplete={() => {
+              router.push(`/siswa/game/level/${loadingLevel.id}?preloaded=true`)
+            }}
+          />
+        )}
+
         {/* Tentang Game & Kurikulum Modal */}
         <AboutGameModal
           isOpen={showAboutModal}
@@ -1817,15 +1547,6 @@ export default function SiswaPage() {
           opacity: 0.65;
         }
 
-        .sidebar-btn {
-          transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .sidebar-btn:hover {
-          background: rgba(14,131,136,0.12) !important;
-          border-color: rgba(14,131,136,0.35) !important;
-          box-shadow: 0 0 15px rgba(14,131,136,0.15);
-          transform: translateY(-2px);
-        }
       `}</style>
       </main>
     </OrientationGuard>

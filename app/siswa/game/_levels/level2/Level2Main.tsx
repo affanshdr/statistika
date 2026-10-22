@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useRouter } from 'next/navigation'
 import { useGameStore } from '@/lib/store/gameStore'
+import { savePlayerProgressToCloud } from '@/lib/utils/playerSync'
 import BadgeUnlock from '@/app/siswa/game/_components/BadgeUnlock'
 import FieldStudentAthlete from './components/FieldStudentAthlete'
 import FieldTeacher from './components/FieldTeacher'
@@ -213,6 +214,7 @@ export default function Level2Main({
   const {
     addXP,
     completeLevel,
+    setLevelStars,
     unlockBadge,
     incrementMistake,
     mistakeCount,
@@ -1765,8 +1767,15 @@ export default function Level2Main({
               </div>
 
               <button
-                onClick={() => {
+                onClick={async () => {
+                  setLevelStars(2, 3)
                   completeLevel(2)
+                  await savePlayerProgressToCloud({
+                    levelId: 2,
+                    stars: 3,
+                    xpEarned: 100,
+                    isCorrect: true,
+                  })
                   router.push('/siswa')
                 }}
                 style={{

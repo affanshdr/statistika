@@ -94,6 +94,13 @@ class GameAudioService {
   private noteIndex: number = 0
   private listeners: Set<MuteListener> = new Set()
   private unlockListenerAttached: boolean = false
+  private bgmAudio: HTMLAudioElement | null = null
+  private sfxBuffers: Map<string, AudioBuffer> = new Map()
+  private sfxLoading: Set<string> = new Set()
+  private lastClickTime: number = 0
+  private globalClickAttached: boolean = false
+
+  private isUnlocked: boolean = false
 
   constructor() {
     if (typeof window !== 'undefined') {
@@ -105,7 +112,111 @@ class GameAudioService {
       } catch {
         // ignore storage errors
       }
+      this.initBgmAudio()
       this.attachAutoUnlock()
+      this.initGlobalClickListener()
+      ;(window as unknown as { gameAudio: GameAudioService }).gameAudio = this
+    }
+  }
+
+  public getBgmAudio(): HTMLAudioElement | null {
+    return this.bgmAudio
+  }
+
+  public getCurrentTrack(): BgmTrack {
+    return this.currentTrack
+  }
+
+  private async loadSfx(name: string, url: string) {
+    if (typeof window === 'undefined' || this.sfxBuffers.has(name) || this.sfxLoading.has(name)) return
+    this.sfxLoading.add(name)
+    try {
+      const resp = await fetch(url)
+      const arrayBuffer = await resp.arrayBuffer()
+      const ctx = this.getContext()
+      if (ctx) {
+        const audioBuffer = await ctx.decodeAudioData(arrayBuffer)
+        this.sfxBuffers.set(name, audioBuffer)
+      }
+    } catch {
+      // ignore
+    } finally {
+      this.sfxLoading.delete(name)
+    }
+  }
+
+  public preloadAllSfx() {
+    if (typeof window === 'undefined') return
+    this.loadSfx('click', '/audio/sfx_click.mp3')
+    this.loadSfx('confirm', '/audio/sfx_confirm.mp3')
+    this.loadSfx('cancel', '/audio/sfx_cancel.mp3')
+    this.loadSfx('hover', '/audio/sfx_hover.mp3')
+  }
+
+  private playBuffer(name: string, volume = 0.5): boolean {
+    if (this.isMuted) return false
+    const buffer = this.sfxBuffers.get(name)
+    const ctx = this.getContext()
+    if (ctx && buffer) {
+      try {
+        const source = ctx.createBufferSource()
+        source.buffer = buffer
+        const gain = ctx.createGain()
+        gain.gain.setValueAtTime(volume, ctx.currentTime)
+        source.connect(gain)
+        gain.connect(ctx.destination)
+        source.start(0)
+        return true
+      } catch {
+        return false
+      }
+    }
+    return false
+  }
+
+  private initGlobalClickListener() {
+    if (this.globalClickAttached || typeof window === 'undefined') return
+    this.globalClickAttached = true
+
+    document.addEventListener('pointerdown', (e) => {
+      const target = e.target as HTMLElement | null
+      if (!target) return
+
+      // Preload SFX buffers on first pointerdown if not done yet
+      if (this.sfxBuffers.size === 0) {
+        this.preloadAllSfx()
+      }
+
+      // Check if clicked element or any ancestor is a button / interactive element
+      const clickable = target.closest?.(
+        'button, [role="button"], a, input[type="submit"], input[type="button"], .clickable, [data-clickable="true"], g[style*="cursor: pointer"]'
+      )
+      if (clickable) {
+        if (clickable.getAttribute?.('data-no-sound') === 'true') return
+        const soundType = clickable.getAttribute?.('data-sound')
+        if (soundType === 'confirm') {
+          this.playConfirm()
+        } else if (soundType === 'cancel') {
+          this.playCancel()
+        } else {
+          this.playClick()
+        }
+      }
+    }, { capture: true, passive: true })
+  }
+
+  private initBgmAudio() {
+    if (typeof window === 'undefined') return
+    if (!this.bgmAudio) {
+      try {
+        this.bgmAudio = new Audio('/audio/game_bgm.mp3')
+        this.bgmAudio.loop = true
+        this.bgmAudio.volume = 0.45
+        this.bgmAudio.preload = 'auto'
+        this.bgmAudio.muted = this.isMuted
+      } catch {
+        // ignore audio constructor errors
+      }
     }
   }
 
@@ -114,16 +225,34 @@ class GameAudioService {
     this.unlockListenerAttached = true
 
     const unlock = () => {
-      if (!this.isMuted && this.currentTrack && (!this.ctx || this.ctx.state === 'suspended')) {
+      this.isUnlocked = true
+
+      // 1. Resume real audio BGM if active
+      if (!this.isMuted && (this.currentTrack === 'menu' || this.currentTrack === 'level1')) {
+        this.initBgmAudio()
+        if (this.bgmAudio && this.bgmAudio.paused) {
+          this.bgmAudio.muted = false
+          this.bgmAudio.play().catch(() => {})
+        }
+      }
+      // 2. Resume Web Audio API context for synth & SFX
+      if (!this.isMuted && (!this.ctx || this.ctx.state === 'suspended')) {
         const ctx = this.getContext()
-        if (ctx && ctx.state === 'running' && !this.bgmTimer) {
+        if (ctx && ctx.state === 'suspended') {
+          ctx.resume().catch(() => {})
+        }
+        if (ctx && ctx.state === 'running' && this.currentTrack && !this.bgmTimer) {
           this.scheduleNextNote()
         }
       }
     }
 
-    window.addEventListener('pointerdown', unlock, { passive: true })
-    window.addEventListener('keydown', unlock, { passive: true })
+    // Attach in capture phase on multiple events so ANY click or touch on the screen unlocks immediately
+    const opts = { capture: true, passive: true }
+    window.addEventListener('pointerdown', unlock, opts)
+    window.addEventListener('click', unlock, opts)
+    window.addEventListener('touchstart', unlock, opts)
+    window.addEventListener('keydown', unlock, opts)
   }
 
   private getContext(): AudioContext | null {
@@ -162,6 +291,9 @@ class GameAudioService {
       }
     }
     if (muted) {
+      if (this.bgmAudio) {
+        this.bgmAudio.pause()
+      }
       this.stopBgmTimer()
     } else if (this.currentTrack) {
       this.playClick()
@@ -180,21 +312,33 @@ class GameAudioService {
   }
 
   // ──────────────────────────────────────────────────────
-  // BACKGROUND MUSIC (BGM) SEQUENCER
+  // BACKGROUND MUSIC (BGM) SEQUENCER & HIGH-FIDELITY SOUNDTRACK
   // ──────────────────────────────────────────────────────
   public playBGM(track: BgmTrack) {
-    if (this.currentTrack === track && this.bgmTimer) return
+    if (this.currentTrack === track) {
+      if ((track === 'menu' || track === 'level1') && this.bgmAudio && !this.bgmAudio.paused) return
+      if (this.bgmTimer) return
+    }
     this.currentTrack = track
     this.noteIndex = 0
     this.stopBgmTimer()
 
-    if (!track || this.isMuted) return
+    if (!track || this.isMuted) {
+      if (this.bgmAudio) {
+        this.bgmAudio.pause()
+      }
+      return
+    }
     this.startBgmLoop()
   }
 
   public stopBGM() {
     this.currentTrack = null
     this.stopBgmTimer()
+    if (this.bgmAudio) {
+      this.bgmAudio.pause()
+      this.bgmAudio.currentTime = 0
+    }
   }
 
   private stopBgmTimer() {
@@ -214,6 +358,18 @@ class GameAudioService {
   private startBgmLoop() {
     this.stopBgmTimer()
     if (!this.currentTrack || this.isMuted) return
+
+    // If track is menu or level1, play the master soundtrack!
+    if (this.currentTrack === 'menu' || this.currentTrack === 'level1') {
+      this.initBgmAudio()
+      if (this.bgmAudio) {
+        this.bgmAudio.play().catch(() => {
+          // Autoplay blocked by browser until user gesture; unlock handler will resume it
+        })
+      }
+      return
+    }
+
     this.scheduleNextNote()
   }
 
@@ -312,22 +468,45 @@ class GameAudioService {
     osc.stop(now + 0.22)
   }
 
-  // 3. UI Button Tap
+  // 3. UI Button Tap (Gentle Warm Tactile Tap - No Laser Sweep)
   public playClick() {
+    const now = Date.now()
+    if (now - this.lastClickTime < 35) return // debounce redundant triggers
+    this.lastClickTime = now
+
+    if (this.playBuffer('click', 0.38)) return
+
+    // Fallback synthesizer: Gentle warm wooden tap at 520Hz (C5)
     const ctx = this.getContext()
     if (!ctx) return
-    const now = ctx.currentTime
+    const t = ctx.currentTime
     const osc = ctx.createOscillator()
     const gain = ctx.createGain()
     osc.type = 'sine'
-    osc.frequency.setValueAtTime(440, now)
-    osc.frequency.exponentialRampToValueAtTime(880, now + 0.05)
-    gain.gain.setValueAtTime(0.06, now)
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06)
+    osc.frequency.setValueAtTime(520, t)
+    gain.gain.setValueAtTime(0.065, t)
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.035)
     osc.connect(gain)
     gain.connect(ctx.destination)
-    osc.start(now)
-    osc.stop(now + 0.07)
+    osc.start(t)
+    osc.stop(t + 0.038)
+  }
+
+  // 3B. Confirmation / Action Submit (2-Tone Soft Chime)
+  public playConfirm() {
+    if (this.playBuffer('confirm', 0.45)) return
+    this.playSuccess()
+  }
+
+  // 3C. Cancel / Back Button (Soft Descending Tap)
+  public playCancel() {
+    if (this.playBuffer('cancel', 0.35)) return
+    this.playClick()
+  }
+
+  // 3D. Subtle Button Hover Tick
+  public playHover() {
+    this.playBuffer('hover', 0.18)
   }
 
   // 4. Milestone / Ruang Guru Unlock Jingle

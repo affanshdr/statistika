@@ -4,6 +4,7 @@ import { use, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion as motionClient, AnimatePresence as AnimatePresenceClient } from 'framer-motion'
 import { useGameStore } from '@/lib/store/gameStore'
+import { savePlayerProgressToCloud } from '@/lib/utils/playerSync'
 import '../../game.css'
 
 const QUESTIONS_LEVEL1 = [
@@ -152,7 +153,7 @@ export default function PostTestPage({
   }, [router])
 
   const QUESTIONS = isLevel2 ? QUESTIONS_LEVEL2 : QUESTIONS_LEVEL1
-  const levelTitle = isLevel2 ? 'Kasus 2: Cyberbullying' : 'Kasus 1: The Viral Myth'
+  const levelTitle = isLevel2 ? 'Kasus 2: Pengukuran Lemparan' : 'Kasus 1: Misteri Jam Layar'
   const levelDescription = isLevel2
     ? 'Selamat, Detektif! Kamu telah menyelesaikan penyelidikan data perundungan siber. Sekarang saatnya menguji kembali pemahaman konsep statistika deskriptif (Mean, Median, Modus) yang telah kamu pelajari selama investigasi.'
     : 'Selamat, Detektif! Kamu telah menyelesaikan penyelidikan data screen time. Sekarang saatnya menguji kembali pemahaman konsep statistika deskriptif yang telah kamu pelajari selama investigasi.'
@@ -181,23 +182,17 @@ export default function PostTestPage({
       // Save results
       if (student?.id) {
         setSaving(true)
-        fetch('/api/game/posttest', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            studentId: student.id,
-            levelId,
-            score: finalScore,
-          }),
+        store.completePostTest(levelId)
+        if (earnedXp > 0) {
+          store.addXP(earnedXp, `Post Test Level ${levelId}`, 5)
+        }
+        savePlayerProgressToCloud({
+          levelId,
+          stars: 3,
+          xpEarned: earnedXp,
+          details: { postTestScore: finalScore },
+          isCorrect: true,
         })
-          .then((res) => res.json())
-          .then((data) => {
-            // Update local Zustand store
-            store.completePostTest(levelId)
-            if (earnedXp > 0) {
-              store.addXP(earnedXp, `Post Test Level ${levelId}`, 5)
-            }
-          })
           .catch(console.error)
           .finally(() => setSaving(false))
       }

@@ -13,6 +13,7 @@ import VerdictScreen from './components/VerdictScreen'
 import MythBustedStamp from './components/MythBustedStamp'
 import BadgeUnlock from '@/app/siswa/game/_components/BadgeUnlock'
 import { BADGES, getLevel1Data } from '@/app/siswa/game/_data/level1'
+import { savePlayerProgressToCloud } from '@/lib/utils/playerSync'
 
 const DraggableHistogram = dynamic(() => import('./components/DraggableHistogram'), { ssr: false })
 
@@ -46,6 +47,7 @@ export default function Level1Main({
     level1Dataset,
     setVerdict,
     setLevelStars,
+    lives,
   } = useGameStore()
 
   const { STATS } = getLevel1Data(level1Dataset)
@@ -135,8 +137,9 @@ export default function Level1Main({
       {/* Phase 1: Exploration & Papan Bukti Analisis (NPath) - Collect 24 Student Data & Complete Corkboard */}
       {phase === 'exploration' && (
         <NPath
+          studentName={studentName}
           isFD={false}
-          onComplete={(starsEarned: number = 3) => {
+          onComplete={async (starsEarned: number = 3) => {
             setVerdict('MISLEADING')
             addXP(80, 'Menyelesaikan Analisis Ukuran Pemusatan Data', 1)
             awardBadge(BADGES.CRITICAL)
@@ -144,6 +147,19 @@ export default function Level1Main({
             if (mistakeCount === 0) awardBadge(BADGES.PERFECT)
             setLevelStars(1, starsEarned)
             completeLevel(1)
+
+            // Simpan progres ke Local Storage & Cloud Supabase
+            await savePlayerProgressToCloud({
+              levelId: 1,
+              stars: starsEarned,
+              xpEarned: 80,
+              durationSeconds: sessionStartTime ? Math.round((Date.now() - sessionStartTime) / 1000) : 180,
+              livesRemaining: lives,
+              mistakeCount,
+              verdictAnswer: 'MISLEADING',
+              isCorrect: true,
+            })
+
             router.push('/siswa')
           }}
           demoMode={demoMode}

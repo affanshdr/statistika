@@ -27,22 +27,21 @@ const ARTIFACTS_DIR = 'C:/Users/Asus_i7/.gemini/antigravity/brain/fa4932e4-58a9-
     }
   }
 
-  // 1. Enter Ruang VII-B (door-A2)
-  console.log('2. Entering Ruang VII-B...');
+  // 1. Enter Ruang VII-A via DEV helper or door
+  console.log('2. Entering Ruang VII-A...');
   await page.evaluate(() => {
-    const doorA2 = document.querySelector('#door-A2, [data-door-id="A2"]');
-    if (doorA2) doorA2.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    if (window.__DEV_ENTER_ROOM__) {
+      window.__DEV_ENTER_ROOM__('A1');
+    }
   });
   await new Promise(r => setTimeout(r, 1200));
 
-  // 2. Talk to Pak Bambang to open WaliKelasModal
-  console.log('3. Interacting with Wali Kelas to open quiz modal...');
-  await page.keyboard.press('e');
-  await new Promise(r => setTimeout(r, 800));
-  await page.keyboard.press('e');
-  await new Promise(r => setTimeout(r, 800));
-  await page.keyboard.press('e');
-  await new Promise(r => setTimeout(r, 1000));
+  // 2. Advance dialogue until WaliKelasModal opens
+  console.log('3. Advancing teacher dialogue...');
+  for (let i = 0; i < 4; i++) {
+    await page.keyboard.press('Enter');
+    await new Promise(r => setTimeout(r, 600));
+  }
 
   await page.waitForSelector('[data-testid="btn-close-wali-kelas"]', { timeout: 10000 });
   console.log('Quiz modal open!');

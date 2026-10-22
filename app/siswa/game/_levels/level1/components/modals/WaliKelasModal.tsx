@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { CLASS_STUDENTS, getClassStudents, QuizDoor } from '@/app/siswa/game/_levels/level1/data/level1Data'
 import { useGameStore } from '@/lib/store/gameStore'
 import { gameAudio } from '@/lib/utils/gameAudio'
+import MarbleBowlsChallenge from './MarbleBowlsChallenge'
 
 interface WaliKelasModalProps {
   door: QuizDoor
@@ -28,30 +29,16 @@ function generatePreLearningQuiz(doorId: string, students: { name: string; time:
   const times = students.map(s => s.time)
 
   if (doorId === 'A1') {
-    // ── KELAS VII-A (5 Siswa): Jangkauan Data (Nilai Terbesar - Terkecil) ──
-    const maxTime = Math.max(...times)
-    const minTime = Math.min(...times)
-    const maxStudent = students.find(s => s.time === maxTime)?.name || 'terlama'
-    const minStudent = students.find(s => s.time === minTime)?.name || 'tersingkat'
-    const diff = maxTime - minTime
-
-    const pool = new Set<number>([diff])
-    const candidateOffsets = [1, -1, 2, -2, 3]
-    for (const offset of candidateOffsets) {
-      if (pool.size >= 4) break
-      const cand = diff + offset
-      if (cand > 0 && !pool.has(cand)) pool.add(cand)
-    }
-
+    // ─── KELAS VII-A: Tantangan Mangkuk Kelereng (Fair Share / Rata-Rata Intuitif) ───
     return {
-      conceptTag: 'PRE-PEMBELAJARAN 1: Jangkauan Data (Nilai Max − Min)',
-      introQuote: 'Karena kamu telat datang, jawab dulu tantangan Ibu baru datanya boleh diambil!',
-      questionText: `Amati data 5 siswa di atas! Berapa selisih waktu layar antara ${maxStudent} (${maxTime} jam) dan ${minStudent} (${minTime} jam)?`,
-      correctAnswer: diff,
-      unit: 'jam',
-      options: Array.from(pool).sort((a, b) => a - b),
-      hintText: 'Cari angka tertinggi lalu kurangkan dengan angka terendah. Rumus: Rentang = Max − Min.',
-      explanation: `Tepat sekali! Selisih antara nilai tertinggi (${maxTime} jam) dan terendah (${minTime} jam) disebut Jangkauan (Range) = ${diff} jam.`,
+      conceptTag: 'PRE-PEMBELAJARAN 1: Logika Pemerataan (Fair Share / Rata-Rata)',
+      introQuote: 'Selesaikan tantangan teka-teki kelereng ini dengan tepat untuk membuka data screen time kelas!',
+      questionText: 'Setarakan isi ke-4 mangkuk dengan memindahkan kelereng (drag and drop) hingga semua mangkuk sama banyak!',
+      correctAnswer: 11,
+      unit: 'kelereng',
+      options: [9, 10, 11, 12],
+      hintText: 'Pindahkan 4 butir dari Mangkuk A ke B, dan 7 butir dari Mangkuk C ke D sampai semuanya seimbang!',
+      explanation: 'Tepat sekali! Setiap mangkuk akhirnya berisi 11 kelereng. Konsep meratakan isi seperti ini adalah fondasi intuitif dari Rata-Rata (Mean / Fair Share) dalam statistika!',
     }
   }
 
@@ -206,7 +193,8 @@ export default function WaliKelasModal({ door, studentsData, onCollectData, onCl
     gameAudio.playSuccess()
   }, [quiz])
 
-  // Hotkey [U] or [0] to auto pass question (Dev & testing)
+  // Hotkey [U] or [0] to auto pass question (Dev & testing - commented out for player)
+  /*
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'u' || e.key === 'U' || e.key === '0') {
@@ -216,6 +204,7 @@ export default function WaliKelasModal({ door, studentsData, onCollectData, onCl
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [handleDevPass])
+  */
 
   if (!info || !quiz) return null
 
@@ -242,19 +231,25 @@ export default function WaliKelasModal({ door, studentsData, onCollectData, onCl
         transition={{ type: 'spring', damping: 24, stiffness: 350 }}
         data-testid="wali-kelas-modal-content"
         style={{
-          maxWidth: 540,
+          maxWidth: door.id === 'A1' ? 620 : 540,
           width: '100%',
           maxHeight: '94vh',
           overflowY: 'auto',
           position: 'relative',
-          background: 'linear-gradient(145deg, #2D1A12 0%, #170E08 100%)',
-          border: '2.5px solid #F59E0B',
+          background: door.id === 'A1'
+            ? 'linear-gradient(160deg, #143522 0%, #0F271A 60%, #091A11 100%)'
+            : 'linear-gradient(145deg, #2D1A12 0%, #170E08 100%)',
+          border: door.id === 'A1'
+            ? '3px solid #8D5428'
+            : '2.5px solid #F59E0B',
           borderRadius: 'clamp(14px, 2vw, 22px)',
           padding: 'clamp(14px, 2vh, 22px) clamp(16px, 2.5vw, 24px)',
           display: 'flex',
           flexDirection: 'column',
           gap: 'clamp(10px, 1.4vh, 14px)',
-          boxShadow: '0 20px 50px rgba(0, 0, 0, 0.65), inset 0 0 25px rgba(180, 140, 80, 0.25)',
+          boxShadow: door.id === 'A1'
+            ? '0 24px 60px rgba(0, 0, 0, 0.85), inset 0 0 35px rgba(0, 0, 0, 0.7), inset 0 0 0 2px rgba(141, 84, 40, 0.35)'
+            : '0 20px 50px rgba(0, 0, 0, 0.65), inset 0 0 25px rgba(180, 140, 80, 0.25)',
           boxSizing: 'border-box',
           color: '#FEF3C7',
         }}
@@ -265,41 +260,62 @@ export default function WaliKelasModal({ door, studentsData, onCollectData, onCl
         <div style={{ position: 'absolute', bottom: '10px', left: '10px', width: '14px', height: '14px', borderBottom: '3px solid #F59E0B', borderLeft: '3px solid #F59E0B', borderRadius: '0 0 0 3px' }} />
         <div style={{ position: 'absolute', bottom: '10px', right: '10px', width: '14px', height: '14px', borderBottom: '3px solid #F59E0B', borderRight: '3px solid #F59E0B', borderRadius: '0 0 3px 0' }} />
 
-        {/* Header: Teacher Badge & Class Label + Dev Pass */}
+        {/* Header: Class Label + Dev Pass (Tulisan Bu Sari dihilangkan di Kelas VII-A) */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '6px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{
-              background: 'rgba(255, 255, 255, 0.08)',
-              border: '1.5px solid #F59E0B',
-              borderRadius: '999px',
-              padding: '3px 12px',
-              fontSize: 'clamp(11.5px, 1.3vw, 13.5px)',
-              fontWeight: 900,
-              color: '#FEF3C7',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              boxShadow: '0 2px 4px rgba(0,0,0,0.06)',
-            }}>
-              <span>👩‍🏫</span>
-              <span>{info.teacher}</span>
-            </span>
+            {door.id !== 'A1' ? (
+              <span style={{
+                background: 'rgba(255, 255, 255, 0.08)',
+                border: '1.5px solid #F59E0B',
+                borderRadius: '999px',
+                padding: '3px 12px',
+                fontSize: 'clamp(11.5px, 1.3vw, 13.5px)',
+                fontWeight: 900,
+                color: '#FEF3C7',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.06)',
+              }}>
+                <span>👩‍🏫</span>
+                <span>{info.teacher}</span>
+              </span>
+            ) : (
+              <span style={{
+                fontSize: 'clamp(11.5px, 1.3vw, 13px)',
+                fontWeight: 900,
+                color: '#FDE047',
+                background: 'rgba(245, 158, 11, 0.15)',
+                border: '1.5px solid #F59E0B',
+                padding: '4px 14px',
+                borderRadius: '999px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+              }}>
+                <span>🏫</span>
+                <span>{door.label}</span>
+              </span>
+            )}
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span style={{
-              fontSize: 'clamp(10px, 1.2vw, 11.5px)',
-              fontWeight: 800,
-              color: '#0369A1',
-              background: 'rgba(2, 132, 199, 0.12)',
-              border: '1.5px solid rgba(2, 132, 199, 0.35)',
-              padding: '3px 10px',
-              borderRadius: '8px',
-            }}>
-              {door.label}
-            </span>
+            {door.id !== 'A1' && (
+              <span style={{
+                fontSize: 'clamp(10px, 1.2vw, 11.5px)',
+                fontWeight: 800,
+                color: '#0369A1',
+                background: 'rgba(2, 132, 199, 0.12)',
+                border: '1.5px solid rgba(2, 132, 199, 0.35)',
+                padding: '3px 10px',
+                borderRadius: '8px',
+              }}>
+                {door.label}
+              </span>
+            )}
 
-            {/* Discreet Dev Pass Button */}
+            {/* Discreet Dev Pass Button (Commented out so player cannot see it) */}
+            {/*
             <button
               data-testid="btn-dev-pass-wali-quiz"
               onClick={handleDevPass}
@@ -317,10 +333,12 @@ export default function WaliKelasModal({ door, studentsData, onCollectData, onCl
             >
               ⚡ Pass
             </button>
+            */}
           </div>
         </div>
 
-        {/* 1. Preview Tabel Data Siswa Kelas */}
+        {/* 1. Preview Tabel Data Siswa Kelas (Disembunyikan pada Kelas VII-A karena kuis kelereng mandiri) */}
+        {door.id !== 'A1' && (
         <div style={{
           background: 'rgba(255, 255, 255, 0.05)',
           border: '1.5px solid #F59E0B',
@@ -385,9 +403,14 @@ export default function WaliKelasModal({ door, studentsData, onCollectData, onCl
           </div>
         </div>
 
+        
+        )}
+
         {/* 2. Kartu Tantangan Pre-Pembelajaran Guru ("Karena Kamu Telat...") */}
         <div style={{
-          background: 'linear-gradient(145deg, rgba(35, 18, 12, 0.95) 0%, rgba(20, 10, 5, 0.98) 100%)',
+          background: door.id === 'A1'
+            ? 'linear-gradient(160deg, rgba(14, 38, 26, 0.92) 0%, rgba(8, 22, 15, 0.96) 100%)'
+            : 'linear-gradient(145deg, rgba(35, 18, 12, 0.95) 0%, rgba(20, 10, 5, 0.98) 100%)',
           border: '1.8px solid #F59E0B',
           borderRadius: '14px',
           padding: 'clamp(10px, 1.4vh, 14px)',
@@ -396,93 +419,108 @@ export default function WaliKelasModal({ door, studentsData, onCollectData, onCl
           gap: 'clamp(6px, 1vh, 10px)',
           boxShadow: '0 8px 24px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(251, 191, 36, 0.25)',
         }}>
-          {/* Concept Header Badge */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '4px' }}>
-            <span style={{
-              fontSize: 'clamp(8.5px, 1vw, 10px)',
-              fontWeight: 900,
-              background: 'linear-gradient(135deg, #B45309 0%, #D97706 100%)',
-              border: '1px solid #F59E0B',
-              color: '#FFFFFF',
-              padding: '2px 10px',
-              borderRadius: '999px',
-              letterSpacing: '0.5px',
-            }}>
-              {quiz.conceptTag}
-            </span>
-          </div>
+          {/* Concept Header Badge (Disembunyikan pada Kelas VII-A agar modal minimalis tanpa noise) */}
+          {door.id !== 'A1' && (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '4px' }}>
+              <span style={{
+                fontSize: 'clamp(8.5px, 1vw, 10px)',
+                fontWeight: 900,
+                background: 'linear-gradient(135deg, #B45309 0%, #D97706 100%)',
+                border: '1px solid #F59E0B',
+                color: '#FFFFFF',
+                padding: '2px 10px',
+                borderRadius: '999px',
+                letterSpacing: '0.5px',
+              }}>
+                {quiz.conceptTag}
+              </span>
+            </div>
+          )}
 
-          {/* Teacher Dialogue & Prompt */}
-          <div>
-            <p style={{
-              margin: '0 0 6px',
-              fontSize: 'clamp(10px, 1.1vw, 11.5px)',
-              color: '#FDE68A',
-              fontWeight: 800,
-              fontStyle: 'italic',
-            }}>
-              &ldquo;{quiz.introQuote}&rdquo;
-            </p>
-            <h4 style={{
-              margin: 0,
-              fontSize: 'clamp(12px, 1.4vw, 14px)',
-              fontWeight: 900,
-              color: '#FFFFFF',
-              lineHeight: 1.4,
-              textShadow: '0 1px 3px rgba(0, 0, 0, 0.8)',
-            }}>
-              {quiz.questionText}
-            </h4>
-          </div>
+          {door.id === 'A1' ? (
+            <MarbleBowlsChallenge
+              onSuccess={() => {
+                setIsCorrect(true)
+                setSelectedAnswer(11)
+                setIsLocked(false)
+              }}
+              isSolved={isCorrect === true}
+            />
+          ) : (
+            <>
+              {/* Teacher Dialogue & Prompt */}
+              <div>
+                <p style={{
+                  margin: '0 0 6px',
+                  fontSize: 'clamp(10px, 1.1vw, 11.5px)',
+                  color: '#FDE68A',
+                  fontWeight: 800,
+                  fontStyle: 'italic',
+                }}>
+                  &ldquo;{quiz.introQuote}&rdquo;
+                </p>
+                <h4 style={{
+                  margin: 0,
+                  fontSize: 'clamp(12px, 1.4vw, 14px)',
+                  fontWeight: 900,
+                  color: '#FFFFFF',
+                  lineHeight: 1.4,
+                  textShadow: '0 1px 3px rgba(0, 0, 0, 0.8)',
+                }}>
+                  {quiz.questionText}
+                </h4>
+              </div>
 
-          {/* Options Grid (4 Pilihan Ganda) dengan Anti-Spam Protection */}
-          <motion.div
-            key={shake}
-            animate={isCorrect === false ? { x: [-6, 6, -5, 5, 0] } : {}}
-            transition={{ duration: 0.3 }}
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(4, 1fr)',
-              gap: 'clamp(4px, 0.8vw, 8px)',
-            }}
-          >
-            {currentOptions.map(opt => {
-              const isSelected = selectedAnswer === opt
-              const isSelectedCorrect = isSelected && isCorrect === true
-              const isSelectedWrong = isSelected && isCorrect === false
-              return (
-                <button
-                  key={opt}
-                  data-testid={`wali-quiz-option-${opt}`}
-                  disabled={isCorrect === true || isLocked}
-                  onClick={() => handleSelectOption(opt)}
-                  style={{
-                    padding: 'clamp(7px, 1vh, 11px) 4px',
-                    borderRadius: '8px',
-                    fontSize: 'clamp(11.5px, 1.3vw, 13.5px)',
-                    fontWeight: 900,
-                    cursor: (isCorrect === true || isLocked) ? 'not-allowed' : 'pointer',
-                    opacity: isLocked ? 0.5 : 1,
-                    border: isSelectedCorrect
-                      ? '2px solid #10B981'
-                      : isSelectedWrong
-                      ? '2px solid #EF4444'
-                      : '1.5px solid #F59E0B',
-                    background: isSelectedCorrect
-                      ? 'linear-gradient(180deg, #059669 0%, #047857 100%)'
-                      : isSelectedWrong
-                      ? 'linear-gradient(180deg, #DC2626 0%, #B91C1C 100%)'
-                      : 'rgba(255, 255, 255, 0.08)',
-                    color: isSelectedCorrect ? '#FFFFFF' : isSelectedWrong ? '#FFFFFF' : '#FEF3C7',
-                    boxShadow: isSelected ? '0 4px 12px rgba(0,0,0,0.4)' : '0 2px 5px rgba(0,0,0,0.2)',
-                    transition: 'all 0.15s ease',
-                  }}
-                >
-                  {opt} {quiz.unit} {isSelectedCorrect ? '✓' : isSelectedWrong ? '✕' : ''}
-                </button>
-              )
-            })}
-          </motion.div>
+              {/* Options Grid (4 Pilihan Ganda) dengan Anti-Spam Protection */}
+              <motion.div
+                key={shake}
+                animate={isCorrect === false ? { x: [-6, 6, -5, 5, 0] } : {}}
+                transition={{ duration: 0.3 }}
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(4, 1fr)',
+                  gap: 'clamp(4px, 0.8vw, 8px)',
+                }}
+              >
+                {currentOptions.map(opt => {
+                  const isSelected = selectedAnswer === opt
+                  const isSelectedCorrect = isSelected && isCorrect === true
+                  const isSelectedWrong = isSelected && isCorrect === false
+                  return (
+                    <button
+                      key={opt}
+                      data-testid={`wali-quiz-option-${opt}`}
+                      disabled={isCorrect === true || isLocked}
+                      onClick={() => handleSelectOption(opt)}
+                      style={{
+                        padding: 'clamp(7px, 1vh, 11px) 4px',
+                        borderRadius: '8px',
+                        fontSize: 'clamp(11.5px, 1.3vw, 13.5px)',
+                        fontWeight: 900,
+                        cursor: (isCorrect === true || isLocked) ? 'not-allowed' : 'pointer',
+                        opacity: isLocked ? 0.5 : 1,
+                        border: isSelectedCorrect
+                          ? '2px solid #10B981'
+                          : isSelectedWrong
+                          ? '2px solid #EF4444'
+                          : '1.5px solid #F59E0B',
+                        background: isSelectedCorrect
+                          ? 'linear-gradient(180deg, #059669 0%, #047857 100%)'
+                          : isSelectedWrong
+                          ? 'linear-gradient(180deg, #DC2626 0%, #B91C1C 100%)'
+                          : 'rgba(255, 255, 255, 0.08)',
+                        color: isSelectedCorrect ? '#FFFFFF' : isSelectedWrong ? '#FFFFFF' : '#FEF3C7',
+                        boxShadow: isSelected ? '0 4px 12px rgba(0,0,0,0.4)' : '0 2px 5px rgba(0,0,0,0.2)',
+                        transition: 'all 0.15s ease',
+                      }}
+                    >
+                      {opt} {quiz.unit} {isSelectedCorrect ? '✓' : isSelectedWrong ? '✕' : ''}
+                    </button>
+                  )
+                })}
+              </motion.div>
+            </>
+          )}
 
           {/* Cooldown Timer Bar when Locked (Anti-Spam) */}
           <AnimatePresence>
@@ -532,7 +570,7 @@ export default function WaliKelasModal({ door, studentsData, onCollectData, onCl
               </motion.div>
             )}
 
-            {isCorrect === true && (
+            {isCorrect === true && door.id !== 'A1' && (
               <motion.div
                 initial={{ opacity: 0, scale: 0.96 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -604,7 +642,7 @@ export default function WaliKelasModal({ door, studentsData, onCollectData, onCl
             }}
           >
             <span>{isCorrect === true ? '📥' : '🔒'}</span>
-            <span>{isCorrect === true ? 'Simpan Data ke Misi ►' : 'Jawab Tantangan untuk Membuka Data'}</span>
+            <span>{isCorrect === true ? 'Simpan Data ke Misi ➔' : 'Jawab Tantangan untuk Membuka Data'}</span>
           </button>
         </div>
       </motion.div>
