@@ -6,6 +6,7 @@ import { CLASS_STUDENTS, getClassStudents, QuizDoor } from '@/app/siswa/game/_le
 import { useGameStore } from '@/lib/store/gameStore'
 import { gameAudio } from '@/lib/utils/gameAudio'
 import MarbleBowlsChallenge from './MarbleBowlsChallenge'
+import StudentQueueChallenge from './StudentQueueChallenge'
 
 interface WaliKelasModalProps {
   door: QuizDoor
@@ -43,31 +44,16 @@ function generatePreLearningQuiz(doorId: string, students: { name: string; time:
   }
 
   if (doorId === 'A2') {
-    // ── KELAS VII-B (7 Siswa): Memilah Data & Frekuensi Kriteria (> cutoff) ──
-    let cutoff = 4
-    let matching = students.filter(s => s.time > cutoff).length
-    if (matching < 2 || matching > 5) {
-      cutoff = 3
-      matching = students.filter(s => s.time > cutoff).length
-    }
-
-    const pool = new Set<number>([matching])
-    const candidateOffsets = [1, -1, 2, -2, 3]
-    for (const offset of candidateOffsets) {
-      if (pool.size >= 4) break
-      const cand = matching + offset
-      if (cand >= 1 && cand <= 7 && !pool.has(cand)) pool.add(cand)
-    }
-
+    // ── KELAS VII-B (Antrean Siswa / Pergeseran Median): Soal Nilai Tengah ──
     return {
-      conceptTag: 'PRE-PEMBELAJARAN 2: Menghitung Frekuensi Data (f)',
-      introQuote: 'Eits, anak yang telat harus kena uji ketelitian dulu! Jawab ini baru Bapak berikan datanya.',
-      questionText: `Dari 7 siswa di kelas ini, ada berapa banyak siswa yang waktu layarnya LEBIH DARI ${cutoff} jam sehari?`,
-      correctAnswer: matching,
-      unit: 'siswa',
-      options: Array.from(pool).sort((a, b) => a - b),
-      hintText: `Amati kartu siswa di atas. Hitung berapa banyak siswa yang memiliki waktu layar > ${cutoff} jam.`,
-      explanation: `Benar! Ada ${matching} siswa dengan waktu layar > ${cutoff} jam. Menghitung banyaknya data seperti ini disebut menentukan Frekuensi (f).`,
+      conceptTag: 'PRE-PEMBELAJARAN 2: Konsep Pergeseran Nilai Tengah (Median)',
+      introQuote: 'Perhatikan baik-baik simulasi antrean siswa di bawah ini sebelum mengambil data kelas!',
+      questionText: 'Jika siswa yang paling tinggi (posisi ke-1) keluar dari antrean, bagaimana posisi tinggi badan siswa yang berada di tengah antrean sekarang jika dibandingkan dengan 160 cm?',
+      correctAnswer: 2, // B. Kurang dari 160 cm
+      unit: '',
+      options: [1, 2, 3, 4],
+      hintText: 'Perhatikan antrean 4 siswa yang tersisa: titik tengah baru berada di antara 160 cm dan siswa yang lebih pendek.',
+      explanation: 'Tepat sekali! Ketika siswa tertinggi keluar, titik tengah antrean bergeser ke antara 160 cm dan siswa yang lebih pendek, sehingga nilainya pasti Kurang dari 160 cm!',
     }
   }
 
@@ -231,7 +217,7 @@ export default function WaliKelasModal({ door, studentsData, onCollectData, onCl
         transition={{ type: 'spring', damping: 24, stiffness: 350 }}
         data-testid="wali-kelas-modal-content"
         style={{
-          maxWidth: door.id === 'A1' ? 620 : 540,
+          maxWidth: (door.id === 'A1' || door.id === 'A2') ? 620 : 540,
           width: '100%',
           maxHeight: '94vh',
           overflowY: 'auto',
@@ -260,27 +246,10 @@ export default function WaliKelasModal({ door, studentsData, onCollectData, onCl
         <div style={{ position: 'absolute', bottom: '10px', left: '10px', width: '14px', height: '14px', borderBottom: '3px solid #F59E0B', borderLeft: '3px solid #F59E0B', borderRadius: '0 0 0 3px' }} />
         <div style={{ position: 'absolute', bottom: '10px', right: '10px', width: '14px', height: '14px', borderBottom: '3px solid #F59E0B', borderRight: '3px solid #F59E0B', borderRadius: '0 0 3px 0' }} />
 
-        {/* Header: Class Label + Dev Pass (Tulisan Bu Sari dihilangkan di Kelas VII-A) */}
+        {/* Header: Class Label + Wali Kelas */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '6px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            {door.id !== 'A1' ? (
-              <span style={{
-                background: 'rgba(255, 255, 255, 0.08)',
-                border: '1.5px solid #F59E0B',
-                borderRadius: '999px',
-                padding: '3px 12px',
-                fontSize: 'clamp(11.5px, 1.3vw, 13.5px)',
-                fontWeight: 900,
-                color: '#FEF3C7',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.06)',
-              }}>
-                <span>👩‍🏫</span>
-                <span>{info.teacher}</span>
-              </span>
-            ) : (
+            {door.id === 'A1' || door.id === 'A2' ? (
               <span style={{
                 fontSize: 'clamp(11.5px, 1.3vw, 13px)',
                 fontWeight: 900,
@@ -295,12 +264,34 @@ export default function WaliKelasModal({ door, studentsData, onCollectData, onCl
               }}>
                 <span>🏫</span>
                 <span>{door.label}</span>
+                {door.id === 'A2' && (
+                  <span style={{ color: '#E2E8F0', fontWeight: 800, fontSize: '11px' }}>
+                    ({info.teacher})
+                  </span>
+                )}
+              </span>
+            ) : (
+              <span style={{
+                background: 'rgba(255, 255, 255, 0.08)',
+                border: '1.5px solid #F59E0B',
+                borderRadius: '999px',
+                padding: '3px 12px',
+                fontSize: 'clamp(11.5px, 1.3vw, 13.5px)',
+                fontWeight: 900,
+                color: '#FEF3C7',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.06)',
+              }}>
+                <span>👨‍🏫</span>
+                <span>{info.teacher}</span>
               </span>
             )}
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            {door.id !== 'A1' && (
+            {door.id !== 'A1' && door.id !== 'A2' && (
               <span style={{
                 fontSize: 'clamp(10px, 1.2vw, 11.5px)',
                 fontWeight: 800,
@@ -313,32 +304,11 @@ export default function WaliKelasModal({ door, studentsData, onCollectData, onCl
                 {door.label}
               </span>
             )}
-
-            {/* Discreet Dev Pass Button (Commented out so player cannot see it) */}
-            {/*
-            <button
-              data-testid="btn-dev-pass-wali-quiz"
-              onClick={handleDevPass}
-              style={{
-                background: 'rgba(180, 83, 9, 0.1)',
-                border: '1px solid #B45309',
-                borderRadius: '6px',
-                color: '#92400E',
-                fontSize: '9.5px',
-                fontWeight: 800,
-                padding: '3px 8px',
-                cursor: 'pointer',
-              }}
-              title="Shortcut Dev: Langsung selesaikan tantangan guru ini (Hotkey: [U])"
-            >
-              ⚡ Pass
-            </button>
-            */}
           </div>
         </div>
 
-        {/* 1. Preview Tabel Data Siswa Kelas (Disembunyikan pada Kelas VII-A karena kuis kelereng mandiri) */}
-        {door.id !== 'A1' && (
+        {/* 1. Preview Tabel Data Siswa Kelas (Disembunyikan pada Kelas VII-A & VII-B agar ringkas dan fokus visual) */}
+        {door.id !== 'A1' && door.id !== 'A2' && (
         <div style={{
           background: 'rgba(255, 255, 255, 0.05)',
           border: '1.5px solid #F59E0B',
@@ -402,8 +372,6 @@ export default function WaliKelasModal({ door, studentsData, onCollectData, onCl
             ))}
           </div>
         </div>
-
-        
         )}
 
         {/* 2. Kartu Tantangan Pre-Pembelajaran Guru ("Karena Kamu Telat...") */}
@@ -419,8 +387,8 @@ export default function WaliKelasModal({ door, studentsData, onCollectData, onCl
           gap: 'clamp(6px, 1vh, 10px)',
           boxShadow: '0 8px 24px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(251, 191, 36, 0.25)',
         }}>
-          {/* Concept Header Badge (Disembunyikan pada Kelas VII-A agar modal minimalis tanpa noise) */}
-          {door.id !== 'A1' && (
+          {/* Concept Header Badge (Disembunyikan pada Kelas VII-A & VII-B agar modal minimalis tanpa noise) */}
+          {door.id !== 'A1' && door.id !== 'A2' && (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '4px' }}>
               <span style={{
                 fontSize: 'clamp(8.5px, 1vw, 10px)',
@@ -442,6 +410,15 @@ export default function WaliKelasModal({ door, studentsData, onCollectData, onCl
               onSuccess={() => {
                 setIsCorrect(true)
                 setSelectedAnswer(11)
+                setIsLocked(false)
+              }}
+              isSolved={isCorrect === true}
+            />
+          ) : door.id === 'A2' ? (
+            <StudentQueueChallenge
+              onSuccess={() => {
+                setIsCorrect(true)
+                setSelectedAnswer(2)
                 setIsLocked(false)
               }}
               isSolved={isCorrect === true}
@@ -570,7 +547,7 @@ export default function WaliKelasModal({ door, studentsData, onCollectData, onCl
               </motion.div>
             )}
 
-            {isCorrect === true && door.id !== 'A1' && (
+            {isCorrect === true && door.id !== 'A1' && door.id !== 'A2' && (
               <motion.div
                 initial={{ opacity: 0, scale: 0.96 }}
                 animate={{ opacity: 1, scale: 1 }}

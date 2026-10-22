@@ -3863,17 +3863,18 @@ export default function NPath({
                           let dialogueText: React.ReactNode = null
                           let actionText = '[ Klik / Spasi ▶ ]'
                           let actionColor = '#FBBF24'
+                          const teacherPrefix = (teacherName.startsWith('Bu') || teacherName.startsWith('Ibu')) ? '👩‍🏫 ' : '👨‍🏫 '
 
                           if (teacherCutsceneStage === 'anim_wait') {
                             bW = 240
                             bH = 46
-                            speakerTitle = `${insideRoom.id === 'LabKomputer' ? '👨‍🏫 ' : '👩‍🏫 '}${teacherName}`
+                            speakerTitle = `${teacherPrefix}${teacherName}`
                             dialogueText = <span style={{ color: '#FDE68A', fontWeight: 800 }}>Sedang menyapa...</span>
                             actionText = '...'
                           } else if (teacherCutsceneStage === 'teacher_ask') {
                             bW = 380
                             bH = 90
-                            speakerTitle = `${insideRoom.id === 'LabKomputer' ? '👨‍🏫 ' : '👩‍🏫 '}${teacherName}`
+                            speakerTitle = `${teacherPrefix}${teacherName}`
                             speakerBadgeColor = '#FDE047'
                             if (insideRoom.id === 'RG') {
                               dialogueText = (
@@ -3886,7 +3887,7 @@ export default function NPath({
                             } else if (insideRoom.id === 'A2') {
                               dialogueText = (
                                 <>
-                                  <span style={{ color: '#F87171', fontWeight: 900 }}>"LOH?! ${playerName.toUpperCase()}?! Kamu kan murid kelas ini!"</span>
+                                  <span style={{ color: '#F87171', fontWeight: 900 }}>{`"LOH?! ${playerName.toUpperCase()}?! Kamu kan murid kelas ini!"`}</span>
                                   <br />
                                   "Kenapa jam pelajaran malah keluyuran di luar?!"
                                 </>
@@ -3928,7 +3929,7 @@ export default function NPath({
                             bW = 390
                             bH = 96
                             borderColor = '#10B981'
-                            speakerTitle = `${insideRoom.id === 'LabKomputer' ? '👨‍🏫 ' : '👩‍🏫 '}${teacherName}`
+                            speakerTitle = `${teacherPrefix}${teacherName}`
                             speakerBadgeColor = '#34D399'
                             actionColor = '#34D399'
                             actionText = insideRoom.id === 'RG' ? '[ Buka Papan Analisis ➔ ]' : '[ Buka Tantangan ➔ ]'
