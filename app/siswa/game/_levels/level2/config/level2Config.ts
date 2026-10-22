@@ -12,6 +12,7 @@
 
 export type Level2State =
   | 'LEVEL_START'
+  | 'HALLWAY_EXPLORATION'
   | 'CLASSROOM_PROLOGUE'
   | 'TRANSITION_TO_FIELD'
   | 'MEET_TEACHER'
@@ -26,9 +27,13 @@ export type Level2State =
   | 'SAVING_MEASUREMENT'
   | 'DATA_COLLECTION_COMPLETE'
   | 'CAMERA_TRANSITION'
+  | 'KETUA_KELAS_ENTRANCE'
+  | 'KETUA_KELAS_SORTING'
+  | 'SORTING_SUCCESS_ANIMATION'
   | 'MISSION_RANGE'
   | 'MISSION_QUARTILES'
   | 'MISSION_IQR'
+  | 'MISSION_QD'
   | 'FINAL_REPORT'
   | 'LEVEL_COMPLETE'
 
@@ -36,9 +41,11 @@ export type Level2State =
 // MISSION SUB-STATES
 // ──────────────────────────────────────────────────────
 
+export type MissionSortPhase = 'GATHERING_FLAGS' | 'SORTING_GAME' | 'ANIMATING_SUCCESS' | 'COMPLETE'
 export type MissionRangePhase = 'SELECT_FLAGS' | 'CALCULATE_RANGE' | 'COMPLETE'
-export type MissionQuartilePhase = 'SORT_STUDENTS' | 'PLACE_POSTS' | 'FILL_VALUES' | 'COMPLETE'
-export type MissionIQRPhase = 'PLACE_RIBBON' | 'CALCULATE_IQR' | 'COMPLETE'
+export type MissionQuartilePhase = 'PLACE_POSTS' | 'FILL_VALUES' | 'COMPLETE'
+export type MissionIQRPhase = 'PLACE_RIBBON' | 'CALCULATE_IQR' | 'CONCEPT_QUIZ' | 'COMPLETE'
+export type MissionQDPhase = 'CALCULATE_QD' | 'CONCEPT_QUIZ' | 'COMPLETE'
 
 // ──────────────────────────────────────────────────────
 // STUDENT STATUS
@@ -73,7 +80,7 @@ export const HINT_LABELS: Record<number, string> = {
 // ──────────────────────────────────────────────────────
 
 export interface MissionScoring {
-  missionId: 1 | 2 | 3
+  missionId: 0 | 1 | 2 | 3 | 4 // 0=Sorting, 1=Range, 2=Quartiles, 3=IQR, 4=QD
   completed: boolean
   hintLevelUsed: HintLevel     // highest hint level used
   objectErrors: number         // wrong flag/post selections
@@ -82,16 +89,18 @@ export interface MissionScoring {
 }
 
 export interface SessionScoring {
-  missions: [MissionScoring, MissionScoring, MissionScoring]
+  missions: MissionScoring[]
   stars: 0 | 1 | 2 | 3        // 0 = not yet computed
 }
 
 export function createInitialScoring(): SessionScoring {
   return {
     missions: [
+      { missionId: 0, completed: false, hintLevelUsed: 0, objectErrors: 0, answerErrors: 0, firstAttemptCorrect: true },
       { missionId: 1, completed: false, hintLevelUsed: 0, objectErrors: 0, answerErrors: 0, firstAttemptCorrect: true },
       { missionId: 2, completed: false, hintLevelUsed: 0, objectErrors: 0, answerErrors: 0, firstAttemptCorrect: true },
       { missionId: 3, completed: false, hintLevelUsed: 0, objectErrors: 0, answerErrors: 0, firstAttemptCorrect: true },
+      { missionId: 4, completed: false, hintLevelUsed: 0, objectErrors: 0, answerErrors: 0, firstAttemptCorrect: true },
     ],
     stars: 0,
   }
@@ -118,7 +127,7 @@ export function calculateStars(scoring: SessionScoring): 0 | 1 | 2 | 3 {
   }
   
   // 2 stars: Only Arah hints or limited errors, no Hitung Bersama
-  if (maxHint <= 1 && totalObjectErrors + totalAnswerErrors <= 3) {
+  if (maxHint <= 1 && totalObjectErrors + totalAnswerErrors <= 4) {
     return 2
   }
   
@@ -131,7 +140,86 @@ export function calculateStars(scoring: SessionScoring): 0 | 1 | 2 | 3 {
 // ──────────────────────────────────────────────────────
 
 export const TEACHER_NAME = 'Pak Bambang'
-export const TOTAL_STUDENTS = 15
+
+// ──────────────────────────────────────────────────────
+// AUDIO SYNTH HELPER
+// ──────────────────────────────────────────────────────
+export function playSound(type: 'chime' | 'throw' | 'whistle' | 'error' | 'pop') {
+  if (typeof window === 'undefined') return
+  try {
+    const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
+    if (!AudioCtx) return
+    const ctx = new AudioCtx()
+    const now = ctx.currentTime
+
+    if (type === 'chime') {
+      const notes = [523.25, 659.25, 783.99, 1046.5]
+      notes.forEach((freq, i) => {
+        const osc = ctx.createOscillator()
+        const gain = ctx.createGain()
+        osc.frequency.setValueAtTime(freq, now + i * 0.08)
+        gain.gain.setValueAtTime(0.12, now + i * 0.08)
+        gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.08 + 0.3)
+        osc.connect(gain)
+        gain.connect(ctx.destination)
+        osc.start(now + i * 0.08)
+        osc.stop(now + i * 0.08 + 0.35)
+      })
+    } else if (type === 'whistle') {
+      const osc = ctx.createOscillator()
+      const gain = ctx.createGain()
+      osc.type = 'sine'
+      osc.frequency.setValueAtTime(2200, now)
+      osc.frequency.linearRampToValueAtTime(2600, now + 0.1)
+      osc.frequency.setValueAtTime(2400, now + 0.15)
+      gain.gain.setValueAtTime(0.2, now)
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4)
+      osc.connect(gain)
+      gain.connect(ctx.destination)
+      osc.start(now)
+      osc.stop(now + 0.42)
+    } else if (type === 'throw') {
+      const osc = ctx.createOscillator()
+      const gain = ctx.createGain()
+      osc.type = 'triangle'
+      osc.frequency.setValueAtTime(160, now)
+      osc.frequency.exponentialRampToValueAtTime(600, now + 0.28)
+      gain.gain.setValueAtTime(0.18, now)
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35)
+      osc.connect(gain)
+      gain.connect(ctx.destination)
+      osc.start(now)
+      osc.stop(now + 0.38)
+    } else if (type === 'pop') {
+      const osc = ctx.createOscillator()
+      const gain = ctx.createGain()
+      osc.type = 'sine'
+      osc.frequency.setValueAtTime(450, now)
+      osc.frequency.exponentialRampToValueAtTime(820, now + 0.08)
+      gain.gain.setValueAtTime(0.15, now)
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1)
+      osc.connect(gain)
+      gain.connect(ctx.destination)
+      osc.start(now)
+      osc.stop(now + 0.12)
+    } else if (type === 'error') {
+      const osc = ctx.createOscillator()
+      const gain = ctx.createGain()
+      osc.type = 'sawtooth'
+      osc.frequency.setValueAtTime(140, now)
+      osc.frequency.linearRampToValueAtTime(80, now + 0.25)
+      gain.gain.setValueAtTime(0.2, now)
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.28)
+      osc.connect(gain)
+      gain.connect(ctx.destination)
+      osc.start(now)
+      osc.stop(now + 0.3)
+    }
+  } catch {
+    // Ignore audio errors
+  }
+}
+export const TOTAL_STUDENTS = 10
 
 // ──────────────────────────────────────────────────────
 // DIALOG SEQUENCES
@@ -161,17 +249,12 @@ export const CLASSROOM_DIALOGS: DialogLine[] = [
   {
     speaker: 'teacher',
     speakerName: TEACHER_NAME,
-    text: 'Hahaha, belum tentu! Di Tim Garuda, semua atletnya konsisten melempar di kisaran 19 sampai 21 meter. Tapi di Tim Rajawali, ada yang cuma sanggup lempar 6 meter, dan ada yang melesat sampai 34 meter!',
-  },
-  {
-    speaker: 'dira',
-    speakerName: 'DiRA',
-    text: 'Tepat sekali! Rata-ratanya memang identik (20 m), tapi tingkat kestabilan dan sebaran nilainya sangat berbeda jauh. Di sinilah angka rata-rata saja tidak cukup.',
+    text: 'Hahaha, belum tentu! Di Tim Garuda, semua atletnya konsisten melempar di kisaran 19 sampai 21 meter. Tapi di Tim Rajawali, ada yang cuma sanggup lempar 6 meter, dan ada yang melesat sampai 34 meter! Tingkat kestabilan dan sebaran nilainya sangat berbeda.',
   },
   {
     speaker: 'teacher',
     speakerName: TEACHER_NAME,
-    text: 'Betul kata DiRA! Untuk melihat seberapa menyebar atau konsistennya data, kita membutuhkan Ukuran Penyebaran Data: Jangkauan (Range), Kuartil (Q1, Q2, Q3), dan Jangkauan Interkuartil (IQR)!',
+    text: 'Untuk melihat seberapa menyebar atau konsistennya data, kita membutuhkan Ukuran Penyebaran Data: Jangkauan (Range), Tiga Kuartil (Q1, Q2, Q3), Jangkauan Kuartil (IQR), dan Simpangan Kuartil (Qd)!',
   },
   {
     speaker: 'player',
@@ -209,12 +292,12 @@ export const BRIEFING_DIALOGS: DialogLine[] = [
   {
     speaker: 'teacher',
     speakerName: TEACHER_NAME,
-    text: 'Bapak butuh bantuanmu mencatat dan mengukur jarak lemparan dari 15 siswa yang akan melempar satu per satu menggunakan meteran lapangan.',
+    text: 'Bapak butuh bantuanmu mencatat dan mengukur jarak lemparan dari 10 siswa yang akan melempar satu per satu menggunakan meteran lapangan.',
   },
   {
     speaker: 'player',
     speakerName: 'Stevunt',
-    text: 'Siap Pak! Setelah ke-15 data terkumpul, apa misi statistika yang harus kita selesaikan?',
+    text: 'Siap Pak! Setelah ke-10 data terkumpul, apa misi statistika yang harus kita selesaikan?',
   },
   {
     speaker: 'teacher',
@@ -222,14 +305,9 @@ export const BRIEFING_DIALOGS: DialogLine[] = [
     text: 'Kita akan menganalisis data asli lapangan tersebut: menemukan Jangkauan (Range), membagi Kuartil (Q1, Q2, Q3), serta menghitung Jangkauan Interkuartil (IQR)!',
   },
   {
-    speaker: 'dira',
-    speakerName: 'DiRA',
-    text: 'Hai Stevunt! Aku DiRA, asisten analitikmu. Aku akan memandumu memahami konsep dan memvalidasi setiap perhitunganmu!',
-  },
-  {
     speaker: 'teacher',
     speakerName: TEACHER_NAME,
-    text: 'Bagus sekali! Sekarang, tiup peluit dan ajak 15 siswa berkumpul di pinggir lapangan untuk mulai melempar!',
+    text: 'Bagus sekali! Sekarang, tiup peluit dan ajak 10 siswa berkumpul di pinggir lapangan untuk mulai melempar!',
   },
 ]
 
@@ -239,28 +317,54 @@ export const DIRA_BRIEFING: DialogLine = {
   text: 'Aku akan membantumu mengumpulkan data dan menyelesaikan setiap misi. Perhatikan posisi bendera dan catat hasil pengukuran dengan teliti, karena semua jawaban nanti dihitung dari data yang kamu kumpulkan sendiri!',
 }
 
+export const KETUA_KELAS_NAME = 'Aditya (Ketua Kelas)'
+
 export const DATA_COMPLETE_DIALOG: DialogLine = {
   speaker: 'system',
   speakerName: 'Sistem',
-  text: '🔔 Semua 15 data lemparan telah terkumpul! Misi statistika akan segera dimulai.',
+  text: '🔔 Semua 10 bola lemparan telah mendarat di lapangan! Mari cari jangkauan lemparan terdekat dan terjauh.',
 }
 
 export const MISSION1_INTRO: DialogLine = {
   speaker: 'teacher',
   speakerName: TEACHER_NAME,
-  text: 'Misi pertama! Temukan bendera dengan jarak terdekat dan terjauh, lalu hitung Jangkauan (Range) — yaitu selisih antara nilai terbesar dan terkecil.',
+  text: 'Misi 1: Jangkauan (Range)! Gerakkan karaktermu menuju bendera terdekat lalu bawa ke Kotak Min di atas. Setelah itu, ambil bendera terjauh dan masukkan ke Kotak Max!',
+}
+
+export const KETUA_KELAS_CALL_DIALOG: DialogLine = {
+  speaker: 'teacher',
+  speakerName: TEACHER_NAME,
+  text: 'Bagus sekali! Jangkauan lemparan telah didapat. Sekarang, sebelum kita mencari Kuartil dan Median, kita harus merapikan dan mengurutkan seluruh 10 bendera ke dalam Kotak 1 s/d 10 di bagian atas lapangan dari nilai terkecil ke terbesar!',
+}
+
+export const KETUA_KELAS_SORT_INTRO: DialogLine = {
+  speaker: 'player',
+  speakerName: 'Stevunt',
+  text: 'Siap, Pak Bambang! Saya akan dekati bendera di lapangan, tekan [SPASI] untuk mengambilnya, lalu bawa dan masukkan ke kotak-kotak di bagian atas secara terurut!',
+}
+
+export const SORTING_SUCCESS_DIALOG: DialogLine = {
+  speaker: 'dira',
+  speakerName: 'DiRA',
+  text: '🎉 Luar biasa! Seluruh 10 bendera berhasil dimasukkan ke kotak di atas dengan terurut dari nilai terkecil hingga terbesar! Data siap dianalisis untuk Kuartil.',
 }
 
 export const MISSION2_INTRO: DialogLine = {
   speaker: 'teacher',
   speakerName: TEACHER_NAME,
-  text: 'Misi kedua! Urutkan 15 siswa berdasarkan jarak lemparannya, dari terdekat ke terjauh. Kemudian tentukan posisi Q1, Q2, dan Q3.',
+  text: 'Misi 2: Kuartil (Q1, Q2, Q3)! Seluruh 10 bendera kini berbaris sejajar di tengah lapangan. Gerakkan Stevunt untuk menentukan letak Tiang Q1, Q2 (Median), dan Q3!',
 }
 
 export const MISSION3_INTRO: DialogLine = {
+  speaker: 'dira',
+  speakerName: 'DiRA',
+  text: 'Misi 3: Jangkauan Kuartil (IQR)! Pasang pita merah dari tiang Q1 ke Q3, lalu cari rentang 50% data di bagian tengah!',
+}
+
+export const MISSION4_QD_INTRO: DialogLine = {
   speaker: 'teacher',
   speakerName: TEACHER_NAME,
-  text: 'Misi terakhir! Pasang pita hijau dari tiang Q1 ke Q3 dan hitung Jangkauan Kuartil (IQR) — selisih antara kuartil atas dan kuartil bawah.',
+  text: 'Misi 4: Simpangan Kuartil (Qd)! Simpangan kuartil bernilai setengah dari jangkauan kuartil: Qd = ½(Q3 − Q1). Mari kita hitung nilainya!',
 }
 
 // ──────────────────────────────────────────────────────
@@ -269,17 +373,18 @@ export const MISSION3_INTRO: DialogLine = {
 
 export function generateReportNarrative(stats: {
   min: number; max: number; range: number;
-  q1: number; q2: number; q3: number; iqr: number;
-}): string {
-  return `Kamu berhasil mengumpulkan 15 data lemparan. Lemparan terpendek adalah ${stats.min.toFixed(2)} meter dan terjauh adalah ${stats.max.toFixed(2)} meter. Jangkauannya sebesar ${stats.range.toFixed(2)} meter, artinya selisih antara hasil terjauh dan terdekat adalah ${stats.range.toFixed(2)} meter. Setelah semua data diurutkan, Q1 adalah ${stats.q1.toFixed(2)} meter, Q2 adalah ${stats.q2.toFixed(2)} meter, dan Q3 adalah ${stats.q3.toFixed(2)} meter. Jangkauan kuartilnya sebesar ${stats.iqr.toFixed(2)} meter, yang menunjukkan jarak antara kuartil bawah dan kuartil atas.`
+  q1: number; q2: number; q3: number; iqr: number; qd?: number;
+  }): string {
+  const qdVal = stats.qd !== undefined ? stats.qd : parseFloat(((stats.q3 - stats.q1) / 2).toFixed(1))
+  return `Kamu berhasil mengumpulkan 10 data lemparan. Lemparan terpendek adalah ${stats.min.toFixed(0)} meter dan terjauh adalah ${stats.max.toFixed(0)} meter. Jangkauannya sebesar ${stats.range.toFixed(0)} meter. Setelah semua data diurutkan ke dalam kotak, diperoleh Q1 = ${stats.q1.toFixed(0)} meter, Q2 (Median) = ${stats.q2.toFixed(1)} meter, dan Q3 = ${stats.q3.toFixed(0)} meter. Jangkauan kuartilnya (IQR = Q3 − Q1) sebesar ${stats.iqr.toFixed(1)} meter, serta Simpangan Kuartilnya (Qd = ½(Q3 − Q1)) sebesar ${qdVal} meter.`
 }
 
 export function getDiraClosing(stars: number): string {
   if (stars === 3) {
-    return 'Sempurna! Kamu menyelesaikan semua misi tanpa bantuan dan tanpa kesalahan. Kamu benar-benar memahami konsep statistika ini!'
+    return 'Sempurna! Kamu menyelesaikan semua misi: Jangkauan, Tiga Kuartil, Jangkauan Kuartil, dan Simpangan Kuartil dengan tepat!'
   }
   if (stars === 2) {
-    return 'Bagus sekali! Kamu berhasil mengumpulkan data sendiri dan memahami jangkauan, kuartil, serta jangkauan kuartil dengan baik.'
+    return 'Bagus sekali! Kamu memahami cara menghitung jangkauan, kuartil, dan simpangan kuartil dengan baik.'
   }
-  return 'Kerja bagus! Kamu sudah menyelesaikan semua misi. Ingat, statistika membantu kita memahami kumpulan data, bukan sekadar menghafal rumus. Terus berlatih!'
+  return 'Kerja bagus! Kamu sudah menyelesaikan semua misi ukuran penyebaran data. Ingat, statistika membantu kita membaca pola penyebaran data nyata. Terus berlatih!'
 }

@@ -12,6 +12,7 @@ interface FieldTeacherProps {
   label?: string
   showGlow?: boolean
   onClick?: () => void
+  facing?: 'left' | 'right'
 }
 
 export default function FieldTeacher({
@@ -22,6 +23,7 @@ export default function FieldTeacher({
   label = 'Pak Bambang',
   showGlow = false,
   onClick,
+  facing = 'left',
 }: FieldTeacherProps) {
   // 5x5 sprite sheet
   let frame = 0
@@ -85,6 +87,7 @@ export default function FieldTeacher({
             filter: showGlow
               ? 'drop-shadow(0px 0px 10px rgba(245, 158, 11, 0.75))'
               : 'drop-shadow(0px 4px 6px rgba(0, 0, 0, 0.5))',
+            transform: facing === 'left' ? 'scaleX(-1)' : 'none',
             transition: 'filter 0.2s',
           }}
         />

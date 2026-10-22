@@ -33,26 +33,9 @@ export default function FieldMeasurementFlag({
   isClickable = false,
   onClick,
 }: FieldMeasurementFlagProps) {
-  // Flag color determination
-  let flagColor = '#FBBF24' // default gold
-  let badgeLabel = ''
-
-  if (isMin) {
-    flagColor = '#38BDF8' // cyan min
-    badgeLabel = 'MIN'
-  } else if (isMax) {
-    flagColor = '#EF4444' // red max
-    badgeLabel = 'MAX'
-  } else if (isQ1) {
-    flagColor = '#10B981' // green Q1
-    badgeLabel = 'Q1'
-  } else if (isQ2) {
-    flagColor = '#8B5CF6' // purple Q2
-    badgeLabel = 'Q2'
-  } else if (isQ3) {
-    flagColor = '#EC4899' // pink Q3
-    badgeLabel = 'Q3'
-  }
+  // All measurement flags are uniform gold (#FBBF24) so students deduce min/max and quartiles themselves
+  const flagColor = '#FBBF24'
+  const badgeLabel = ''
 
   return (
     <g
@@ -115,7 +98,7 @@ export default function FieldMeasurementFlag({
           fontWeight="900"
           fontFamily="var(--font-ui, sans-serif)"
         >
-          {badgeLabel ? `${badgeLabel}: ` : ''}{distance.toFixed(1)}m
+          {badgeLabel ? `${badgeLabel}: ` : ''}{Math.round(distance)}m
         </text>
       </g>
     </g>

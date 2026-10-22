@@ -2,7 +2,7 @@ export const LEVEL2_CONFIG = {
   id: 2,
   title: 'Level 2 (Misi Pengukuran Lemparan)',
   subtitle: 'Jangkauan, Kuartil, dan IQR',
-  description: 'Kumpulkan data jarak lemparan 15 siswa di lapangan sekolah, lalu selesaikan misi statistika: menghitung Jangkauan, menentukan Kuartil (Q1, Q2, Q3), dan menghitung Jangkauan Kuartil (IQR).',
+  description: 'Kumpulkan data jarak lemparan 10 siswa di lapangan sekolah, lalu selesaikan misi statistika: menghitung Jangkauan, menentukan Kuartil (Q1, Q2, Q3), Jangkauan Kuartil (IQR), dan Simpangan Kuartil (Qd).',
 }
 
 // Badges for Level 2
@@ -15,4 +15,4 @@ export const BADGES = {
 // Verdict for Level 2
 export const CORRECT_VERDICT = 'MEASUREMENT_COMPLETE'
 
-export const VERDICT_EXPLANATION = `Kamu berhasil mengumpulkan 15 data lemparan dan menggunakannya untuk memahami Jangkauan (Range), Kuartil (Q1, Q2, Q3), dan Jangkauan Kuartil (IQR). Statistika membantu kita memahami sebaran data, bukan sekadar menghafal rumus!`
+export const VERDICT_EXPLANATION = `Kamu berhasil mengumpulkan 10 data lemparan dan menggunakannya untuk memahami Jangkauan (Range), Kuartil (Q1, Q2, Q3), Jangkauan Kuartil (IQR), dan Simpangan Kuartil (Qd). Statistika membantu kita memahami sebaran data, bukan sekadar menghafal rumus!`

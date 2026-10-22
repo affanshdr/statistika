@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect, useRef } from 'react'
 
+import { motion } from 'framer-motion'
+
 export type AthleteMode = 'idle' | 'walk' | 'aim' | 'throw'
 export type FacingDirection = 'right' | 'left' | 'up' | 'down'
 
@@ -13,6 +15,9 @@ interface FieldStudentAthleteProps {
   size?: number
   label?: string
   glowColor?: string
+  gender?: 'male' | 'female'
+  avatarUrl?: string
+  spriteUrl?: string
   onReleaseBall?: () => void
   onThrowComplete?: () => void
   showBallInHand?: boolean
@@ -26,10 +31,14 @@ export default function FieldStudentAthlete({
   size = 180,
   label = '',
   glowColor = '#00ADB5',
+  gender = 'male',
+  avatarUrl,
+  spriteUrl,
   onReleaseBall,
   onThrowComplete,
   showBallInHand = true,
 }: FieldStudentAthleteProps) {
+  const safeId = React.useId().replace(/:/g, '')
   const [walkFrame, setWalkFrame] = useState(0)
   const [throwFrame, setThrowFrame] = useState(0)
   const lastFacingRef = useRef<FacingDirection>('down')
@@ -95,7 +104,7 @@ export default function FieldStudentAthlete({
   }, [mode, onReleaseBall, onThrowComplete])
 
   // Calculate sprite and background coordinates
-  let spriteUrl = '/Assets/Building/field/walk_down_clean.png'
+  let spritesheetUrl = '/Assets/Building/field/walk_down_clean.png'
   let bgX = 0
   let bgY = 0
   let flipX = 'scaleX(1)'
@@ -103,7 +112,7 @@ export default function FieldStudentAthlete({
   let bgRows = 5
 
   if (mode === 'throw' || mode === 'aim') {
-    spriteUrl = '/Assets/Building/field/user-throw-trimmed.png'
+    spritesheetUrl = '/Assets/Building/field/user-throw-trimmed.png'
     bgCols = 5
     bgRows = 4
 
@@ -129,21 +138,21 @@ export default function FieldStudentAthlete({
     bgY = (row / 4) * 100
 
     if (facing === 'up') {
-      spriteUrl = '/Assets/Building/field/walk_up_clean.png'
+      spritesheetUrl = '/Assets/Building/field/walk_up_clean.png'
       flipX = 'scaleX(1)'
     } else if (facing === 'down') {
-      spriteUrl = '/Assets/Building/field/walk_down_clean.png'
+      spritesheetUrl = '/Assets/Building/field/walk_down_clean.png'
       flipX = 'scaleX(1)'
     } else if (facing === 'left') {
-      spriteUrl = '/Assets/Building/field/walk_right_clean.png'
+      spritesheetUrl = '/Assets/Building/field/walk_right_clean.png'
       flipX = 'scaleX(-1)'
     } else {
-      spriteUrl = '/Assets/Building/field/walk_right_clean.png'
+      spritesheetUrl = '/Assets/Building/field/walk_right_clean.png'
       flipX = 'scaleX(1)'
     }
   } else {
     // Idle
-    spriteUrl = '/Assets/Building/field/walk_down_clean.png'
+    spritesheetUrl = '/Assets/Building/field/walk_down_clean.png'
     bgCols = 5
     bgRows = 5
     bgX = 0
@@ -151,8 +160,15 @@ export default function FieldStudentAthlete({
     flipX = 'scaleX(1)'
   }
 
+  const defaultSprite = gender === 'female' ? '/Assets/Building/field/avatars/siswi_ponytail.png' : '/Assets/Building/field/avatars/siswa_default.png'
+  const finalSprite = spriteUrl || defaultSprite
+  const defaultAvatar = gender === 'female' ? '/Assets/Building/field/avatars/face_siswi_ponytail.png' : '/Assets/Building/field/avatars/face_siswa_default.png'
+  const finalAvatar = avatarUrl || defaultAvatar
+
   const posX = x - size / 2
   const posY = y - size * 0.9
+  const charWidth = size * 0.44
+  const charHeight = size * 0.9
 
   return (
     <g style={{ pointerEvents: 'none' }}>
@@ -179,49 +195,140 @@ export default function FieldStudentAthlete({
         />
       )}
 
-      {/* Character Sprite */}
-      <foreignObject
-        x={posX}
-        y={posY}
-        width={size}
-        height={size}
-        style={{ overflow: 'visible', pointerEvents: 'none', willChange: 'transform' }}
-      >
-        <div
+      {/* ── 1. IDLE MODE: High-quality full-body pixel-art student avatar ── */}
+      {mode === 'idle' && (
+        <image
+          href={finalSprite}
+          x={x - charWidth / 2}
+          y={posY}
+          width={charWidth}
+          height={charHeight}
+          preserveAspectRatio="xMidYMax meet"
           style={{
-            width: '100%',
-            height: '100%',
-            backgroundImage: `url("${spriteUrl}")`,
-            backgroundSize: `${bgCols * 100}% ${bgRows * 100}%`,
-            backgroundPosition: `${bgX}% ${bgY}%`,
-            backgroundRepeat: 'no-repeat',
-            transform: flipX,
-            transformOrigin: 'center center',
             imageRendering: 'pixelated',
-            filter: 'drop-shadow(0px 4px 6px rgba(0, 0, 0, 0.5))',
-            willChange: 'transform, background-position',
+            filter: 'drop-shadow(0px 4px 6px rgba(0, 0, 0, 0.55))',
           }}
         />
-      </foreignObject>
-
-      {/* Name Label */}
-      {label && (
-        <text
-          x={x}
-          y={posY - 10}
-          textAnchor="middle"
-          fontSize={Math.max(13, size * 0.085)}
-          fontWeight="900"
-          fill="#FFFFFF"
-          stroke="rgba(0, 0, 0, 0.85)"
-          strokeWidth={3}
-          paintOrder="stroke fill"
-          fontFamily="var(--font-ui, sans-serif)"
-          letterSpacing="0.5px"
-        >
-          {label}
-        </text>
       )}
+
+      {/* ── 2. WALK MODE: Pixel-art avatar with walking bounce ── */}
+      {mode === 'walk' && (
+        <motion.g
+          animate={{ y: [0, -4, 0], rotate: [-2.5, 2.5, -2.5] }}
+          transition={{ duration: 0.35, repeat: Infinity, ease: 'easeInOut' }}
+          style={{ transformOrigin: `${x}px ${y}px` }}
+        >
+          <image
+            href={finalSprite}
+            x={x - charWidth / 2}
+            y={posY}
+            width={charWidth}
+            height={charHeight}
+            preserveAspectRatio="xMidYMax meet"
+            style={{
+              imageRendering: 'pixelated',
+              filter: 'drop-shadow(0px 4px 6px rgba(0, 0, 0, 0.55))',
+            }}
+          />
+        </motion.g>
+      )}
+
+      {/* ── 3. AIM & THROW MODE: Throw animation spritesheet ── */}
+      {(mode === 'aim' || mode === 'throw') && (
+        <>
+          <foreignObject
+            x={posX}
+            y={posY}
+            width={size}
+            height={size}
+            style={{ overflow: 'visible', pointerEvents: 'none', willChange: 'transform' }}
+          >
+            <div
+              style={{
+                width: '100%',
+                height: '100%',
+                backgroundImage: `url("${spritesheetUrl}")`,
+                backgroundSize: `${bgCols * 100}% ${bgRows * 100}%`,
+                backgroundPosition: `${bgX}% ${bgY}%`,
+                backgroundRepeat: 'no-repeat',
+                transform: flipX,
+                transformOrigin: 'center center',
+                imageRendering: 'pixelated',
+                filter: gender === 'female'
+                  ? 'drop-shadow(0px 4px 6px rgba(0, 0, 0, 0.5)) hue-rotate(290deg) saturate(1.25)'
+                  : 'drop-shadow(0px 4px 6px rgba(0, 0, 0, 0.5))',
+                willChange: 'transform, background-position',
+              }}
+            />
+          </foreignObject>
+
+          {/* Female Athlete Hair Ribbon / Accessory */}
+          {gender === 'female' && (
+            <g transform={`translate(${x + size * 0.08}, ${posY + size * 0.3})`} filter="drop-shadow(0 2px 4px rgba(0,0,0,0.4))">
+              <circle cx={0} cy={0} r={4.5} fill="#EC4899" stroke="#FFF" strokeWidth={1} />
+              <path d="M -4,-2 C -8,-6 -10,-2 -7,1 Z" fill="#F472B6" />
+              <path d="M 4,-2 C 8,-6 10,-2 7,1 Z" fill="#F472B6" />
+            </g>
+          )}
+        </>
+      )}
+
+      {/* ── 4. STUDENT NAME & AVATAR BADGE PILL ── */}
+      {label && (() => {
+        const hasAvatar = Boolean(finalAvatar)
+        const textLen = label.length
+        const pillWidth = hasAvatar ? Math.max(104, textLen * 7.2 + 32) : Math.max(76, textLen * 7.2)
+        const halfW = pillWidth / 2
+        return (
+          <g transform={`translate(${x}, ${posY - 12})`}>
+            {/* Pill Container */}
+            <rect
+              x={-halfW}
+              y={-12}
+              width={pillWidth}
+              height={24}
+              rx={12}
+              fill="rgba(15, 23, 42, 0.94)"
+              stroke={gender === 'female' ? '#EC4899' : '#38BDF8'}
+              strokeWidth={1.5}
+              filter="drop-shadow(0 2px 6px rgba(0,0,0,0.65))"
+            />
+
+            {/* Circular Avatar Face Icon */}
+            {hasAvatar && (
+              <g transform={`translate(${-halfW + 13}, 0)`}>
+                <circle cx={0} cy={0} r={10} fill="#1E293B" stroke={gender === 'female' ? '#F472B6' : '#60A5FA'} strokeWidth={1} />
+                <clipPath id={`avatar-clip-${safeId}`}>
+                  <circle cx={0} cy={0} r={9.5} />
+                </clipPath>
+                <image
+                  href={finalAvatar}
+                  x={-9.5}
+                  y={-9.5}
+                  width={19}
+                  height={19}
+                  clipPath={`url(#avatar-clip-${safeId})`}
+                  style={{ imageRendering: 'pixelated' }}
+                />
+              </g>
+            )}
+
+            {/* Student Label Text */}
+            <text
+              x={hasAvatar ? 8 : 0}
+              y={4}
+              textAnchor="middle"
+              fontSize={Math.max(10, Math.min(12, size * 0.082))}
+              fontWeight="900"
+              fill="#FFFFFF"
+              fontFamily="var(--font-ui, sans-serif)"
+              letterSpacing="0.3px"
+            >
+              {label}
+            </text>
+          </g>
+        )
+      })()}
     </g>
   )
 }
