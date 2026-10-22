@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { gameAudio } from '@/lib/utils/gameAudio'
 import { useGameStore } from '@/lib/store/gameStore'
 import { getLevel1Data } from '@/app/siswa/game/_data/level1'
-import DeskCalculator from './DeskCalculator'
 import StageTutorialModal from './StageTutorialModal'
 import { SortToken, useFitGrid, STAGE_TUTORIALS } from './corkboardData'
 
@@ -337,9 +336,6 @@ export default function PakReportModal({ dataset, onProceed }: { dataset: number
   const [meanIsCorrect, setMeanIsCorrect] = useState<boolean | null>(null)
   const [shakeMean, setShakeMean] = useState<number>(0)
 
-  // Dev Tool State
-  const [showDevTools, setShowDevTools] = useState<boolean>(false)
-
   const { STATS } = getLevel1Data(dataset)
   const totalSum = STATS.sum
   const meanVal = STATS.mean
@@ -497,6 +493,11 @@ export default function PakReportModal({ dataset, onProceed }: { dataset: number
     setStage('mean')
     gameAudio.playSuccess()
   }, [initialTokens, modeVal, medianVal, meanVal])
+
+  useEffect(() => {
+    ;(window as any).__DEV_CORKBOARD_AUTO_ALL__ = handleAutoCompleteAll
+    ;(window as any).__DEV_CORKBOARD_SET_STAGE__ = (st: any) => setStage(st)
+  }, [handleAutoCompleteAll])
 
   const handleResetAllStages = useCallback(() => {
     setPlacedSlots(Array(24).fill(null))
@@ -664,46 +665,37 @@ export default function PakReportModal({ dataset, onProceed }: { dataset: number
           flexShrink: 0,
           position: 'relative',
           zIndex: 30,
-          marginBottom: 'clamp(3px, 0.6vh, 7px)',
-          gap: 'clamp(4px, 0.8vw, 10px)',
+          marginBottom: 'clamp(3px, 0.6vh, 8px)',
+          gap: 'clamp(4px, 0.8vw, 12px)',
         }}
       >
-        {/* Kiri: Spacer penyeimbang layout header (Dev Tool Skip Step commented out for player) */}
-        <div style={{ width: 'clamp(80px, 9vw, 120px)', flexShrink: 0 }} />
-        {/*
+        {/* Kiri: Tombol Reset */}
         <div style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
           <button
-            data-testid="btn-dev-tools-toggle"
-            onClick={() => {
-              setShowDevTools(prev => !prev)
-              gameAudio.playClick()
-            }}
+            data-testid="btn-reset-sort"
+            onClick={handleReset}
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '4px',
-              padding: 'clamp(2.5px, 0.4vh, 5px) clamp(6px, 0.8vw, 11px)',
+              gap: '5px',
+              padding: 'clamp(3px, 0.5vh, 6px) clamp(8px, 1vw, 14px)',
               borderRadius: '999px',
-              fontSize: 'clamp(8px, 1vw, 10.5px)',
-              fontWeight: 900,
+              fontSize: 'clamp(9px, 1.1vw, 12.5px)',
+              fontWeight: 800,
               cursor: 'pointer',
-              border: showDevTools ? '1.5px solid #F59E0B' : '1.5px solid rgba(245, 158, 11, 0.45)',
-              background: showDevTools
-                ? 'linear-gradient(180deg, #92400E 0%, #78350F 100%)'
-                : 'linear-gradient(180deg, rgba(60, 25, 5, 0.85) 0%, rgba(30, 12, 2, 0.95) 100%)',
-              color: '#FDE68A',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.15)',
+              border: '1.5px solid #CBD5E1',
+              background: 'linear-gradient(180deg, #FFFFFF 0%, #F1F5F9 100%)',
+              color: '#334155',
+              boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
               transition: 'all 0.15s ease',
               whiteSpace: 'nowrap',
             }}
-            title="Buka / Tutup Dev Tool Skip Step untuk kemudahan debugging"
+            title="Reset pilihan atau susunan pada tahapan ini"
           >
-            <span>🛠️</span>
-            <span>DEV SKIP</span>
-            <span style={{ fontSize: '9px', opacity: 0.85 }}>{showDevTools ? '▲' : '▼'}</span>
+            <span style={{ fontSize: 'clamp(10px, 1.15vw, 13px)' }}>🔄</span>
+            <span>Reset {stage === 'sort' ? 'Urutan' : 'Jawaban'}</span>
           </button>
         </div>
-        */}
 
         {/* Tengah: Stepper 4 Tahap (Klik tab mana saja untuk langsung lompat ke tahap tersebut) */}
         <div
@@ -712,16 +704,16 @@ export default function PakReportModal({ dataset, onProceed }: { dataset: number
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: 'clamp(4px, 0.7vw, 8px)',
+            gap: 'clamp(4px, 0.7vw, 10px)',
             flexShrink: 0,
             flexWrap: 'nowrap',
             overflowX: 'auto',
             alignSelf: 'center',
             background: 'linear-gradient(180deg, #3E2415 0%, #27150B 100%)',
-            border: '1.5px solid #B48C50',
+            border: '2px solid #C49858',
             borderRadius: '999px',
-            padding: 'clamp(2px, 0.35vh, 5px) clamp(8px, 1.2vw, 16px)',
-            boxShadow: '0 3px 10px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.15)',
+            padding: 'clamp(3px, 0.5vh, 7px) clamp(8px, 1.2vw, 18px)',
+            boxShadow: '0 4px 14px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.2)',
           }}
         >
           {[
@@ -732,7 +724,7 @@ export default function PakReportModal({ dataset, onProceed }: { dataset: number
           ].map((st, i) => {
             const isActive = stage === st.id
             return (
-              <div key={st.id} style={{ display: 'flex', alignItems: 'center', gap: 'clamp(2px, 0.4vw, 5px)', flexShrink: 0 }}>
+              <div key={st.id} style={{ display: 'flex', alignItems: 'center', gap: 'clamp(3px, 0.5vw, 6px)', flexShrink: 0 }}>
                 <div
                   data-testid={`stepper-tab-${st.id}`}
                   onClick={() => {
@@ -743,9 +735,9 @@ export default function PakReportModal({ dataset, onProceed }: { dataset: number
                     }
                   }}
                   style={{
-                    padding: 'clamp(2px, 0.4vh, 4px) clamp(6px, 0.9vw, 11px)',
+                    padding: 'clamp(3px, 0.5vh, 6px) clamp(7px, 1vw, 14px)',
                     borderRadius: '999px',
-                    fontSize: 'clamp(8.5px, 1.1vw, 11px)',
+                    fontSize: 'clamp(9.5px, 1.15vw, 13.5px)',
                     fontWeight: 900,
                     whiteSpace: 'nowrap',
                     cursor: st.done ? 'pointer' : 'default',
@@ -760,7 +752,7 @@ export default function PakReportModal({ dataset, onProceed }: { dataset: number
                       : st.done
                       ? '1.5px solid #34D399'
                       : '1.5px solid rgba(180, 140, 80, 0.35)',
-                    boxShadow: isActive ? '0 0 8px rgba(253, 230, 138, 0.4)' : 'none',
+                    boxShadow: isActive ? '0 0 10px rgba(253, 230, 138, 0.45)' : 'none',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '4px',
@@ -773,16 +765,15 @@ export default function PakReportModal({ dataset, onProceed }: { dataset: number
                   <span>{st.label}</span>
                 </div>
                 {i < 3 && (
-                  <span style={{ color: '#FDE68A', fontWeight: 900, fontSize: 'clamp(9px, 1.1vw, 11px)' }}>→</span>
+                  <span style={{ color: '#FDE68A', fontWeight: 900, fontSize: 'clamp(10px, 1.2vw, 14px)' }}>→</span>
                 )}
               </div>
             )
           })}
         </div>
 
-        {/* Kanan: Tombol Cepat Auto Win (Selesaikan Semua 4 Tahap) */}
+        {/* Kanan: Tombol Panduan Materi */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(4px, 0.7vw, 8px)', flexShrink: 0 }}>
-          {/* Tombol Panduan Materi / Tutorial untuk Tahap Aktif */}
           <button
             data-testid="btn-open-tutorial-header"
             onClick={() => {
@@ -792,10 +783,10 @@ export default function PakReportModal({ dataset, onProceed }: { dataset: number
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '4px',
-              padding: 'clamp(2.5px, 0.4vh, 5px) clamp(7px, 1vw, 12px)',
+              gap: '5px',
+              padding: 'clamp(3px, 0.5vh, 6px) clamp(8px, 1vw, 14px)',
               borderRadius: '999px',
-              fontSize: 'clamp(8px, 1vw, 10.5px)',
+              fontSize: 'clamp(9px, 1.1vw, 12.5px)',
               fontWeight: 900,
               cursor: 'pointer',
               border: '1.5px solid #60A5FA',
@@ -807,204 +798,16 @@ export default function PakReportModal({ dataset, onProceed }: { dataset: number
             }}
             title="Buka Panel Panduan & Tutorial Konsep Belajar"
           >
-            <span style={{ fontSize: 'clamp(9px, 1.1vw, 12px)' }}>💡</span>
+            <span style={{ fontSize: 'clamp(10px, 1.15vw, 13px)' }}>💡</span>
             <span>Panduan Materi</span>
           </button>
-
-          {/* Auto Win Dev Button (Commented out for player) */}
-          {/*
-          <button
-            data-testid="btn-dev-instant-win"
-            onClick={handleAutoCompleteAll}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-              padding: 'clamp(2.5px, 0.4vh, 5px) clamp(6px, 0.8vw, 11px)',
-              borderRadius: '999px',
-              fontSize: 'clamp(8px, 1vw, 10.5px)',
-              fontWeight: 900,
-              cursor: 'pointer',
-              border: '1.5px solid #10B981',
-              background: 'linear-gradient(180deg, #059669 0%, #047857 100%)',
-              color: '#FFFFFF',
-              boxShadow: '0 2px 8px rgba(5, 150, 105, 0.4), inset 0 1px 0 rgba(255,255,255,0.2)',
-              transition: 'all 0.15s ease',
-              whiteSpace: 'nowrap',
-            }}
-            title="Selesaikan semua 4 tahap secara instan (Auto Win / Dev)"
-          >
-            <span>⚡</span>
-            <span>Auto Win</span>
-          </button>
-          */}
         </div>
       </div>
 
-      {/* Collapsible Dev Toolbar (commented out for players)
-      <AnimatePresence>
-        {showDevTools && (
-          <motion.div
-            initial={{ opacity: 0, height: 0, scale: 0.98 }}
-            animate={{ opacity: 1, height: 'auto', scale: 1 }}
-            exit={{ opacity: 0, height: 0, scale: 0.98 }}
-            transition={{ duration: 0.18 }}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flexWrap: 'wrap',
-              gap: 'clamp(3px, 0.6vw, 6px)',
-              background: 'linear-gradient(145deg, #2D1A12 0%, #1A0D08 100%)',
-              border: '1.5px solid #8C6239',
-              borderRadius: '8px',
-              padding: 'clamp(3px, 0.5vh, 6px) clamp(6px, 1vw, 12px)',
-              marginBottom: 'clamp(4px, 0.6vh, 8px)',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.6)',
-              position: 'relative',
-              zIndex: 35,
-              alignSelf: 'center',
-              overflow: 'hidden',
-            }}
-          >
-            <span style={{
-              fontSize: 'clamp(8px, 1vw, 10.5px)',
-              fontWeight: 900,
-              color: '#9A3412',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '3px',
-              marginRight: '2px',
-            }}>
-              🛠️ SKIP:
-            </span>
-
-            <button
-              data-testid="dev-btn-stage-1"
-              onClick={() => handleSkipToStage('sort')}
-              style={{
-                padding: 'clamp(2px, 0.35vh, 4px) clamp(5px, 0.7vw, 9px)',
-                borderRadius: '5px',
-                border: stage === 'sort' ? '1.5px solid #78350F' : '1px solid #8C6239',
-                background: stage === 'sort' ? '#B45309' : '#FFFDF7',
-                color: stage === 'sort' ? '#FFFFFF' : '#362014',
-                fontSize: 'clamp(8px, 0.95vw, 10px)',
-                fontWeight: 800,
-                cursor: 'pointer',
-              }}
-              title="Lompat ke Tahap 1 (Urutkan Data)"
-            >
-              [1] Urutkan
-            </button>
-
-            <button
-              data-testid="dev-btn-stage-2"
-              onClick={() => handleSkipToStage('modus')}
-              style={{
-                padding: 'clamp(2px, 0.35vh, 4px) clamp(5px, 0.7vw, 9px)',
-                borderRadius: '5px',
-                border: stage === 'modus' ? '1.5px solid #78350F' : '1px solid #8C6239',
-                background: stage === 'modus' ? '#B45309' : '#FFFDF7',
-                color: stage === 'modus' ? '#FFFFFF' : '#362014',
-                fontSize: 'clamp(8px, 0.95vw, 10px)',
-                fontWeight: 800,
-                cursor: 'pointer',
-              }}
-              title="Lompat ke Tahap 2 (Modus) + Auto-Sort"
-            >
-              [2] Modus
-            </button>
-
-            <button
-              data-testid="dev-btn-stage-3"
-              onClick={() => handleSkipToStage('median')}
-              style={{
-                padding: 'clamp(2px, 0.35vh, 4px) clamp(5px, 0.7vw, 9px)',
-                borderRadius: '5px',
-                border: stage === 'median' ? '1.5px solid #78350F' : '1px solid #8C6239',
-                background: stage === 'median' ? '#B45309' : '#FFFDF7',
-                color: stage === 'median' ? '#FFFFFF' : '#362014',
-                fontSize: 'clamp(8px, 0.95vw, 10px)',
-                fontWeight: 800,
-                cursor: 'pointer',
-              }}
-              title="Lompat ke Tahap 3 (Median) + Auto-Modus"
-            >
-              [3] Median
-            </button>
-
-            <button
-              data-testid="dev-btn-stage-4"
-              onClick={() => handleSkipToStage('mean')}
-              style={{
-                padding: 'clamp(2px, 0.35vh, 4px) clamp(5px, 0.7vw, 9px)',
-                borderRadius: '5px',
-                border: stage === 'mean' ? '1.5px solid #78350F' : '1px solid #8C6239',
-                background: stage === 'mean' ? '#B45309' : '#FFFDF7',
-                color: stage === 'mean' ? '#FFFFFF' : '#362014',
-                fontSize: 'clamp(8px, 0.95vw, 10px)',
-                fontWeight: 800,
-                cursor: 'pointer',
-              }}
-              title="Lompat ke Tahap 4 (Rata-Rata) + Auto-Median"
-            >
-              [4] Rata-Rata
-            </button>
-
-            <button
-              data-testid="dev-btn-auto-all"
-              onClick={handleAutoCompleteAll}
-              style={{
-                padding: 'clamp(2px, 0.35vh, 4px) clamp(5px, 0.7vw, 9px)',
-                borderRadius: '5px',
-                border: '1.5px solid #065F46',
-                background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
-                color: '#FFFFFF',
-                fontSize: 'clamp(8px, 0.95vw, 10px)',
-                fontWeight: 900,
-                cursor: 'pointer',
-              }}
-              title="Selesaikan semua 4 tahap sekaligus"
-            >
-              ⚡ Selesai Semua
-            </button>
-
-            <button
-              data-testid="dev-btn-reset-all"
-              onClick={handleResetAllStages}
-              style={{
-                padding: 'clamp(2px, 0.35vh, 4px) clamp(5px, 0.7vw, 9px)',
-                borderRadius: '5px',
-                border: '1px solid #DC2626',
-                background: '#FEE2E2',
-                color: '#991B1B',
-                fontSize: 'clamp(8px, 0.95vw, 10px)',
-                fontWeight: 800,
-                cursor: 'pointer',
-              }}
-              title="Reset seluruh progres papan ke awal"
-            >
-              🔄 Reset Semua
-            </button>
-
-            <span style={{
-              fontSize: 'clamp(7px, 0.85vw, 9px)',
-              color: '#78350F',
-              fontWeight: 700,
-              marginLeft: '2px',
-            }}>
-              (Hotkey: [1-4], [U], [0])
-            </span>
-          </motion.div>
-        )}
-      </AnimatePresence>
-      */}
-
-      {/* ── MAIN CONTENT AREA: 3:1 SPLIT (KIRI: ANALISIS, KANAN: KALKULATOR) ── */}
+      {/* ── MAIN CONTENT AREA (KONTEN ANALISIS TAHAPAN) ── */}
       <div style={{
         display: 'flex',
-        flexDirection: 'row',
-        gap: 'clamp(8px, 1.2vw, 16px)',
+        flexDirection: 'column',
         flex: 1,
         minHeight: 0,
         position: 'relative',
@@ -1014,11 +817,12 @@ export default function PakReportModal({ dataset, onProceed }: { dataset: number
         boxSizing: 'border-box',
       }}>
 
-        {/* ── BAGIAN KIRI (RASIO 3): DATA 24 BULATAN + INDIKATOR + KARTU TAHAP ── */}
+        {/* ── DATA 24 BULATAN + INDIKATOR + KARTU TAHAP ── */}
         <div
           className="corkboard-scroll-area"
           style={{
             flex: 1,
+            width: '100%',
             minWidth: 0,
             display: 'flex',
             flexDirection: 'column',
@@ -1660,7 +1464,7 @@ export default function PakReportModal({ dataset, onProceed }: { dataset: number
                           ⚖️ Tentukan Median dari 24 Data Terurut
                         </h4>
                         <p style={{ margin: 0, fontSize: 'clamp(9px, 1.1vw, 11px)', color: '#475569', lineHeight: 1.3 }}>
-                          <strong>Median</strong> adalah nilai tengah dari data yang telah diurutkan. Karena ada <strong>24 data (genap)</strong>, temukan dua nilai tengah pada nomor urut <strong>#12</strong> dan <strong>#13</strong> dengan bantuan label urutan di bawah bulatan, lalu hitung nilai rata-ratanya. Kamu juga bisa memakai kalkulator di sebelah kanan!
+                          <strong>Median</strong> adalah nilai tengah dari data yang telah diurutkan. Karena ada <strong>24 data (genap)</strong>, temukan dua nilai tengah pada nomor urut <strong>#12</strong> dan <strong>#13</strong> dengan bantuan label urutan di bawah bulatan, lalu hitung nilai rata-ratanya.
                         </p>
                       </div>
 
@@ -1785,7 +1589,7 @@ export default function PakReportModal({ dataset, onProceed }: { dataset: number
                           🧮 Hitung Rata-Rata (Mean) dari 24 Data
                         </h4>
                         <p style={{ margin: 0, fontSize: 'clamp(9px, 1.1vw, 11px)', color: '#475569', lineHeight: 1.3 }}>
-                          Jumlah seluruh 24 bulatan angka di atas adalah <strong>Σx = {totalSum}</strong>. Bagi jumlah tersebut dengan banyaknya data (<strong>n = 24</strong>): <strong>x̄ = {totalSum} ÷ 24 = ?</strong> Gunakan kalkulator di samping jika perlu!
+                          Jumlah seluruh 24 bulatan angka di atas adalah <strong>Σx = {totalSum}</strong>. Bagi jumlah tersebut dengan banyaknya data (<strong>n = 24</strong>): <strong>x̄ = {totalSum} ÷ 24 = ?</strong> Hitung hasil pembagian tersebut dengan teliti.
                         </p>
                       </div>
 
@@ -1834,7 +1638,7 @@ export default function PakReportModal({ dataset, onProceed }: { dataset: number
 
                       {meanIsCorrect === false && (
                         <div style={{ background: '#FEE2E2', border: '1px solid #FCA5A5', borderRadius: '5px', padding: 'clamp(4px, 0.6vh, 6px) clamp(6px, 1vw, 10px)', fontSize: 'clamp(9px, 1.1vw, 10.5px)', color: '#991B1B', fontWeight: 700 }}>
-                          💡 Kurang tepat! Coba hitung {totalSum} ÷ 24 pada kalkulator di sebelah kanan.
+                          💡 Kurang tepat! Coba hitung kembali {totalSum} ÷ 24 dengan teliti.
                         </div>
                       )}
 
@@ -1870,56 +1674,6 @@ export default function PakReportModal({ dataset, onProceed }: { dataset: number
             </div>
           )}
         </div>
-
-        {/* ── BAGIAN KANAN (RASIO 1): TOOLBAR (RESET + INFORMASI) + KALKULATOR MEJA ── */}
-        <div style={{
-          flex: '0 0 clamp(165px, 24vw, 290px)',
-          width: 'clamp(165px, 24vw, 290px)',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'stretch',
-          height: '100%',
-          minHeight: 0,
-          gap: 'clamp(6px, 1.2vh, 12px)',
-        }}>
-          {/* Top Bar Di Atas Kalkulator: [🔄 Reset Urutan / Reset Jawaban] */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            width: '100%',
-            flexShrink: 0,
-          }}>
-            <button
-              data-testid="btn-reset-sort"
-              onClick={handleReset}
-              style={{
-                width: '100%',
-                padding: 'clamp(3px, 0.5vh, 6px) clamp(8px, 1vw, 12px)',
-                borderRadius: '6px',
-                fontSize: 'clamp(8.5px, 1.1vw, 11px)',
-                fontWeight: 800,
-                cursor: 'pointer',
-                border: '1.5px solid #CBD5E1',
-                background: 'linear-gradient(180deg, #FFFFFF 0%, #F1F5F9 100%)',
-                color: '#334155',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '6px',
-                boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-                whiteSpace: 'nowrap',
-              }}
-              title="Reset pilihan atau susunan pada tahapan ini"
-            >
-              <span>🔄</span>
-              <span>Reset {stage === 'sort' ? 'Urutan Data' : 'Jawaban'}</span>
-            </button>
-          </div>
-
-          <DeskCalculator dataset={dataset} />
-        </div>
-
       </div>
 
       {/* ── POPUP SELESAI TAHAP 1: URUTKAN DATA (POPUP DI TENGAH) ── */}

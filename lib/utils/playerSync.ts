@@ -145,47 +145,79 @@ export function enqueueOfflineProgress(playerId: string, payload: SaveProgressPa
 /**
  * Mengirim antrean progres offline ke database begitu online
  */
-export async function flushOfflineSyncQueue(playerId: string): Promise<boolean> {
-  if (typeof window === 'undefined' || !playerId) return false
+export async function flushOfflineSyncQueue(targetPlayerId?: string): Promise<boolean> {
+  if (typeof window === 'undefined') return false
 
-  try {
-    const queueKey = `stat_casecode_offline_queue_${playerId}`
-    const raw = localStorage.getItem(queueKey)
-    if (!raw) return true
-    const queue: SaveProgressPayload[] = JSON.parse(raw)
-    if (!Array.isArray(queue) || queue.length === 0) return true
+  const playerIds: string[] = []
+  if (targetPlayerId) {
+    playerIds.push(targetPlayerId)
+  } else {
+    const activeId = getActivePlayer()?.id
+    if (activeId) playerIds.push(activeId)
 
-    const remainingQueue: SaveProgressPayload[] = []
+    try {
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i)
+        if (key && key.startsWith('stat_casecode_offline_queue_')) {
+          const id = key.replace('stat_casecode_offline_queue_', '')
+          if (id && !playerIds.includes(id)) {
+            playerIds.push(id)
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('[PlayerSync] Error reading offline queue keys:', e)
+    }
+  }
 
-    for (const item of queue) {
-      try {
-        const res = await fetch('/api/player/progress', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            playerId,
-            ...item,
-          }),
-        })
-        if (!res.ok) {
+  if (playerIds.length === 0) return true
+
+  let allSuccess = true
+
+  for (const playerId of playerIds) {
+    try {
+      const queueKey = `stat_casecode_offline_queue_${playerId}`
+      const raw = localStorage.getItem(queueKey)
+      if (!raw) continue
+      const queue: SaveProgressPayload[] = JSON.parse(raw)
+      if (!Array.isArray(queue) || queue.length === 0) {
+        localStorage.removeItem(queueKey)
+        continue
+      }
+
+      const remainingQueue: SaveProgressPayload[] = []
+
+      for (const item of queue) {
+        try {
+          const res = await fetch('/api/player/progress', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              playerId,
+              ...item,
+            }),
+          })
+          if (!res.ok) {
+            remainingQueue.push(item)
+          }
+        } catch {
           remainingQueue.push(item)
         }
-      } catch {
-        remainingQueue.push(item)
       }
-    }
 
-    if (remainingQueue.length > 0) {
-      localStorage.setItem(queueKey, JSON.stringify(remainingQueue))
-      return false
-    } else {
-      localStorage.removeItem(queueKey)
-      return true
+      if (remainingQueue.length > 0) {
+        localStorage.setItem(queueKey, JSON.stringify(remainingQueue))
+        allSuccess = false
+      } else {
+        localStorage.removeItem(queueKey)
+      }
+    } catch (e) {
+      console.error(`[PlayerSync] Error flushing offline queue for player ${playerId}:`, e)
+      allSuccess = false
     }
-  } catch (e) {
-    console.error('[PlayerSync] Error flushing offline queue:', e)
-    return false
   }
+
+  return allSuccess
 }
 
 /**

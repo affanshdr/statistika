@@ -163,7 +163,7 @@ export const STAGE_TUTORIALS: Record<'sort' | 'modus' | 'median' | 'mean', Stage
     },
     howToSteps: [
       'Gunakan total penjumlahan nilai data (∑x) yang tertera.',
-      'Bagi dengan 24 menggunakan bantuan kalkulator di sebelah kanan.'
+      'Bagi dengan 24 untuk menemukan nilai rata-rata (mean).'
     ],
     proTip:
       'Nilai mean meratakan total waktu layar ke setiap siswa secara adil.'
