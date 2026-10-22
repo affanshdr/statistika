@@ -72,7 +72,7 @@ export default function NPath({
   demoStep = null,
   studentName,
 }: {
-  onComplete: (starsEarned?: number) => void
+  onComplete: (starsEarned?: number, durationSeconds?: number) => void
   isFD?: boolean
   demoMode?: boolean
   demoStep?: string | null
@@ -85,6 +85,9 @@ export default function NPath({
   const [showMissionCompleteModal, setShowMissionCompleteModal] = useState(false)
   const [earnedStarsState, setEarnedStarsState] = useState(3)
   const [elapsedSecondsState, setElapsedSecondsState] = useState(0)
+  const [rawElapsedSecondsState, setRawElapsedSecondsState] = useState(0)
+  const [penaltySecondsState, setPenaltySecondsState] = useState(0)
+  const [mistakeCountState, setMistakeCountState] = useState(0)
 
   useEffect(() => {
     gameAudio.playBGM('level1')
@@ -399,6 +402,7 @@ export default function NPath({
       setSatpamChatStage('pak_pass_1')
     } else {
       gameAudio.playError()
+      incrementMistake()
       setSatpamWrongCount(prev => {
         const next = prev + 1
         setSatpamTeaseText(SATPAM_WRONG_TEASES[(next - 1) % SATPAM_WRONG_TEASES.length])
@@ -517,7 +521,7 @@ export default function NPath({
     for (const d of doors) {
       if (d.roomId !== 'RG' && !unlockedR.current.has(d.roomId)) continue
       const dist = Math.hypot(d.x - cx, d.y - cy)
-      const threshold = d.roomId === 'RG' ? 95 : 85
+      const threshold = d.roomId === 'RG' ? 110 : 85
       if (dist < threshold && dist < minDist) {
         minDist = dist
         closest = d
@@ -640,7 +644,6 @@ export default function NPath({
     if (charPos.y >= 635 && Math.abs(charPos.x - 625) < 220) {
       if (currentZone === 'main') {
         if (!isTaskGiven) {
-          setCharPos(p => (p.y >= 635 ? { ...p, y: 628 } : p))
           gameAudio.playError()
           setRgLockedToast('🔒 Area Fasilitas belum dibuka! Jumpai Pak Sutrisno di depan Ruang Guru terlebih dahulu untuk melapor.')
           setTimeout(() => setRgLockedToast(null), 2500)
@@ -670,25 +673,7 @@ export default function NPath({
     }
   }, [collected.size, showCounter, showPakReportModal])
 
-  // Auto-clamp player Y position if ever above boundaries
-  useEffect(() => {
-    if (insideRoom) return
-    if (currentZone === 'gate') {
-      const minGateY = (charPos.x >= 490 && charPos.x <= 745) ? 330 : 445
-      if (charPos.y < minGateY - 1) {
-        setCharPos(prev => (prev.y < minGateY - 1 ? { ...prev, y: minGateY } : prev))
-      }
-    } else if (currentZone === 'facility') {
-      if (charPos.y < 380 - 1) {
-        setCharPos(prev => (prev.y < 380 - 1 ? { ...prev, y: 380 } : prev))
-      }
-    } else {
-      const redLineY = getRedLineY(charPos.x)
-      if (charPos.y < redLineY - 1) {
-        setCharPos(prev => (prev.y < redLineY - 1 ? { ...prev, y: redLineY } : prev))
-      }
-    }
-  }, [charPos.x, charPos.y, insideRoom, currentZone])
+
 
   const lastTimeRef = useRef<number>(0)
 
@@ -754,12 +739,12 @@ export default function NPath({
                                 cinematicStageRef.current === 'pak_sanction_3' ||
                                 cinematicStageRef.current === 'player_reply_pak'
 
-      const isClassroomConversation = !!(insideRoomR.current && ['A1', 'A2', 'B1', 'B2'].includes(insideRoomR.current.id))
+      const isClassroomConversation = !!(insideRoomR.current && ['A1', 'A2', 'B1', 'B2', 'RG'].includes(insideRoomR.current.id))
 
       if (
-        !activeDoor &&
-        !activeClass &&
-        !showWaliKelasPopup &&
+        !activeDoorR.current &&
+        !activeClassR.current &&
+        !showWaliKelasPopupR.current &&
         !activeFacilityR.current &&
         !showLibraryBookModalR.current &&
         !showLabTerminalModalR.current &&
@@ -808,35 +793,43 @@ export default function NPath({
             const targetMinY = isInsideClass ? 380 : isFacility ? 380 : isGate ? (targetX >= 490 && targetX <= 745 ? 330 : 445) : getRedLineY(targetX)
             const targetY = Math.max(targetMinY, Math.min(maxY, clampedY + dy * dist))
 
+            let nextX = clampedX
+            let nextY = clampedY
+
             // Clamp at y=468 when approaching gate before passing Satpam quiz (useEffect will trigger interception)
             if (isGate && targetY <= 468 && targetX >= 480 && targetX <= 755 && !hasPassedSatpamQuizR.current) {
-              return { x: targetX, y: 468 }
-            }
-
-            // Option A: Direct diagonal move
-            if (activeMap.isWalkable(targetX, targetY, unlockedR.current)) {
-              return { x: targetX, y: targetY }
-            }
-
-            // Option B: Slide horizontally (with slope adaptation for hallway)
-            if (!isInsideClass && !isFacility && !isGate) {
+              nextX = targetX
+              nextY = 468
+            } else if (activeMap.isWalkable(targetX, targetY, unlockedR.current)) {
+              // Option A: Direct diagonal move
+              nextX = targetX
+              nextY = targetY
+            } else if (!isInsideClass && !isFacility && !isGate) {
+              // Option B: Slide horizontally (with slope adaptation for hallway)
               const slopeY = Math.max(getRedLineY(targetX), clampedY)
               if (slopeY <= maxY && activeMap.isWalkable(targetX, slopeY, unlockedR.current)) {
-                return { x: targetX, y: slopeY }
+                nextX = targetX
+                nextY = slopeY
+              } else if (activeMap.isWalkable(clampedX, targetY, unlockedR.current)) {
+                nextX = clampedX
+                nextY = targetY
               }
             } else {
               if (activeMap.isWalkable(targetX, clampedY, unlockedR.current)) {
-                return { x: targetX, y: clampedY }
+                nextX = targetX
+                nextY = clampedY
+              } else if (activeMap.isWalkable(clampedX, targetY, unlockedR.current)) {
+                nextX = clampedX
+                nextY = targetY
               }
             }
 
-            // Option C: Slide vertically
-            if (activeMap.isWalkable(clampedX, targetY, unlockedR.current)) {
-              return { x: clampedX, y: targetY }
+            // CRITICAL: Bail out if position has not changed (within 0.01px) to prevent infinite re-renders!
+            if (Math.abs(p.x - nextX) < 0.01 && Math.abs(p.y - nextY) < 0.01) {
+              return p
             }
-
-            // Option D: Fallback to sanitized position (prevents out-of-bounds trap)
-            return { x: clampedX, y: clampedY }
+            charPosRef.current = { x: nextX, y: nextY }
+            return { x: nextX, y: nextY }
           })
         }
       }
@@ -844,7 +837,7 @@ export default function NPath({
     }
     animRef.current = requestAnimationFrame(tick)
     return () => { if (animRef.current) cancelAnimationFrame(animRef.current) }
-  }, [activeDoor, activeClass, showWaliKelasPopup, activeFacility])
+  }, [])
 
   const handleExitClassroom = useCallback(() => {
     const exitingRoom = insideRoomR.current
@@ -995,6 +988,24 @@ export default function NPath({
     enterClassroom(roomToEnter)
   }, [activeClass, enterClassroom])
 
+  const handleOpenMissionComplete = useCallback(() => {
+    gameAudio.playUnlockJingle()
+    setTeacherCutsceneStage(null)
+    const latestStartTime = useGameStore.getState().sessionStartTime || sessionStartTime || (Date.now() - 240000)
+    const rawElapsed = Math.max(1, Math.floor((Date.now() - latestStartTime) / 1000))
+    const currentMistakes = useGameStore.getState().mistakeCount
+    const penaltySeconds = currentMistakes * 30
+    const totalElapsed = rawElapsed + penaltySeconds
+    const stars = totalElapsed <= 360 ? 3 : totalElapsed <= 600 ? 2 : 1
+
+    setRawElapsedSecondsState(rawElapsed)
+    setMistakeCountState(currentMistakes)
+    setPenaltySecondsState(penaltySeconds)
+    setElapsedSecondsState(totalElapsed)
+    setEarnedStarsState(stars)
+    setShowMissionCompleteModal(true)
+  }, [sessionStartTime])
+
   const handleInteractTeacher = useCallback((room: QuizDoor) => {
     if (room.id === 'Perpustakaan' || room.id === 'LabKomputer') {
       return
@@ -1047,35 +1058,22 @@ export default function NPath({
       // During quiz stage, clicking bubble does not advance; student must click option button
       return
     } else if (currentStage === 'post_conclusion') {
-      gameAudio.playUnlockJingle()
-      setTeacherCutsceneStage(null)
-      const latestStartTime = useGameStore.getState().sessionStartTime || sessionStartTime || (Date.now() - 240000)
-      const elapsed = Math.max(1, Math.floor((Date.now() - latestStartTime) / 1000))
-      const stars = elapsed <= 360 ? 3 : elapsed <= 600 ? 2 : 1
-      setElapsedSecondsState(elapsed)
-      setEarnedStarsState(stars)
-      setShowMissionCompleteModal(true)
+      handleOpenMissionComplete()
     }
-  }, [activeDataset])
+  }, [activeDataset, handleOpenMissionComplete])
 
   const handleSelectSutrisnoQuizOption = useCallback((isCorrect: boolean, e: React.MouseEvent) => {
     e.stopPropagation()
     if (isCorrect) {
-      gameAudio.playUnlockJingle()
-      setTeacherCutsceneStage(null)
-      const latestStartTime = useGameStore.getState().sessionStartTime || sessionStartTime || (Date.now() - 240000)
-      const elapsed = Math.max(1, Math.floor((Date.now() - latestStartTime) / 1000))
-      const stars = elapsed <= 360 ? 3 : elapsed <= 600 ? 2 : 1
-      setElapsedSecondsState(elapsed)
-      setEarnedStarsState(stars)
-      setShowMissionCompleteModal(true)
+      gameAudio.playSuccess()
+      setTeacherCutsceneStage('post_conclusion')
     } else {
       gameAudio.playError()
       setSutrisnoQuizWrong(true)
       setSutrisnoWrongCount(prev => prev + 1)
       incrementMistake()
     }
-  }, [sessionStartTime, incrementMistake])
+  }, [incrementMistake])
 
   // Keyboard navigation listeners
   useEffect(() => {
@@ -1207,8 +1205,8 @@ export default function NPath({
       const keyNormalized = e.key.length === 1 ? e.key.toLowerCase() : e.key
       if (KEY_MAP[keyNormalized]) {
         e.preventDefault()
-        if (insideRoomR.current && ['A1', 'A2', 'B1', 'B2'].includes(insideRoomR.current.id)) {
-          // Strictly conversation mode inside classrooms: player cannot walk around
+        if (insideRoomR.current && ['A1', 'A2', 'B1', 'B2', 'RG'].includes(insideRoomR.current.id)) {
+          // Strictly conversation mode inside classrooms & Ruang Guru: player cannot walk around
           return
         }
         pressedKeysRef.current.add(keyNormalized)
@@ -1305,19 +1303,11 @@ export default function NPath({
         e.preventDefault()
         if (nearClassVal.id === 'RG') {
           const isDataComplete = collectedR.current.size >= TOTAL_N || savedClassesR.current.size >= 4
-          const isKittenFound = catQuestStageR.current === 'kitten_rescued' || catQuestStageR.current === 'completed'
-          const isRGUnlocked = isDataComplete && isKittenFound
-          if (isRGUnlocked) {
+          if (isDataComplete) {
             enterClassroom(nearClassVal)
           } else {
             gameAudio.playError()
-            if (!isDataComplete && !isKittenFound) {
-              setRgLockedToast(`🔒 Ruang Guru Terkunci! Kumpulkan data 4 kelas (${collectedR.current.size}/${TOTAL_N}) dan temukan anak kucing yang hilang terlebih dahulu!`)
-            } else if (!isKittenFound) {
-              setRgLockedToast(`🔒 Ruang Guru Terkunci! Kamu harus menemukan anak kucing yang hilang terlebih dahulu sebelum melapor ke Pak Sutrisno!`)
-            } else {
-              setRgLockedToast(`🔒 Ruang Guru Terkunci! Kumpulkan seluruh data dari 4 kelas terlebih dahulu (${collectedR.current.size}/${TOTAL_N}).`)
-            }
+            setRgLockedToast(`🔒 Ruang Guru Terkunci! Kumpulkan seluruh data dari 4 kelas terlebih dahulu (${collectedR.current.size}/${TOTAL_N}).`)
             setTimeout(() => setRgLockedToast(null), 2500)
           }
           return
@@ -1333,19 +1323,9 @@ export default function NPath({
           resetMovement()
           return
         }
-        if (insideRoomR.current.id === 'LabKomputer' && nearLabTerminalR.current) {
-          e.preventDefault()
-          setShowLabTerminalModal(true)
-          resetMovement()
-          return
-        }
 
-        const currentMap = LEVEL1_MAPS[insideRoomR.current.id]
-        const teacherX = currentMap?.teacher?.x ?? 617
-        const teacherY = currentMap?.teacher?.y ?? 415
-        const isClass = ['A1', 'A2', 'B1', 'B2'].includes(insideRoomR.current.id)
-        const distToTeacher = Math.hypot(charPosRef.current.x - teacherX, charPosRef.current.y - teacherY)
-        if (isClass || distToTeacher < 350 || teacherCutsceneStageRef.current) {
+        const isClass = ['A1', 'A2', 'B1', 'B2', 'RG'].includes(insideRoomR.current.id)
+        if (isClass) {
           if (teacherCutsceneStageRef.current === 'post_pak_quiz') {
             return
           }
@@ -1453,6 +1433,27 @@ export default function NPath({
         currentZoneR.current = z
         setCurrentZone(z)
       }
+      ;(window as any).__DEV_OPEN_CAT_MODAL__ = () => {
+        setShowMotherCatModal(true)
+      }
+      ;(window as any).__DEV_OPEN_KITTEN_RESCUE__ = () => {
+        setShowKittenRescueModal(true)
+      }
+      ;(window as any).__DEV_OPEN_CORKBOARD__ = () => {
+        setShowPakReportModal(true)
+      }
+      ;(window as any).__DEV_OPEN_MISSION_COMPLETE__ = (mistakes: number = 0, rawSeconds: number = 240) => {
+        useGameStore.setState({ mistakeCount: mistakes })
+        const penalty = mistakes * 30
+        const total = rawSeconds + penalty
+        const stars = total <= 360 ? 3 : total <= 600 ? 2 : 1
+        setRawElapsedSecondsState(rawSeconds)
+        setMistakeCountState(mistakes)
+        setPenaltySecondsState(penalty)
+        setElapsedSecondsState(total)
+        setEarnedStarsState(stars)
+        setShowMissionCompleteModal(true)
+      }
       ;(window as any).__DEV_GET_STATE__ = () => ({
         insideRoom: insideRoomR.current,
         insideRoomState: insideRoom,
@@ -1519,12 +1520,13 @@ export default function NPath({
       } else if (oldSize < 24 && newSize >= 24) {
         gameAudio.playUnlockJingle()
         setMilestoneGlow('100%')
-        setRoomMilestoneText('DATA TERKUMPUL 24/24! 🎉 TELEPORTASI KE PAK SUTRISNO...')
+        setRoomMilestoneText('24/24 DATA LENGKAP! 🏆 Bawa seluruh data ke Ruang Guru ➔')
+        unlockedR.current = new Set([...unlockedR.current, 'RG'])
+        setUnlocked(prev => new Set([...prev, 'RG']))
         setTimeout(() => {
           setMilestoneGlow(null)
           setRoomMilestoneText(null)
-          teleportToPakSutrisnoRef.current()
-        }, 1600)
+        }, 3000)
       } else {
         gameAudio.playItemCollect()
       }
@@ -1891,6 +1893,7 @@ export default function NPath({
 
                 {/* Map Hotspots: Render Teacher NPC inside room OR Class Doors in hallway */}
                 {insideRoom ? (() => {
+                  const isClass = ['A1', 'A2', 'B1', 'B2', 'RG'].includes(insideRoom.id)
                   const info = currentClassStudents[insideRoom.id]
                   const teacherName = info?.teacher || LEVEL1_MAPS[insideRoom.id]?.teacher?.name || 'Wali Kelas'
                   const currentMap = LEVEL1_MAPS[insideRoom.id]
@@ -1912,228 +1915,114 @@ export default function NPath({
 
                   return (
                     <g key={`room-objects-${insideRoom.id}`}>
-                      <g
-                        key={`teacher-${insideRoom.id}`}
-                        style={{ cursor: 'pointer' }}
-                        onClick={e => {
-                          e.stopPropagation()
-                          handleInteractTeacher(insideRoom)
-                        }}
-                      >
-                      {teacherConfig?.spriteUrl ? (
-                        <NPCCharacter
-                          key={`teacher-sprite-${insideRoom.id}`}
-                          x={teacherX}
-                          y={teacherY}
-                          size={teacherConfig.size || 250}
-                          aspectRatio={(teacherConfig as any)?.aspectRatio}
-                          label=""
-                          spriteUrl={teacherConfig.spriteUrl}
-                          cols={teacherConfig.cols || 5}
-                          rows={teacherConfig.rows || 5}
-                          totalFrames={teacherConfig.totalFrames || 24}
-                          pingPong={teacherConfig.pingPong ?? false}
-                          speedMs={teacherConfig.speedMs || 90}
-                          glowColor={isCompleted ? "#10B981" : "#F59E0B"}
-                          showGlow={teacherConfig.showGlow ?? true}
-                          flipX={(teacherConfig as any)?.flipX ?? false}
-                          loop={false}
-                          onClick={() => handleInteractTeacher(insideRoom)}
-                        />
-                      ) : (
-                        <rect
-                          x={teacherX - hotspotW / 2}
-                          y={teacherY - hotspotH / 2}
-                          width={hotspotW}
-                          height={hotspotH}
-                          fill="transparent"
-                          stroke={showDebug ? '#ff0' : 'none'}
-                          strokeWidth={showDebug ? 2 : 0}
-                        />
-                      )}
+                      {/* Only render Teacher NPC in actual classrooms */}
+                      {isClass && (
+                        <g
+                          key={`teacher-${insideRoom.id}`}
+                          style={{ cursor: 'pointer' }}
+                          onClick={e => {
+                            e.stopPropagation()
+                            handleInteractTeacher(insideRoom)
+                          }}
+                        >
+                        {teacherConfig?.spriteUrl ? (
+                          <NPCCharacter
+                            key={`teacher-sprite-${insideRoom.id}`}
+                            x={teacherX}
+                            y={teacherY}
+                            size={teacherConfig.size || 250}
+                            aspectRatio={(teacherConfig as any)?.aspectRatio}
+                            label=""
+                            spriteUrl={teacherConfig.spriteUrl}
+                            cols={teacherConfig.cols || 5}
+                            rows={teacherConfig.rows || 5}
+                            totalFrames={teacherConfig.totalFrames || 24}
+                            pingPong={teacherConfig.pingPong ?? false}
+                            speedMs={teacherConfig.speedMs || 90}
+                            glowColor={isCompleted ? "#10B981" : "#F59E0B"}
+                            showGlow={teacherConfig.showGlow ?? true}
+                            flipX={(teacherConfig as any)?.flipX ?? false}
+                            loop={false}
+                            onClick={() => handleInteractTeacher(insideRoom)}
+                          />
+                        ) : (
+                          <rect
+                            x={teacherX - hotspotW / 2}
+                            y={teacherY - hotspotH / 2}
+                            width={hotspotW}
+                            height={hotspotH}
+                            fill="transparent"
+                            stroke={showDebug ? '#ff0' : 'none'}
+                            strokeWidth={showDebug ? 2 : 0}
+                          />
+                        )}
 
-                      {/* 1. Default Hover/Interaction Prompt (when no cutscene is active) */}
-                      {!teacherCutsceneStage && (
-                        <g>
-                          <motion.g
-                            initial={{ opacity: 0, y: 8 }}
-                            animate={{ opacity: 1, y: [0, -4, 0] }}
-                            transition={{ y: { duration: 2, repeat: Infinity, ease: 'easeInOut' }, opacity: { duration: 0.3 } }}
-                          >
-                            <rect
-                              x={teacherX - 90}
-                              y={bubbleY - 48}
-                              width={180}
-                              height={38}
-                              rx={8}
-                              fill="#2D1A12"
-                              stroke={isCompleted ? '#10B981' : '#F59E0B'}
-                              strokeWidth={2}
-                              style={{ filter: 'drop-shadow(0 4px 12px rgba(0, 0, 0, 0.6))' }}
-                            />
-                            <polygon
-                              points={`${teacherX - 7},${bubbleY - 10} ${teacherX + 7},${bubbleY - 10} ${teacherX},${bubbleY}`}
-                              fill="#2D1A12"
-                              stroke={isCompleted ? '#10B981' : '#F59E0B'}
-                              strokeWidth={2}
-                              strokeLinejoin="round"
-                            />
-                            <rect
-                              x={teacherX - 8}
-                              y={bubbleY - 12}
-                              width={16}
-                              height={4}
-                              fill="#2D1A12"
-                            />
-                            <text
-                              x={teacherX}
-                              y={bubbleY - 34}
-                              textAnchor="middle"
-                              fill="#FDE047"
-                              fontSize={11}
-                              fontWeight="900"
-                              fontFamily="var(--font-ui)"
-                              style={{ letterSpacing: '0.3px' }}
+                        {/* 1. Default Hover/Interaction Prompt (when no cutscene is active) */}
+                        {!teacherCutsceneStage && (
+                          <g>
+                            <motion.g
+                              initial={{ opacity: 0, y: 8 }}
+                              animate={{ opacity: 1, y: [0, -4, 0] }}
+                              transition={{ y: { duration: 2, repeat: Infinity, ease: 'easeInOut' }, opacity: { duration: 0.3 } }}
                             >
-                              {(teacherName.startsWith('Bu') ? '👩‍🏫 ' : '👨‍🏫 ') + teacherName}
-                            </text>
-                            <text
-                              x={teacherX}
-                              y={bubbleY - 19}
-                              textAnchor="middle"
-                              fill={isCompleted ? '#34D399' : '#FBBF24'}
-                              fontSize={9}
-                              fontWeight="800"
-                              fontFamily="var(--font-ui)"
-                            >
-                              {insideRoom.id === 'Perpustakaan' || insideRoom.id === 'LabKomputer'
-                                ? '💬 Klik / Tekan E untuk Berdiskusi'
-                                : isCompleted ? '✓ Data Telah Diperoleh' : '💬 Klik / Tekan E untuk Bicara'}
-                            </text>
-                          </motion.g>
+                              <rect
+                                x={teacherX - 90}
+                                y={bubbleY - 48}
+                                width={180}
+                                height={38}
+                                rx={8}
+                                fill="#2D1A12"
+                                stroke={isCompleted ? '#10B981' : '#F59E0B'}
+                                strokeWidth={2}
+                                style={{ filter: 'drop-shadow(0 4px 12px rgba(0, 0, 0, 0.6))' }}
+                              />
+                              <polygon
+                                points={`${teacherX - 7},${bubbleY - 10} ${teacherX + 7},${bubbleY - 10} ${teacherX},${bubbleY}`}
+                                fill="#2D1A12"
+                                stroke={isCompleted ? '#10B981' : '#F59E0B'}
+                                strokeWidth={2}
+                                strokeLinejoin="round"
+                              />
+                              <rect
+                                x={teacherX - 8}
+                                y={bubbleY - 12}
+                                width={16}
+                                height={4}
+                                fill="#2D1A12"
+                              />
+                              <text
+                                x={teacherX}
+                                y={bubbleY - 34}
+                                textAnchor="middle"
+                                fill="#FDE047"
+                                fontSize={11}
+                                fontWeight="900"
+                                fontFamily="var(--font-ui)"
+                                style={{ letterSpacing: '0.3px' }}
+                              >
+                                {(teacherName.startsWith('Bu') ? '👩‍🏫 ' : '👨‍🏫 ') + teacherName}
+                              </text>
+                              <text
+                                x={teacherX}
+                                y={bubbleY - 19}
+                                textAnchor="middle"
+                                fill={isCompleted ? '#34D399' : '#FBBF24'}
+                                fontSize={9}
+                                fontWeight="800"
+                                fontFamily="var(--font-ui)"
+                              >
+                                {isCompleted ? '✓ Data Telah Diperoleh' : '💬 Klik / Tekan E untuk Bicara'}
+                              </text>
+                            </motion.g>
+                          </g>
+                        )}
                         </g>
                       )}
 
                       {/* (Classroom dialogue speech bubbles rendered in top-level Dialogue Overlay Layer below for correct z-index) */}
-
                     </g>
-
-                    {/* Perpustakaan Bookshelf Learning Station Hotspot */}
-                    {insideRoom.id === 'Perpustakaan' && (
-                      <g
-                        key="library-bookshelf-hotspot"
-                        id="hotspot-library-bookshelf"
-                        style={{ cursor: 'pointer' }}
-                        onClick={e => {
-                          e.stopPropagation()
-                          setShowLibraryBookModal(true)
-                        }}
-                      >
-                        {/* Interactive Click Hitbox */}
-                        <rect
-                          x={280 - 80}
-                          y={440 - 50}
-                          width={160}
-                          height={100}
-                          fill="transparent"
-                          pointerEvents="all"
-                        />
-                        <motion.circle
-                          cx={280}
-                          cy={440}
-                          r={24}
-                          fill="rgba(16, 185, 129, 0.2)"
-                          animate={{ scale: [1, 1.4, 1], fill: ['rgba(16, 185, 129, 0.2)', 'rgba(16, 185, 129, 0.45)', 'rgba(16, 185, 129, 0.2)'] }}
-                          transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
-                        />
-                        <circle cx={280} cy={440} r={14} fill="#10B981" stroke="#FFFFFF" strokeWidth={1.5} />
-                        <text x={280} y={444} textAnchor="middle" fontSize={11} style={{ userSelect: 'none', pointerEvents: 'none' }}>
-                          📖
-                        </text>
-                        <rect
-                          x={280 - 75}
-                          y={440 - 42}
-                          width={150}
-                          height={22}
-                          rx={6}
-                          fill="#2D1A12"
-                          stroke={nearLibraryShelf ? '#059669' : '#8C6239'}
-                          strokeWidth={nearLibraryShelf ? 2 : 1.5}
-                          style={{ filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.25))' }}
-                        />
-                        <text
-                          x={280}
-                          y={440 - 27}
-                          textAnchor="middle"
-                          fill="#362014"
-                          fontSize={9.5}
-                          fontWeight="900"
-                          fontFamily="var(--font-ui)"
-                        >
-                          {nearLibraryShelf ? '[ E ] 📖 Baca Buku Statistika' : '📖 Rak Buku Statistika'}
-                        </text>
-                      </g>
-                    )}
-
-                    {/* Lab Komputer Terminal Learning Station Hotspot */}
-                    {insideRoom.id === 'LabKomputer' && (
-                      <g
-                        key="lab-terminal-hotspot"
-                        id="hotspot-lab-terminal"
-                        style={{ cursor: 'pointer' }}
-                        onClick={e => {
-                          e.stopPropagation()
-                          setShowLabTerminalModal(true)
-                        }}
-                      >
-                        {/* Interactive Click Hitbox */}
-                        <rect
-                          x={300 - 85}
-                          y={440 - 50}
-                          width={170}
-                          height={100}
-                          fill="transparent"
-                          pointerEvents="all"
-                        />
-                        <motion.circle
-                          cx={300}
-                          cy={440}
-                          r={24}
-                          fill="rgba(56, 189, 248, 0.2)"
-                          animate={{ scale: [1, 1.4, 1], fill: ['rgba(56, 189, 248, 0.2)', 'rgba(56, 189, 248, 0.45)', 'rgba(56, 189, 248, 0.2)'] }}
-                          transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
-                        />
-                        <circle cx={300} cy={440} r={14} fill="#0284C7" stroke="#F59E0B" strokeWidth={1.5} />
-                        <text x={300} y={444} textAnchor="middle" fontSize={11} style={{ userSelect: 'none', pointerEvents: 'none' }}>
-                          💻
-                        </text>
-                        <rect
-                          x={300 - 80}
-                          y={440 - 42}
-                          width={160}
-                          height={22}
-                          rx={6}
-                          fill="#2D1A12"
-                          stroke={nearLabTerminal ? '#0284C7' : '#8C6239'}
-                          strokeWidth={nearLabTerminal ? 2 : 1.5}
-                          style={{ filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.25))' }}
-                        />
-                        <text
-                          x={300}
-                          y={440 - 27}
-                          textAnchor="middle"
-                          fill="#362014"
-                          fontSize={9.5}
-                          fontWeight="900"
-                          fontFamily="var(--font-ui)"
-                        >
-                          {nearLabTerminal ? '[ E ] 💻 Buka Terminal Digital' : '💻 Terminal Literasi Digital'}
-                        </text>
-                      </g>
-                    )}
-                  </g>
-                )
-              })() : currentZone === 'facility' ? (
+                  )
+                })() : currentZone === 'facility' ? (
                 FACILITY_DOORS.map(fac => {
                   const isNear = nearFacility?.id === fac.id
                   return (
@@ -2202,8 +2091,7 @@ export default function NPath({
                 ) : ((cinematicStage === 'sanction_received' || demoMode) ? doors.map(door => {
                   const isRG = door.id === 'RG'
                   const isDataComplete = collected.size >= TOTAL_N || savedClasses.size >= 4
-                  const isKittenFound = catQuestStage === 'kitten_rescued' || catQuestStage === 'completed'
-                  const isRGUnlocked = isRG && isDataComplete && isKittenFound
+                  const isRGUnlocked = isRG && isDataComplete
                   const isSaved = !isRG && savedClasses.has(door.id)
                   const open = isRG ? isRGUnlocked : unlocked.has(door.id)
                   const near = nearClass?.id === door.id
@@ -2221,13 +2109,7 @@ export default function NPath({
                             enterClassroom(door)
                           } else {
                             gameAudio.playError()
-                            if (!isDataComplete && !isKittenFound) {
-                              setRgLockedToast(`🔒 Ruang Guru Terkunci! Kumpulkan data 4 kelas (${collected.size}/${TOTAL_N}) dan temukan anak kucing yang hilang terlebih dahulu!`)
-                            } else if (!isKittenFound) {
-                              setRgLockedToast(`🔒 Ruang Guru Terkunci! Kamu harus menemukan anak kucing yang hilang terlebih dahulu sebelum melapor ke Pak Sutrisno!`)
-                            } else {
-                              setRgLockedToast(`🔒 Ruang Guru Terkunci! Kumpulkan seluruh data dari 4 kelas terlebih dahulu (${collected.size}/${TOTAL_N}).`)
-                            }
+                            setRgLockedToast(`🔒 Ruang Guru Terkunci! Kumpulkan seluruh data dari 4 kelas terlebih dahulu (${collected.size}/${TOTAL_N}).`)
                             setTimeout(() => setRgLockedToast(null), 2500)
                           }
                           return
@@ -3485,34 +3367,14 @@ export default function NPath({
                           }
 
                           if (insideRoom.id === 'LabKomputer') {
-                            if (nearLabTerminal && !showLabTerminalModal) {
-                              const buttonW = 210
-                              const buttonLeft = Math.max(camX + 10, Math.min(camX + VIEW_VW - buttonW - 10, charPos.x - buttonW / 2))
-                              const textX = buttonLeft + buttonW / 2
-                              return (
-                                <motion.g
-                                  key="btn-terminal-lab"
-                                  initial={{ opacity: 0, scale: 0.8, y: 5 }}
-                                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                                  exit={{ opacity: 0, scale: 0.8, y: 5 }}
-                                  onClick={() => setShowLabTerminalModal(true)}
-                                  whileHover={{ scale: 1.05 }}
-                                  whileTap={{ scale: 0.95 }}
-                                  style={{ cursor: 'pointer' }}
-                                >
-                                  <rect x={buttonLeft - 10} y={btnY} width={buttonW + 20} height={28} rx={6} fill="#2D1A12" stroke="#38BDF8" strokeWidth={2} style={{ filter: 'drop-shadow(0px 3px 8px rgba(0,0,0,0.6))' }} />
-                                  <text x={textX} y={btnTextY + 2} textAnchor="middle" dominantBaseline="middle" fill="#BAE6FD" fontSize={10.5} fontWeight="900" style={{ userSelect: 'none', pointerEvents: 'none', fontFamily: 'var(--font-ui)', letterSpacing: '0.4px' }}>
-                                    [ E ] 💻 Buka Terminal Digital
-                                  </text>
-                                </motion.g>
-                              )
-                            }
                             return null
                           }
 
-                                                    if (showWaliKelasPopup || teacherCutsceneStage !== null) return null
+                          if (!['A1', 'A2', 'B1', 'B2', 'RG'].includes(insideRoom.id)) return null
+                          if (showWaliKelasPopup || showPakReportModal || teacherCutsceneStage !== null) return null
                           const isSaved = savedClasses.has(insideRoom.id)
-                          const buttonW = 200
+                          const isRG = insideRoom.id === 'RG'
+                          const buttonW = isRG ? 220 : 200
                           const buttonLeft = Math.max(camX + 10, Math.min(camX + VIEW_VW - buttonW - 10, charPos.x - buttonW / 2))
                           const textX = buttonLeft + buttonW / 2
 
@@ -3523,7 +3385,9 @@ export default function NPath({
                               animate={{ opacity: 1, scale: 1, y: 0 }}
                               exit={{ opacity: 0, scale: 0.8, y: 5 }}
                               onClick={() => {
-                                if (isSaved) {
+                                if (isRG) {
+                                  handleInteractTeacher(insideRoom)
+                                } else if (isSaved) {
                                   setShowWaliKelasPopup(insideRoom)
                                 } else {
                                   handleInteractTeacher(insideRoom)
@@ -3540,7 +3404,7 @@ export default function NPath({
                                 height={28}
                                 rx={6}
                                 fill="#2D1A12"
-                                stroke={isSaved ? '#10B981' : '#F59E0B'}
+                                stroke={isRG ? '#F59E0B' : (isSaved ? '#10B981' : '#F59E0B')}
                                 strokeWidth={2}
                                 style={{ filter: 'drop-shadow(0px 3px 8px rgba(0,0,0,0.6))' }}
                               />
@@ -3549,12 +3413,12 @@ export default function NPath({
                                 y={btnTextY + 2}
                                 textAnchor="middle"
                                 dominantBaseline="middle"
-                                fill={isSaved ? '#34D399' : '#FEF3C7'}
+                                fill={isRG ? '#FEF3C7' : (isSaved ? '#34D399' : '#FEF3C7')}
                                 fontSize={10.5}
                                 fontWeight="900"
                                 style={{ userSelect: 'none', pointerEvents: 'none', fontFamily: 'var(--font-ui)', letterSpacing: '0.4px' }}
                               >
-                                {isSaved ? `✓ Buka Data ${insideRoom.label}` : `[ E ] 🗣️ Bicara dgn Wali Kelas`}
+                                {isRG ? `[ E ] 🗣️ Lapor ke Pak Sutrisno` : (isSaved ? `✓ Buka Data ${insideRoom.label}` : `[ E ] 🗣️ Bicara dgn Wali Kelas`)}
                               </text>
                             </motion.g>
                           )
@@ -3564,11 +3428,10 @@ export default function NPath({
                         {!insideRoom && currentZone === 'main' && nearClass && !activeClass && !nearDoor && (cinematicStage === 'sanction_received' || demoMode) && (() => {
                           const isRG = nearClass.id === 'RG'
                           const isDataComplete = collected.size >= TOTAL_N || savedClasses.size >= 4
-                          const isKittenFound = catQuestStage === 'kitten_rescued' || catQuestStage === 'completed'
-                          const isRGUnlocked = isRG && isDataComplete && isKittenFound
+                          const isRGUnlocked = isRG && isDataComplete
                           const isSaved = !isRG && savedClasses.has(nearClass.id)
                           const isUnlocked = isRG ? isRGUnlocked : unlocked.has(nearClass.id)
-                          const buttonW = isRG ? (isRGUnlocked ? 220 : 260) : isSaved ? 180 : 160
+                          const buttonW = isRG ? (isRGUnlocked ? 210 : 250) : isSaved ? 180 : 160
                           const buttonLeft = Math.max(camX + 10, Math.min(camX + VIEW_VW - buttonW - 10, charPos.x - buttonW / 2))
                           const textX = buttonLeft + buttonW / 2
                           return (
@@ -3583,13 +3446,7 @@ export default function NPath({
                                     enterClassroom(nearClass)
                                   } else {
                                     gameAudio.playError()
-                                    if (!isDataComplete && !isKittenFound) {
-                                      setRgLockedToast(`🔒 Ruang Guru Terkunci! Kumpulkan data 4 kelas (${Math.max(collected.size, savedClasses.size * 6)}/${TOTAL_N}) dan temukan anak kucing yang hilang terlebih dahulu!`)
-                                    } else if (!isKittenFound) {
-                                      setRgLockedToast(`🔒 Ruang Guru Terkunci! Kamu harus menemukan anak kucing yang hilang terlebih dahulu sebelum melapor ke Pak Sutrisno!`)
-                                    } else {
-                                      setRgLockedToast(`🔒 Ruang Guru Terkunci! Kumpulkan seluruh data dari 4 kelas terlebih dahulu (${Math.max(collected.size, savedClasses.size * 6)}/${TOTAL_N}).`)
-                                    }
+                                    setRgLockedToast(`🔒 Ruang Guru Terkunci! Kumpulkan seluruh data dari 4 kelas terlebih dahulu (${collected.size}/${TOTAL_N}).`)
                                     setTimeout(() => setRgLockedToast(null), 2500)
                                   }
                                   return
@@ -3624,15 +3481,11 @@ export default function NPath({
                               >
                                 {isRG
                                   ? isRGUnlocked
-                                    ? `[ E ] ✨ Masuk ke Ruang Guru ►`
-                                    : !isDataComplete && !isKittenFound
-                                      ? `[ E ] 🔒 Kumpulkan Data & Temukan Kucing`
-                                      : !isKittenFound
-                                        ? `[ E ] 🔒 Temukan Anak Kucing Terlebih Dahulu`
-                                        : `[ E ] 🔒 Ruang Guru Terkunci (${Math.max(collected.size, savedClasses.size * 6)}/${TOTAL_N})`
+                                    ? `[ E ] 🚪 Masuk ke Ruang Guru ➔`
+                                    : `[ E ] 🔒 Ruang Guru Terkunci (${collected.size}/${TOTAL_N})`
                                   : isSaved
                                     ? `✓ Data ${nearClass.label} Selesai`
-                                    : `[ E ] 🚪 Masuk ke ${nearClass.label} ►`}
+                                    : `[ E ] 🚪 Masuk ke ${nearClass.label} ➔`}
                               </text>
                             </motion.g>
                           )
@@ -4236,7 +4089,7 @@ export default function NPath({
                 onClick={handleExitClassroom}
                 style={{
                   position: 'absolute',
-                  bottom: 'clamp(14px, 3vh, 22px)',
+                  bottom: 'clamp(150px, 22vh, 180px)',
                   right: 'clamp(14px, 3vw, 22px)',
                   zIndex: 55,
                   background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.95) 0%, rgba(185, 28, 28, 0.98) 100%)',
@@ -4257,13 +4110,13 @@ export default function NPath({
                 }}
               >
                 <span style={{ fontSize: '16px' }}>🚪</span>
-                <span>Keluar Ruang {insideRoom.label}</span>
+                <span>{insideRoom.label.startsWith('Ruang') ? `Keluar ${insideRoom.label}` : `Keluar Ruang ${insideRoom.label}`}</span>
               </motion.button>
             )}
           </AnimatePresence>
 
-          {/* Joystick (Hidden when inside classrooms for conversation mode) */}
-          {(!insideRoom || !['A1', 'A2', 'B1', 'B2'].includes(insideRoom.id)) && (
+          {/* Joystick (Hidden when inside classrooms & Ruang Guru for conversation mode) */}
+          {(!insideRoom || !['A1', 'A2', 'B1', 'B2', 'RG'].includes(insideRoom.id)) && (
             <div style={{ position: 'absolute', bottom: 20, left: 20, zIndex: 50, touchAction: 'none' }}>
               <Joystick onDir={(x, y) => { const nextDir = { x, y }; dirRef.current = nextDir; setMoveDir(nextDir); }} />
             </div>
@@ -4330,11 +4183,13 @@ export default function NPath({
           <MissionCompleteModal
             stars={earnedStarsState}
             elapsedSeconds={elapsedSecondsState}
-            mistakeCount={mistakeCount}
+            rawElapsedSeconds={rawElapsedSecondsState}
+            mistakeCount={mistakeCountState}
+            penaltySeconds={penaltySecondsState}
             onFinish={() => {
               setShowMissionCompleteModal(false)
               if (onComplete) {
-                onComplete(earnedStarsState)
+                onComplete(earnedStarsState, elapsedSecondsState)
               }
             }}
           />
@@ -4392,6 +4247,7 @@ export default function NPath({
                 : 'reminder'
             }
             classLabel={motherCatPos.classLabel}
+            playerName={playerName}
             onAccept={() => {
               if (catQuestStage === 'cat_spawned') {
                 setCatQuestStage('quest_active')
@@ -4421,11 +4277,20 @@ export default function NPath({
           <KittenRescueModal
             locationLabel={kittenLocation.label}
             onRescue={() => {
+              catQuestStageR.current = 'kitten_rescued'
+              showKittenRescueModalR.current = false
               setCatQuestStage('kitten_rescued')
               setShowKittenRescueModal(false)
-              gameAudio.playCatPurr()
+              try {
+                gameAudio.playCatPurr()
+              } catch (e) {
+                console.warn('Audio playCatPurr error:', e)
+              }
             }}
-            onClose={() => setShowKittenRescueModal(false)}
+            onClose={() => {
+              showKittenRescueModalR.current = false
+              setShowKittenRescueModal(false)
+            }}
           />
         )}
       </AnimatePresence>

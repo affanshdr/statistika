@@ -20,6 +20,11 @@ const path = require('path');
 
   await page.goto('http://localhost:3000/siswa/game/level/1', { waitUntil: 'networkidle2' });
   
+  // Wait for GamePreloader to completely finish and unmount
+  await page.waitForFunction(() => !document.body.innerText.includes('MEMUAT INVESTIGASI'), { timeout: 25000 });
+  console.log('GamePreloader finished!');
+  await new Promise(r => setTimeout(r, 1000));
+  
   // Wait until NPath is fully mounted and has attached dev helpers
   await page.waitForFunction(() => typeof (window).__DEV_OPEN_WALI__ === 'function', { timeout: 20000 });
   console.log('NPath dev functions ready!');
@@ -29,9 +34,10 @@ const path = require('path');
     (window).__DEV_OPEN_WALI__('A2');
   });
 
-  await page.waitForSelector('[data-testid="wali-kelas-modal-content"]', { timeout: 10000 });
+  await page.waitForSelector('[data-testid="wali-kelas-modal-content"]', { timeout: 15000 });
   console.log('WaliKelasModal is open for A2!');
-  await new Promise(r => setTimeout(r, 600));
+  // Wait for any preloader exit fade animation to finish completely
+  await new Promise(r => setTimeout(r, 2500));
 
   const artifactDir = 'C:/Users/Asus_i7/.gemini/antigravity/brain/fa4932e4-58a9-4892-9eb7-cf6716c2899c';
 
@@ -40,16 +46,10 @@ const path = require('path');
   console.log('Saved vii_b_queue_initial.png');
 
   // 2. Toggle simulation
-  const buttons = await page.$$('button');
-  for (const b of buttons) {
-    const txt = await page.evaluate(el => el.textContent, b);
-    if (txt && txt.includes('Siswa #1 Keluar')) {
-      await b.click();
-      console.log('Clicked simulation toggle button!');
-      break;
-    }
-  }
-  await new Promise(r => setTimeout(r, 500));
+  await page.waitForSelector('[data-testid="btn-simulasi-antrean"]', { timeout: 5000 });
+  await page.$eval('[data-testid="btn-simulasi-antrean"]', el => el.click());
+  console.log('Clicked simulation toggle button via eval click!');
+  await new Promise(r => setTimeout(r, 1200));
   await page.screenshot({ path: path.join(artifactDir, 'vii_b_queue_simulated.png') });
   console.log('Saved vii_b_queue_simulated.png');
 

@@ -446,7 +446,19 @@ function MazeJoystick({ onDir }: { onDir: (x: number, y: number) => void }) {
 }
 
 // ─── Intro typewriter ─────────────────────────────────────────────────────────
-const INTRO_TEXT = 'Bagus, Stevunt! 24 data screen time siswa sudah kita kumpulkan. Sekarang, sebelum kita menyusun tabel distribusi frekuensi dan histogram di papan tulis, kamu wajib menentukan 3 komponen dasar terlebih dahulu: Rentang (R), Banyak Kelas (k), dan Panjang Kelas (p). Mari kita hitung bersama! 🧮'
+function resolvePlayerName(): string {
+  if (typeof window !== 'undefined') {
+    try {
+      const p = JSON.parse(localStorage.getItem('player') || '{}')
+      const name = p.username || p.displayName || p.name
+      if (name && name.toLowerCase() !== 'detektif' && name.toLowerCase() !== 'kamu') return name
+      const s = JSON.parse(localStorage.getItem('student') || '{}')
+      const sname = s.username || s.name || s.displayName
+      if (sname && sname.toLowerCase() !== 'detektif' && sname.toLowerCase() !== 'kamu') return sname
+    } catch {}
+  }
+  return 'Stevunt'
+}
 
 const INTRO_HIGHLIGHTS: Record<string, string> = {
   'Rentang (R)': 'var(--accent)',
@@ -459,6 +471,13 @@ function IntroTypewriter({ onDone }: { onDone: () => void }) {
   const [displayed, setDisplayed] = useState('')
   const indexRef = useRef(0)
   const onDoneRef = useRef(onDone)
+  const [playerName, setPlayerName] = useState(resolvePlayerName)
+
+  useEffect(() => {
+    setPlayerName(resolvePlayerName())
+  }, [])
+
+  const introText = `Bagus, ${playerName}! 24 data screen time siswa sudah kita kumpulkan. Sekarang, sebelum kita menyusun tabel distribusi frekuensi dan histogram di papan tulis, kamu wajib menentukan 3 komponen dasar terlebih dahulu: Rentang (R), Banyak Kelas (k), dan Panjang Kelas (p). Mari kita hitung bersama! 🧮`
 
   useEffect(() => { onDoneRef.current = onDone }, [onDone])
 
@@ -466,8 +485,8 @@ function IntroTypewriter({ onDone }: { onDone: () => void }) {
     setDisplayed('')
     indexRef.current = 0
     const id = setInterval(() => {
-      if (indexRef.current < INTRO_TEXT.length) {
-        setDisplayed(INTRO_TEXT.slice(0, indexRef.current + 1))
+      if (indexRef.current < introText.length) {
+        setDisplayed(introText.slice(0, indexRef.current + 1))
         indexRef.current++
       } else {
         clearInterval(id)
@@ -475,7 +494,7 @@ function IntroTypewriter({ onDone }: { onDone: () => void }) {
       }
     }, 20)
     return () => clearInterval(id)
-  }, [])
+  }, [introText])
 
   // Highlight keywords in displayed text
   const parts: React.ReactNode[] = []

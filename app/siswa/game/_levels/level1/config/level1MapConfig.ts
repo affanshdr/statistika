@@ -329,8 +329,8 @@ export const LEVEL1_MAPS: Record<string, MapConfig> = {
     teacher: {
       name: 'Pak Sutrisno (Guru BK & Kedisiplinan)',
       x: 520,
-      y: 595,
-      size: 260,
+      y: 582,
+      size: 405,
       flipX: true,
       spriteUrl: '/Assets/Character/pak Sutrisno-iso_idle_right-trimmed.png',
       cols: 5,
@@ -338,8 +338,8 @@ export const LEVEL1_MAPS: Record<string, MapConfig> = {
       totalFrames: 20,
       pingPong: false,
       speedMs: 120,
-      hotspotW: 140,
-      hotspotH: 260
+      hotspotW: 160,
+      hotspotH: 300
     },
     isWalkable: (x, y) => checkRuangGuruWalkable(x, y)
   },

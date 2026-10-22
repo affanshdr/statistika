@@ -7,19 +7,34 @@ import { gameAudio } from '@/lib/utils/gameAudio'
 export interface MissionCompleteModalProps {
   stars: number
   elapsedSeconds: number
+  rawElapsedSeconds?: number
   mistakeCount?: number
+  penaltySeconds?: number
   onFinish: () => void
 }
 
 export default function MissionCompleteModal({
   stars,
   elapsedSeconds,
-  mistakeCount: _mistakeCount,
+  rawElapsedSeconds,
+  mistakeCount = 0,
+  penaltySeconds,
   onFinish,
 }: MissionCompleteModalProps) {
-  const minutes = Math.floor(elapsedSeconds / 60)
-  const seconds = elapsedSeconds % 60
-  const formattedTime = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
+  const mistakes = mistakeCount
+  const penalty = penaltySeconds ?? (mistakes * 30)
+  const rawSeconds = rawElapsedSeconds ?? Math.max(0, elapsedSeconds - penalty)
+  const totalSeconds = elapsedSeconds
+
+  const rawMin = Math.floor(rawSeconds / 60)
+  const rawSec = rawSeconds % 60
+  const formattedRawTime = `${String(rawMin).padStart(2, '0')}:${String(rawSec).padStart(2, '0')}`
+
+  const totalMin = Math.floor(totalSeconds / 60)
+  const totalSec = totalSeconds % 60
+  const formattedTotalTime = `${String(totalMin).padStart(2, '0')}:${String(totalSec).padStart(2, '0')}`
+
+  const starLostDueToPenalty = rawSeconds <= 360 && totalSeconds > 360
 
   const ratingInfo = useMemo(() => {
     if (stars === 3) {
@@ -162,41 +177,98 @@ export default function MissionCompleteModal({
           </div>
         </motion.div>
 
-        {/* Performance Statistic: Waktu Penyelesaian */}
+        {/* Performance Statistics Grid: Waktu & Penalti */}
         <div style={{
           background: '#FFFDF9',
           border: '1.5px solid #D6C29E',
-          borderRadius: '12px',
-          padding: '11px 18px',
+          borderRadius: '14px',
+          padding: '12px 14px',
           marginBottom: '16px',
           display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
+          flexDirection: 'column',
+          gap: '8px',
           boxShadow: '0 2px 6px rgba(140, 98, 57, 0.08)',
+          textAlign: 'left',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', textAlign: 'left' }}>
-            <span style={{ fontSize: '24px' }}>⏱️</span>
-            <div>
-              <div style={{ fontSize: '10.5px', color: '#8C6239', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                Waktu Penyelesaian
+          {/* Row 1: Waktu Murni & Sanksi Kesalahan */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+            {/* Waktu Murni */}
+            <div style={{
+              background: 'rgba(140, 98, 57, 0.05)',
+              borderRadius: '10px',
+              padding: '8px 10px',
+              border: '1px solid rgba(140, 98, 57, 0.15)',
+            }}>
+              <div style={{ fontSize: '9.5px', color: '#8C6239', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.4px' }}>
+                ⏱️ Waktu Pengerjaan
               </div>
-              <div style={{ fontSize: '11px', color: '#92400E', fontWeight: 700 }}>
-                {stars === 3 ? 'Kategori Cepat (< 06:00)' : stars === 2 ? 'Kategori Standar (06:00 - 10:00)' : 'Kategori Santai (> 10:00)'}
+              <div style={{ fontSize: '16px', fontWeight: 900, color: '#3E2723', fontFamily: 'monospace', marginTop: '2px' }}>
+                {formattedRawTime}
+              </div>
+            </div>
+
+            {/* Sanksi Kesalahan */}
+            <div style={{
+              background: mistakes > 0 ? 'rgba(239, 68, 68, 0.08)' : 'rgba(16, 185, 129, 0.08)',
+              borderRadius: '10px',
+              padding: '8px 10px',
+              border: `1px solid ${mistakes > 0 ? 'rgba(239, 68, 68, 0.3)' : 'rgba(16, 185, 129, 0.3)'}`,
+            }}>
+              <div style={{ fontSize: '9.5px', color: mistakes > 0 ? '#B91C1C' : '#047857', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.4px' }}>
+                {mistakes > 0 ? '⚠️ Sanksi Kesalahan' : '✨ Bebas Kesalahan'}
+              </div>
+              <div style={{ fontSize: '13.5px', fontWeight: 900, color: mistakes > 0 ? '#DC2626' : '#059669', marginTop: '2px' }}>
+                {mistakes > 0 ? `${mistakes}x Salah (+${penalty}s)` : '0x Salah (+0s)'}
               </div>
             </div>
           </div>
+
+          {/* Row 2: Total Waktu Akhir (Digunakan untuk Penentuan Bintang) */}
           <div style={{
-            fontSize: '22px',
-            fontWeight: 900,
-            color: '#3E2723',
-            fontFamily: 'var(--font-mono, monospace)',
-            background: 'rgba(245, 158, 11, 0.12)',
-            padding: '4px 14px',
-            borderRadius: '8px',
-            border: '1.5px solid rgba(245, 158, 11, 0.35)',
+            background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(217, 119, 6, 0.14) 100%)',
+            border: '1.5px solid #F59E0B',
+            borderRadius: '10px',
+            padding: '8px 12px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
           }}>
-            {formattedTime}
+            <div>
+              <div style={{ fontSize: '10px', color: '#92400E', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                🏁 Total Waktu Akhir
+              </div>
+              <div style={{ fontSize: '10.5px', color: '#B45309', fontWeight: 700 }}>
+                {stars === 3 ? 'Kategori Cepat (< 06:00)' : stars === 2 ? 'Kategori Standar (06:00 - 10:00)' : 'Kategori Santai (> 10:00)'}
+              </div>
+            </div>
+            <div style={{
+              fontSize: '18px',
+              fontWeight: 900,
+              color: '#78350F',
+              fontFamily: 'monospace',
+              background: '#FFFDF9',
+              padding: '3px 10px',
+              borderRadius: '8px',
+              border: '1px solid rgba(245, 158, 11, 0.4)',
+            }}>
+              {formattedTotalTime}
+            </div>
           </div>
+
+          {/* Optional notice if penalty dropped rating from 3 to 2 stars */}
+          {starLostDueToPenalty && (
+            <div style={{
+              fontSize: '10.5px',
+              fontWeight: 800,
+              color: '#B91C1C',
+              background: 'rgba(239, 68, 68, 0.1)',
+              padding: '4px 8px',
+              borderRadius: '6px',
+              textAlign: 'center',
+            }}>
+              ⚠️ Penalti waktu +{penalty}s membuat total waktu &gt; 06:00 (bintang 2)
+            </div>
+          )}
         </div>
 
         {/* Result Status Badge */}

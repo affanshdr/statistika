@@ -33,9 +33,20 @@ export default function VerificationScreen({ onCorrect, onWrong, guidedMode }: V
   const [isWrong, setIsWrong] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const [showDira, setShowDira] = useState(true)
-  const [diraMsg, setDiraMsg] = useState(
-    'Nah, Stevunt, kamu sudah melihat bentuk histogram dan distribusinya. Sekarang bandingkan dengan postingan viral medsos tadi. Berdasarkan analisis datamu, apakah klaim tersebut Benar atau Hoaks / Misleading? Tetapkan kesimpulanmu!'
-  )
+  const [diraMsg, setDiraMsg] = useState(() => {
+    let name = 'Stevunt'
+    if (typeof window !== 'undefined') {
+      try {
+        const p = JSON.parse(localStorage.getItem('player') || '{}')
+        const pname = p.username || p.displayName || p.name
+        if (pname && pname.toLowerCase() !== 'detektif') name = pname
+        const s = JSON.parse(localStorage.getItem('student') || '{}')
+        const sname = s.username || s.name || s.displayName
+        if (sname && sname.toLowerCase() !== 'detektif') name = sname
+      } catch {}
+    }
+    return `Nah, ${name}, kamu sudah melihat bentuk histogram dan distribusinya. Sekarang bandingkan dengan postingan viral medsos tadi. Berdasarkan analisis datamu, apakah klaim tersebut Benar atau Hoaks / Misleading? Tetapkan kesimpulanmu!`
+  })
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768)

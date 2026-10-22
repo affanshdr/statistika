@@ -592,42 +592,50 @@ class GameAudioService {
 
   // 8. Cute Cat Meow Sound Effect
   public playCatMeow() {
-    const ctx = this.getContext()
-    if (!ctx) return
-    const now = ctx.currentTime
-    const osc = ctx.createOscillator()
-    const gain = ctx.createGain()
-    osc.type = 'sine'
-    osc.frequency.setValueAtTime(460, now)
-    osc.frequency.exponentialRampToValueAtTime(820, now + 0.12)
-    osc.frequency.exponentialRampToValueAtTime(520, now + 0.35)
-    gain.gain.setValueAtTime(0.01, now)
-    gain.gain.linearRampToValueAtTime(0.12, now + 0.08)
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.38)
-    osc.connect(gain)
-    gain.connect(ctx.destination)
-    osc.start(now)
-    osc.stop(now + 0.4)
+    try {
+      const ctx = this.getContext()
+      if (!ctx) return
+      const now = ctx.currentTime
+      const osc = ctx.createOscillator()
+      const gain = ctx.createGain()
+      osc.type = 'sine'
+      osc.frequency.setValueAtTime(460, now)
+      osc.frequency.exponentialRampToValueAtTime(820, now + 0.12)
+      osc.frequency.exponentialRampToValueAtTime(520, now + 0.35)
+      gain.gain.setValueAtTime(0.01, now)
+      gain.gain.linearRampToValueAtTime(0.12, now + 0.08)
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.38)
+      osc.connect(gain)
+      gain.connect(ctx.destination)
+      osc.start(now)
+      osc.stop(now + 0.4)
+    } catch (e) {
+      console.warn('Audio playCatMeow error:', e)
+    }
   }
 
   // 9. Happy Cat Purr Jingle
   public playCatPurr() {
-    const ctx = this.getContext()
-    if (!ctx) return
-    const now = ctx.currentTime
-    const notes = [587.33, 659.25, 880, 1046.5] // D5, E5, A5, C6
-    notes.forEach((freq, idx) => {
-      const osc = ctx.createOscillator()
-      const gain = ctx.createGain()
-      osc.type = 'triangle'
-      osc.frequency.setValueAtTime(freq, now + idx * 0.06)
-      gain.gain.setValueAtTime(0.09, now + idx * 0.06)
-      gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.06 + 0.22)
-      osc.connect(gain)
-      gain.connect(ctx.destination)
-      osc.start(now + idx * 0.06)
-      osc.stop(now + idx * 0.06 + 0.24)
-    })
+    try {
+      const ctx = this.getContext()
+      if (!ctx) return
+      const now = ctx.currentTime
+      const notes = [587.33, 659.25, 880, 1046.5] // D5, E5, A5, C6
+      notes.forEach((freq, idx) => {
+        const osc = ctx.createOscillator()
+        const gain = ctx.createGain()
+        osc.type = 'triangle'
+        osc.frequency.setValueAtTime(freq, now + idx * 0.06)
+        gain.gain.setValueAtTime(0.09, now + idx * 0.06)
+        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.06 + 0.22)
+        osc.connect(gain)
+        gain.connect(ctx.destination)
+        osc.start(now + idx * 0.06)
+        osc.stop(now + idx * 0.06 + 0.24)
+      })
+    } catch (e) {
+      console.warn('Audio playCatPurr error:', e)
+    }
   }
 
   // 10. RPG Dialog Blip

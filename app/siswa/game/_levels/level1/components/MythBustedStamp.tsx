@@ -212,7 +212,7 @@ export default function MythBustedStamp({ onComplete }: MythBustedStampProps) {
                 }}
               >
                 <p style={{ margin: '0 0 8px', fontSize: '15px', fontWeight: 900, color: '#362014' }}>
-                  🎉 &quot;Kerja luar biasa, Stevunt!
+                  🎉 &quot;Kerja luar biasa, {typeof window !== 'undefined' ? (JSON.parse(localStorage.getItem('player') || '{}').username || JSON.parse(localStorage.getItem('student') || '{}').username || 'Detektif') : 'Detektif'}!
                 </p>
                 <p style={{ margin: '0 0 8px', fontSize: '13px', color: '#5C3D1E', lineHeight: 1.6, fontWeight: 600 }}>
                   Kamu telah berhasil membuktikan secara objektif bahwa postingan viral tersebut keliru! Data empiris kita menunjukkan mayoritas siswa menggunakan gawai secara wajar, dan angka tinggi hanya disebabkan oleh segelintir data pencilan (outlier).

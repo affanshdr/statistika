@@ -10,6 +10,7 @@ import StageTutorialModal from './StageTutorialModal'
 import { SortToken, useFitGrid, STAGE_TUTORIALS } from './corkboardData'
 
 export default function PakReportModal({ dataset, onProceed }: { dataset: number[]; onProceed: () => void }) {
+  const incrementMistake = useGameStore(s => s.incrementMistake)
   const [stage, setStage] = useState<'sort' | 'modus' | 'median' | 'mean'>('sort')
   const [isSorted, setIsSorted] = useState<boolean>(false)
   const [seenTutorials, setSeenTutorials] = useState<Record<string, boolean>>({})
@@ -99,6 +100,7 @@ export default function PakReportModal({ dataset, onProceed }: { dataset: number
     } else {
       setSortIsCorrect(false)
       gameAudio.playError()
+      incrementMistake()
     }
   }
 
@@ -405,6 +407,7 @@ export default function PakReportModal({ dataset, onProceed }: { dataset: number
       setModeIsCorrect(false)
       setShakeMode(prev => prev + 1)
       gameAudio.playError()
+      incrementMistake()
     }
   }
 
@@ -417,6 +420,7 @@ export default function PakReportModal({ dataset, onProceed }: { dataset: number
       setMedianIsCorrect(false)
       setShakeMedian(prev => prev + 1)
       gameAudio.playError()
+      incrementMistake()
     }
   }
 
@@ -429,6 +433,7 @@ export default function PakReportModal({ dataset, onProceed }: { dataset: number
       setMeanIsCorrect(false)
       setShakeMean(prev => prev + 1)
       gameAudio.playError()
+      incrementMistake()
     }
   }
 

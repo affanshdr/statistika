@@ -7,6 +7,7 @@ import { useGameStore } from '@/lib/store/gameStore'
 import { gameAudio } from '@/lib/utils/gameAudio'
 import MarbleBowlsChallenge from './MarbleBowlsChallenge'
 import StudentQueueChallenge from './StudentQueueChallenge'
+import SeesawWeightChallenge from './SeesawWeightChallenge'
 
 interface WaliKelasModalProps {
   door: QuizDoor
@@ -58,27 +59,16 @@ function generatePreLearningQuiz(doorId: string, students: { name: string; time:
   }
 
   if (doorId === 'B1') {
-    // ── KELAS VIII-A (4 Siswa): Menjumlahkan Seluruh Nilai Data (Sigma / Σx) ──
-    const sum = times.reduce((a, b) => a + b, 0)
-    const formulaStr = times.join(' + ')
-
-    const pool = new Set<number>([sum])
-    const candidateOffsets = [2, -2, 3, -3, 4]
-    for (const offset of candidateOffsets) {
-      if (pool.size >= 4) break
-      const cand = sum + offset
-      if (cand > 0 && !pool.has(cand)) pool.add(cand)
-    }
-
+    // ── KELAS VIII-A (Jungkit-Jangkit): Urutan Berat 5 Anak ──
     return {
-      conceptTag: 'PRE-PEMBELAJARAN 3: Jumlah Seluruh Data (Sigma / Σx)',
-      introQuote: 'Bagus sudah datang, tapi selesaikan dulu teka-teki Ibu sebelum membawa data ini!',
-      questionText: `Karena sampel di kelas ini hanya 4 siswa, berapa jumlah total waktu layar jika ke-4 siswa digabungkan? (${formulaStr} = ?)`,
-      correctAnswer: sum,
-      unit: 'jam',
-      options: Array.from(pool).sort((a, b) => a - b),
-      hintText: `Jumlahkan keempat angka jam waktu layar siswa: ${formulaStr}.`,
-      explanation: `Luar biasa! Total seluruh nilai data (Σx) adalah ${sum} jam. Nilai total ini adalah modal penting sebelum kita mempelajari rata-rata!`,
+      conceptTag: 'Tantangan Logika: Jungkit-Jangkit',
+      introQuote: 'Selesaikan tantangan logika jungkit-jangkit di bawah ini untuk mengambil data kelas!',
+      questionText: 'Jika kelima anak tersebut diurutkan dari yang paling berat ke paling ringan, manakah urutan yang pasti BENAR?',
+      correctAnswer: 1, // A. E, B, C, A, D
+      unit: '',
+      options: [1, 2, 3, 4],
+      hintText: 'Perhatikan kondisi seimbang A+B=C+D, pertukaran A dan C, serta perbandingan E dan C.',
+      explanation: 'Tepat sekali! Urutan dari yang paling berat ke paling ringan adalah E, B, C, A, D!',
     }
   }
 
@@ -111,6 +101,7 @@ function generatePreLearningQuiz(doorId: string, students: { name: string; time:
 
 export default function WaliKelasModal({ door, studentsData, onCollectData, onClose }: WaliKelasModalProps) {
   const level1Dataset = useGameStore(s => s.level1Dataset)
+  const incrementMistake = useGameStore(s => s.incrementMistake)
   const currentStudents = studentsData || getClassStudents(level1Dataset)
   const info = currentStudents[door.id] || CLASS_STUDENTS[door.id]
 
@@ -126,6 +117,14 @@ export default function WaliKelasModal({ door, studentsData, onCollectData, onCl
   const [isLocked, setIsLocked] = useState<boolean>(false)
   const [cooldownRemaining, setCooldownRemaining] = useState<number>(0)
   const [wrongAttempts, setWrongAttempts] = useState<number>(0)
+  const [isCompact, setIsCompact] = useState<boolean>(false)
+
+  useEffect(() => {
+    const check = () => setIsCompact(typeof window !== 'undefined' && window.innerHeight <= 520)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
 
   // Initialize and reshuffle options when quiz loads
   useEffect(() => {
@@ -153,6 +152,7 @@ export default function WaliKelasModal({ door, studentsData, onCollectData, onCl
       setShake(prev => prev + 1)
       setWrongAttempts(prev => prev + 1)
       gameAudio.playError()
+      incrementMistake()
 
       // Anti-spam 2-second cooldown penalty
       setCooldownRemaining(2)
@@ -206,7 +206,7 @@ export default function WaliKelasModal({ door, studentsData, onCollectData, onCl
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: 'clamp(8px, 2vh, 20px)',
+        padding: isCompact ? '4px 8px' : 'clamp(8px, 2vh, 20px)',
         boxSizing: 'border-box',
       }}
     >
@@ -217,9 +217,9 @@ export default function WaliKelasModal({ door, studentsData, onCollectData, onCl
         transition={{ type: 'spring', damping: 24, stiffness: 350 }}
         data-testid="wali-kelas-modal-content"
         style={{
-          maxWidth: (door.id === 'A1' || door.id === 'A2') ? 620 : 540,
+          maxWidth: isCompact ? 660 : ((door.id === 'A1' || door.id === 'A2' || door.id === 'B1') ? 620 : 540),
           width: '100%',
-          maxHeight: '94vh',
+          maxHeight: isCompact ? '98vh' : '94vh',
           overflowY: 'auto',
           position: 'relative',
           background: door.id === 'A1'
@@ -228,11 +228,15 @@ export default function WaliKelasModal({ door, studentsData, onCollectData, onCl
           border: door.id === 'A1'
             ? '3px solid #8D5428'
             : '2.5px solid #F59E0B',
-          borderRadius: 'clamp(14px, 2vw, 22px)',
-          padding: 'clamp(14px, 2vh, 22px) clamp(16px, 2.5vw, 24px)',
+          borderRadius: isCompact ? '12px' : 'clamp(14px, 2vw, 22px)',
+          padding: isCompact
+            ? '6px 12px'
+            : ((door.id === 'A1' || door.id === 'A2' || door.id === 'B1')
+              ? 'clamp(10px, 1.2vh, 14px) clamp(14px, 1.8vw, 20px)'
+              : 'clamp(14px, 2vh, 22px) clamp(16px, 2.5vw, 24px)'),
           display: 'flex',
           flexDirection: 'column',
-          gap: 'clamp(10px, 1.4vh, 14px)',
+          gap: isCompact ? '4px' : ((door.id === 'A1' || door.id === 'A2' || door.id === 'B1') ? '8px' : 'clamp(10px, 1.4vh, 14px)'),
           boxShadow: door.id === 'A1'
             ? '0 24px 60px rgba(0, 0, 0, 0.85), inset 0 0 35px rgba(0, 0, 0, 0.7), inset 0 0 0 2px rgba(141, 84, 40, 0.35)'
             : '0 20px 50px rgba(0, 0, 0, 0.65), inset 0 0 25px rgba(180, 140, 80, 0.25)',
@@ -249,14 +253,14 @@ export default function WaliKelasModal({ door, studentsData, onCollectData, onCl
         {/* Header: Class Label + Wali Kelas */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '6px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            {door.id === 'A1' || door.id === 'A2' ? (
+            {door.id === 'A1' || door.id === 'A2' || door.id === 'B1' ? (
               <span style={{
-                fontSize: 'clamp(11.5px, 1.3vw, 13px)',
+                fontSize: isCompact ? '11px' : 'clamp(11.5px, 1.3vw, 13px)',
                 fontWeight: 900,
                 color: '#FDE047',
                 background: 'rgba(245, 158, 11, 0.15)',
                 border: '1.5px solid #F59E0B',
-                padding: '4px 14px',
+                padding: isCompact ? '2px 10px' : '4px 14px',
                 borderRadius: '999px',
                 display: 'flex',
                 alignItems: 'center',
@@ -264,9 +268,9 @@ export default function WaliKelasModal({ door, studentsData, onCollectData, onCl
               }}>
                 <span>🏫</span>
                 <span>{door.label}</span>
-                {door.id === 'A2' && (
-                  <span style={{ color: '#E2E8F0', fontWeight: 800, fontSize: '11px' }}>
-                    ({info.teacher})
+                {(door.id === 'A2' || door.id === 'B1') && (
+                  <span style={{ color: '#E2E8F0', fontWeight: 800, fontSize: isCompact ? '9.5px' : '11px' }}>
+                    ({info.teacher ? info.teacher.replace(/\s*\([^)]*\)/g, '').trim() : ''})
                   </span>
                 )}
               </span>
@@ -291,7 +295,7 @@ export default function WaliKelasModal({ door, studentsData, onCollectData, onCl
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            {door.id !== 'A1' && door.id !== 'A2' && (
+            {door.id !== 'A1' && door.id !== 'A2' && door.id !== 'B1' && (
               <span style={{
                 fontSize: 'clamp(10px, 1.2vw, 11.5px)',
                 fontWeight: 800,
@@ -307,8 +311,8 @@ export default function WaliKelasModal({ door, studentsData, onCollectData, onCl
           </div>
         </div>
 
-        {/* 1. Preview Tabel Data Siswa Kelas (Disembunyikan pada Kelas VII-A & VII-B agar ringkas dan fokus visual) */}
-        {door.id !== 'A1' && door.id !== 'A2' && (
+        {/* 1. Preview Tabel Data Siswa Kelas (Disembunyikan pada Kelas VII-A, VII-B, & VIII-A agar ringkas dan fokus visual) */}
+        {door.id !== 'A1' && door.id !== 'A2' && door.id !== 'B1' && (
         <div style={{
           background: 'rgba(255, 255, 255, 0.05)',
           border: '1.5px solid #F59E0B',
@@ -380,15 +384,15 @@ export default function WaliKelasModal({ door, studentsData, onCollectData, onCl
             ? 'linear-gradient(160deg, rgba(14, 38, 26, 0.92) 0%, rgba(8, 22, 15, 0.96) 100%)'
             : 'linear-gradient(145deg, rgba(35, 18, 12, 0.95) 0%, rgba(20, 10, 5, 0.98) 100%)',
           border: '1.8px solid #F59E0B',
-          borderRadius: '14px',
-          padding: 'clamp(10px, 1.4vh, 14px)',
+          borderRadius: isCompact ? '10px' : '14px',
+          padding: isCompact ? '5px 10px' : 'clamp(10px, 1.4vh, 14px)',
           display: 'flex',
           flexDirection: 'column',
-          gap: 'clamp(6px, 1vh, 10px)',
+          gap: isCompact ? '4px' : 'clamp(6px, 1vh, 10px)',
           boxShadow: '0 8px 24px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(251, 191, 36, 0.25)',
         }}>
-          {/* Concept Header Badge (Disembunyikan pada Kelas VII-A & VII-B agar modal minimalis tanpa noise) */}
-          {door.id !== 'A1' && door.id !== 'A2' && (
+          {/* Concept Header Badge (Disembunyikan pada Kelas VII-A, VII-B, & VIII-A agar modal minimalis tanpa noise) */}
+          {door.id !== 'A1' && door.id !== 'A2' && door.id !== 'B1' && (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '4px' }}>
               <span style={{
                 fontSize: 'clamp(8.5px, 1vw, 10px)',
@@ -422,6 +426,17 @@ export default function WaliKelasModal({ door, studentsData, onCollectData, onCl
                 setIsLocked(false)
               }}
               isSolved={isCorrect === true}
+              isCompact={isCompact}
+            />
+          ) : door.id === 'B1' ? (
+            <SeesawWeightChallenge
+              onSuccess={() => {
+                setIsCorrect(true)
+                setSelectedAnswer(1) // A. E, B, C, A, D
+                setIsLocked(false)
+              }}
+              isSolved={isCorrect === true}
+              isCompact={isCompact}
             />
           ) : (
             <>
@@ -520,8 +535,8 @@ export default function WaliKelasModal({ door, studentsData, onCollectData, onCl
                   fontWeight: 800,
                 }}
               >
-                <span>⏳ Waktu berpikir: <strong style={{ color: '#FCD34D', fontSize: '13px' }}>{cooldownRemaining}s</strong></span>
-                <span style={{ color: '#FEF3C7', opacity: 0.9 }}>• Perhatikan data dengan cermat sebelum menjawab!</span>
+                <span>⚠️ <strong>Jawaban Salah (+30s Penalti Waktu)</strong></span>
+                <span style={{ color: '#FEF3C7', opacity: 0.9 }}>• Tunggu {cooldownRemaining}s sebelum mencoba lagi</span>
               </motion.div>
             )}
 
@@ -547,7 +562,7 @@ export default function WaliKelasModal({ door, studentsData, onCollectData, onCl
               </motion.div>
             )}
 
-            {isCorrect === true && door.id !== 'A1' && door.id !== 'A2' && (
+            {isCorrect === true && door.id !== 'A1' && door.id !== 'A2' && door.id !== 'B1' && (
               <motion.div
                 initial={{ opacity: 0, scale: 0.96 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -569,18 +584,18 @@ export default function WaliKelasModal({ door, studentsData, onCollectData, onCl
         </div>
 
         {/* 3. Action Buttons */}
-        <div style={{ display: 'flex', gap: '10px', marginTop: '2px' }}>
+        <div style={{ display: 'flex', gap: isCompact ? '6px' : '10px', marginTop: '2px' }}>
           <button
             data-testid="btn-close-wali-kelas"
             onClick={onClose}
             style={{
               flex: 1,
-              padding: 'clamp(8px, 1.2vh, 12px) 14px',
-              borderRadius: '12px',
+              padding: isCompact ? '5px 10px' : 'clamp(8px, 1.2vh, 12px) 14px',
+              borderRadius: isCompact ? '8px' : '12px',
               border: '1.5px solid #F59E0B',
               background: '#3D2419',
               color: '#FEF3C7',
-              fontSize: 'clamp(10.5px, 1.2vw, 12.5px)',
+              fontSize: isCompact ? '10.5px' : 'clamp(10.5px, 1.2vw, 12.5px)',
               fontWeight: 800,
               cursor: 'pointer',
               transition: 'all 0.15s',
@@ -600,14 +615,14 @@ export default function WaliKelasModal({ door, studentsData, onCollectData, onCl
             }}
             style={{
               flex: 1.8,
-              padding: 'clamp(8px, 1.2vh, 12px) 16px',
-              borderRadius: '12px',
+              padding: isCompact ? '5px 12px' : 'clamp(8px, 1.2vh, 12px) 16px',
+              borderRadius: isCompact ? '8px' : '12px',
               border: isCorrect === true ? '1.5px solid #34D399' : '1.5px solid rgba(245, 158, 11, 0.25)',
               background: isCorrect === true
                 ? 'linear-gradient(135deg, #059669 0%, #0284C7 100%)'
                 : 'rgba(255, 255, 255, 0.05)',
               color: isCorrect === true ? '#FFFFFF' : '#A8A29E',
-              fontSize: 'clamp(11px, 1.2vw, 13px)',
+              fontSize: isCompact ? '10.5px' : 'clamp(11px, 1.2vw, 13px)',
               fontWeight: 900,
               cursor: isCorrect === true ? 'pointer' : 'not-allowed',
               boxShadow: isCorrect === true ? '0 6px 20px rgba(5, 150, 105, 0.4)' : 'none',

@@ -139,23 +139,26 @@ export default function Level1Main({
         <NPath
           studentName={studentName}
           isFD={false}
-          onComplete={async (starsEarned: number = 3) => {
+          onComplete={async (starsEarned: number = 3, durationSeconds?: number) => {
             setVerdict('MISLEADING')
             addXP(80, 'Menyelesaikan Analisis Ukuran Pemusatan Data', 1)
             awardBadge(BADGES.CRITICAL)
             awardBadge(BADGES.MYTHBUST)
-            if (mistakeCount === 0) awardBadge(BADGES.PERFECT)
+            const currentMistakes = useGameStore.getState().mistakeCount
+            if (currentMistakes === 0) awardBadge(BADGES.PERFECT)
             setLevelStars(1, starsEarned)
             completeLevel(1)
+
+            const totalDuration = durationSeconds ?? (sessionStartTime ? Math.round((Date.now() - sessionStartTime) / 1000) : 180)
 
             // Simpan progres ke Local Storage & Cloud Supabase
             await savePlayerProgressToCloud({
               levelId: 1,
               stars: starsEarned,
               xpEarned: 80,
-              durationSeconds: sessionStartTime ? Math.round((Date.now() - sessionStartTime) / 1000) : 180,
+              durationSeconds: totalDuration,
               livesRemaining: lives,
-              mistakeCount,
+              mistakeCount: currentMistakes,
               verdictAnswer: 'MISLEADING',
               isCorrect: true,
             })
