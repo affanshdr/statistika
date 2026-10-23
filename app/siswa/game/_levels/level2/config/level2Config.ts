@@ -34,6 +34,7 @@ export type Level2State =
   | 'MISSION_QUARTILES'
   | 'MISSION_IQR'
   | 'MISSION_QD'
+  | 'FINAL_EVALUATION'
   | 'FINAL_REPORT'
   | 'LEVEL_COMPLETE'
 

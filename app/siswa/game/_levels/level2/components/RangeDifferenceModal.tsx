@@ -80,11 +80,13 @@ export default function RangeDifferenceModal({
         style={{
           width: '100%',
           maxWidth: '520px',
+          maxHeight: 'min(94vh, 480px)',
+          overflowY: 'auto',
           background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.98) 0%, rgba(10, 15, 26, 0.99) 100%)',
           border: '2px solid #F59E0B',
           borderRadius: '24px',
           boxShadow: '0 20px 50px rgba(0,0,0,0.85), 0 0 30px rgba(245, 158, 11, 0.35)',
-          padding: '24px 28px',
+          padding: 'clamp(12px, 2.5vh, 22px) clamp(14px, 2.5vw, 28px)',
           color: '#FFFFFF',
         }}
       >

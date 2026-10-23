@@ -579,22 +579,7 @@ export default function Level2ClassroomWalk({
             </button>
           )}
 
-          <button
-            onClick={() => {
-              playSound('whistle')
-              onProceedToField()
-            }}
-            className="astu-menu-btn"
-            style={{
-              padding: '7px 14px',
-              fontSize: 11.5,
-              background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.25) 0%, rgba(14, 131, 136, 0.35) 100%)',
-              border: '1.5px solid #38BDF8',
-              color: '#38BDF8',
-            }}
-          >
-            Lewati ke Lapangan ⏩
-          </button>
+          
         </div>
       </div>
 
@@ -1137,12 +1122,12 @@ export default function Level2ClassroomWalk({
               style={{
                 maxWidth: 620,
                 width: '100%',
-                maxHeight: 'calc(100vh - 40px)',
+                maxHeight: 'min(94vh, 520px)',
                 overflowY: 'auto',
-                padding: '24px 22px',
+                padding: 'clamp(12px, 2.5vh, 22px) clamp(14px, 2vw, 22px)',
                 display: 'flex',
                 flexDirection: 'column',
-                gap: 16,
+                gap: 'clamp(8px, 1.8vh, 16px)',
                 boxShadow: '0 20px 60px rgba(0,0,0,0.9), 0 0 25px rgba(245, 158, 11, 0.25)',
               }}
             >
@@ -1238,29 +1223,6 @@ export default function Level2ClassroomWalk({
                 ))}
               </div>
 
-              {/* Field Missions Summary */}
-              <div
-                style={{
-                  background: 'rgba(15, 23, 42, 0.75)',
-                  border: '1.5px dashed rgba(245, 158, 11, 0.4)',
-                  borderRadius: 12,
-                  padding: '10px 14px',
-                  fontSize: 11.5,
-                  lineHeight: 1.5,
-                  color: '#CBD5E1',
-                }}
-              >
-                <div style={{ fontWeight: 900, color: '#FCD34D', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <span>🎯</span>
-                  <span>Rencana Investigasi Statistika di Lapangan:</span>
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 6 }}>
-                  <div>• <b>Misi 1</b>: Hitung Jangkauan (Range = X_maks - X_min)</div>
-                  <div>• <b>Misi 2</b>: Urutkan bendera 1 - 10</div>
-                  <div>• <b>Misi 3</b>: Tentukan Kuartil Q1, Q2, Q3</div>
-                  <div>• <b>Misi 4</b>: Hitung IQR & Simpangan Kuartil (Qd)</div>
-                </div>
-              </div>
 
               {/* Action Buttons */}
               <div style={{ display: 'flex', gap: 12, marginTop: 4 }}>
@@ -1314,10 +1276,12 @@ export default function Level2ClassroomWalk({
               style={{
                 maxWidth: 620,
                 width: '100%',
+                maxHeight: 'min(92vh, 480px)',
+                overflowY: 'auto',
                 background: 'linear-gradient(135deg, #132E27 0%, #0F231D 100%)',
                 border: '4px solid #8B5A2B',
                 borderRadius: 18,
-                padding: '24px 28px',
+                padding: 'clamp(12px, 2.5vh, 22px) clamp(14px, 2.5vw, 28px)',
                 boxShadow: '0 20px 50px rgba(0,0,0,0.9), inset 0 0 40px rgba(0,0,0,0.6)',
                 color: '#F0FDF4',
                 fontFamily: 'var(--font-ui, sans-serif)',

@@ -69,7 +69,7 @@ const HALLWAY_DOORS: HallwayDoor[] = [
   },
 ]
 
-// ─── ENTRANCE QUIZ DATA (JANGKAUAN, KUARTIL, SIMPANGAN KUARTIL) ──
+// ─── ENTRANCE QUIZ DATA POOLS (JANGKAUAN, KUARTIL, SIMPANGAN KUARTIL) ──
 interface QuizQuestion {
   category: string
   badgeText: string
@@ -80,59 +80,60 @@ interface QuizQuestion {
   explanation: string
 }
 
-const ENTRANCE_QUIZ: QuizQuestion[] = [
+// ─── DUA PERTANYAAN SEBELUM MASUK KE KELAS (RUANG KELAS VII-B) ──
+const ENTRANCE_QUIZ_QUESTIONS: QuizQuestion[] = [
   {
     category: 'JANGKAUAN (RANGE)',
-    badgeText: '📊 1. Jangkauan Data',
-    question: 'Dalam statistika, apa yang dimaksud dengan Jangkauan (Range) dari sekumpulan data?',
+    badgeText: '📊 1. Selisih Penjualan Toko Sepatu',
+    question:
+      'Dua toko sepatu mencatat jumlah penjualan harian selama seminggu:\n' +
+      '• Toko A: 10, 12, 11, 10, 12, 11, 12\n' +
+      '• Toko B: 2, 5, 12, 15, 20, 8, 16\n\n' +
+      'Manakah toko yang memiliki selisih antara penjualan tertinggi dan terendah paling besar, dan berapa selisihnya?',
     hints: [
-      '💡 Petunjuk 1: Jangkauan (Range) mengukur bentangan sebaran dari data paling kecil sampai data paling besar.',
-      '💡 Petunjuk 2: Rumus: Jangkauan (R) = Nilai Terbesar (X_maks) − Nilai Terkecil (X_min).',
+      '💡 Petunjuk 1: Selisih antara penjualan tertinggi dan terendah adalah Jangkauan (Range = Nilai Maksimum − Nilai Minimum).',
+      '💡 Petunjuk 2: Untuk Toko A: 12 − 10 = 2. Untuk Toko B: 20 − 2 = 18. Bandingkan kedua hasilnya.',
     ],
     choices: [
-      'Selisih antara nilai terbesar dan nilai terkecil',
-      'Rata-rata dari seluruh nilai data',
-      'Nilai tengah data setelah diurutkan',
-      'Nilai data yang frekuensinya paling banyak',
+      'A. Toko A, selisih 2',
+      'B. Toko A, selisih 12',
+      'C. Toko B, selisih 18',
+      'D. Toko B, selisih 20',
     ],
-    correctIndex: 0,
-    explanation: 'Tepat sekali! Jangkauan (Range) mengukur bentangan sebaran dengan mengurangkan nilai terkecil dari nilai terbesar: R = X_maks − X_min.',
+    correctIndex: 2, // C. Toko B, selisih 18
+    explanation:
+      'Tepat sekali!\n' +
+      '• Toko A: Penjualan tertinggi = 12, terendah = 10 ⟹ Selisih = 12 − 10 = 2.\n' +
+      '• Toko B: Penjualan tertinggi = 20, terendah = 2 ⟹ Selisih = 20 − 2 = 18.\n' +
+      'Jadi, Toko B memiliki selisih paling besar, yaitu 18.',
   },
   {
-    category: 'KUARTIL DATA',
-    badgeText: '📊 2. Kuartil (Q1, Q2, Q3)',
-    question: 'Nilai-nilai Kuartil (Q1, Q2, Q3) membagi sekumpulan data yang telah diurutkan menjadi...',
+    category: 'SIFAT JANGKAUAN (RANGE)',
+    badgeText: '📊 2. Perubahan Data Kelereng',
+    question:
+      'Tiga kotak berisi kelereng masing-masing sebanyak 5, 10, dan 15. Selisih kelereng kotak terbanyak dan tersedikit adalah 10. Jika setiap kotak ditambah 3 kelereng, berapakah selisih antara kotak terbanyak dan tersedikit sekarang?',
     hints: [
-      '💡 Petunjuk 1: Awalan kata "Kuartil" berasal dari kata kuarter (quarter / seperempat bagian).',
-      '💡 Petunjuk 2: Tiga nilai kuartil (Q1, Q2, Q3) membagi seluruh data terurut menjadi 4 kelompok sama banyak (masing-masing 25% data).',
+      '💡 Petunjuk 1: Hitung jumlah kelereng baru di setiap kotak setelah ditambah 3: 5 + 3 = 8, 10 + 3 = 13, 15 + 3 = 18.',
+      '💡 Petunjuk 2: Kotak terbanyak baru = 18, tersedikit baru = 8. Selisih = 18 − 8 = 10. Menambah nilai yang sama ke semua data tidak mengubah jangkauan!',
     ],
     choices: [
-      '4 bagian yang sama banyak',
-      '2 bagian yang sama besar',
-      '3 bagian kelompok terpisah',
-      '10 bagian secara berurutan',
+      'A. 13',
+      'B. 10',
+      'C. 7',
+      'D. 3',
     ],
-    correctIndex: 0,
-    explanation: 'Benar! Tiga nilai kuartil (Q1, Q2, Q3) membagi seluruh data terurut menjadi 4 bagian sama banyak, di mana setiap bagian memuat 25% data.',
-  },
-  {
-    category: 'SIMPANGAN KUARTIL',
-    badgeText: '📊 3. Simpangan Kuartil (Qd)',
-    question: 'Simpangan kuartil (Qd) adalah setengah dari jangkauan interkuartil: Qd = 1/2 × (Q3 − Q1). Jika diketahui Q1 = 14 dan Q3 = 26, berapakah nilai simpangan kuartilnya?',
-    hints: [
-      '💡 Petunjuk 1: Hitung jangkauan interkuartil terlebih dahulu dengan mengurangkan Q3 − Q1 (26 − 14 = 12).',
-      '💡 Petunjuk 2: Simpangan Kuartil: Qd = ½ × (Q3 − Q1) = ½ × (26 − 14) = ½ × 12 = 6.',
-    ],
-    choices: [
-      '6',
-      '12',
-      '14',
-      '20',
-    ],
-    correctIndex: 0,
-    explanation: 'Luar biasa! Jangkauan interkuartilnya adalah 26 − 14 = 12. Maka simpangan kuartilnya adalah Qd = 1/2 × 12 = 6.',
+    correctIndex: 1, // B. 10
+    explanation:
+      'Benar sekali!\n' +
+      '• Kondisi awal: 5, 10, 15 ⟹ Selisih = 15 − 5 = 10.\n' +
+      '• Setelah setiap kotak ditambah 3: 8, 13, 18 ⟹ Selisih = 18 − 8 = 10.\n' +
+      'Sifat Jangkauan: Jika setiap data ditambah atau dikurang dengan bilangan yang sama, jangkauan (selisih nilai tertinggi dan terendah) TIDAK BERUBAH.',
   },
 ]
+
+function generateEntranceQuiz(): QuizQuestion[] {
+  return ENTRANCE_QUIZ_QUESTIONS
+}
 
 // ─── JOYSTICK COMPONENT (IDENTICAL TO LEVEL 1) ───────────────────
 function Joystick({ onDir }: { onDir: (x: number, y: number) => void }) {
@@ -246,6 +247,7 @@ export default function Level2HallwayWalk({
   }, [nearDoor])
 
   // Quiz Modal states
+  const [activeQuizQuestions, setActiveQuizQuestions] = useState<QuizQuestion[]>(() => generateEntranceQuiz())
   const [showQuizModal, setShowQuizModal] = useState(false)
   const [quizIndex, setQuizIndex] = useState(0)
   const [placedChoice, setPlacedChoice] = useState<number | null>(null)
@@ -298,6 +300,7 @@ export default function Level2HallwayWalk({
 
   const handleOpenDoorQuiz = useCallback(() => {
     gameAudio.playClick()
+    setActiveQuizQuestions(generateEntranceQuiz())
     setShowQuizModal(true)
     setQuizIndex(0)
     setPlacedChoice(null)
@@ -422,7 +425,7 @@ export default function Level2HallwayWalk({
   }, [showQuizModal, targetDoor])
 
   // ── Quiz Answering Logic ───────────────────────────────────────
-  const currentQ = ENTRANCE_QUIZ[quizIndex]
+  const currentQ = activeQuizQuestions[quizIndex] || activeQuizQuestions[0]
 
   const handleSelectChoice = (choiceIdx: number) => {
     if (placedChoice !== null) return
@@ -438,7 +441,7 @@ export default function Level2HallwayWalk({
       setIsWrong(false)
 
       setTimeout(() => {
-        if (quizIndex < ENTRANCE_QUIZ.length - 1) {
+        if (quizIndex < activeQuizQuestions.length - 1) {
           setQuizIndex(prev => prev + 1)
           setPlacedChoice(null)
           setIsCorrect(false)
@@ -556,21 +559,7 @@ export default function Level2HallwayWalk({
           </span>
         </div>
 
-        {/* Right Skip Button */}
-        <button
-          onClick={onEnterClassroom}
-          className="astu-menu-btn"
-          style={{
-            pointerEvents: 'auto',
-            padding: '7px 14px',
-            fontSize: 11.5,
-            background: 'rgba(15, 23, 42, 0.88)',
-            border: '1.5px solid rgba(56, 189, 248, 0.5)',
-            color: '#38BDF8',
-          }}
-        >
-          Lewati ke Kelas ⏩
-        </button>
+        
       </div>
 
       {/* ── SVG GAME WORLD ── */}
@@ -946,12 +935,12 @@ export default function Level2HallwayWalk({
               style={{
                 maxWidth: 480,
                 width: '100%',
-                maxHeight: 'calc(100vh - 40px)',
+                maxHeight: 'min(94vh, 480px)',
                 overflowY: 'auto',
-                padding: '24px 22px',
+                padding: 'clamp(12px, 2.5vh, 22px) clamp(14px, 2vw, 22px)',
                 display: 'flex',
                 flexDirection: 'column',
-                gap: 16,
+                gap: 'clamp(8px, 1.8vh, 16px)',
               }}
             >
               {!quizCompleted ? (
@@ -973,7 +962,7 @@ export default function Level2HallwayWalk({
                         borderRadius: 6,
                       }}
                     >
-                      SOAL {quizIndex + 1} / {ENTRANCE_QUIZ.length}
+                      SOAL {quizIndex + 1} / {activeQuizQuestions.length}
                     </span>
                   </div>
 
@@ -1142,17 +1131,10 @@ export default function Level2HallwayWalk({
                   <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
                     <button
                       className="astu-menu-btn"
-                      style={{ flex: 1 }}
+                      style={{ width: '100%' }}
                       onClick={() => setShowQuizModal(false)}
                     >
                       ← Batal
-                    </button>
-                    <button
-                      className="astu-menu-btn"
-                      style={{ flex: 1, background: 'rgba(56, 189, 248, 0.15)', border: '1.5px solid #38BDF8', color: '#38BDF8' }}
-                      onClick={handleFinishQuizAndEnterClass}
-                    >
-                      Lewati Soal ⏩
                     </button>
                   </div>
                 </>
@@ -1172,7 +1154,7 @@ export default function Level2HallwayWalk({
                       Akses Masuk Terbuka!
                     </h3>
                     <p style={{ margin: 0, fontSize: 13, color: '#CBD5E1', lineHeight: 1.5 }}>
-                      Kamu berhasil menjawab 3 tantangan konsep: <b>Jangkauan</b>, <b>Kuartil</b>, dan <b>Simpangan Kuartil</b> dengan sangat baik!
+                      Kamu berhasil menjawab 2 tantangan konsep sebelum masuk kelas dengan sangat baik!
                     </p>
                   </div>
                   <div

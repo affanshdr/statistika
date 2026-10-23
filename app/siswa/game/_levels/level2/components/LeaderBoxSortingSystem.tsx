@@ -315,122 +315,8 @@ export function LeaderBoxSortingHUD({
   showFeedback,
 }: LeaderBoxSortingHUDProps) {
   const [errorMessage, setErrorMessage] = useState('')
-  const pressedKeysRef = useRef<Set<string>>(new Set())
-  const playerPosRef = useRef(playerPos)
-  const animFrameRef = useRef<number | null>(null)
-  const isMovingRef = useRef(false)
-  const onPlayerMoveRef = useRef(onPlayerMove)
-  const onInteractRef = useRef(onInteract)
-
-  useEffect(() => {
-    onPlayerMoveRef.current = onPlayerMove
-  }, [onPlayerMove])
-
-  useEffect(() => {
-    onInteractRef.current = onInteract
-  }, [onInteract])
-
-  // Keep ref synchronized
-  useEffect(() => {
-    playerPosRef.current = playerPos
-  }, [playerPos])
 
   const filledCount = boxes.filter(b => b !== null).length
-
-  // ── 60FPS SMOOTH MOVEMENT LOOP (MATCHING LEVEL 1 NPath) ──────────
-  useEffect(() => {
-    const KEY_VECTORS: Record<string, { x: number; y: number }> = {
-      KeyW: { x: 0, y: -1 },
-      ArrowUp: { x: 0, y: -1 },
-      w: { x: 0, y: -1 },
-      W: { x: 0, y: -1 },
-
-      KeyS: { x: 0, y: 1 },
-      ArrowDown: { x: 0, y: 1 },
-      s: { x: 0, y: 1 },
-      S: { x: 0, y: 1 },
-
-      KeyA: { x: -1, y: 0 },
-      ArrowLeft: { x: -1, y: 0 },
-      a: { x: -1, y: 0 },
-      A: { x: -1, y: 0 },
-
-      KeyD: { x: 1, y: 0 },
-      ArrowRight: { x: 1, y: 0 },
-      d: { x: 1, y: 0 },
-      D: { x: 1, y: 0 },
-    }
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return
-
-      if (e.code === 'Space' || e.key === ' ') {
-        e.preventDefault()
-        onInteractRef.current()
-        return
-      }
-
-      if (KEY_VECTORS[e.code] || KEY_VECTORS[e.key]) {
-        pressedKeysRef.current.add(e.code)
-        pressedKeysRef.current.add(e.key)
-      }
-    }
-
-    const handleKeyUp = (e: KeyboardEvent) => {
-      pressedKeysRef.current.delete(e.code)
-      pressedKeysRef.current.delete(e.key)
-    }
-
-    window.addEventListener('keydown', handleKeyDown)
-    window.addEventListener('keyup', handleKeyUp)
-
-    // 60FPS requestAnimationFrame movement tick
-    let lastTime = performance.now()
-    const tick = (now: number) => {
-      const dt = Math.min((now - lastTime) / 1000, 0.05)
-      lastTime = now
-
-      let nx = 0
-      let ny = 0
-      pressedKeysRef.current.forEach(k => {
-        const v = KEY_VECTORS[k]
-        if (v) {
-          nx += v.x
-          ny += v.y
-        }
-      })
-
-      const len = Math.hypot(nx, ny)
-      if (len > 0) {
-        isMovingRef.current = true
-        const dir = { x: nx / len, y: ny / len }
-        const speed = 280
-        const cur = playerPosRef.current
-        const nextX = Math.max(130, Math.min(1240, cur.x + dir.x * speed * dt))
-        const nextY = Math.max(172, Math.min(665, cur.y + dir.y * speed * dt))
-        playerPosRef.current = { x: nextX, y: nextY }
-        onPlayerMoveRef.current({ x: nextX, y: nextY }, dir)
-      } else if (isMovingRef.current) {
-        isMovingRef.current = false
-        onPlayerMoveRef.current(playerPosRef.current, { x: 0, y: 0 })
-      }
-
-      animFrameRef.current = requestAnimationFrame(tick)
-    }
-
-    animFrameRef.current = requestAnimationFrame(tick)
-
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown)
-      window.removeEventListener('keyup', handleKeyUp)
-      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current)
-      pressedKeysRef.current.clear()
-      if (isMovingRef.current) {
-        isMovingRef.current = false
-        onPlayerMoveRef.current(playerPosRef.current, { x: 0, y: 0 })
-      }
-    }
-  }, [])
 
   // ── QUICK AUTO-SORT HELPER ────────────────────
   const handleAutoSort = () => {
@@ -504,32 +390,32 @@ export function LeaderBoxSortingHUD({
       <div
         style={{
           position: 'absolute',
-          bottom: '20px',
+          bottom: 'clamp(8px, 1.8vh, 18px)',
           left: '50%',
           transform: 'translateX(-50%)',
-          width: 'min(88%, 680px)',
+          width: 'min(94%, 680px)',
           zIndex: 135,
           background: 'rgba(15, 23, 42, 0.95)',
           backdropFilter: 'blur(16px)',
           borderRadius: '18px',
           border: '2px solid #F59E0B',
-          padding: '10px 16px',
+          padding: 'clamp(6px, 1.2vh, 10px) clamp(10px, 1.5vw, 16px)',
           boxShadow: '0 16px 40px rgba(0,0,0,0.85), 0 0 25px rgba(245, 158, 11, 0.3)',
           color: '#FFFFFF',
           display: 'flex',
           flexDirection: 'column',
-          gap: '6px',
+          gap: 'clamp(4px, 0.8vh, 6px)',
         }}
       >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '20px' }}>📦</span>
+            <span style={{ fontSize: '18px' }}>📦</span>
             <div>
-              <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 900, color: '#FCD34D' }}>
+              <h3 style={{ margin: 0, fontSize: 'clamp(12px, 1.3vw, 14px)', fontWeight: 900, color: '#FCD34D' }}>
                 Misi Pengurutan: Lengkapi Kotak #2 s/d #9 (Kotak #1 Min & #10 Max Tetap)
               </h3>
-              <p style={{ margin: 0, fontSize: '11px', color: '#CBD5E1' }}>
-                Bendera Min (#1) dan Max (#10) dari Misi Jangkauan tetap tersimpan di kotak. Ambil 8 bendera di lapangan dengan <b>[SPASI]</b> lalu masukkan ke kotak yang tepat.
+              <p style={{ margin: 0, fontSize: 'clamp(9.5px, 1.1vw, 11px)', color: '#CBD5E1' }}>
+                Dekati bendera di lapangan lalu ambil dan masukkan ke kotak yang berurutan dari kecil ke besar.
               </p>
             </div>
           </div>
@@ -540,14 +426,14 @@ export function LeaderBoxSortingHUD({
               background: filledCount === 10 ? 'rgba(16, 185, 129, 0.25)' : 'rgba(245, 158, 11, 0.15)',
               border: `1.5px solid ${filledCount === 10 ? '#10B981' : '#F59E0B'}`,
               borderRadius: '12px',
-              padding: '4px 12px',
-              fontSize: '11.5px',
+              padding: '3px 10px',
+              fontSize: 'clamp(10px, 1.1vw, 11.5px)',
               fontWeight: 900,
               color: filledCount === 10 ? '#34D399' : '#FCD34D',
               whiteSpace: 'nowrap',
             }}
           >
-            {filledCount} / 10 Kotak Terisi
+            {filledCount} / 10 Kotak
           </div>
         </div>
 
@@ -557,9 +443,11 @@ export function LeaderBoxSortingHUD({
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: '6px',
             borderTop: '1px solid rgba(255,255,255,0.1)',
-            paddingTop: '8px',
-            fontSize: '11.5px',
+            paddingTop: '6px',
+            fontSize: '11px',
           }}
         >
           {/* Status of Carried Flag */}
@@ -573,15 +461,15 @@ export function LeaderBoxSortingHUD({
                   padding: '2px 8px',
                   borderRadius: '8px',
                   fontWeight: 900,
-                  fontSize: '11px',
+                  fontSize: '10.5px',
                   boxShadow: '0 2px 8px rgba(239, 68, 68, 0.5)',
                 }}
               >
                 🚩 Membawa: {carryingFlag.studentLabel} ({formatDistance(carryingFlag.distance)}m)
               </span>
             ) : (
-              <span style={{ color: '#94A3B8', fontStyle: 'italic' }}>
-                Tangan Kosong — Dekati bendera lalu tekan <b>[SPASI]</b>
+              <span style={{ color: '#94A3B8', fontStyle: 'italic', fontSize: '10.5px' }}>
+                Tangan Kosong — Dekati bendera untuk mengambil
               </span>
             )}
           </div>
@@ -604,21 +492,7 @@ export function LeaderBoxSortingHUD({
               🔄 Reset
             </button>
 
-            <button
-              onClick={handleAutoSort}
-              style={{
-                background: 'rgba(245, 158, 11, 0.15)',
-                border: '1px solid #F59E0B',
-                borderRadius: '8px',
-                color: '#FCD34D',
-                padding: '6px 12px',
-                fontSize: '11px',
-                fontWeight: 800,
-                cursor: 'pointer',
-              }}
-            >
-              ⚡ Bantuan Auto-Urut
-            </button>
+            
 
             <motion.button
               whileHover={{ scale: 1.03 }}

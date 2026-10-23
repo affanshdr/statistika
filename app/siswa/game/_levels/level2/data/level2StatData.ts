@@ -18,7 +18,7 @@
 
 export interface StudentThrowData {
   studentId: number          // 1-10
-  studentLabel: string       // "👦 Siswa 01", "👧 Siswi 02", etc. (tanpa nama pribadi)
+  studentLabel: string       // "Siswa 01", "Siswa 02", etc. (tanpa emoji dan nama pribadi)
   studentName?: string
   gender?: 'male' | 'female'
   avatarUrl?: string         // Face portrait avatar icon
@@ -188,12 +188,10 @@ export function createThrowSession(): ThrowSessionData {
   
   const students: StudentThrowData[] = distances.map((dist, idx) => {
     const profile = DEFAULT_STUDENT_PROFILES[idx % DEFAULT_STUDENT_PROFILES.length]
-    const icon = profile.gender === 'female' ? '👧' : '👦'
-    const role = profile.gender === 'female' ? 'Siswi' : 'Siswa'
     return {
       studentId: idx + 1,
       studentName: profile.name,
-      studentLabel: `${icon} ${role} ${String(idx + 1).padStart(2, '0')}`, // Hapus nama siswa dari bendera
+      studentLabel: `Siswa ${String(idx + 1).padStart(2, '0')}`,
       gender: profile.gender,
       avatarUrl: profile.avatarUrl,
       spriteUrl: profile.spriteUrl,

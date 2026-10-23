@@ -176,17 +176,200 @@ export default function FieldSortedFlagsRow({
         )}
       </g>
 
-      {/* ── 10 SORTED MEASUREMENT FLAGS (UNIFORM STYLING, NO ANSWER SPOILERS) ── */}
+      {/* ── 10 SORTED MEASUREMENT FLAGS & REPLACED QUARTILE POSTS ── */}
       {students.map((student, idx) => {
         const flagX = SORTED_FLAGS_X_START + idx * SORTED_FLAGS_X_STEP
-        const isMin = idx === 0
-        const isMax = idx === students.length - 1
         const isSelectedByStevunt = nearestFlagIdx === idx
 
-        // Uniform styling: all regular flags have neutral amber/gold until quartile posts are placed!
-        let flagColor = '#FBBF24'
-        if (idx === 2 && q1Post !== null) flagColor = '#10B981'
-        else if (idx === 7 && q3Post !== null) flagColor = '#EC4899'
+        const isQ1 = idx === 2 && q1Post !== null
+        const isQ3 = idx === 7 && q3Post !== null
+
+        // 🟢 BENDERA PENGGANTI Q1: Bendera awal dihapus & diganti total dengan Tiang Kuartil Bawah
+        if (isQ1) {
+          return (
+            <g
+              key={`sorted-flag-q1-${student.studentId}`}
+              transform={`translate(${flagX}, ${SORTED_FLAGS_Y})`}
+              filter="url(#sortedPostGlow)"
+              style={{ cursor: 'pointer' }}
+              onClick={() => onFlagClick?.(idx)}
+            >
+              {/* Ground Shadow & Aura */}
+              <ellipse cx={0} cy={4} rx={24} ry={8} fill="rgba(16, 185, 129, 0.5)" />
+              <ellipse cx={0} cy={2} rx={16} ry={5} fill="#064E3B" stroke="#10B981" strokeWidth={1.5} />
+
+              {/* Stevunt Active Selection Aura */}
+              {isSelectedByStevunt && (
+                <ellipse
+                  cx={0}
+                  cy={2}
+                  rx={26}
+                  ry={10}
+                  fill="none"
+                  stroke="#F59E0B"
+                  strokeWidth={2.5}
+                  strokeDasharray="4 3"
+                />
+              )}
+
+              {/* Single Tall Emerald Flagpole */}
+              <line x1={0} y1={2} x2={0} y2={-135} stroke="#10B981" strokeWidth={4} strokeLinecap="round" />
+              <circle cx={0} cy={-137} r={6} fill="#FBBF24" stroke="#FFFFFF" strokeWidth={1.5} />
+
+              {/* Quartile Q1 Pennant */}
+              <polygon points="0,-134 46,-116 0,-98" fill="#10B981" stroke="#A7F3D0" strokeWidth={1.5} />
+              <text x={14} y={-112} fill="#FFFFFF" fontSize={11} fontWeight="900" fontFamily="var(--font-ui)">
+                Q1
+              </text>
+
+              {/* Top Victory Card with Value */}
+              <g transform="translate(0, -152)">
+                <rect
+                  x={-72}
+                  y={-14}
+                  width={144}
+                  height={28}
+                  rx={14}
+                  fill="rgba(6, 78, 59, 0.98)"
+                  stroke="#34D399"
+                  strokeWidth={2}
+                  filter="drop-shadow(0 4px 10px rgba(0,0,0,0.6))"
+                />
+                <text x={0} y={4} textAnchor="middle" fill="#FFFFFF" fontSize={12} fontWeight="900" fontFamily="var(--font-ui)">
+                  🏆 Q1 = {formatDistance(stats.q1)}m
+                </text>
+              </g>
+
+              {/* Subtitle Indicator */}
+              <g transform="translate(0, -82)">
+                <rect x={-52} y={-8} width={104} height={16} rx={5} fill="rgba(15, 23, 42, 0.9)" stroke="#10B981" strokeWidth={1} />
+                <text x={0} y={3.5} textAnchor="middle" fill="#6EE7B7" fontSize={8.5} fontWeight="800">
+                  Urutan ke-3 (Kuartil Bawah)
+                </text>
+              </g>
+
+              {/* Rank Badge Below Flag (#3) */}
+              <g transform="translate(0, 18)">
+                <rect
+                  x={-16}
+                  y={-7}
+                  width={32}
+                  height={15}
+                  rx={5}
+                  fill="rgba(6, 78, 59, 0.95)"
+                  stroke="#10B981"
+                  strokeWidth={1.5}
+                />
+                <text
+                  x={0}
+                  y={4}
+                  textAnchor="middle"
+                  fill="#FFFFFF"
+                  fontSize={9}
+                  fontWeight="900"
+                  fontFamily="var(--font-mono)"
+                >
+                  #3
+                </text>
+              </g>
+            </g>
+          )
+        }
+
+        // 🌸 BENDERA PENGGANTI Q3: Bendera awal dihapus & diganti total dengan Tiang Kuartil Atas
+        if (isQ3) {
+          return (
+            <g
+              key={`sorted-flag-q3-${student.studentId}`}
+              transform={`translate(${flagX}, ${SORTED_FLAGS_Y})`}
+              filter="url(#sortedPostGlow)"
+              style={{ cursor: 'pointer' }}
+              onClick={() => onFlagClick?.(idx)}
+            >
+              {/* Ground Shadow & Aura */}
+              <ellipse cx={0} cy={4} rx={24} ry={8} fill="rgba(236, 72, 153, 0.5)" />
+              <ellipse cx={0} cy={2} rx={16} ry={5} fill="#831843" stroke="#EC4899" strokeWidth={1.5} />
+
+              {/* Stevunt Active Selection Aura */}
+              {isSelectedByStevunt && (
+                <ellipse
+                  cx={0}
+                  cy={2}
+                  rx={26}
+                  ry={10}
+                  fill="none"
+                  stroke="#F59E0B"
+                  strokeWidth={2.5}
+                  strokeDasharray="4 3"
+                />
+              )}
+
+              {/* Single Tall Pink Flagpole */}
+              <line x1={0} y1={2} x2={0} y2={-135} stroke="#EC4899" strokeWidth={4} strokeLinecap="round" />
+              <circle cx={0} cy={-137} r={6} fill="#FBBF24" stroke="#FFFFFF" strokeWidth={1.5} />
+
+              {/* Quartile Q3 Pennant */}
+              <polygon points="0,-134 46,-116 0,-98" fill="#EC4899" stroke="#FBCFE8" strokeWidth={1.5} />
+              <text x={14} y={-112} fill="#FFFFFF" fontSize={11} fontWeight="900" fontFamily="var(--font-ui)">
+                Q3
+              </text>
+
+              {/* Top Victory Card with Value */}
+              <g transform="translate(0, -152)">
+                <rect
+                  x={-72}
+                  y={-14}
+                  width={144}
+                  height={28}
+                  rx={14}
+                  fill="rgba(131, 24, 67, 0.98)"
+                  stroke="#F472B6"
+                  strokeWidth={2}
+                  filter="drop-shadow(0 4px 10px rgba(0,0,0,0.6))"
+                />
+                <text x={0} y={4} textAnchor="middle" fill="#FFFFFF" fontSize={12} fontWeight="900" fontFamily="var(--font-ui)">
+                  🏆 Q3 = {formatDistance(stats.q3)}m
+                </text>
+              </g>
+
+              {/* Subtitle Indicator */}
+              <g transform="translate(0, -82)">
+                <rect x={-50} y={-8} width={100} height={16} rx={5} fill="rgba(15, 23, 42, 0.9)" stroke="#EC4899" strokeWidth={1} />
+                <text x={0} y={3.5} textAnchor="middle" fill="#FBCFE8" fontSize={8.5} fontWeight="800">
+                  Urutan ke-8 (Kuartil Atas)
+                </text>
+              </g>
+
+              {/* Rank Badge Below Flag (#8) */}
+              <g transform="translate(0, 18)">
+                <rect
+                  x={-16}
+                  y={-7}
+                  width={32}
+                  height={15}
+                  rx={5}
+                  fill="rgba(131, 24, 67, 0.95)"
+                  stroke="#EC4899"
+                  strokeWidth={1.5}
+                />
+                <text
+                  x={0}
+                  y={4}
+                  textAnchor="middle"
+                  fill="#FFFFFF"
+                  fontSize={9}
+                  fontWeight="900"
+                  fontFamily="var(--font-mono)"
+                >
+                  #8
+                </text>
+              </g>
+            </g>
+          )
+        }
+
+        // Bendera awal standar (kuning emas)
+        const flagColor = '#FBBF24'
 
         return (
           <g
@@ -280,51 +463,30 @@ export default function FieldSortedFlagsRow({
         )
       })}
 
-      {/* ── PLACED TALL TIANG KUARTIL (ONLY VISIBLE ONCE SUCCESSFULLY DETERMINED) ── */}
-      {/* Tall Tiang Q1 */}
-      {q1Post !== null && (
-        <g transform={`translate(${Q1_TARGET_X}, ${SORTED_FLAGS_Y})`} filter="url(#sortedPostGlow)">
-          <ellipse cx={0} cy={4} rx={24} ry={8} fill="rgba(16, 185, 129, 0.5)" />
-          <ellipse cx={0} cy={2} rx={16} ry={5} fill="#064E3B" stroke="#10B981" strokeWidth={1.5} />
-
-          <line x1={0} y1={2} x2={0} y2={-135} stroke="#10B981" strokeWidth={4} strokeLinecap="round" />
-          <circle cx={0} cy={-137} r={6} fill="#FBBF24" stroke="#FFFFFF" strokeWidth={1.5} />
-
-          <polygon points="0,-134 46,-116 0,-98" fill="#10B981" stroke="#A7F3D0" strokeWidth={1.5} />
-          <text x={14} y={-112} fill="#FFFFFF" fontSize={11} fontWeight="900" fontFamily="var(--font-ui)">
-            Q1
-          </text>
-
-          <g transform="translate(0, -152)">
-            <rect
-              x={-72}
-              y={-14}
-              width={144}
-              height={28}
-              rx={14}
-              fill="rgba(6, 78, 59, 0.98)"
-              stroke="#34D399"
-              strokeWidth={2}
-              filter="drop-shadow(0 4px 10px rgba(0,0,0,0.6))"
-            />
-            <text x={0} y={4} textAnchor="middle" fill="#FFFFFF" fontSize={12} fontWeight="900" fontFamily="var(--font-ui)">
-              🏆 Q1 = {formatDistance(stats.q1)}m
-            </text>
-          </g>
-          <g transform="translate(0, -82)">
-            <rect x={-52} y={-8} width={104} height={16} rx={5} fill="rgba(15, 23, 42, 0.9)" stroke="#10B981" strokeWidth={1} />
-            <text x={0} y={3.5} textAnchor="middle" fill="#6EE7B7" fontSize={8.5} fontWeight="800">
-              Urutan ke-3 (Kuartil Bawah)
-            </text>
-          </g>
-        </g>
-      )}
-
-      {/* Tall Tiang Q2 (Median) */}
+      {/* ── PLACED TALL TIANG KUARTIL Q2 (MEDIAN DI ANTARA DATA #5 & #6) ── */}
       {q2Post !== null && (
-        <g transform={`translate(${Q2_TARGET_X}, ${SORTED_FLAGS_Y})`} filter="url(#sortedPostGlow)">
+        <g
+          transform={`translate(${Q2_TARGET_X}, ${SORTED_FLAGS_Y})`}
+          filter="url(#sortedPostGlow)"
+          style={{ cursor: 'pointer' }}
+          onClick={onMidpointClick}
+        >
           <ellipse cx={0} cy={4} rx={26} ry={9} fill="rgba(139, 92, 246, 0.5)" />
           <ellipse cx={0} cy={2} rx={18} ry={6} fill="#4C1D95" stroke="#8B5CF6" strokeWidth={1.5} />
+
+          {/* Stevunt Active Selection Aura near Q2 */}
+          {isNearMedianGap && (
+            <ellipse
+              cx={0}
+              cy={2}
+              rx={28}
+              ry={11}
+              fill="none"
+              stroke="#F59E0B"
+              strokeWidth={2.5}
+              strokeDasharray="4 3"
+            />
+          )}
 
           <line x1={0} y1={2} x2={0} y2={-150} stroke="#8B5CF6" strokeWidth={4.5} strokeLinecap="round" />
           <circle cx={0} cy={-152} r={7} fill="#F59E0B" stroke="#FFFFFF" strokeWidth={1.5} />
@@ -357,43 +519,29 @@ export default function FieldSortedFlagsRow({
               Nilai Tengah (Antara ke-5 & 6)
             </text>
           </g>
-        </g>
-      )}
 
-      {/* Tall Tiang Q3 */}
-      {q3Post !== null && (
-        <g transform={`translate(${Q3_TARGET_X}, ${SORTED_FLAGS_Y})`} filter="url(#sortedPostGlow)">
-          <ellipse cx={0} cy={4} rx={24} ry={8} fill="rgba(236, 72, 153, 0.5)" />
-          <ellipse cx={0} cy={2} rx={16} ry={5} fill="#831843" stroke="#EC4899" strokeWidth={1.5} />
-
-          <line x1={0} y1={2} x2={0} y2={-135} stroke="#EC4899" strokeWidth={4} strokeLinecap="round" />
-          <circle cx={0} cy={-137} r={6} fill="#FBBF24" stroke="#FFFFFF" strokeWidth={1.5} />
-
-          <polygon points="0,-134 46,-116 0,-98" fill="#EC4899" stroke="#FBCFE8" strokeWidth={1.5} />
-          <text x={14} y={-112} fill="#FFFFFF" fontSize={11} fontWeight="900" fontFamily="var(--font-ui)">
-            Q3
-          </text>
-
-          <g transform="translate(0, -152)">
+          {/* Rank Badge Below Q2 Flag */}
+          <g transform="translate(0, 18)">
             <rect
-              x={-72}
-              y={-14}
-              width={144}
-              height={28}
-              rx={14}
-              fill="rgba(131, 24, 67, 0.98)"
-              stroke="#F472B6"
-              strokeWidth={2}
-              filter="drop-shadow(0 4px 10px rgba(0,0,0,0.6))"
+              x={-24}
+              y={-7}
+              width={48}
+              height={15}
+              rx={5}
+              fill="rgba(76, 29, 149, 0.95)"
+              stroke="#8B5CF6"
+              strokeWidth={1.5}
             />
-            <text x={0} y={4} textAnchor="middle" fill="#FFFFFF" fontSize={12} fontWeight="900" fontFamily="var(--font-ui)">
-              🏆 Q3 = {formatDistance(stats.q3)}m
-            </text>
-          </g>
-          <g transform="translate(0, -82)">
-            <rect x={-50} y={-8} width={100} height={16} rx={5} fill="rgba(15, 23, 42, 0.9)" stroke="#EC4899" strokeWidth={1} />
-            <text x={0} y={3.5} textAnchor="middle" fill="#FBCFE8" fontSize={8.5} fontWeight="800">
-              Urutan ke-8 (Kuartil Atas)
+            <text
+              x={0}
+              y={4}
+              textAnchor="middle"
+              fill="#DDD6FE"
+              fontSize={8.5}
+              fontWeight="900"
+              fontFamily="var(--font-mono)"
+            >
+              #5 &amp; 6
             </text>
           </g>
         </g>

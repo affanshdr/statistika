@@ -26,6 +26,7 @@ import RangeMissionPanel from './components/RangeMissionPanel'
 import QuartilesMissionPanel from './components/QuartilesMissionPanel'
 import IQRMissionPanel from './components/IQRMissionPanel'
 import QuartileDeviationMissionPanel from './components/QuartileDeviationMissionPanel'
+import Level2FinalEvaluationModal from './components/Level2FinalEvaluationModal'
 import Level2HallwayWalk from './components/Level2HallwayWalk'
 import Level2ClassroomWalk from './components/Level2ClassroomWalk'
 import FieldSortedFlagsRow, {
@@ -213,7 +214,7 @@ function getHint(mission: 0 | 1 | 2 | 3 | 4, level: HintLevel, stats?: ComputedS
   if (mission === 0) {
     if (level === 1) return 'Perhatikan angka jarak meter pada bendera dari angka paling kecil ke angka paling besar.'
     if (level === 2) return 'Letakkan bendera terdekat di Kotak 1, hingga yang terjauh di Kotak 10.'
-    if (level === 3) return 'Gunakan tombol "⚡ Bantuan Auto-Urut" untuk menyusun secara instan ke dalam 10 kotak.'
+    if (level === 3) return 'Urutkan bendera dari terkecil hingga terbesar ke dalam 10 kotak berurutan.'
   }
   if (mission === 1) {
     if (level === 1) return 'Perhatikan jarak yang paling kecil (terdekat) dan paling besar (terjauh) pada barisan bendera di kotak.'
@@ -236,6 +237,88 @@ function getHint(mission: 0 | 1 | 2 | 3 | 4, level: HintLevel, stats?: ComputedS
     if (level === 3 && stats) return `Simpangan kuartil Qd = ½ × ${formatDistance(stats.iqr)} = ${stats.qd} m.`
   }
   return ''
+}
+
+// ──────────────────────────────────────────────────────
+// VIRTUAL JOYSTICK FOR TOUCH / MOBILE
+// ──────────────────────────────────────────────────────
+function VirtualJoystick({ onDir }: { onDir: (x: number, y: number) => void }) {
+  const outer = useRef<HTMLDivElement>(null)
+  const knob = useRef<HTMLDivElement>(null)
+  const on = useRef(false)
+
+  const compute = (cx: number, cy: number) => {
+    const el = outer.current
+    if (!el) return
+    const b = el.getBoundingClientRect()
+    const R = b.width / 2
+    const dx = cx - (b.left + R)
+    const dy = cy - (b.top + R)
+    const d = Math.sqrt(dx * dx + dy * dy)
+    onDir(
+      Math.max(-1, Math.min(1, d > 0 ? dx / Math.max(d, R) : 0)),
+      Math.max(-1, Math.min(1, d > 0 ? dy / Math.max(d, R) : 0))
+    )
+    if (knob.current) {
+      knob.current.style.transform = `translate(calc(-50% + ${(dx / Math.max(d, 1)) * Math.min(d, R)}px), calc(-50% + ${(dy / Math.max(d, 1)) * Math.min(d, R)}px))`
+    }
+  }
+
+  const reset = () => {
+    on.current = false
+    onDir(0, 0)
+    if (knob.current) knob.current.style.transform = 'translate(-50%, -50%)'
+  }
+
+  return (
+    <div
+      ref={outer}
+      style={{
+        width: 'clamp(62px, 9vw, 84px)',
+        height: 'clamp(62px, 9vw, 84px)',
+        borderRadius: '50%',
+        background: 'rgba(14, 131, 136, 0.25)',
+        border: '2.5px solid rgba(0, 173, 181, 0.5)',
+        boxShadow: '0 4px 15px rgba(0, 0, 0, 0.5), 0 0 10px rgba(0, 173, 181, 0.3)',
+        position: 'relative',
+        touchAction: 'none',
+        userSelect: 'none',
+        backdropFilter: 'blur(4px)',
+      }}
+      onPointerDown={e => {
+        on.current = true
+        outer.current?.setPointerCapture(e.pointerId)
+        compute(e.clientX, e.clientY)
+      }}
+      onPointerMove={e => {
+        if (on.current) compute(e.clientX, e.clientY)
+      }}
+      onPointerUp={e => {
+        try { outer.current?.releasePointerCapture(e.pointerId) } catch {}
+        reset()
+      }}
+      onPointerCancel={e => {
+        try { outer.current?.releasePointerCapture(e.pointerId) } catch {}
+        reset()
+      }}
+    >
+      <div
+        ref={knob}
+        style={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: '38%',
+          height: '38%',
+          borderRadius: '50%',
+          background: 'linear-gradient(135deg, #00ADB5 0%, #818cf8 100%)',
+          boxShadow: '0 0 12px #00ADB5',
+          pointerEvents: 'none',
+        }}
+      />
+    </div>
+  )
 }
 
 // ──────────────────────────────────────────────────────
@@ -265,6 +348,96 @@ export default function Level2Main({
     isCompleted,
     setVerdict,
   } = useGameStore()
+
+  // ── RELAXING INSTRUMENTAL BACKGROUND MUSIC ────
+  const [isBgmPlaying, setIsBgmPlaying] = useState(false)
+  const bgmAudioRef = useRef<HTMLAudioElement | null>(null)
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const audio = new Audio()
+    if (audio.canPlayType('audio/mpeg')) {
+      audio.src = '/audio/level2_bgm.mp3'
+    } else {
+      audio.src = '/audio/level2_bgm.ogg'
+    }
+    audio.loop = true
+    audio.volume = 0.35 // gentle relaxing ambient level
+    bgmAudioRef.current = audio
+
+    const startBgmOnInteraction = () => {
+      audio.play().then(() => {
+        setIsBgmPlaying(true)
+      }).catch(() => {})
+      window.removeEventListener('click', startBgmOnInteraction)
+      window.removeEventListener('keydown', startBgmOnInteraction)
+      window.removeEventListener('touchstart', startBgmOnInteraction)
+    }
+
+    window.addEventListener('click', startBgmOnInteraction)
+    window.addEventListener('keydown', startBgmOnInteraction)
+    window.addEventListener('touchstart', startBgmOnInteraction)
+
+    // Direct attempt if already permitted by browser
+    audio.play().then(() => {
+      setIsBgmPlaying(true)
+    }).catch(() => {})
+
+    return () => {
+      window.removeEventListener('click', startBgmOnInteraction)
+      window.removeEventListener('keydown', startBgmOnInteraction)
+      window.removeEventListener('touchstart', startBgmOnInteraction)
+      audio.pause()
+      audio.currentTime = 0
+    }
+  }, [])
+
+  const toggleBgm = useCallback(() => {
+    const audio = bgmAudioRef.current
+    if (!audio) return
+    if (audio.paused) {
+      audio.play().then(() => {
+        setIsBgmPlaying(true)
+      }).catch(() => {})
+    } else {
+      audio.pause()
+      setIsBgmPlaying(false)
+    }
+  }, [])
+
+  const renderBgmButton = () => (
+    <button
+      onClick={toggleBgm}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '6px',
+        background: isBgmPlaying
+          ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.28) 0%, rgba(6, 95, 70, 0.45) 100%)'
+          : 'rgba(15, 23, 42, 0.88)',
+        backdropFilter: 'blur(12px)',
+        border: isBgmPlaying
+          ? '1.5px solid rgba(16, 185, 129, 0.65)'
+          : '1.5px solid rgba(148, 163, 184, 0.35)',
+        borderRadius: '12px',
+        color: isBgmPlaying ? '#6EE7B7' : '#94A3B8',
+        cursor: 'pointer',
+        padding: 'clamp(4px, 0.8vh, 6px) clamp(8px, 1.2vw, 14px)',
+        fontSize: 'clamp(10px, 1.1vw, 12px)',
+        fontWeight: 800,
+        boxShadow: isBgmPlaying
+          ? '0 4px 16px rgba(16, 185, 129, 0.35), 0 0 8px rgba(16, 185, 129, 0.2)'
+          : '0 4px 16px rgba(0, 0, 0, 0.5)',
+        transition: 'all 0.2s',
+        userSelect: 'none',
+      }}
+      title={isBgmPlaying ? 'Musik Santai Aktif (Klik untuk jeda)' : 'Musik Santai Mati (Klik untuk putar)'}
+    >
+      <span style={{ fontSize: '13px' }}>{isBgmPlaying ? '🎵' : '🔇'}</span>
+      <span>{isBgmPlaying ? 'Musik: Santai' : 'Musik: Mati'}</span>
+    </button>
+  )
+
 
   // ── CORE GAME STATE ───────────────────────────
   const [gameState, setGameState] = useState<Level2State>('HALLWAY_EXPLORATION')
@@ -347,6 +520,8 @@ export default function Level2Main({
   // ── PLAYER CHARACTER & BOX SORTING STATES ──
   const [playerPos, setPlayerPos] = useState({ x: 300, y: 520 })
   const [playerDir, setPlayerDir] = useState({ x: 0, y: 0 })
+  const joystickDirRef = useRef({ x: 0, y: 0 })
+  const [isQueueCollapsed, setIsQueueCollapsed] = useState(false)
   const [carryingFlag, setCarryingFlag] = useState<StudentThrowData | null>(null)
   const [sortingBoxes, setSortingBoxes] = useState<(StudentThrowData | null)[]>(() => Array(10).fill(null))
   const [targetMovePos, setTargetMovePos] = useState<{ x: number; y: number } | null>(null)
@@ -355,6 +530,9 @@ export default function Level2Main({
   const [leaderFacing, setLeaderFacing] = useState<'left' | 'right'>('right')
   const [carryingFlagsCount, setCarryingFlagsCount] = useState(0)
   const [greenRibbonPlaced, setGreenRibbonPlaced] = useState(false)
+
+  // ── FINAL EVALUATION STATE ───────────────────
+  const [finalEvalScore, setFinalEvalScore] = useState<number | null>(null)
 
   // ── HINTS & FEEDBACK ─────────────────────────
   const [currentMissionHint, setCurrentMissionHint] = useState<0 | 1 | 2 | 3 | 4>(0)
@@ -505,7 +683,7 @@ export default function Level2Main({
         setAthleteMode('aim')
         setGameState('READY_TO_THROW')
         playSound('chime')
-        showFeedback(`🎯 ${student.studentLabel} telah bersiap di garis lempar! Tarik busur & lepaskan untuk melempar!`, 2500)
+        showFeedback(`${student.studentLabel} telah bersiap di garis lempar! Tarik busur & lepaskan untuk melempar!`, 2500)
       }
     }, 25)
   }, [session, activeStudentId, walkingStudent, getQueuePosition, showFeedback])
@@ -522,8 +700,14 @@ export default function Level2Main({
   }, [nextWaitingStudent, activeStudentId, walkingStudent, handleCallStudent])
 
   // ── SEQUENCE 1: MISSION 1 - JANGKAUAN (RANGE) FIRST ─────
-  const handleStartMissionRange = useCallback((computedStats: ComputedStats) => {
+  const handleStartMissionRange = useCallback((computedStats?: ComputedStats) => {
     playSound('whistle')
+    if (computedStats) {
+      setStats(computedStats)
+    } else if (session) {
+      const computed = computeStats(session)
+      setStats(computed)
+    }
     setGameState('MISSION_RANGE')
     setM1Phase('SELECT_FLAGS')
     setRangeMinBox(null)
@@ -538,7 +722,49 @@ export default function Level2Main({
     setCurrentMissionHint(1)
     setHintLevel(0)
     showFeedback('🎯 10 Lemparan selesai! Misi 1: Gerakkan Stevunt untuk membawa bendera terdekat (Min) dan terjauh (Max) ke 2 kotak di atas!', 4500)
-  }, [showFeedback])
+  }, [session, showFeedback])
+
+  // Keyboard Spacebar shortcut to call next student to throw line or advance to Mission 1
+  useEffect(() => {
+    if (gameState !== 'COLLECTING_DATA' || currentDialog || activeStudentId !== null || walkingStudent !== null) return
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return
+
+      if (e.code === 'Space' || e.key === ' ') {
+        e.preventDefault()
+        if (nextWaitingStudent) {
+          handleCallNextStudent()
+        } else if (session && session.students.filter(s => s.measured).length >= TOTAL_STUDENTS) {
+          const computed = computeStats(session)
+          setStats(computed)
+          handleStartMissionRange(computed)
+        }
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [gameState, currentDialog, activeStudentId, walkingStudent, nextWaitingStudent, session, handleCallNextStudent, handleStartMissionRange])
+
+  // ── AUTO-TRANSITION GUARD: ENSURE MISSION 1 STARTS WHEN ALL 10 THROWS ARE MEASURED ──
+  useEffect(() => {
+    if (!session) return
+    const isThrowPhase =
+      gameState === 'COLLECTING_DATA' ||
+      gameState === 'STUDENT_CALLED' ||
+      gameState === 'READY_TO_THROW' ||
+      gameState === 'THROW_IN_PROGRESS'
+
+    if (!isThrowPhase) return
+
+    const measuredCount = session.students.filter(s => s.measured).length
+    if (measuredCount >= TOTAL_STUDENTS && activeStudentId === null && walkingStudent === null && ballFlight === null) {
+      const computed = computeStats(session)
+      setStats(computed)
+      handleStartMissionRange(computed)
+    }
+  }, [session, gameState, activeStudentId, walkingStudent, ballFlight, handleStartMissionRange])
 
   // ── SEQUENCE 2: STARTING PLAYER SORTING INTO TOP BOXES ──
   const handleStartSortingSequence = useCallback((preservedMin?: StudentThrowData | null, preservedMax?: StudentThrowData | null) => {
@@ -614,29 +840,41 @@ export default function Level2Main({
         setTimeout(() => setDustEffect(null), 700)
         playSound('whistle')
 
-        const updatedStudents = session.students.map(s =>
-          s.studentId === activeStudentId ? { ...s, measured: true } : s
-        )
-        const newMeasuredCount = updatedStudents.filter(s => s.measured).length
+        let isFinalThrow = false
+        let finalStats: ComputedStats | null = null
 
-        const updatedSession: ThrowSessionData = {
-          ...session,
-          students: updatedStudents,
-          measuredCount: newMeasuredCount,
-          isComplete: newMeasuredCount >= TOTAL_STUDENTS,
-        }
-        setSession(updatedSession)
+        setSession(prev => {
+          const base = prev || session
+          const updatedStudents = base.students.map(s =>
+            s.studentId === activeStudentId ? { ...s, measured: true } : s
+          )
+          const newMeasuredCount = updatedStudents.filter(s => s.measured).length
+          const isComplete = newMeasuredCount >= TOTAL_STUDENTS
+
+          const updatedSession: ThrowSessionData = {
+            ...base,
+            students: updatedStudents,
+            measuredCount: newMeasuredCount,
+            isComplete,
+          }
+
+          if (isComplete) {
+            isFinalThrow = true
+            finalStats = computeStats(updatedSession)
+            setStats(finalStats)
+          }
+
+          return updatedSession
+        })
+
         setLastThrowResult({ distance: actualDistance, studentLabel: student.studentLabel })
-
-        showFeedback(`🎯 ${student.studentLabel}: ${formatDistance(actualDistance)} m tercatat! (${newMeasuredCount}/${TOTAL_STUDENTS})`, 2500)
+        showFeedback(`${student.studentLabel}: ${formatDistance(actualDistance)} m tercatat!`, 2500)
 
         setTimeout(() => {
           setActiveStudentId(null)
 
-          if (newMeasuredCount >= TOTAL_STUDENTS) {
-            const computed = computeStats(updatedSession)
-            setStats(computed)
-            handleStartMissionRange(computed)
+          if (isFinalThrow && finalStats) {
+            handleStartMissionRange(finalStats)
           } else {
             setGameState('COLLECTING_DATA')
           }
@@ -980,6 +1218,57 @@ export default function Level2Main({
 
   const interactionPrompt = nearestInteraction?.prompt || null
 
+  const actionButtonInfo = useMemo(() => {
+    if (!nearestInteraction) return null
+    switch (nearestInteraction.type) {
+      case 'PICKUP_FLAG':
+        return {
+          icon: '🚩',
+          label: `Ambil Bendera (${formatDistance(nearestInteraction.flag.distance)}m)`,
+        }
+      case 'PLACE_BOX':
+        return {
+          icon: '📥',
+          label: `Taruh di Kotak #${nearestInteraction.boxIdx + 1}`,
+        }
+      case 'PICKUP_BOX':
+        return {
+          icon: '🖐️',
+          label: `Ambil dari Kotak #${nearestInteraction.boxIdx + 1}`,
+        }
+      case 'PLACE_RANGE_MIN':
+        return {
+          icon: '📥',
+          label: 'Taruh di Kotak Min',
+        }
+      case 'PLACE_RANGE_MAX':
+        return {
+          icon: '📥',
+          label: 'Taruh di Kotak Max',
+        }
+      case 'PICKUP_RANGE_MIN':
+        return {
+          icon: '🖐️',
+          label: 'Ambil dari Kotak Min',
+        }
+      case 'PICKUP_RANGE_MAX':
+        return {
+          icon: '🖐️',
+          label: 'Ambil dari Kotak Max',
+        }
+      case 'CHOOSE_QUARTILE':
+        return {
+          icon: '📍',
+          label: 'Tentukan Kuartil',
+        }
+      default:
+        return {
+          icon: '👉',
+          label: 'Aksi',
+        }
+    }
+  }, [nearestInteraction])
+
   // Check Range Selection correctness when both Min and Max boxes are filled
   const checkRangeSelection = useCallback((minFlag: StudentThrowData | null, maxFlag: StudentThrowData | null) => {
     if (!stats || !minFlag || !maxFlag) return
@@ -1168,7 +1457,7 @@ export default function Level2Main({
   }, [playerPos])
 
   useEffect(() => {
-    if (gameState !== 'MISSION_RANGE' && gameState !== 'MISSION_QUARTILES') return
+    if (gameState !== 'KETUA_KELAS_SORTING' && gameState !== 'MISSION_RANGE' && gameState !== 'MISSION_QUARTILES') return
 
     const KEY_VECTORS: Record<string, { x: number; y: number }> = {
       KeyW: { x: 0, y: -1 },
@@ -1229,6 +1518,11 @@ export default function Level2Main({
         }
       })
 
+      if (joystickDirRef.current.x !== 0 || joystickDirRef.current.y !== 0) {
+        vx += joystickDirRef.current.x
+        vy += joystickDirRef.current.y
+      }
+
       if (vx !== 0 || vy !== 0) {
         isRangeMovingRef.current = true
         const len = Math.hypot(vx, vy)
@@ -1257,6 +1551,7 @@ export default function Level2Main({
       window.removeEventListener('keyup', handleKeyUp)
       cancelAnimationFrame(animId)
       rangePressedKeysRef.current.clear()
+      joystickDirRef.current = { x: 0, y: 0 }
       if (isRangeMovingRef.current) {
         isRangeMovingRef.current = false
         setPlayerDir({ x: 0, y: 0 })
@@ -1411,7 +1706,7 @@ export default function Level2Main({
 
     setVerdict('MEASUREMENT_COMPLETE')
     setTimeout(() => {
-      setGameState('FINAL_REPORT')
+      setGameState('FINAL_EVALUATION')
     }, 1500)
   }, [stats, addXP, showFeedback, awardBadge, sessionStartTime, setVerdict])
 
@@ -1445,19 +1740,29 @@ export default function Level2Main({
 
   if (gameState === 'HALLWAY_EXPLORATION') {
     return (
-      <Level2HallwayWalk
-        studentName={studentName}
-        onEnterClassroom={() => setGameState('CLASSROOM_PROLOGUE')}
-      />
+      <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+        <div style={{ position: 'fixed', top: 'clamp(8px, 1.8vh, 14px)', right: 'clamp(10px, 1.8vw, 18px)', zIndex: 9999 }}>
+          {renderBgmButton()}
+        </div>
+        <Level2HallwayWalk
+          studentName={studentName}
+          onEnterClassroom={() => setGameState('CLASSROOM_PROLOGUE')}
+        />
+      </div>
     )
   }
 
   if (gameState === 'CLASSROOM_PROLOGUE') {
     return (
-      <Level2ClassroomWalk
-        studentName={studentName}
-        onProceedToField={handleTransitionToField}
-      />
+      <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+        <div style={{ position: 'fixed', top: 'clamp(8px, 1.8vh, 14px)', right: 'clamp(10px, 1.8vw, 18px)', zIndex: 9999 }}>
+          {renderBgmButton()}
+        </div>
+        <Level2ClassroomWalk
+          studentName={studentName}
+          onProceedToField={handleTransitionToField}
+        />
+      </div>
     )
   }
 
@@ -1490,7 +1795,7 @@ export default function Level2Main({
         }}
       />
 
-      {/* ── FLOATING TOP CAMERA / ZOOM TOGGLE ── */}
+      {/* ── FLOATING TOP CONTROLS (BGM & CAMERA / ZOOM TOGGLE) ── */}
       <div
         style={{
           position: 'absolute',
@@ -1502,7 +1807,7 @@ export default function Level2Main({
           gap: '8px',
         }}
       >
-
+        {renderBgmButton()}
         <button
           onClick={() => setCameraZoom(prev => (prev === 'fit' ? 'focus' : 'fit'))}
           style={{
@@ -1512,14 +1817,14 @@ export default function Level2Main({
             borderRadius: '12px',
             color: '#FCD34D',
             cursor: 'pointer',
-            padding: '6px 14px',
-            fontSize: '12px',
+            padding: 'clamp(4px, 0.8vh, 6px) clamp(8px, 1.2vw, 14px)',
+            fontSize: 'clamp(10px, 1.1vw, 12px)',
             fontWeight: 800,
             boxShadow: '0 4px 16px rgba(0, 0, 0, 0.5)',
             transition: 'all 0.2s',
           }}
         >
-          {cameraZoom === 'fit' ? '🔍 Mode: Lapangan Penuh (Fit)' : '🔍 Mode: Fokus Lapangan'}
+          {cameraZoom === 'fit' ? '🔍 Mode: Fit' : '🔍 Mode: Fokus'}
         </button>
       </div>
 
@@ -1553,6 +1858,7 @@ export default function Level2Main({
           gameState === 'MISSION_QUARTILES' ||
           gameState === 'MISSION_IQR' ||
           gameState === 'MISSION_QD' ||
+          gameState === 'FINAL_EVALUATION' ||
           gameState === 'FINAL_REPORT') ? (
           <g id="pure-green-field">
             {/* Base Grass */}
@@ -1619,6 +1925,7 @@ export default function Level2Main({
           gameState !== 'MISSION_QUARTILES' &&
           gameState !== 'MISSION_IQR' &&
           gameState !== 'MISSION_QD' &&
+          gameState !== 'FINAL_EVALUATION' &&
           gameState !== 'FINAL_REPORT' && (
           <g id="field-court-sector-lines" style={{ pointerEvents: 'none' }}>
           {/* Base Throwing Foul Line / Arc */}
@@ -1848,6 +2155,7 @@ export default function Level2Main({
         {gameState !== 'MISSION_QUARTILES' &&
           gameState !== 'MISSION_IQR' &&
           gameState !== 'MISSION_QD' &&
+          gameState !== 'FINAL_EVALUATION' &&
           gameState !== 'FINAL_REPORT' &&
           session?.students.filter(s => s.measured).map(student => {
             const isSortingPhase = gameState === 'KETUA_KELAS_SORTING' || gameState === 'KETUA_KELAS_ENTRANCE'
@@ -1935,6 +2243,7 @@ export default function Level2Main({
           gameState !== 'MISSION_QUARTILES' &&
           gameState !== 'MISSION_IQR' &&
           gameState !== 'MISSION_QD' &&
+          gameState !== 'FINAL_EVALUATION' &&
           gameState !== 'FINAL_REPORT' && (
           <FieldTeacher
             x={PAK_BAMBANG_POS.x}
@@ -1942,8 +2251,20 @@ export default function Level2Main({
             size={155}
             pose={walkingStudent ? 'point' : gameState === 'GATHER_STUDENTS' ? 'whistle' : gameState === 'BRIEFING' ? 'point' : 'idle'}
             label="👨‍🏫 Pak Bambang"
-            showGlow={gameState === 'MEET_TEACHER'}
-            onClick={gameState === 'MEET_TEACHER' ? handleStartTeacherBriefing : undefined}
+            showGlow={gameState === 'MEET_TEACHER' || (session?.measuredCount ?? 0) >= TOTAL_STUDENTS}
+            onClick={
+              gameState === 'MEET_TEACHER'
+                ? handleStartTeacherBriefing
+                : (session?.measuredCount ?? 0) >= TOTAL_STUDENTS
+                ? () => {
+                    if (session) {
+                      const computed = computeStats(session)
+                      setStats(computed)
+                      handleStartMissionRange(computed)
+                    }
+                  }
+                : undefined
+            }
             facing="left"
           />
         )}
@@ -1965,6 +2286,7 @@ export default function Level2Main({
 
         {/* ── 4C. KETUA KELAS (CLASS LEADER) NPC ── */}
         {(gameState === 'SORTING_SUCCESS_ANIMATION' ||
+          gameState === 'FINAL_EVALUATION' ||
           gameState === 'FINAL_REPORT') && (
           <FieldClassLeader
             x={leaderPos.x}
@@ -2015,6 +2337,7 @@ export default function Level2Main({
           gameState !== 'MISSION_QUARTILES' &&
           gameState !== 'MISSION_IQR' &&
           gameState !== 'MISSION_QD' &&
+          gameState !== 'FINAL_EVALUATION' &&
           gameState !== 'FINAL_REPORT' && (
           <g id="throwing-station-markings">
             {/* Active Throwing Ring Glow */}
@@ -2048,7 +2371,7 @@ export default function Level2Main({
               GARIS BATAS LEMPARAN
             </text>
 
-            {/* Prompt if station is vacant and student waiting */}
+            {/* Clickable prompt ring if station is vacant and student waiting */}
             {gameState === 'COLLECTING_DATA' && activeStudentId === null && walkingStudent === null && nextWaitingStudent && (
               <g
                 style={{ cursor: 'pointer', pointerEvents: 'auto' }}
@@ -2064,17 +2387,6 @@ export default function Level2Main({
                   strokeWidth={2}
                   strokeDasharray="5 3"
                 />
-                <text
-                  x={THROW_ORIGIN.x}
-                  y={THROW_ORIGIN.y - 30}
-                  textAnchor="middle"
-                  fill="#38BDF8"
-                  fontSize={12}
-                  fontWeight="900"
-                  filter="drop-shadow(0 2px 6px rgba(0,0,0,0.8))"
-                >
-                  📍 Tempat Lempar Bola (Klik / [Spasi] untuk Panggil)
-                </text>
               </g>
             )}
           </g>
@@ -2200,7 +2512,7 @@ export default function Level2Main({
               gender={wStudent?.gender || 'male'}
               avatarUrl={wStudent?.avatarUrl}
               spriteUrl={wStudent?.spriteUrl}
-              label={`${wStudent?.studentLabel || 'Siswa'} 🏃`}
+              label={wStudent?.studentLabel || 'Siswa'}
               glowColor="#38BDF8"
             />
           )
@@ -2466,127 +2778,159 @@ export default function Level2Main({
       {(gameState === 'COLLECTING_DATA' || gameState === 'STUDENT_CALLED' || gameState === 'READY_TO_THROW' || gameState === 'THROW_IN_PROGRESS') && session && (
         <div style={{
           position: 'absolute',
-          top: '72px',
-          left: '16px',
+          top: 'clamp(44px, 7vh, 68px)',
+          left: 'clamp(8px, 1.2vw, 16px)',
           zIndex: 100,
           display: 'flex',
           flexDirection: 'column',
-          gap: '8px',
-          maxWidth: '260px',
+          gap: '6px',
+          maxWidth: 'clamp(200px, 24vw, 260px)',
         }}>
-          {/* Call Next Student Quick Action */}
-          {nextWaitingStudent && activeStudentId === null && walkingStudent === null && (
-            <button
-              onClick={handleCallNextStudent}
-              style={{
-                width: '100%',
-                padding: '10px 14px',
-                borderRadius: '12px',
-                background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
-                border: '1.5px solid #FDE68A',
-                color: '#FFFFFF',
-                fontSize: '12px',
-                fontWeight: 900,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                boxShadow: '0 6px 20px rgba(245, 158, 11, 0.45)',
-                transition: 'all 0.15s ease',
-              }}
-            >
-              <span>📢</span> Panggil: {nextWaitingStudent.studentLabel} [Spasi]
-            </button>
-          )}
-
-          {walkingStudent && (
-            <div
-              style={{
-                width: '100%',
-                padding: '8px 12px',
-                borderRadius: '10px',
-                background: 'rgba(56, 189, 248, 0.2)',
-                border: '1.5px solid #38BDF8',
-                color: '#38BDF8',
-                fontSize: '11px',
-                fontWeight: 800,
-                textAlign: 'center',
-              }}
-            >
-              🏃 {session.students.find(s => s.studentId === walkingStudent.studentId)?.studentLabel} sedang menuju garis lempar...
-            </div>
-          )}
-
-          {/* Zona Siswa Waiting List */}
-          <div style={{
-            background: 'rgba(15, 23, 42, 0.94)',
-            borderRadius: '14px',
-            border: '1.5px solid #F59E0B',
-            padding: '12px',
-            boxShadow: '0 8px 24px rgba(0,0,0,0.6)',
-            color: '#FFFFFF',
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-              <span style={{ fontSize: '11px', fontWeight: 900, color: '#FCD34D', letterSpacing: '0.5px' }}>
-                🏫 ANTREAN SISWA ({session.measuredCount}/{TOTAL_STUDENTS})
-              </span>
-            </div>
-
-            <div style={{ maxHeight: '180px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-              {session.students.map(student => {
-                const isMeasured = student.measured
-                const isActive = student.studentId === activeStudentId
-                const isWalking = student.studentId === walkingStudent?.studentId
-                return (
-                  <button
-                    key={student.studentId}
-                    onClick={() => !isMeasured && activeStudentId === null && walkingStudent === null && handleCallStudent(student.studentId)}
-                    disabled={isMeasured || activeStudentId !== null || walkingStudent !== null}
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      padding: '5px 8px',
-                      borderRadius: '6px',
-                      background: isActive ? 'rgba(245, 158, 11, 0.25)' : isMeasured ? 'rgba(16, 185, 129, 0.15)' : 'rgba(255, 255, 255, 0.06)',
-                      border: `1px solid ${isActive ? '#F59E0B' : isMeasured ? '#10B981' : 'transparent'}`,
-                      color: '#FFFFFF',
-                      fontSize: '11px',
-                      fontWeight: 700,
-                      cursor: isMeasured || activeStudentId !== null ? 'default' : 'pointer',
-                    }}
-                  >
-                    <span>{student.studentLabel}</span>
-                    <span style={{ color: isMeasured ? '#10B981' : isWalking ? '#38BDF8' : '#FCD34D' }}>
-                      {isMeasured ? `${formatDistance(student.distance)}m ✓` : isWalking ? 'Berjalan 🏃' : isActive ? 'Membidik 🏹' : 'Panggil ▶'}
-                    </span>
-                  </button>
-                )
-              })}
-            </div>
-
-            {/* Quick Simulate Option */}
-            {session.measuredCount > 0 && session.measuredCount < TOTAL_STUDENTS && (
-              <button
-                onClick={handleSimulateRemaining}
-                style={{
-                  marginTop: '8px',
-                  width: '100%',
-                  padding: '6px',
-                  borderRadius: '6px',
-                  background: 'rgba(56, 189, 248, 0.15)',
-                  border: '1px solid #38BDF8',
-                  color: '#38BDF8',
-                  fontSize: '10.5px',
-                  fontWeight: 800,
-                  cursor: 'pointer',
-                }}
-              >
-                ⚡ Kumpulkan Sisa Lemparan Otomatis
-              </button>
-            )}
+          {/* Header Pill with Toggle Collapse */}
+          <div
+            onClick={() => setIsQueueCollapsed(prev => !prev)}
+            style={{
+              background: 'rgba(15, 23, 42, 0.94)',
+              borderRadius: '12px',
+              border: '1.5px solid #F59E0B',
+              padding: '6px 10px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
+              userSelect: 'none',
+            }}
+          >
+            <span style={{ fontSize: 'clamp(10px, 1.1vw, 11px)', fontWeight: 900, color: '#FCD34D' }}>
+              🏫 Antrean Siswa ({session.measuredCount}/{TOTAL_STUDENTS})
+            </span>
+            <span style={{ fontSize: '10px', color: '#94A3B8', fontWeight: 800 }}>
+              {isQueueCollapsed ? '▼ Buka' : '▲ Tutup'}
+            </span>
           </div>
+
+          {!isQueueCollapsed && (
+            <>
+              {/* Call Next Student Quick Action */}
+              {nextWaitingStudent && activeStudentId === null && walkingStudent === null && (
+                <button
+                  onClick={handleCallNextStudent}
+                  style={{
+                    width: '100%',
+                    padding: '8px 12px',
+                    borderRadius: '10px',
+                    background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
+                    border: '1.5px solid #FDE68A',
+                    color: '#FFFFFF',
+                    fontSize: 'clamp(10.5px, 1.15vw, 11.5px)',
+                    fontWeight: 900,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px',
+                    boxShadow: '0 6px 20px rgba(245, 158, 11, 0.45)',
+                    transition: 'all 0.15s ease',
+                  }}
+                >
+                  <span>📢</span> Panggil: {nextWaitingStudent.studentLabel} [Spasi]
+                </button>
+              )}
+
+              {/* Advance to Mission 1 button when all 10 students have thrown */}
+              {session.measuredCount >= TOTAL_STUDENTS && activeStudentId === null && walkingStudent === null && (
+                <button
+                  onClick={() => {
+                    const computed = computeStats(session)
+                    setStats(computed)
+                    handleStartMissionRange(computed)
+                  }}
+                  style={{
+                    width: '100%',
+                    padding: '9px 12px',
+                    borderRadius: '10px',
+                    background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+                    border: '2px solid #6EE7B7',
+                    color: '#FFFFFF',
+                    fontSize: 'clamp(11px, 1.2vw, 12px)',
+                    fontWeight: 900,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px',
+                    boxShadow: '0 6px 20px rgba(16, 185, 129, 0.5)',
+                  }}
+                >
+                  <span>🎯</span> Lanjut ke Misi 1 (Jangkauan) ▶
+                </button>
+              )}
+
+              {walkingStudent && (
+                <div
+                  style={{
+                    width: '100%',
+                    padding: '6px 10px',
+                    borderRadius: '8px',
+                    background: 'rgba(56, 189, 248, 0.2)',
+                    border: '1.5px solid #38BDF8',
+                    color: '#38BDF8',
+                    fontSize: '10.5px',
+                    fontWeight: 800,
+                    textAlign: 'center',
+                  }}
+                >
+                  🏃 {session.students.find(s => s.studentId === walkingStudent.studentId)?.studentLabel} sedang menuju garis lempar...
+                </div>
+              )}
+
+              {/* Zona Siswa Waiting List */}
+              <div style={{
+                background: 'rgba(15, 23, 42, 0.94)',
+                borderRadius: '12px',
+                border: '1.5px solid #F59E0B',
+                padding: '8px 10px',
+                boxShadow: '0 8px 24px rgba(0,0,0,0.6)',
+                color: '#FFFFFF',
+              }}>
+                <div style={{ maxHeight: 'clamp(110px, 20vh, 175px)', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                  {session.students.map(student => {
+                    const isMeasured = student.measured
+                    const isActive = student.studentId === activeStudentId
+                    const isWalking = student.studentId === walkingStudent?.studentId
+                    return (
+                      <button
+                        key={student.studentId}
+                        onClick={() => !isMeasured && activeStudentId === null && walkingStudent === null && handleCallStudent(student.studentId)}
+                        disabled={isMeasured || activeStudentId !== null || walkingStudent !== null}
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          padding: '4px 6px',
+                          borderRadius: '6px',
+                          background: isActive ? 'rgba(245, 158, 11, 0.25)' : isMeasured ? 'rgba(16, 185, 129, 0.15)' : 'rgba(255, 255, 255, 0.06)',
+                          border: `1px solid ${isActive ? '#F59E0B' : isMeasured ? '#10B981' : 'transparent'}`,
+                          color: '#FFFFFF',
+                          fontSize: 'clamp(9.5px, 1.1vw, 10.5px)',
+                          fontWeight: 700,
+                          cursor: isMeasured || activeStudentId !== null ? 'default' : 'pointer',
+                        }}
+                      >
+                        <span>{student.studentLabel}</span>
+                        <span style={{ color: isMeasured ? '#10B981' : isWalking ? '#38BDF8' : '#FCD34D' }}>
+                          {isMeasured ? `${formatDistance(student.distance)}m ✓` : isWalking ? 'Berjalan 🏃' : isActive ? 'Membidik 🏹' : 'Panggil ▶'}
+                        </span>
+                      </button>
+                    )
+                  })}
+                </div>
+
+                
+              </div>
+            </>
+          )}
         </div>
       )}
 
@@ -2626,7 +2970,7 @@ export default function Level2Main({
         <div
           style={{
             position: 'absolute',
-            top: '16px',
+            top: 'clamp(8px, 1.5vh, 16px)',
             left: '50%',
             transform: 'translateX(-50%)',
             zIndex: 100,
@@ -2634,8 +2978,8 @@ export default function Level2Main({
             flexDirection: 'column',
             alignItems: 'center',
             gap: '8px',
-            maxWidth: '720px',
-            width: '92%',
+            maxWidth: 'min(94%, 680px)',
+            width: '94%',
             pointerEvents: 'none',
           }}
         >
@@ -2647,62 +2991,43 @@ export default function Level2Main({
               border: '2px solid #F59E0B',
               borderRadius: '16px',
               boxShadow: '0 8px 32px rgba(0,0,0,0.7), 0 0 20px rgba(245, 158, 11, 0.35)',
-              padding: '10px 18px',
+              padding: 'clamp(6px, 1.2vh, 10px) clamp(10px, 1.5vw, 16px)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              gap: '12px',
+              flexWrap: 'wrap',
+              gap: '8px',
               pointerEvents: 'auto',
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <div
                 style={{
-                  width: '38px',
-                  height: '38px',
-                  borderRadius: '10px',
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '8px',
                   background: 'rgba(245, 158, 11, 0.2)',
                   border: '1.5px solid #F59E0B',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '20px',
+                  fontSize: '16px',
+                  flexShrink: 0,
                 }}
               >
                 📏
               </div>
               <div>
-                <div style={{ fontSize: '13px', fontWeight: 900, color: '#FCD34D', letterSpacing: '0.4px' }}>
+                <div style={{ fontSize: 'clamp(11px, 1.3vw, 13px)', fontWeight: 900, color: '#FCD34D', letterSpacing: '0.4px' }}>
                   MISI 1: JANGKAUAN LEMPARAN (RANGE)
                 </div>
-                <div style={{ fontSize: '11px', color: '#CBD5E1' }}>
-                  Bawa bendera <b>terdekat</b> ke Kotak Min dan bendera <b>terjauh</b> ke Kotak Max
+                <div style={{ fontSize: 'clamp(9.5px, 1.1vw, 11px)', color: '#CBD5E1' }}>
+                  Bawa bendera <b>terdekat</b> ke Kotak Min dan <b>terjauh</b> ke Kotak Max
                 </div>
               </div>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <button
-                onClick={handleAutoSelectRange}
-                style={{
-                  background: 'rgba(56, 189, 248, 0.2)',
-                  border: '1.5px solid #38BDF8',
-                  borderRadius: '10px',
-                  color: '#38BDF8',
-                  fontSize: '11px',
-                  fontWeight: 800,
-                  padding: '6px 12px',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  transition: 'all 0.15s',
-                }}
-              >
-                <span>⚡</span>
-                <span>Bantuan Auto-Pilih</span>
-              </button>
-            </div>
+            
           </div>
         </div>
       )}
@@ -2759,25 +3084,25 @@ export default function Level2Main({
               exit={{ scale: 0.9, opacity: 0 }}
               onClick={e => e.stopPropagation()}
               style={{
-                background: 'rgba(15, 23, 42, 0.96)',
-                border: '2px solid #8B5CF6',
-                borderRadius: '16px',
-                padding: '20px',
-                maxWidth: '380px',
-                width: '90%',
-                boxShadow: '0 20px 50px rgba(0,0,0,0.85), 0 0 25px rgba(139, 92, 246, 0.3)',
+                background: 'rgba(15, 23, 42, 0.97)',
+                border: '2.5px solid #8B5CF6',
+                borderRadius: '18px',
+                padding: '22px 24px',
+                maxWidth: '430px',
+                width: '92%',
+                boxShadow: '0 20px 50px rgba(0,0,0,0.85), 0 0 30px rgba(139, 92, 246, 0.35)',
                 color: '#FFF',
               }}
             >
-              <div style={{ fontSize: '13px', fontWeight: 900, color: '#C084FC', marginBottom: '6px' }}>
+              <div style={{ fontSize: '15px', fontWeight: 900, color: '#C084FC', marginBottom: '8px' }}>
                 📍 TENTUKAN KUARTIL
               </div>
-              <div style={{ fontSize: '12px', color: '#CBD5E1', marginBottom: '14px' }}>
-                Stevunt berada di: <strong style={{ color: '#FDE68A' }}>{stevuntPositionInfo.label}</strong>.
+              <div style={{ fontSize: '13px', color: '#E2E8F0', marginBottom: '16px', lineHeight: 1.5 }}>
+                Stevunt berada di: <strong style={{ color: '#FDE047' }}>{stevuntPositionInfo.label}</strong>.
                 <br />Pilih tiang kuartil yang sesuai untuk posisi ini:
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 <button
                   onClick={() => {
                     handlePlacePostAtCurrentPos('Q1')
@@ -2785,22 +3110,23 @@ export default function Level2Main({
                   }}
                   disabled={q1Post !== null}
                   style={{
-                    padding: '10px 14px',
-                    borderRadius: '10px',
-                    border: '1.5px solid #10B981',
-                    background: q1Post !== null ? 'rgba(16, 185, 129, 0.2)' : 'rgba(16, 185, 129, 0.15)',
+                    padding: '12px 16px',
+                    borderRadius: '12px',
+                    border: '2px solid #10B981',
+                    background: q1Post !== null ? 'rgba(16, 185, 129, 0.25)' : 'rgba(16, 185, 129, 0.2)',
                     color: '#FFF',
                     fontWeight: 800,
-                    fontSize: '12px',
+                    fontSize: '13.5px',
                     cursor: q1Post !== null ? 'not-allowed' : 'pointer',
                     textAlign: 'left',
                     display: 'flex',
                     justifyContent: 'space-between',
+                    alignItems: 'center',
                     opacity: q1Post !== null ? 0.6 : 1,
                   }}
                 >
                   <span>🟢 Jadikan Tiang Q1 (Kuartil Bawah)</span>
-                  <span>{q1Post !== null ? '✓ Terpasang' : 'PILIH'}</span>
+                  <span style={{ fontWeight: 900, color: '#34D399' }}>{q1Post !== null ? '✓ Terpasang' : 'PILIH ➔'}</span>
                 </button>
 
                 <button
@@ -2810,22 +3136,23 @@ export default function Level2Main({
                   }}
                   disabled={q2Post !== null}
                   style={{
-                    padding: '10px 14px',
-                    borderRadius: '10px',
-                    border: '1.5px solid #A855F7',
-                    background: q2Post !== null ? 'rgba(168, 85, 247, 0.2)' : 'rgba(168, 85, 247, 0.15)',
+                    padding: '12px 16px',
+                    borderRadius: '12px',
+                    border: '2px solid #A855F7',
+                    background: q2Post !== null ? 'rgba(168, 85, 247, 0.25)' : 'rgba(168, 85, 247, 0.2)',
                     color: '#FFF',
                     fontWeight: 800,
-                    fontSize: '12px',
+                    fontSize: '13.5px',
                     cursor: q2Post !== null ? 'not-allowed' : 'pointer',
                     textAlign: 'left',
                     display: 'flex',
                     justifyContent: 'space-between',
+                    alignItems: 'center',
                     opacity: q2Post !== null ? 0.6 : 1,
                   }}
                 >
                   <span>🟣 Jadikan Tiang Q2 (Median / Tengah)</span>
-                  <span>{q2Post !== null ? '✓ Terpasang' : 'PILIH'}</span>
+                  <span style={{ fontWeight: 900, color: '#C084FC' }}>{q2Post !== null ? '✓ Terpasang' : 'PILIH ➔'}</span>
                 </button>
 
                 <button
@@ -2835,22 +3162,23 @@ export default function Level2Main({
                   }}
                   disabled={q3Post !== null}
                   style={{
-                    padding: '10px 14px',
-                    borderRadius: '10px',
-                    border: '1.5px solid #F43F5E',
-                    background: q3Post !== null ? 'rgba(244, 63, 94, 0.2)' : 'rgba(244, 63, 94, 0.15)',
+                    padding: '12px 16px',
+                    borderRadius: '12px',
+                    border: '2px solid #F43F5E',
+                    background: q3Post !== null ? 'rgba(244, 63, 94, 0.25)' : 'rgba(244, 63, 94, 0.2)',
                     color: '#FFF',
                     fontWeight: 800,
-                    fontSize: '12px',
+                    fontSize: '13.5px',
                     cursor: q3Post !== null ? 'not-allowed' : 'pointer',
                     textAlign: 'left',
                     display: 'flex',
                     justifyContent: 'space-between',
+                    alignItems: 'center',
                     opacity: q3Post !== null ? 0.6 : 1,
                   }}
                 >
                   <span>🔴 Jadikan Tiang Q3 (Kuartil Atas)</span>
-                  <span>{q3Post !== null ? '✓ Terpasang' : 'PILIH'}</span>
+                  <span style={{ fontWeight: 900, color: '#FB7185' }}>{q3Post !== null ? '✓ Terpasang' : 'PILIH ➔'}</span>
                 </button>
               </div>
 
@@ -2897,6 +3225,32 @@ export default function Level2Main({
         />
       )}
 
+      {/* ── FINAL 5-QUESTION EVALUATION MODAL (DETERMINES STARS & PASSING) ── */}
+      <AnimatePresence>
+        {gameState === 'FINAL_EVALUATION' && (
+          <Level2FinalEvaluationModal
+            sessionStartTime={sessionStartTime}
+            playSound={playSound}
+            onPass={(stars, score) => {
+              setScoring(prev => ({
+                ...prev,
+                stars,
+              }))
+              setFinalEvalScore(score)
+              useGameStore.getState().setLevelStars(2, stars)
+              try {
+                localStorage.setItem('level_2_stars', String(stars))
+              } catch (_) {}
+              setGameState('FINAL_REPORT')
+            }}
+            onRestart={() => {
+              useGameStore.getState().startLevel(2)
+              window.location.reload()
+            }}
+          />
+        )}
+      </AnimatePresence>
+
       {/* ── FINAL COMPREHENSIVE REPORT MODAL ── */}
       <AnimatePresence>
         {gameState === 'FINAL_REPORT' && stats && (
@@ -2920,22 +3274,38 @@ export default function Level2Main({
               background: 'linear-gradient(135deg, #0F172A 0%, #1E293B 100%)',
               borderRadius: '24px',
               border: '2px solid #F59E0B',
-              padding: '28px 32px',
+              padding: 'clamp(14px, 2.5vh, 26px) clamp(16px, 2vw, 30px)',
               maxWidth: '650px',
               width: '100%',
+              maxHeight: 'min(94vh, 520px)',
+              overflowY: 'auto',
               boxShadow: '0 25px 60px rgba(0,0,0,0.9), 0 0 35px rgba(245, 158, 11, 0.4)',
               color: '#FFFFFF',
               textAlign: 'center',
             }}>
-              <div style={{ fontSize: '48px', marginBottom: '8px' }}>🏆 🌟</div>
-              <h2 style={{ fontSize: '22px', fontWeight: 900, color: '#FCD34D', margin: '0 0 4px' }}>
+              <div style={{ fontSize: 'clamp(32px, 5vh, 48px)', marginBottom: '4px' }}>🏆 🌟</div>
+              <h2 style={{ fontSize: 'clamp(17px, 2.2vw, 22px)', fontWeight: 900, color: '#FCD34D', margin: '0 0 4px' }}>
                 Laporan Investigasi Lemparan Selesai!
               </h2>
-              <p style={{ margin: '0 0 10px', fontSize: '12px', color: '#94A3B8' }}>
+              <p style={{ margin: '0 0 8px', fontSize: 'clamp(11px, 1.2vw, 12px)', color: '#94A3B8' }}>
                 Seluruh tahapan statistika lapangan berhasil diselesaikan bersama Ketua Kelas Aditya!
               </p>
-              <div style={{ fontSize: '22px', margin: '0 0 14px' }}>
-                {'⭐'.repeat(scoring.stars || 3)}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', margin: '0 0 10px' }}>
+                <div style={{ fontSize: '24px', letterSpacing: '4px' }}>
+                  {'⭐'.repeat(scoring.stars || 1)}
+                </div>
+                <div style={{ fontSize: '11px', color: '#FCD34D', fontWeight: 700 }}>
+                  {scoring.stars === 3
+                    ? '⭐⭐⭐ 3 Bintang — Selesai Sangat Cepat (≤ 10 Menit)!'
+                    : scoring.stars === 2
+                    ? '⭐⭐ 2 Bintang — Selesai Cepat (≤ 15 Menit)!'
+                    : '⭐ 1 Bintang — Investigasi Tuntas (> 15 Menit)!'}
+                </div>
+                {finalEvalScore !== null && (
+                  <div style={{ fontSize: '11px', color: '#34D399', fontWeight: 600 }}>
+                    ✓ Lulus Ujian Evaluasi: {finalEvalScore} / 3 Soal Benar
+                  </div>
+                )}
               </div>
 
               {/* Comprehensive Stats Grid */}
@@ -2943,13 +3313,13 @@ export default function Level2Main({
                 background: 'rgba(0,0,0,0.35)',
                 borderRadius: '16px',
                 border: '1px solid rgba(255,255,255,0.08)',
-                padding: '16px',
-                margin: '0 0 20px',
+                padding: 'clamp(10px, 1.8vh, 16px)',
+                margin: '0 0 14px',
                 display: 'grid',
-                gridTemplateColumns: '1fr 1fr',
-                gap: '10px',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                gap: 'clamp(6px, 1.2vh, 10px)',
                 textAlign: 'left',
-                fontSize: '12px',
+                fontSize: 'clamp(10.5px, 1.15vw, 12px)',
               }}>
                 <div>📍 Lemparan Terpendek: <b>{formatDistance(stats.min)} m</b></div>
                 <div>📍 Lemparan Terjauh: <b>{formatDistance(stats.max)} m</b></div>
@@ -2958,10 +3328,10 @@ export default function Level2Main({
                 <div>📊 Median (Q2): <b style={{ color: '#C084FC' }}>{formatDistance(stats.q2)} m</b></div>
                 <div>📊 Kuartil Atas (Q3): <b style={{ color: '#F472B6' }}>{formatDistance(stats.q3)} m</b></div>
                 <div>🌿 Jangkauan Kuartil (IQR): <b style={{ color: '#10B981' }}>{formatDistance(stats.iqr)} m</b></div>
-                <div style={{ gridColumn: 'span 2', paddingTop: '8px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+                <div style={{ gridColumn: '1 / -1', paddingTop: '6px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
                   📐 Simpangan Kuartil (Qd = ½(Q3 − Q1)):{' '}
-                  <b style={{ color: '#F472B6', fontSize: '14px' }}>{stats.qd} m</b>
-                  <span style={{ fontSize: '10.5px', color: '#94A3B8', display: 'block', marginTop: '2px' }}>
+                  <b style={{ color: '#F472B6', fontSize: 'clamp(12px, 1.3vw, 14px)' }}>{stats.qd} m</b>
+                  <span style={{ fontSize: '10px', color: '#94A3B8', display: 'block', marginTop: '2px' }}>
                     Setengah dari jangkauan kuartil: Qd = ½ × (Q3 − Q1) = ½ × {formatDistance(stats.iqr)} m = {stats.qd} m.
                   </span>
                 </div>
@@ -2969,18 +3339,22 @@ export default function Level2Main({
 
               <button
                 onClick={() => {
-                  completeLevel(2)
+                  const finalStars = scoring.stars || 1
+                  completeLevel(2, finalStars)
+                  try {
+                    localStorage.setItem('level_2_stars', String(finalStars))
+                  } catch (_) {}
                   router.push('/siswa')
                 }}
                 style={{
                   width: '100%',
-                  padding: '14px',
+                  padding: 'clamp(10px, 1.8vh, 14px)',
                   borderRadius: '14px',
                   background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
                   border: 'none',
                   color: '#FFFFFF',
                   fontWeight: 900,
-                  fontSize: '15px',
+                  fontSize: 'clamp(13px, 1.4vw, 15px)',
                   letterSpacing: '0.5px',
                   cursor: 'pointer',
                   boxShadow: '0 6px 20px rgba(245, 158, 11, 0.4)',
@@ -2990,6 +3364,64 @@ export default function Level2Main({
               </button>
             </div>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── 13. VIRTUAL JOYSTICK FOR TOUCH / MOBILE ── */}
+      {(gameState === 'KETUA_KELAS_SORTING' || gameState === 'MISSION_RANGE' || gameState === 'MISSION_QUARTILES') && (
+        <div
+          style={{
+            position: 'absolute',
+            bottom: 'clamp(14px, 2.5vh, 24px)',
+            left: 'clamp(14px, 2.5vw, 24px)',
+            zIndex: 140,
+            touchAction: 'none',
+          }}
+        >
+          <VirtualJoystick
+            onDir={(x, y) => {
+              joystickDirRef.current = { x, y }
+              if (x !== 0 || y !== 0) {
+                setTargetMovePos(null)
+              }
+            }}
+          />
+        </div>
+      )}
+
+      {/* ── 14. FLOATING ACTION BUTTON (INTERACT FOR MOBILE / TOUCH) ── */}
+      <AnimatePresence>
+        {(gameState === 'KETUA_KELAS_SORTING' || gameState === 'MISSION_RANGE') && actionButtonInfo && (
+          <motion.button
+            key="mobile-interact-btn"
+            initial={{ scale: 0.8, opacity: 0, y: 10 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.8, opacity: 0, y: 10 }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={handleInteract}
+            style={{
+              position: 'absolute',
+              bottom: 'clamp(18px, 3vh, 28px)',
+              right: 'clamp(18px, 3vw, 28px)',
+              zIndex: 150,
+              background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+              border: '2px solid #A7F3D0',
+              borderRadius: 16,
+              padding: 'clamp(10px, 1.8vh, 14px) clamp(16px, 2.5vw, 22px)',
+              color: '#FFFFFF',
+              fontSize: 'clamp(11.5px, 1.3vw, 13.5px)',
+              fontWeight: 900,
+              boxShadow: '0 8px 24px rgba(16, 185, 129, 0.5), 0 0 15px rgba(16, 185, 129, 0.3)',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+            }}
+          >
+            <span style={{ fontSize: '16px' }}>{actionButtonInfo.icon}</span>
+            <span>{actionButtonInfo.label}</span>
+          </motion.button>
         )}
       </AnimatePresence>
 

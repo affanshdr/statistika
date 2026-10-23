@@ -67,49 +67,59 @@ export default function QuartilesMissionPanel({
 
   return (
     <>
-      {/* ── BOTTOM HUD BANNER (DOCKING DI BAWAH BENDERA SEPERTI SORTING HUD) ── */}
+      {/* ── BOTTOM HUD BANNER (DOCKING DI BAWAH BENDERA - UKURAN PAS & RAPI) ── */}
       <div
         style={{
           position: 'absolute',
-          bottom: '16px',
+          bottom: 'clamp(8px, 1.8vh, 16px)',
           left: '50%',
           transform: 'translateX(-50%)',
-          width: 'min(92%, 800px)',
+          width: 'min(94%, 880px)',
           zIndex: 135,
-          background: 'rgba(15, 23, 42, 0.96)',
-          backdropFilter: 'blur(16px)',
+          background: 'rgba(11, 18, 33, 0.97)',
+          backdropFilter: 'blur(20px)',
           borderRadius: '18px',
-          border: '2px solid #8B5CF6',
-          padding: '12px 18px',
-          boxShadow: '0 16px 40px rgba(0,0,0,0.85), 0 0 25px rgba(139, 92, 246, 0.35)',
+          border: '2px solid #A855F7',
+          padding: 'clamp(8px, 1.4vh, 12px) clamp(12px, 1.8vw, 18px)',
+          boxShadow: '0 16px 40px rgba(0,0,0,0.9), 0 0 25px rgba(168, 85, 247, 0.35)',
           color: '#FFFFFF',
           display: 'flex',
           flexDirection: 'column',
-          gap: '8px',
+          gap: 'clamp(6px, 1vh, 9px)',
         }}
       >
         {/* Top Header Row */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <span style={{ fontSize: '22px' }}>📊</span>
+            <span style={{ fontSize: 'clamp(20px, 2.5vw, 26px)', lineHeight: 1 }}>📊</span>
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 900, color: '#C084FC' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                <h3
+                  style={{
+                    margin: 0,
+                    fontSize: 'clamp(13.5px, 1.6vw, 16.5px)',
+                    fontWeight: 900,
+                    color: '#F3E8FF',
+                    letterSpacing: '0.3px',
+                    textShadow: '0 2px 6px rgba(168, 85, 247, 0.5)',
+                  }}
+                >
                   Misi 2: Kuartil (Q1, Q2, Q3)
                 </h3>
                 {allPostsPlaced && (
-                  <div style={{ display: 'flex', gap: '4px' }}>
+                  <div style={{ display: 'flex', gap: '6px' }}>
                     <button
                       onClick={() => setActiveTab('POSTS')}
                       style={{
-                        padding: '2px 8px',
-                        borderRadius: '6px',
+                        padding: '3px 10px',
+                        borderRadius: '8px',
                         border: 'none',
-                        background: activeTab === 'POSTS' ? '#8B5CF6' : 'rgba(255,255,255,0.08)',
+                        background: activeTab === 'POSTS' ? '#A855F7' : 'rgba(255,255,255,0.12)',
                         color: '#FFF',
-                        fontSize: '9.5px',
+                        fontSize: 'clamp(10.5px, 1.15vw, 12px)',
                         fontWeight: 800,
                         cursor: 'pointer',
+                        transition: 'all 0.15s',
                       }}
                     >
                       1. Tiang ✓
@@ -117,14 +127,15 @@ export default function QuartilesMissionPanel({
                     <button
                       onClick={() => setActiveTab('VALUES')}
                       style={{
-                        padding: '2px 8px',
-                        borderRadius: '6px',
+                        padding: '3px 10px',
+                        borderRadius: '8px',
                         border: 'none',
-                        background: activeTab === 'VALUES' ? '#8B5CF6' : 'rgba(255,255,255,0.08)',
+                        background: activeTab === 'VALUES' ? '#A855F7' : 'rgba(255,255,255,0.12)',
                         color: '#FFF',
-                        fontSize: '9.5px',
+                        fontSize: 'clamp(10.5px, 1.15vw, 12px)',
                         fontWeight: 800,
                         cursor: 'pointer',
+                        transition: 'all 0.15s',
                       }}
                     >
                       2. Nilai Kuartil
@@ -132,10 +143,10 @@ export default function QuartilesMissionPanel({
                   </div>
                 )}
               </div>
-              <p style={{ margin: 0, fontSize: '11px', color: '#CBD5E1' }}>
+              <p style={{ margin: '2px 0 0', fontSize: 'clamp(10.5px, 1.15vw, 12.5px)', color: '#E2E8F0', lineHeight: 1.4, fontWeight: 500 }}>
                 {activeTab === 'POSTS'
-                  ? 'Kuartil membagi 10 data menjadi 4 bagian. Dekati bendera di atas lalu tentukan letak tiang Q1, Q2, atau Q3.'
-                  : 'Bagus! Seluruh tiang terpasang. Sekarang masukkan nilai jarak lemparan untuk masing-masing kuartil.'}
+                  ? 'Kuartil membagi 10 data menjadi 4 bagian. Dekati bendera di atas lalu tentukan tiang Q1, Q2, atau Q3.'
+                  : 'Bagus! Seluruh tiang terpasang. Sekarang masukkan nilai jarak lemparan masing-masing kuartil.'}
               </p>
             </div>
           </div>
@@ -143,19 +154,20 @@ export default function QuartilesMissionPanel({
           {/* Progress Pill */}
           <div
             style={{
-              background: placedCount === 3 ? 'rgba(16, 185, 129, 0.25)' : 'rgba(139, 92, 246, 0.15)',
-              border: `1.5px solid ${placedCount === 3 ? '#10B981' : '#8B5CF6'}`,
+              background: placedCount === 3 ? 'rgba(16, 185, 129, 0.28)' : 'rgba(168, 85, 247, 0.22)',
+              border: `1.5px solid ${placedCount === 3 ? '#10B981' : '#A855F7'}`,
               borderRadius: '12px',
-              padding: '4px 12px',
-              fontSize: '11.5px',
+              padding: 'clamp(4px, 0.8vh, 6px) clamp(10px, 1.4vw, 14px)',
+              fontSize: 'clamp(11.5px, 1.25vw, 13px)',
               fontWeight: 900,
-              color: placedCount === 3 ? '#34D399' : '#C084FC',
+              color: placedCount === 3 ? '#34D399' : '#F3E8FF',
               whiteSpace: 'nowrap',
+              boxShadow: placedCount === 3 ? '0 0 12px rgba(16, 185, 129, 0.35)' : '0 0 10px rgba(168, 85, 247, 0.25)',
             }}
           >
             {activeTab === 'POSTS'
-              ? `${placedCount} / 3 Tiang Terpasang`
-              : 'Langkah 2: Nilai Kuartil'}
+              ? `${placedCount} / 3 Tiang`
+              : 'Isi Nilai Kuartil'}
           </div>
         </div>
 
@@ -165,37 +177,41 @@ export default function QuartilesMissionPanel({
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            borderTop: '1px solid rgba(255,255,255,0.1)',
+            flexWrap: 'wrap',
+            borderTop: '1px solid rgba(255,255,255,0.14)',
             paddingTop: '8px',
-            gap: '12px',
+            gap: '8px',
           }}
         >
           {activeTab === 'POSTS' ? (
             <>
-              {/* Stevunt's Live Detected Position */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flex: 1, minWidth: 0 }}>
-                <span style={{ color: '#94A3B8', fontSize: '11px', whiteSpace: 'nowrap' }}>Status:</span>
+              {/* Stevunt Live Detected Position */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, minWidth: '200px' }}>
+                <span style={{ color: '#CBD5E1', fontSize: 'clamp(11.5px, 1.2vw, 13px)', fontWeight: 800, whiteSpace: 'nowrap' }}>
+                  Status:
+                </span>
                 <div
                   style={{
-                    padding: '3px 10px',
-                    borderRadius: '8px',
-                    background: canPlaceHere ? 'rgba(16, 185, 129, 0.18)' : 'rgba(255, 255, 255, 0.06)',
-                    border: `1.5px solid ${canPlaceHere ? '#10B981' : 'rgba(255, 255, 255, 0.12)'}`,
-                    fontSize: '11px',
+                    padding: '4px 10px',
+                    borderRadius: '10px',
+                    background: canPlaceHere ? 'rgba(16, 185, 129, 0.22)' : 'rgba(255, 255, 255, 0.08)',
+                    border: `1.5px solid ${canPlaceHere ? '#10B981' : 'rgba(255, 255, 255, 0.18)'}`,
+                    fontSize: 'clamp(11.5px, 1.2vw, 13px)',
                     whiteSpace: 'nowrap',
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
+                    boxShadow: canPlaceHere ? '0 0 12px rgba(16, 185, 129, 0.35)' : 'none',
                   }}
                 >
-                  <span style={{ color: '#94A3B8' }}>📍 Posisi Stevunt: </span>
-                  <strong style={{ color: canPlaceHere ? '#6EE7B7' : '#FCD34D' }}>
+                  <span style={{ color: '#E2E8F0', fontWeight: 600 }}>📍 Posisi Stevunt: </span>
+                  <strong style={{ color: canPlaceHere ? '#6EE7B7' : '#FDE047', fontWeight: 900 }}>
                     {currentPositionLabel}
                   </strong>
                 </div>
               </div>
 
               {/* Three Quartile Action Buttons */}
-              <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
                 {/* Q1 Button */}
                 <button
                   onClick={() => onPlacePostAtCurrentPos('Q1')}
@@ -203,21 +219,36 @@ export default function QuartilesMissionPanel({
                   style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '4px',
-                    padding: '6px 10px',
-                    borderRadius: '8px',
-                    border: `1.5px solid ${q1Post ? '#10B981' : canPlaceHere ? '#34D399' : '#334155'}`,
-                    background: q1Post ? 'rgba(16, 185, 129, 0.25)' : canPlaceHere ? 'rgba(16, 185, 129, 0.15)' : 'rgba(255, 255, 255, 0.04)',
-                    color: '#FFF',
-                    fontSize: '11px',
-                    fontWeight: 800,
+                    gap: '5px',
+                    padding: 'clamp(6px, 1vh, 8px) clamp(10px, 1.3vw, 14px)',
+                    borderRadius: '10px',
+                    border: `1.5px solid ${
+                      q1Post !== null
+                        ? '#10B981'
+                        : canPlaceHere
+                        ? '#34D399'
+                        : 'rgba(52, 211, 153, 0.45)'
+                    }`,
+                    background:
+                      q1Post !== null
+                        ? 'rgba(16, 185, 129, 0.3)'
+                        : canPlaceHere
+                        ? 'rgba(16, 185, 129, 0.25)'
+                        : 'rgba(16, 185, 129, 0.12)',
+                    color: q1Post !== null ? '#A7F3D0' : canPlaceHere ? '#FFFFFF' : '#D1FAE5',
+                    fontSize: 'clamp(11.5px, 1.2vw, 13px)',
+                    fontWeight: 900,
                     cursor: q1Post !== null || !canPlaceHere ? 'not-allowed' : 'pointer',
-                    opacity: q1Post !== null ? 0.9 : canPlaceHere ? 1 : 0.45,
                     whiteSpace: 'nowrap',
+                    boxShadow: canPlaceHere && q1Post === null ? '0 0 14px rgba(52, 211, 153, 0.55)' : 'none',
+                    transition: 'all 0.18s ease',
                   }}
                 >
-                  <span>🟢 Q1 (Bawah)</span>
-                  <span>{q1Post !== null ? '✓' : canPlaceHere ? '➔' : ''}</span>
+                  <span style={{ fontSize: '13px' }}>🟢</span>
+                  <span>Q1 (Bawah)</span>
+                  <span style={{ fontSize: '12px', fontWeight: 900, color: '#34D399' }}>
+                    {q1Post !== null ? ' ✓' : canPlaceHere ? ' ➔' : ''}
+                  </span>
                 </button>
 
                 {/* Q2 Button */}
@@ -227,21 +258,36 @@ export default function QuartilesMissionPanel({
                   style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '4px',
-                    padding: '6px 10px',
-                    borderRadius: '8px',
-                    border: `1.5px solid ${q2Post ? '#8B5CF6' : canPlaceHere ? '#A78BFA' : '#334155'}`,
-                    background: q2Post ? 'rgba(139, 92, 246, 0.25)' : canPlaceHere ? 'rgba(139, 92, 246, 0.15)' : 'rgba(255, 255, 255, 0.04)',
-                    color: '#FFF',
-                    fontSize: '11px',
-                    fontWeight: 800,
+                    gap: '5px',
+                    padding: 'clamp(6px, 1vh, 8px) clamp(10px, 1.3vw, 14px)',
+                    borderRadius: '10px',
+                    border: `1.5px solid ${
+                      q2Post !== null
+                        ? '#8B5CF6'
+                        : canPlaceHere
+                        ? '#C084FC'
+                        : 'rgba(168, 85, 247, 0.45)'
+                    }`,
+                    background:
+                      q2Post !== null
+                        ? 'rgba(139, 92, 246, 0.3)'
+                        : canPlaceHere
+                        ? 'rgba(139, 92, 246, 0.25)'
+                        : 'rgba(139, 92, 246, 0.12)',
+                    color: q2Post !== null ? '#DDD6FE' : canPlaceHere ? '#FFFFFF' : '#EDE9FE',
+                    fontSize: 'clamp(11.5px, 1.2vw, 13px)',
+                    fontWeight: 900,
                     cursor: q2Post !== null || !canPlaceHere ? 'not-allowed' : 'pointer',
-                    opacity: q2Post !== null ? 0.9 : canPlaceHere ? 1 : 0.45,
                     whiteSpace: 'nowrap',
+                    boxShadow: canPlaceHere && q2Post === null ? '0 0 14px rgba(192, 132, 252, 0.55)' : 'none',
+                    transition: 'all 0.18s ease',
                   }}
                 >
-                  <span>🟣 Q2 (Median)</span>
-                  <span>{q2Post !== null ? '✓' : canPlaceHere ? '➔' : ''}</span>
+                  <span style={{ fontSize: '13px' }}>🟣</span>
+                  <span>Q2 (Median)</span>
+                  <span style={{ fontSize: '12px', fontWeight: 900, color: '#C084FC' }}>
+                    {q2Post !== null ? ' ✓' : canPlaceHere ? ' ➔' : ''}
+                  </span>
                 </button>
 
                 {/* Q3 Button */}
@@ -251,21 +297,36 @@ export default function QuartilesMissionPanel({
                   style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '4px',
-                    padding: '6px 10px',
-                    borderRadius: '8px',
-                    border: `1.5px solid ${q3Post ? '#EC4899' : canPlaceHere ? '#F472B6' : '#334155'}`,
-                    background: q3Post ? 'rgba(236, 72, 153, 0.25)' : canPlaceHere ? 'rgba(236, 72, 153, 0.15)' : 'rgba(255, 255, 255, 0.04)',
-                    color: '#FFF',
-                    fontSize: '11px',
-                    fontWeight: 800,
+                    gap: '5px',
+                    padding: 'clamp(6px, 1vh, 8px) clamp(10px, 1.3vw, 14px)',
+                    borderRadius: '10px',
+                    border: `1.5px solid ${
+                      q3Post !== null
+                        ? '#EC4899'
+                        : canPlaceHere
+                        ? '#F472B6'
+                        : 'rgba(236, 72, 153, 0.45)'
+                    }`,
+                    background:
+                      q3Post !== null
+                        ? 'rgba(236, 72, 153, 0.3)'
+                        : canPlaceHere
+                        ? 'rgba(236, 72, 153, 0.25)'
+                        : 'rgba(236, 72, 153, 0.12)',
+                    color: q3Post !== null ? '#FBCFE8' : canPlaceHere ? '#FFFFFF' : '#FCE7F3',
+                    fontSize: 'clamp(11.5px, 1.2vw, 13px)',
+                    fontWeight: 900,
                     cursor: q3Post !== null || !canPlaceHere ? 'not-allowed' : 'pointer',
-                    opacity: q3Post !== null ? 0.9 : canPlaceHere ? 1 : 0.45,
                     whiteSpace: 'nowrap',
+                    boxShadow: canPlaceHere && q3Post === null ? '0 0 14px rgba(244, 114, 182, 0.55)' : 'none',
+                    transition: 'all 0.18s ease',
                   }}
                 >
-                  <span>🔴 Q3 (Atas)</span>
-                  <span>{q3Post !== null ? '✓' : canPlaceHere ? '➔' : ''}</span>
+                  <span style={{ fontSize: '13px' }}>🔴</span>
+                  <span>Q3 (Atas)</span>
+                  <span style={{ fontSize: '12px', fontWeight: 900, color: '#F472B6' }}>
+                    {q3Post !== null ? ' ✓' : canPlaceHere ? ' ➔' : ''}
+                  </span>
                 </button>
 
                 {/* Next Step Button when all placed */}
@@ -277,15 +338,15 @@ export default function QuartilesMissionPanel({
                     whileTap={{ scale: 0.96 }}
                     onClick={() => setActiveTab('VALUES')}
                     style={{
-                      padding: '6px 14px',
-                      borderRadius: '8px',
+                      padding: 'clamp(6px, 1vh, 8px) clamp(12px, 1.5vw, 16px)',
+                      borderRadius: '10px',
                       background: 'linear-gradient(135deg, #10B981, #059669)',
                       border: 'none',
                       color: '#FFFFFF',
                       fontWeight: 900,
-                      fontSize: '11.5px',
+                      fontSize: 'clamp(11.5px, 1.2vw, 13px)',
                       cursor: 'pointer',
-                      boxShadow: '0 4px 15px rgba(16, 185, 129, 0.4)',
+                      boxShadow: '0 4px 14px rgba(16, 185, 129, 0.45)',
                       whiteSpace: 'nowrap',
                     }}
                   >
@@ -296,10 +357,10 @@ export default function QuartilesMissionPanel({
             </>
           ) : (
             /* Values Input Phase Row */
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', gap: '8px' }}>
-              <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flex: 1 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', gap: '10px', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flex: 1, flexWrap: 'wrap' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <span style={{ fontSize: '11px', color: '#34D399', fontWeight: 900 }}>Q1:</span>
+                  <span style={{ fontSize: 'clamp(12px, 1.3vw, 13.5px)', color: '#34D399', fontWeight: 900 }}>Q1:</span>
                   <input
                     type="text"
                     inputMode="decimal"
@@ -310,13 +371,13 @@ export default function QuartilesMissionPanel({
                       setErrorMsg('')
                     }}
                     style={{
-                      width: '75px',
+                      width: '80px',
                       padding: '5px 8px',
-                      borderRadius: '6px',
+                      borderRadius: '8px',
                       border: '1.5px solid #10B981',
                       background: '#0F172A',
                       color: '#FFF',
-                      fontSize: '11.5px',
+                      fontSize: 'clamp(11.5px, 1.2vw, 13px)',
                       fontWeight: 800,
                       outline: 'none',
                     }}
@@ -324,7 +385,7 @@ export default function QuartilesMissionPanel({
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <span style={{ fontSize: '11px', color: '#C084FC', fontWeight: 900 }}>Q2:</span>
+                  <span style={{ fontSize: 'clamp(12px, 1.3vw, 13.5px)', color: '#C084FC', fontWeight: 900 }}>Q2:</span>
                   <input
                     type="text"
                     inputMode="decimal"
@@ -335,13 +396,13 @@ export default function QuartilesMissionPanel({
                       setErrorMsg('')
                     }}
                     style={{
-                      width: '75px',
+                      width: '80px',
                       padding: '5px 8px',
-                      borderRadius: '6px',
+                      borderRadius: '8px',
                       border: '1.5px solid #8B5CF6',
                       background: '#0F172A',
                       color: '#FFF',
-                      fontSize: '11.5px',
+                      fontSize: 'clamp(11.5px, 1.2vw, 13px)',
                       fontWeight: 800,
                       outline: 'none',
                     }}
@@ -349,7 +410,7 @@ export default function QuartilesMissionPanel({
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <span style={{ fontSize: '11px', color: '#F472B6', fontWeight: 900 }}>Q3:</span>
+                  <span style={{ fontSize: 'clamp(12px, 1.3vw, 13.5px)', color: '#F472B6', fontWeight: 900 }}>Q3:</span>
                   <input
                     type="text"
                     inputMode="decimal"
@@ -360,13 +421,13 @@ export default function QuartilesMissionPanel({
                       setErrorMsg('')
                     }}
                     style={{
-                      width: '75px',
+                      width: '80px',
                       padding: '5px 8px',
-                      borderRadius: '6px',
+                      borderRadius: '8px',
                       border: '1.5px solid #EC4899',
                       background: '#0F172A',
                       color: '#FFF',
-                      fontSize: '11.5px',
+                      fontSize: 'clamp(11.5px, 1.2vw, 13px)',
                       fontWeight: 800,
                       outline: 'none',
                     }}
@@ -374,23 +435,23 @@ export default function QuartilesMissionPanel({
                 </div>
 
                 {errorMsg && (
-                  <span style={{ fontSize: '10px', color: '#EF4444', fontWeight: 800, marginLeft: '4px' }}>
+                  <span style={{ fontSize: 'clamp(10.5px, 1.1vw, 12px)', color: '#EF4444', fontWeight: 800, marginLeft: '4px' }}>
                     ⚠️ {errorMsg}
                   </span>
                 )}
               </div>
 
-              <div style={{ display: 'flex', gap: '6px' }}>
+              <div style={{ display: 'flex', gap: '8px' }}>
                 <button
                   onClick={() => setActiveTab('POSTS')}
                   style={{
-                    padding: '6px 10px',
+                    padding: '6px 12px',
                     borderRadius: '8px',
-                    background: 'rgba(255,255,255,0.08)',
-                    border: '1px solid rgba(255,255,255,0.2)',
-                    color: '#CBD5E1',
-                    fontSize: '11px',
-                    fontWeight: 700,
+                    background: 'rgba(255,255,255,0.1)',
+                    border: '1.5px solid rgba(255,255,255,0.22)',
+                    color: '#E2E8F0',
+                    fontSize: 'clamp(11px, 1.2vw, 12.5px)',
+                    fontWeight: 800,
                     cursor: 'pointer',
                   }}
                 >
@@ -403,13 +464,13 @@ export default function QuartilesMissionPanel({
                   onClick={handleVerifyValues}
                   disabled={!q1Input || !q2Input || !q3Input}
                   style={{
-                    padding: '6px 14px',
-                    borderRadius: '8px',
+                    padding: '7px 16px',
+                    borderRadius: '10px',
                     background: q1Input && q2Input && q3Input ? 'linear-gradient(135deg, #10B981, #059669)' : '#475569',
                     border: 'none',
                     color: '#FFFFFF',
                     fontWeight: 900,
-                    fontSize: '11.5px',
+                    fontSize: 'clamp(11.5px, 1.2vw, 13px)',
                     cursor: q1Input && q2Input && q3Input ? 'pointer' : 'not-allowed',
                     boxShadow: q1Input && q2Input && q3Input ? '0 4px 15px rgba(16, 185, 129, 0.4)' : 'none',
                     whiteSpace: 'nowrap',

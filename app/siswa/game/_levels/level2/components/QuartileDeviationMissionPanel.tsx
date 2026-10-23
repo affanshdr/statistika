@@ -95,34 +95,34 @@ export default function QuartileDeviationMissionPanel({
         <div
           style={{
             position: 'absolute',
-            bottom: '16px',
+            bottom: 'clamp(10px, 2.2vh, 22px)',
             left: '50%',
             transform: 'translateX(-50%)',
-            width: 'min(92%, 800px)',
+            width: 'min(94%, 880px)',
             zIndex: 135,
-            background: 'rgba(15, 23, 42, 0.96)',
-            backdropFilter: 'blur(16px)',
+            background: 'rgba(11, 18, 33, 0.97)',
+            backdropFilter: 'blur(20px)',
             borderRadius: '18px',
             border: '2px solid #EC4899',
-            padding: '12px 18px',
-            boxShadow: '0 16px 40px rgba(0,0,0,0.85), 0 0 25px rgba(236, 72, 153, 0.35)',
+            padding: 'clamp(8px, 1.4vh, 12px) clamp(12px, 1.8vw, 18px)',
+            boxShadow: '0 20px 50px rgba(0,0,0,0.92), 0 0 35px rgba(236, 72, 153, 0.45)',
             color: '#FFFFFF',
             display: 'flex',
             flexDirection: 'column',
-            gap: '8px',
+            gap: 'clamp(6px, 1vh, 9px)',
           }}
         >
           {/* Top Header Row */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <span style={{ fontSize: '22px' }}>📐</span>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '14px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+              <span style={{ fontSize: 'clamp(20px, 2.5vw, 26px)', lineHeight: 1 }}>📐</span>
               <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 900, color: '#F472B6' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <h3 style={{ margin: 0, fontSize: 'clamp(13.5px, 1.6vw, 16.5px)', fontWeight: 900, color: '#F472B6', letterSpacing: '0.4px', textShadow: '0 2px 8px rgba(236, 72, 153, 0.6)' }}>
                     Misi 4: Simpangan Kuartil (Qd)
                   </h3>
                 </div>
-                <p style={{ margin: 0, fontSize: '11px', color: '#CBD5E1' }}>
+                <p style={{ margin: '4px 0 0', fontSize: 'clamp(10.5px, 1.15vw, 12.5px)', color: '#E2E8F0', lineHeight: 1.5 }}>
                   Simpangan kuartil bernilai setengah dari jangkauan kuartil: Qd = ½(Q3 − Q1) = ½ × IQR.
                 </p>
               </div>
@@ -131,14 +131,15 @@ export default function QuartileDeviationMissionPanel({
             {/* Progress Step Pill */}
             <div
               style={{
-                background: 'rgba(236, 72, 153, 0.18)',
-                border: '1.5px solid #EC4899',
-                borderRadius: '12px',
-                padding: '4px 12px',
-                fontSize: '11.5px',
+                background: 'rgba(236, 72, 153, 0.25)',
+                border: '2px solid #EC4899',
+                borderRadius: '16px',
+                padding: 'clamp(6px, 1vh, 10px) clamp(14px, 1.8vw, 22px)',
+                fontSize: 'clamp(13px, 1.5vw, 16px)',
                 fontWeight: 900,
                 color: '#FBCFE8',
                 whiteSpace: 'nowrap',
+                boxShadow: '0 0 16px rgba(236, 72, 153, 0.35)',
               }}
             >
               Langkah 1: Hitung Qd
@@ -272,12 +273,12 @@ export default function QuartileDeviationMissionPanel({
               style={{
                 maxWidth: 540,
                 width: '100%',
-                maxHeight: 'calc(100vh - 40px)',
+                maxHeight: 'min(94vh, 480px)',
                 overflowY: 'auto',
-                padding: '24px 22px',
+                padding: 'clamp(12px, 2.5vh, 22px) clamp(14px, 2vw, 22px)',
                 display: 'flex',
                 flexDirection: 'column',
-                gap: 16,
+                gap: 'clamp(8px, 1.8vh, 14px)',
               }}
             >
               {/* Header Badges */}

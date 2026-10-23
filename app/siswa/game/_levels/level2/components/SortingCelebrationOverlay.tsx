@@ -91,11 +91,13 @@ export default function SortingCelebrationOverlay({
           position: 'relative',
           maxWidth: '820px',
           width: '100%',
+          maxHeight: 'min(94vh, 560px)',
+          overflowY: 'auto',
           background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.98))',
           borderRadius: '24px',
           border: '2px solid #10B981',
           boxShadow: '0 25px 60px rgba(0,0,0,0.9), 0 0 40px rgba(16, 185, 129, 0.35)',
-          padding: '32px 28px',
+          padding: 'clamp(14px, 2.5vh, 28px) clamp(16px, 2.5vw, 28px)',
           textAlign: 'center',
           zIndex: 10,
         }}
@@ -104,7 +106,7 @@ export default function SortingCelebrationOverlay({
         <motion.div
           animate={{ scale: [1, 1.15, 1], rotate: [0, -5, 5, 0] }}
           transition={{ duration: 1.8, repeat: Infinity }}
-          style={{ fontSize: '56px', marginBottom: '8px' }}
+          style={{ fontSize: 'clamp(32px, 5vh, 52px)', marginBottom: '6px' }}
         >
           🚩 ⭐ 🏆
         </motion.div>

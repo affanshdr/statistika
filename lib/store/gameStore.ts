@@ -15,6 +15,7 @@ export interface GameStore {
   currentLevel: number
   completedLevels: number[]   // levels fully completed by the student
   completedPostTests: number[] // post tests completed by the student
+  levelStars: Record<number, number>
   xp: number
   lives: number
   badges: string[]
@@ -40,7 +41,8 @@ export interface GameStore {
   setStep: (step: number) => void
   setAnswer: (key: string, value: unknown) => void
   setTimeRemaining: (seconds: number) => void
-  completeLevel: (levelId: number) => void
+  setLevelStars: (levelId: number, stars: number) => void
+  completeLevel: (levelId: number, stars?: number) => void
   completePostTest: (levelId: number) => void
   unlockBadge: (badgeId: string) => void
   setVerdict: (verdict: string) => void
@@ -57,6 +59,7 @@ export const useGameStore = create<GameStore>()(
       currentLevel: 0,
       completedLevels: [],
       completedPostTests: [],
+      levelStars: {},
       xp: 0,
       lives: 3,
       badges: [],
@@ -94,13 +97,24 @@ export const useGameStore = create<GameStore>()(
 
       setTimeRemaining: (seconds) => set({ timeRemaining: seconds }),
 
-      completeLevel: (levelId) =>
+      setLevelStars: (levelId, stars) =>
+        set((state) => ({
+          levelStars: {
+            ...state.levelStars,
+            [levelId]: stars,
+          },
+        })),
+
+      completeLevel: (levelId, stars) =>
         set((state) => ({
           isCompleted: true,
           currentLevel: levelId,
           completedLevels: state.completedLevels.includes(levelId)
             ? state.completedLevels
             : [...state.completedLevels, levelId],
+          levelStars: stars !== undefined
+            ? { ...state.levelStars, [levelId]: stars }
+            : state.levelStars,
         })),
 
       completePostTest: (levelId) =>
@@ -162,6 +176,7 @@ export const useGameStore = create<GameStore>()(
         currentLevel: state.currentLevel,
         completedLevels: state.completedLevels,
         completedPostTests: state.completedPostTests,
+        levelStars: state.levelStars,
         level1Dataset: state.level1Dataset,
         // level state (backup on refresh)
         currentStep: state.currentStep,

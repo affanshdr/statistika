@@ -78,7 +78,7 @@ export default function SiswaPage() {
   const [gatingStep, setGatingStep] = useState<1 | 2>(1)
 
   // Game store variables
-  const { startLevel, resetLevel, completedLevels, completedPostTests = [] } = useGameStore()
+  const { startLevel, resetLevel, completedLevels, completedPostTests = [], levelStars = {} } = useGameStore()
 
   useEffect(() => {
     const data = localStorage.getItem('student')
@@ -516,6 +516,8 @@ export default function SiswaPage() {
               }}>
                 {LEVELS.map(level => {
                   const isCompleted = completedLevels.includes(level.id)
+                  const storedStars = levelStars[level.id] ?? (typeof window !== 'undefined' ? Number(localStorage.getItem(`level_${level.id}_stars`)) || 0 : 0)
+                  const earnedStars = storedStars > 0 ? storedStars : (isCompleted && level.id === 2 ? 3 : 0)
                   const isUnlocked = !level.locked
                   const isHovered = hoveredCard === level.id
                   const rotation = level.id === 1 ? -2.5 : level.id === 2 ? 2 : -1
@@ -726,6 +728,53 @@ export default function SiswaPage() {
                             }}>
                               📍 {level.locationName}
                             </span>
+                          )}
+
+                          {/* Jumlah bintang yang didapat di bawah tulisan Lapangan Sekolah */}
+                          {level.id === 2 && (
+                            <div
+                              title={earnedStars > 0 ? `${earnedStars} dari 3 Bintang diperoleh` : 'Belum ada bintang diperoleh'}
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '3px',
+                                marginTop: '4px',
+                                padding: '2px 8px',
+                                borderRadius: '12px',
+                                background: earnedStars > 0 ? 'rgba(245, 158, 11, 0.09)' : 'rgba(148, 163, 184, 0.07)',
+                                border: earnedStars > 0 ? '1px solid rgba(245, 158, 11, 0.3)' : '1px dashed rgba(148, 163, 184, 0.25)',
+                              }}
+                            >
+                              <div style={{ display: 'flex', gap: '2px', alignItems: 'center' }}>
+                                {[1, 2, 3].map((starIdx) => {
+                                  const isEarned = starIdx <= earnedStars
+                                  return (
+                                    <span
+                                      key={starIdx}
+                                      style={{
+                                        fontSize: isMobile ? '13px' : '16px',
+                                        lineHeight: 1,
+                                        color: isEarned ? '#F59E0B' : '#CBD5E1',
+                                        filter: isEarned ? 'drop-shadow(0 1px 2px rgba(245, 158, 11, 0.45))' : 'none',
+                                      }}
+                                    >
+                                      ★
+                                    </span>
+                                  )
+                                })}
+                              </div>
+                              <span style={{
+                                fontFamily: 'var(--font-caveat), cursive',
+                                fontSize: isMobile ? '12px' : '14px',
+                                fontWeight: 700,
+                                color: earnedStars > 0 ? '#B45309' : '#94A3B8',
+                                marginLeft: '3px',
+                                lineHeight: 1,
+                              }}>
+                                {earnedStars > 0 ? `${earnedStars} Bintang` : '0/3 Bintang'}
+                              </span>
+                            </div>
                           )}
                         </div>
 
