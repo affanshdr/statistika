@@ -1768,13 +1768,26 @@ export default function Level2Main({
 
               <button
                 onClick={async () => {
-                  setLevelStars(2, 3)
+                  const finalStars = Math.max(1, scoring.stars || 1)
+                  const elapsed = sessionStartTime ? Math.round((Date.now() - sessionStartTime) / 1000) : 300
+                  const totalMistakes = scoring.missions.reduce((sum, m) => sum + m.objectErrors + m.answerErrors, 0)
+
+                  setLevelStars(2, finalStars)
                   completeLevel(2)
                   await savePlayerProgressToCloud({
                     levelId: 2,
-                    stars: 3,
+                    stars: finalStars,
                     xpEarned: 100,
+                    durationSeconds: elapsed,
+                    mistakeCount: totalMistakes,
+                    verdictAnswer: 'MEASUREMENT_COMPLETE',
                     isCorrect: true,
+                    details: {
+                      scoring: {
+                        stars: finalStars,
+                        missions: scoring.missions,
+                      },
+                    },
                   })
                   router.push('/siswa')
                 }}
