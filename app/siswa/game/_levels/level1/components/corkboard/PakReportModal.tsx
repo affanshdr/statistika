@@ -10,6 +10,96 @@ import { SortToken, useFitGrid, STAGE_TUTORIALS } from './corkboardData'
 
 export default function PakReportModal({ dataset, onProceed }: { dataset: number[]; onProceed: () => void }) {
   const incrementMistake = useGameStore(s => s.incrementMistake)
+  // ── POST-TEST STATE ──
+  const [showPostTest, setShowPostTest] = useState(false)
+  const [ptQ, setPtQ] = useState(0)
+  const [ptSelected, setPtSelected] = useState<number | null>(null)
+  const [ptAnswers, setPtAnswers] = useState<number[]>([])
+  const [ptDone, setPtDone] = useState(false)
+  const [ptScore, setPtScore] = useState(0)
+  const [showBukuSaku, setShowBukuSaku] = useState(false)
+
+  const BUKU_SAKU_ITEMS = [
+    {
+      icon: '📊',
+      judul: 'Modus (Mo)',
+      rumus: 'Nilai yang paling sering muncul dalam data',
+      contoh: 'Data: 2, 3, 3, 5, 7 → Mo = 3',
+    },
+    {
+      icon: '⚖️',
+      judul: 'Median (Me)',
+      rumus: 'n Ganjil: data ke-(n+1)/2 | n Genap: (data ke-n/2 + data ke-n/2+1) ÷ 2',
+      contoh: 'n=7: Me = data ke-4 | n=6: Me = (data ke-3 + data ke-4) ÷ 2',
+    },
+    {
+      icon: '🧮',
+      judul: 'Mean / Rata-Rata (x̄)',
+      rumus: 'x̄ = ∑x ÷ n',
+      contoh: 'Data: 4, 6, 8 → x̄ = (4+6+8) ÷ 3 = 6',
+    },
+    {
+      icon: '🔧',
+      judul: 'Koreksi Data → Mean Baru',
+      rumus: '∑x baru = ∑x lama − nilai salah + nilai benar → x̄ baru = ∑x baru ÷ n',
+      contoh: 'x̄ = 78, n = 30. Salah: 64→46, 89→98 | ∑x = 2340−64+46−89+98 = 2331 | x̄ baru = 2331÷30 = 77,7',
+    },
+    {
+      icon: '⚗️',
+      judul: 'Rata-Rata Gabungan (Weighted Mean)',
+      rumus: 'x̄ gabungan = (n₁ × x̄₁ + n₂ × x̄₂) ÷ (n₁ + n₂)',
+      contoh: 'A: 15 siswa, x̄=70 | B: 25 siswa, x̄=80 → (15×70 + 25×80) ÷ 40 = 76,25',
+    },
+    {
+      icon: '🔍',
+      judul: 'Cari Nilai Unknown dari Mean & Median',
+      rumus: 'Gunakan syarat median → temukan x. Gunakan syarat mean → temukan y.',
+      contoh: 'Data: 3,5,7,x,y,12,14 | Me=9 → x=9 | Mean=9 → (50+y)÷7=9 → y=13 | y−x=4',
+    },
+  ]
+
+  const PT_QUESTIONS = [
+    {
+      text: 'Rata-rata nilai ujian Matematika dari 30 siswa adalah 78. Setelah diperiksa ulang, nilai 64 seharusnya 46 dan nilai 89 seharusnya 98. Berapakah nilai rata-rata yang sebenarnya?',
+      options: ['77,7', '78,3', '77,4', '78,6'],
+      correct: 0,
+    },
+    {
+      text: 'Data nilai kelompok A (15 siswa, rata-rata 70) dan kelompok B (25 siswa, rata-rata 80). Setelah 5 siswa dari B pindah ke A, rata-rata B menjadi 78. Berapakah rata-rata kelompok A yang baru?',
+      options: ['75,0', '76,2', '74,5', '73,5'],
+      correct: 2,
+    },
+    {
+      text: 'Data tunggal: 3, 5, 7, x, y, 12, 14 (urut dari kecil ke besar). Median = 9 dan rata-rata = 9. Berapakah nilai y − x?',
+      options: ['2', '5', '3', '4'],
+      correct: 3,
+    },
+    {
+      text: 'Rata-rata gaji 10 karyawan = Rp3.000.000 dan 5 staf manajerial = Rp6.000.000. Pemilik ingin rata-rata gabungan menjadi Rp4.500.000 dengan menaikkan gaji staf manajerial. Berapa rata-rata gaji baru manajerial?',
+      options: ['Rp6.500.000', 'Rp7.000.000', 'Rp7.500.000', 'Rp8.000.000'],
+      correct: 2,
+    },
+    {
+      text: 'Sebuah kelas 32 siswa: rata-rata putra 75, rata-rata putri 83, rata-rata keseluruhan 78. Berapakah selisih jumlah siswa putri dan putra?',
+      options: ['8 orang', '4 orang', '10 orang', '6 orang'],
+      correct: 0,
+    },
+  ]
+
+  const handlePtNext = () => {
+    if (ptSelected === null) return
+    const newAnswers = [...ptAnswers, ptSelected]
+    setPtAnswers(newAnswers)
+    setPtSelected(null)
+    if (ptQ < PT_QUESTIONS.length - 1) {
+      setPtQ(ptQ + 1)
+    } else {
+      const finalScore = newAnswers.reduce((acc, ans, i) => acc + (ans === PT_QUESTIONS[i].correct ? 1 : 0), 0)
+      setPtScore(finalScore)
+      setPtDone(true)
+    }
+  }
+
   const [stage, setStage] = useState<'sort' | 'modus' | 'median' | 'mean'>('sort')
   const [isSorted, setIsSorted] = useState<boolean>(false)
   const [seenTutorials, setSeenTutorials] = useState<Record<string, boolean>>({})
@@ -177,7 +267,57 @@ export default function PakReportModal({ dataset, onProceed }: { dataset: number
     }
   }
 
-  // ── Mekanisme Drag & Drop (Mouse & Re-positioning) ──
+  // ── Mekanisme Inti Penempatan Angka ──
+  const placeTokenDirect = useCallback((tokenId: string, sourceSlotIdx: number | null, targetIdx: number) => {
+    const token = initialTokens.find(t => t.id === tokenId)
+    if (!token) return
+
+    const next = [...placedSlots]
+
+    if (sourceSlotIdx !== null && sourceSlotIdx >= 0) {
+      if (sourceSlotIdx === targetIdx) return
+      // SWAP / TUKAR posisi kedua slot jika targetIdx terisi, atau pindahkan jika kosong
+      const targetToken = next[targetIdx]
+      next[targetIdx] = next[sourceSlotIdx]
+      next[sourceSlotIdx] = targetToken
+    } else {
+      // Dari Pool ke Slot
+      next[targetIdx] = token
+    }
+
+    if (heldToken?.token.id === tokenId) {
+      setHeldToken(null)
+    }
+
+    setPlacedSlots(next)
+    setSortIsCorrect(null)
+    setWrongSlots(new Set())
+    setDraggedTokenInfo(null)
+    setDraggedTokenId(null)
+    gameAudio.playClick()
+
+    if (next.every(s => s !== null)) {
+      validateSlots(next)
+    }
+  }, [initialTokens, placedSlots, heldToken, validateSlots])
+
+  const returnTokenToPoolDirect = useCallback((sourceSlotIdx: number) => {
+    if (sourceSlotIdx >= 0) {
+      const next = [...placedSlots]
+      next[sourceSlotIdx] = null
+      setPlacedSlots(next)
+      setSortIsCorrect(null)
+      setWrongSlots(new Set())
+      setDraggedTokenInfo(null)
+      setDraggedTokenId(null)
+      if (heldToken?.sourceSlotIdx === sourceSlotIdx) {
+        setHeldToken(null)
+      }
+      gameAudio.playClick()
+    }
+  }, [placedSlots, heldToken])
+
+  // ── Mekanisme Drag & Drop (Mouse / Desktop) ──
   const handleDragStartFromPool = (e: React.DragEvent, tokenId: string) => {
     e.dataTransfer.setData('text/plain', tokenId)
     try {
@@ -223,36 +363,8 @@ export default function PakReportModal({ dataset, onProceed }: { dataset: number
       // fallback
     }
 
-    if (!tokenId) return
-    const token = initialTokens.find(t => t.id === tokenId)
-    if (!token) return
-
-    const next = [...placedSlots]
-
-    if (sourceSlotIdx !== null && sourceSlotIdx >= 0) {
-      if (sourceSlotIdx === targetIdx) return
-      // SWAP / TUKAR posisi kedua slot jika targetIdx terisi, atau pindahkan jika kosong
-      const targetToken = next[targetIdx]
-      next[targetIdx] = next[sourceSlotIdx]
-      next[sourceSlotIdx] = targetToken
-    } else {
-      // Dari Pool ke Slot
-      next[targetIdx] = token
-    }
-
-    if (heldToken?.token.id === tokenId) {
-      setHeldToken(null)
-    }
-
-    setPlacedSlots(next)
-    setSortIsCorrect(null)
-    setWrongSlots(new Set())
-    setDraggedTokenInfo(null)
-    setDraggedTokenId(null)
-    gameAudio.playClick()
-
-    if (next.every(s => s !== null)) {
-      validateSlots(next)
+    if (tokenId) {
+      placeTokenDirect(tokenId, sourceSlotIdx, targetIdx)
     }
   }
 
@@ -266,19 +378,89 @@ export default function PakReportModal({ dataset, onProceed }: { dataset: number
     }
 
     if (sourceSlotIdx !== null && sourceSlotIdx >= 0) {
-      const next = [...placedSlots]
-      next[sourceSlotIdx] = null
-      setPlacedSlots(next)
-      setSortIsCorrect(null)
-      setWrongSlots(new Set())
-      setDraggedTokenInfo(null)
-      setDraggedTokenId(null)
-      if (heldToken?.sourceSlotIdx === sourceSlotIdx) {
-        setHeldToken(null)
-      }
-      gameAudio.playClick()
+      returnTokenToPoolDirect(sourceSlotIdx)
     }
   }
+
+  // ── Touch Drag & Drop Support (HP / Mobile & Touchscreen) ──
+  const touchStartPos = useRef<{ x: number; y: number }>({ x: 0, y: 0 })
+  const touchTokenInfo = useRef<{ token: SortToken; sourceSlotIdx: number | null } | null>(null)
+  const isDraggingTouch = useRef<boolean>(false)
+  const [touchDragVisual, setTouchDragVisual] = useState<{ token: SortToken; x: number; y: number } | null>(null)
+
+  const handleTouchStartOnToken = (e: React.TouchEvent, token: SortToken, sourceSlotIdx: number | null) => {
+    const touch = e.touches[0]
+    if (!touch) return
+    touchStartPos.current = { x: touch.clientX, y: touch.clientY }
+    touchTokenInfo.current = { token, sourceSlotIdx }
+    isDraggingTouch.current = false
+  }
+
+  const handleGlobalTouchMove = useCallback((e: TouchEvent) => {
+    if (!touchTokenInfo.current) return
+    const touch = e.touches[0]
+    if (!touch) return
+
+    const dx = touch.clientX - touchStartPos.current.x
+    const dy = touch.clientY - touchStartPos.current.y
+
+    if (!isDraggingTouch.current && Math.hypot(dx, dy) > 8) {
+      isDraggingTouch.current = true
+    }
+
+    if (isDraggingTouch.current) {
+      if (e.cancelable) e.preventDefault()
+      setTouchDragVisual({
+        token: touchTokenInfo.current.token,
+        x: touch.clientX,
+        y: touch.clientY,
+      })
+
+      const elem = document.elementFromPoint(touch.clientX, touch.clientY)
+      const slotElem = elem?.closest('[data-slot-idx]') as HTMLElement | null
+      if (slotElem && slotElem.dataset.slotIdx !== undefined) {
+        const sIdx = parseInt(slotElem.dataset.slotIdx, 10)
+        setDragOverSlotIdx(sIdx)
+      } else {
+        setDragOverSlotIdx(null)
+      }
+    }
+  }, [])
+
+  const handleGlobalTouchEnd = useCallback((e: TouchEvent) => {
+    if (!touchTokenInfo.current) return
+    const touch = e.changedTouches[0]
+
+    if (isDraggingTouch.current && touch) {
+      const elem = document.elementFromPoint(touch.clientX, touch.clientY)
+      const slotElem = elem?.closest('[data-slot-idx]') as HTMLElement | null
+      if (slotElem && slotElem.dataset.slotIdx !== undefined) {
+        const targetIdx = parseInt(slotElem.dataset.slotIdx, 10)
+        placeTokenDirect(touchTokenInfo.current.token.id, touchTokenInfo.current.sourceSlotIdx, targetIdx)
+      } else {
+        const poolElem = elem?.closest('[data-pool-area]')
+        if (poolElem && touchTokenInfo.current.sourceSlotIdx !== null) {
+          returnTokenToPoolDirect(touchTokenInfo.current.sourceSlotIdx)
+        }
+      }
+    }
+
+    touchTokenInfo.current = null
+    isDraggingTouch.current = false
+    setTouchDragVisual(null)
+    setDragOverSlotIdx(null)
+  }, [placeTokenDirect, returnTokenToPoolDirect])
+
+  useEffect(() => {
+    window.addEventListener('touchmove', handleGlobalTouchMove, { passive: false })
+    window.addEventListener('touchend', handleGlobalTouchEnd)
+    window.addEventListener('touchcancel', handleGlobalTouchEnd)
+    return () => {
+      window.removeEventListener('touchmove', handleGlobalTouchMove)
+      window.removeEventListener('touchend', handleGlobalTouchEnd)
+      window.removeEventListener('touchcancel', handleGlobalTouchEnd)
+    }
+  }, [handleGlobalTouchMove, handleGlobalTouchEnd])
 
   const handleAutoSort = useCallback(() => {
     const sortedTokens = [...initialTokens].sort((a, b) => a.val - b.val)
@@ -849,6 +1031,7 @@ export default function PakReportModal({ dataset, onProceed }: { dataset: number
               
               {/* BAGIAN ATAS (50%): 24 DATA ACAK POOL */}
               <div
+                data-pool-area="true"
                 onDragOver={e => e.preventDefault()}
                 onDrop={handleDropOnPool}
                 style={{
@@ -865,6 +1048,30 @@ export default function PakReportModal({ dataset, onProceed }: { dataset: number
                   boxSizing: 'border-box',
                 }}
               >
+                {/* Petunjuk Interaksi Ramah Mobile & Desktop */}
+                {!heldToken && (
+                  <div style={{
+                    position: 'absolute',
+                    top: 'clamp(3px, 0.5vh, 5px)',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    fontSize: 'clamp(8px, 0.95vw, 10px)',
+                    fontWeight: 800,
+                    color: '#FEF3C7',
+                    background: 'rgba(39, 21, 11, 0.75)',
+                    padding: '1px clamp(8px, 1vw, 12px)',
+                    borderRadius: '999px',
+                    border: '1px solid rgba(196, 152, 88, 0.3)',
+                    whiteSpace: 'nowrap',
+                    pointerEvents: 'none',
+                    zIndex: 5,
+                  }}>
+                    <span>👆 Geser langsung atau sentuh angka lalu sentuh slot #1-24</span>
+                  </div>
+                )}
                 {/* Indikator Memegang Angka (Hanya muncul jika sedang hold angka) */}
                 {heldToken && (
                   <div
@@ -945,6 +1152,11 @@ export default function PakReportModal({ dataset, onProceed }: { dataset: number
                         data-testid={`pool-token-${idx}`}
                         draggable={!isPlaced && !isHeld}
                         onDragStart={e => handleDragStartFromPool(e, token.id)}
+                        onTouchStart={e => {
+                          if (!isPlaced && !isHeld) {
+                            handleTouchStartOnToken(e, token, null)
+                          }
+                        }}
                         onClick={() => handleTokenClick(token)}
                         style={{
                           position: 'relative',
@@ -952,6 +1164,7 @@ export default function PakReportModal({ dataset, onProceed }: { dataset: number
                           height: poolGrid.size,
                           maxWidth: '100%',
                           borderRadius: '50%',
+                          touchAction: 'none',
                           background: isHeld
                             ? 'radial-gradient(circle at 35% 30%, #FFFFFF 0%, #FEF3C7 70%, #FDE68A 100%)'
                             : isPlaced
@@ -1037,10 +1250,16 @@ export default function PakReportModal({ dataset, onProceed }: { dataset: number
                       <div
                         key={`slot-${idx}`}
                         data-testid={`target-slot-${idx}`}
+                        data-slot-idx={idx}
                         draggable={isOccupied}
                         onDragStart={e => {
                           if (isOccupied && token) {
                             handleDragStartFromSlot(e, idx, token.id)
+                          }
+                        }}
+                        onTouchStart={e => {
+                          if (isOccupied && token) {
+                            handleTouchStartOnToken(e, token, idx)
                           }
                         }}
                         onDragOver={e => {
@@ -1058,6 +1277,7 @@ export default function PakReportModal({ dataset, onProceed }: { dataset: number
                           height: slotGrid.size,
                           maxWidth: '100%',
                           borderRadius: '50%',
+                          touchAction: 'none',
                           background: isOccupied
                             ? isWrong
                               ? 'radial-gradient(circle at 35% 30%, #FEE2E2 0%, #EF4444 100%)'
@@ -1589,7 +1809,7 @@ export default function PakReportModal({ dataset, onProceed }: { dataset: number
                           🧮 Hitung Rata-Rata (Mean) dari 24 Data
                         </h4>
                         <p style={{ margin: 0, fontSize: 'clamp(9px, 1.1vw, 11px)', color: '#475569', lineHeight: 1.3 }}>
-                          Jumlah seluruh 24 bulatan angka di atas adalah <strong>Σx = {totalSum}</strong>. Bagi jumlah tersebut dengan banyaknya data (<strong>n = 24</strong>): <strong>x̄ = {totalSum} ÷ 24 = ?</strong> Hitung hasil pembagian tersebut dengan teliti.
+                          Jumlahkan sendiri seluruh 24 nilai bulatan di atas (∑x), lalu bagi dengan banyaknya data (<strong>n = 24</strong>): <strong>x̄ = ∑x ÷ 24 = ?</strong> Hitung dengan teliti, lalu pilih jawabanmu.
                         </p>
                       </div>
 
@@ -1638,7 +1858,7 @@ export default function PakReportModal({ dataset, onProceed }: { dataset: number
 
                       {meanIsCorrect === false && (
                         <div style={{ background: '#FEE2E2', border: '1px solid #FCA5A5', borderRadius: '5px', padding: 'clamp(4px, 0.6vh, 6px) clamp(6px, 1vw, 10px)', fontSize: 'clamp(9px, 1.1vw, 10.5px)', color: '#991B1B', fontWeight: 700 }}>
-                          💡 Kurang tepat! Coba hitung kembali {totalSum} ÷ 24 dengan teliti.
+                          💡 Kurang tepat! Coba jumlahkan ulang semua 24 nilai, lalu bagi dengan 24.
                         </div>
                       )}
 
@@ -1649,7 +1869,7 @@ export default function PakReportModal({ dataset, onProceed }: { dataset: number
                           </div>
                           <button
                             data-testid="btn-finish-level1-board"
-                            onClick={onProceed}
+                            onClick={() => { gameAudio.playClick(); setShowPostTest(true) }}
                             style={{
                               padding: 'clamp(4px, 0.7vh, 7px) clamp(10px, 1.4vw, 15px)',
                               borderRadius: '5px',
@@ -1675,6 +1895,331 @@ export default function PakReportModal({ dataset, onProceed }: { dataset: number
           )}
         </div>
       </div>
+
+      {/* ── POST-TEST OVERLAY ── */}
+      <AnimatePresence>
+        {showPostTest && (
+          <motion.div
+            key="posttest-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            style={{
+              position: 'fixed', inset: 0, zIndex: 9999,
+              background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              padding: '16px',
+            }}
+          >
+            <motion.div
+              initial={{ scale: 0.92, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.92, opacity: 0 }}
+              style={{
+                background: '#FFFDF7',
+                borderRadius: '20px',
+                border: '2px solid rgba(180,140,80,0.25)',
+                boxShadow: '0 16px 60px rgba(0,0,0,0.35)',
+                width: '100%',
+                maxWidth: '580px',
+                maxHeight: 'min(90vh, 700px)',
+                overflowY: 'auto',
+                overscrollBehavior: 'contain',
+                touchAction: 'pan-y',
+                WebkitOverflowScrolling: 'touch',
+                padding: 'clamp(18px,2.5vh,28px) clamp(16px,2.5vw,28px)',
+              }}
+            >
+              {!ptDone ? (
+                <>
+                  {/* Header */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+                    <div style={{ fontWeight: 900, fontSize: 'clamp(13px,1.5vw,16px)', color: '#1C1917' }}>
+                      📝 Post Test — Kasus #01
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <button
+                        onClick={() => setShowBukuSaku(true)}
+                        style={{
+                          padding: '4px 10px',
+                          borderRadius: '8px',
+                          border: '1.5px solid rgba(217,119,6,0.4)',
+                          background: 'rgba(217,119,6,0.07)',
+                          color: '#B45309',
+                          fontSize: 'clamp(10px,1.1vw,12px)',
+                          fontWeight: 800,
+                          cursor: 'pointer',
+                          display: 'flex', alignItems: 'center', gap: '4px',
+                        }}
+                      >
+                        📖 Buku Saku
+                      </button>
+                      <div style={{ fontSize: 'clamp(10px,1.1vw,12px)', fontWeight: 700, color: '#78716C' }}>
+                        {ptQ + 1} / {PT_QUESTIONS.length}
+                      </div>
+                    </div>
+                  </div>
+                  {/* Progress Bar */}
+                  <div style={{ height: '5px', background: '#E7E5E4', borderRadius: '3px', marginBottom: '20px', overflow: 'hidden' }}>
+                    <motion.div
+                      style={{ height: '100%', background: 'linear-gradient(90deg, #D97706, #EA580C)' }}
+                      animate={{ width: `${((ptQ) / PT_QUESTIONS.length) * 100}%` }}
+                    />
+                  </div>
+                  {/* Question */}
+                  <div style={{ fontSize: 'clamp(12px,1.35vw,14.5px)', fontWeight: 700, color: '#1C1917', lineHeight: 1.6, marginBottom: '18px' }}>
+                    {PT_QUESTIONS[ptQ].text}
+                  </div>
+                  {/* Options */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px' }}>
+                    {PT_QUESTIONS[ptQ].options.map((opt, i) => {
+                      const isSelected = ptSelected === i
+                      return (
+                        <button
+                          key={i}
+                          onClick={() => setPtSelected(i)}
+                          style={{
+                            textAlign: 'left',
+                            padding: 'clamp(10px,1.4vh,14px) clamp(12px,1.6vw,18px)',
+                            borderRadius: '12px',
+                            border: isSelected ? '2px solid #D97706' : '1.5px solid rgba(180,140,80,0.25)',
+                            background: isSelected ? 'rgba(217,119,6,0.06)' : '#FAFAF8',
+                            color: '#292524',
+                            fontWeight: isSelected ? 800 : 500,
+                            fontSize: 'clamp(12px,1.25vw,14px)',
+                            cursor: 'pointer',
+                            display: 'flex', alignItems: 'center', gap: '12px',
+                          }}
+                        >
+                          <div style={{
+                            width: '24px', height: '24px', borderRadius: '50%', flexShrink: 0,
+                            border: isSelected ? '2px solid #D97706' : '1px solid rgba(180,140,80,0.4)',
+                            background: isSelected ? '#D97706' : '#FFFFFF',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            fontSize: '11px', fontWeight: 900,
+                            color: isSelected ? '#FFFFFF' : '#78716C',
+                          }}>
+                            {String.fromCharCode(65 + i)}
+                          </div>
+                          {opt}
+                        </button>
+                      )
+                    })}
+                  </div>
+                  {/* Next Button */}
+                  <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                    <button
+                      disabled={ptSelected === null}
+                      onClick={handlePtNext}
+                      style={{
+                        padding: 'clamp(10px,1.4vh,13px) clamp(24px,3vw,36px)',
+                        borderRadius: '12px',
+                        border: 'none',
+                        background: ptSelected === null ? '#E7E5E4' : 'linear-gradient(90deg, #D97706, #EA580C)',
+                        color: ptSelected === null ? '#A8A29E' : '#FFFFFF',
+                        fontWeight: 800,
+                        fontSize: 'clamp(12px,1.3vw,14px)',
+                        cursor: ptSelected === null ? 'not-allowed' : 'pointer',
+                        boxShadow: ptSelected === null ? 'none' : '0 4px 14px rgba(217,119,6,0.25)',
+                      }}
+                    >
+                      {ptQ === PT_QUESTIONS.length - 1 ? 'Selesai ✓' : 'Selanjutnya →'}
+                    </button>
+                  </div>
+                </>
+              ) : (
+                /* RESULT */
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ fontSize: '56px', marginBottom: '12px' }}>
+                    {ptScore >= 4 ? '🏆' : ptScore >= 3 ? '👍' : '📚'}
+                  </div>
+                  <h3 style={{ fontWeight: 900, fontSize: 'clamp(16px,2vw,22px)', color: '#1C1917', margin: '0 0 8px' }}>
+                    Post Test Selesai!
+                  </h3>
+                  <div style={{
+                    display: 'flex', justifyContent: 'center', gap: '16px',
+                    marginBottom: '20px', marginTop: '16px',
+                  }}>
+                    <div style={{ padding: '14px 22px', background: 'rgba(217,119,6,0.07)', border: '1px solid rgba(217,119,6,0.2)', borderRadius: '14px' }}>
+                      <div style={{ fontSize: '10px', fontWeight: 800, color: '#78716C', letterSpacing: '0.5px', marginBottom: '4px' }}>SKOR</div>
+                      <div style={{ fontSize: '28px', fontWeight: 900, color: '#D97706' }}>{ptScore * 20}<span style={{ fontSize: '13px', color: '#78716C', fontWeight: 500 }}>/100</span></div>
+                    </div>
+                    <div style={{ padding: '14px 22px', background: 'rgba(5,150,105,0.07)', border: '1px solid rgba(5,150,105,0.2)', borderRadius: '14px' }}>
+                      <div style={{ fontSize: '10px', fontWeight: 800, color: '#78716C', letterSpacing: '0.5px', marginBottom: '4px' }}>BENAR</div>
+                      <div style={{ fontSize: '28px', fontWeight: 900, color: '#059669' }}>{ptScore}<span style={{ fontSize: '13px', color: '#78716C', fontWeight: 500 }}>/{PT_QUESTIONS.length}</span></div>
+                    </div>
+                  </div>
+                  <p style={{ fontSize: 'clamp(12px,1.3vw,13.5px)', color: '#57534E', lineHeight: 1.6, marginBottom: '24px' }}>
+                    {ptScore === 5 ? 'Sempurna! Pemahaman statistikamu luar biasa, Detektif!' :
+                     ptScore >= 3 ? 'Bagus! Kamu sudah memahami konsep utama dengan baik.' :
+                     'Tetap semangat! Baca kembali materi dan coba lagi di level berikutnya.'}
+                  </p>
+                  <button
+                    onClick={() => { setShowPostTest(false); onProceed() }}
+                    style={{
+                      width: '100%',
+                      padding: 'clamp(12px,1.6vh,16px)',
+                      borderRadius: '14px',
+                      border: 'none',
+                      background: 'linear-gradient(90deg, #059669, #0D9488)',
+                      color: '#FFFFFF',
+                      fontWeight: 800,
+                      fontSize: 'clamp(13px,1.5vw,15px)',
+                      cursor: 'pointer',
+                      boxShadow: '0 4px 16px rgba(5,150,105,0.3)',
+                    }}
+                  >
+                    🏆 Selesaikan Kasus #01 →
+                  </button>
+                  <button
+                    onClick={() => setShowBukuSaku(true)}
+                    style={{
+                      marginTop: '8px', width: '100%',
+                      padding: 'clamp(8px,1vh,11px)',
+                      borderRadius: '12px',
+                      border: '1.5px solid rgba(217,119,6,0.35)',
+                      background: 'rgba(217,119,6,0.06)',
+                      color: '#B45309', fontWeight: 700,
+                      fontSize: 'clamp(11px,1.2vw,13px)', cursor: 'pointer',
+                    }}
+                  >
+                    📖 Lihat Buku Saku Lagi
+                  </button>
+                </div>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── BUKU SAKU MODAL ── */}
+      <AnimatePresence>
+        {showBukuSaku && (
+          <motion.div
+            key="buku-saku-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            style={{
+              position: 'fixed', inset: 0, zIndex: 10000,
+              background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(3px)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              padding: '16px',
+            }}
+          >
+            <motion.div
+              initial={{ scale: 0.92, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.92, opacity: 0 }}
+              style={{
+                background: '#FFFDF7',
+                borderRadius: '20px',
+                border: '2px solid rgba(217,119,6,0.3)',
+                boxShadow: '0 16px 60px rgba(0,0,0,0.35)',
+                width: '100%', maxWidth: '560px',
+                maxHeight: 'min(88vh, 680px)',
+                display: 'flex',
+                flexDirection: 'column',
+                overflow: 'hidden',
+                boxSizing: 'border-box',
+              }}
+            >
+              {/* Fixed Header */}
+              <div style={{
+                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                padding: '14px 18px',
+                borderBottom: '1.5px solid rgba(180,140,80,0.2)',
+                background: 'rgba(217,119,6,0.06)',
+                flexShrink: 0,
+              }}>
+                <div style={{ fontWeight: 900, fontSize: 'clamp(13px,1.5vw,16px)', color: '#1C1917', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span>📖</span>
+                  <span>Buku Saku Detektif — Ringkasan Materi</span>
+                </div>
+                <button
+                  onClick={() => setShowBukuSaku(false)}
+                  style={{
+                    width: '28px', height: '28px', borderRadius: '50%',
+                    border: '1.5px solid rgba(140, 98, 57, 0.35)',
+                    background: '#FFFDF7', color: '#78350F',
+                    fontSize: '13px', fontWeight: 900, cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}
+                >✕</button>
+              </div>
+
+              {/* Scrollable Content Body */}
+              <div style={{
+                flex: 1,
+                minHeight: 0,
+                overflowY: 'auto',
+                overscrollBehavior: 'contain',
+                touchAction: 'pan-y',
+                WebkitOverflowScrolling: 'touch',
+                padding: '14px 18px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '10px',
+              }}>
+                {BUKU_SAKU_ITEMS.map((item, i) => (
+                  <div key={i} style={{
+                    background: '#FFFFFF',
+                    border: '1.5px solid rgba(180,140,80,0.25)',
+                    borderRadius: '12px',
+                    padding: '10px 14px',
+                    boxShadow: '0 2px 6px rgba(0,0,0,0.03)',
+                  }}>
+                    <div style={{ fontWeight: 900, fontSize: 'clamp(11px,1.25vw,13px)', color: '#1C1917', marginBottom: '4px' }}>
+                      {item.icon} {item.judul}
+                    </div>
+                    <div style={{
+                      background: 'linear-gradient(135deg, #1E1B18, #2A2420)',
+                      borderRadius: '7px',
+                      padding: '5px 10px',
+                      fontSize: 'clamp(9.5px,1.05vw,11px)',
+                      fontWeight: 700,
+                      color: '#34D399',
+                      marginBottom: '5px',
+                      fontFamily: 'monospace',
+                    }}>
+                      {item.rumus}
+                    </div>
+                    <div style={{ fontSize: 'clamp(9px,1vw,10.5px)', color: '#57534E', lineHeight: 1.4 }}>
+                      💡 {item.contoh}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Fixed Footer Button */}
+              <div style={{
+                padding: '10px 18px',
+                borderTop: '1.5px solid rgba(180,140,80,0.2)',
+                background: 'rgba(217,119,6,0.04)',
+                flexShrink: 0,
+              }}>
+                <button
+                  onClick={() => setShowBukuSaku(false)}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    borderRadius: '12px',
+                    border: 'none',
+                    background: 'linear-gradient(90deg, #D97706, #EA580C)',
+                    color: '#FFFFFF',
+                    fontWeight: 800,
+                    fontSize: 'clamp(12px,1.3vw,14px)',
+                    cursor: 'pointer',
+                    boxShadow: '0 3px 10px rgba(217,119,6,0.25)',
+                  }}
+                >
+                  🚀 Tutup & Lanjut Ngerjain Soal
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* ── POPUP SELESAI TAHAP 1: URUTKAN DATA (POPUP DI TENGAH) ── */}
       <AnimatePresence>
@@ -1838,6 +2383,33 @@ export default function PakReportModal({ dataset, onProceed }: { dataset: number
           <StageTutorialModal stage={stage} onClose={handleCloseTutorial} />
         )}
       </AnimatePresence>
+
+      {/* ── FLOATING TOUCH DRAG PREVIEW FOR MOBILE / HP ── */}
+      {touchDragVisual && (
+        <div style={{
+          position: 'fixed',
+          left: touchDragVisual.x,
+          top: touchDragVisual.y,
+          transform: 'translate(-50%, -50%) scale(1.18)',
+          width: poolGrid.size || 40,
+          height: poolGrid.size || 40,
+          borderRadius: '50%',
+          background: 'radial-gradient(circle at 35% 30%, #FFFFFF 0%, #FEF3C7 70%, #FDE68A 100%)',
+          border: '2.5px solid #F59E0B',
+          boxShadow: '0 8px 24px rgba(0,0,0,0.5), 0 0 14px rgba(245, 158, 11, 0.9)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: Math.round((poolGrid.size || 40) * 0.42),
+          fontWeight: 900,
+          color: '#78350F',
+          fontFamily: 'var(--font-data)',
+          pointerEvents: 'none',
+          zIndex: 999999,
+        }}>
+          {touchDragVisual.token.val}
+        </div>
+      )}
 
     </div>
   )

@@ -45,7 +45,8 @@ export default function StageTutorialModal({ stage, onClose }: StageTutorialModa
         style={{
           position: 'relative',
           width: '100%',
-          maxWidth: 480,
+          maxWidth: 500,
+          maxHeight: 'min(88vh, 680px)',
           background: 'linear-gradient(180deg, #FFFDF8 0%, #FAF3E6 100%)',
           border: '2.5px solid #8C6239',
           borderRadius: 18,
@@ -75,6 +76,7 @@ export default function StageTutorialModal({ stage, onClose }: StageTutorialModa
           alignItems: 'center',
           justifyContent: 'space-between',
           position: 'relative',
+          flexShrink: 0,
         }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -139,7 +141,7 @@ export default function StageTutorialModal({ stage, onClose }: StageTutorialModa
           </button>
         </div>
 
-        {/* Body Modal (Ringkas, Zero-Noise) */}
+        {/* Body Modal (Scrollable, Responsive) */}
         <div
           data-testid="stage-tutorial-body"
           style={{
@@ -148,6 +150,12 @@ export default function StageTutorialModal({ stage, onClose }: StageTutorialModa
             flexDirection: 'column',
             gap: '10px',
             boxSizing: 'border-box',
+            flex: 1,
+            minHeight: 0,
+            overflowY: 'auto',
+            overscrollBehavior: 'contain',
+            touchAction: 'pan-y',
+            WebkitOverflowScrolling: 'touch',
           }}
         >
           {/* Card 1: Konsep Inti */}
@@ -196,6 +204,39 @@ export default function StageTutorialModal({ stage, onClose }: StageTutorialModa
             </div>
           )}
 
+          {/* Card 3: Contoh Soal (hanya untuk mean - array examples) */}
+          {tutorial.examples && tutorial.examples.map((ex, exIdx) => (
+            <div key={exIdx} style={{
+              background: '#F0FDF4',
+              border: '1.5px solid rgba(5,150,105,0.25)',
+              borderRadius: '10px',
+              padding: '9px 12px',
+            }}>
+              <div style={{ fontSize: '10.5px', fontWeight: 900, color: '#065F46', marginBottom: '4px' }}>
+                {ex.title}
+              </div>
+              <div style={{ fontSize: '10px', color: '#475569', marginBottom: '5px', fontStyle: 'italic' }}>
+                {ex.sampleData}
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', marginBottom: '5px' }}>
+                {ex.steps.map((s, i) => (
+                  <div key={i} style={{ fontSize: '10.5px', color: '#1C1917', lineHeight: 1.4 }}>{s}</div>
+                ))}
+              </div>
+              <div style={{
+                background: 'rgba(5,150,105,0.1)',
+                border: '1px solid rgba(5,150,105,0.3)',
+                borderRadius: '5px',
+                padding: '4px 8px',
+                fontSize: '10.5px',
+                fontWeight: 800,
+                color: '#065F46',
+              }}>
+                ✓ {ex.resultHighlight}
+              </div>
+            </div>
+          ))}
+
           {/* Card 3: Cara Mengerjakan (Singkat 2 Langkah) */}
           <div style={{
             background: '#FFFFFF',
@@ -241,6 +282,7 @@ export default function StageTutorialModal({ stage, onClose }: StageTutorialModa
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'flex-end',
+          flexShrink: 0,
         }}>
           <button
             data-testid="btn-confirm-tutorial"
